@@ -289,6 +289,16 @@ describe('S2 驗收：13 項清單、示範情境、無符合', () => {
     expect(eligibleNos(2)).toEqual([4, 7, 8, 9, 10, 101, 102]);
   });
 
+  it('[SUBS-R13][SUBS-R17] 示範第 2、3 組的青年租屋補貼（20～40 歲）因年齡跨門檻列可能符合並帶一條還需確認', () => {
+    for (const i of [1, 2]) {
+      const a = demoAnswers(i);
+      if (!isCompleted(a)) throw new Error('示範答案未完成');
+      const r = groupResults(items13, a).eligible.find((x) => x.item.no === 102)!;
+      expect(r.result.reason).toBe(REASON_AGE_CHECK);
+      expect(r.result.toVerify[0]).toBe('年齡：需 40 歲以下，你選的區間跨過門檻');
+    }
+  });
+
   it('[SUBS-R19] 有可能符合時沒有無符合結果', () => {
     const a = demoAnswers(0);
     if (!isCompleted(a)) throw new Error('示範答案未完成');
