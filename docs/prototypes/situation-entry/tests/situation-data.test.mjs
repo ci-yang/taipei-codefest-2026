@@ -10,7 +10,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const pageDir = join(here, '..');
 const data = buildData();
 const FIELDS = ['window', 'bring', 'call', 'say'];
-const BANNED = ['保證', '一定領得到', '一定可以', '一定會', '已受理', '包准', '穩拿', '百分之百'];
+const BANNED = ['保證', '一定', '領得到', '一定核准', '一定領得到', '領得到救助金', '一定可以', '一定會', '已受理', '包准', '穩拿', '百分之百'];
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function allEntries(situation) {
