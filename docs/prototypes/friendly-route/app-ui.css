@@ -144,8 +144,8 @@ h3 { font-size: 16px; font-weight: 600; line-height: 1.45; }
 
 /* Home: three urgencies first; the map is a second layer. */
 .home-screen { display: flex; flex-direction: column; gap: 22px; min-height: 100dvh; padding: max(40px, calc(env(safe-area-inset-top) + 24px)) var(--space-page) max(28px, calc(env(safe-area-inset-bottom) + 16px)); }
-.home-eyebrow { color: var(--accent); font-size: var(--font-label); font-weight: 600; letter-spacing: .6px; }
-.home-header h1 { margin-top: 6px; font-size: var(--font-hero); line-height: 1.25; letter-spacing: -.8px; }
+.home-eyebrow { color: var(--muted); font-size: 18px; font-weight: 600; letter-spacing: .3em; }
+.home-header h1 { margin-top: 8px; font-size: var(--font-hero); font-weight: 600; line-height: 1.2; letter-spacing: .04em; }
 .home-location { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 12px; }
 .home-location-text { display: inline-flex; align-items: center; gap: 7px; min-height: 30px; padding: 4px 12px; border: 1px solid var(--line); border-radius: var(--radius-pill); background: var(--surface); color: var(--muted); font-size: 14px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
 .home-location-text::before { content: ''; flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
@@ -153,16 +153,55 @@ h3 { font-size: 16px; font-weight: 600; line-height: 1.45; }
 .home-location-text[data-state='weak']::before, .home-location-text[data-state='failed']::before { background: var(--color-warning); }
 .home-location-text[data-state='failed'] { color: var(--warning); }
 .home-location .text-button { min-height: 36px; font-size: 14px; }
-.urgency-buttons { display: grid; gap: 14px; }
-.urgency-button { display: grid; grid-template-columns: 64px minmax(0, 1fr) 28px; align-items: center; gap: 14px; width: 100%; min-height: 108px; padding: 18px 18px 18px 20px; border: 1px solid var(--line); border-radius: 28px; background: var(--surface); box-shadow: var(--shadow); text-align: left; }
-.urgency-icon { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; color: var(--accent-text); background: var(--accent); }
-.urgency-icon .app-icon { width: 34px; height: 34px; }
+
+/* 緊急停止鈕：按住下沉、放開卡住（.is-latched），卡住後才換頁。造型與動效照 rescue-buttons-estop 定稿，顏色換成城市通色票。 */
+.board { display: grid; grid-template-columns: minmax(0, 1fr); padding: 14px 18px 14px 14px; border-radius: 20px; background: linear-gradient(180deg, var(--plate-hi), var(--plate-lo)); box-shadow: inset 0 1px 0 var(--plate-shine), 0 0 0 1px var(--plate-edge), 0 18px 36px color-mix(in srgb, var(--color-shadow) 12%, transparent), 0 2px 4px color-mix(in srgb, var(--color-shadow) 6%, transparent); }
+.urgency-button[data-urgency='toilet'] { --c-top: var(--dome-toilet); --c-top-hi: var(--dome-toilet-hi); --c: var(--dome-toilet-shoulder); --c-rim: var(--dome-toilet-rim); --c-under: var(--dome-toilet-under); --c-icon: var(--dome-toilet-icon); --c-glow: color-mix(in srgb, var(--dome-toilet) 45%, transparent); --c-text: var(--cat-toilet-text); }
+.urgency-button[data-urgency='charge'] { --c-top: var(--dome-charge); --c-top-hi: var(--dome-charge-hi); --c: var(--dome-charge-shoulder); --c-rim: var(--dome-charge-rim); --c-under: var(--dome-charge-under); --c-icon: var(--dome-charge-icon); --c-glow: color-mix(in srgb, var(--dome-charge) 45%, transparent); --c-text: var(--cat-charge-text); }
+.urgency-button[data-urgency='wifi'] { --c-top: var(--dome-wifi); --c-top-hi: var(--dome-wifi-hi); --c: var(--dome-wifi-shoulder); --c-rim: var(--dome-wifi-rim); --c-under: var(--dome-wifi-under); --c-icon: var(--dome-wifi-icon); --c-glow: color-mix(in srgb, var(--dome-wifi) 45%, transparent); --c-text: var(--cat-wifi-text); }
+.urgency-button { position: relative; display: grid; grid-template-columns: 124px minmax(0, 1fr); align-items: center; gap: 22px; width: 100%; padding: 10px 0; text-align: left; }
+.urgency-button + .urgency-button { border-top: 1px solid color-mix(in srgb, var(--color-shadow) 7%, transparent); box-shadow: inset 0 1px 0 var(--plate-shine); }
+button.urgency-button:active:not(:disabled) { transform: none; }
+.urgency-button:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 6px; border-radius: 14px; }
+.unit { position: relative; width: 124px; height: 124px; }
+.collar { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 50% 50%, var(--tp-grayscale-800) 0 27%, var(--tp-grayscale-900) 28% 31%, var(--tp-grayscale-950) 31.5% 36%, color-mix(in srgb, #000 35%, transparent) 36.5% 37.5%, var(--tp-grayscale-100) 38% 41%, var(--tp-grayscale-200) 42% 74%, var(--tp-grayscale-300) 75% 86%, var(--tp-grayscale-400) 86.5% 88%, var(--tp-grayscale-100) 88.5% 92%, var(--tp-grayscale-300) 92.5% 100%); box-shadow: 0 8px 14px color-mix(in srgb, var(--color-shadow) 22%, transparent), 0 1px 2px color-mix(in srgb, var(--color-shadow) 25%, transparent), inset 0 -2px 3px color-mix(in srgb, #000 18%, transparent); transition: box-shadow 180ms var(--ease-out), filter 180ms var(--ease-out); }
+.collar::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(180deg, color-mix(in srgb, #fff 22%, transparent), transparent 45%, color-mix(in srgb, var(--tp-grayscale-950) 16%, transparent)); -webkit-mask: radial-gradient(circle, transparent 0 37%, #000 38% 86%, transparent 87%); mask: radial-gradient(circle, transparent 0 37%, #000 38% 86%, transparent 87%); pointer-events: none; }
+.collar::after { content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, transparent 0 60%, color-mix(in srgb, var(--tp-grayscale-700) 22%, transparent) 60.5% 61.2%, transparent 61.8%); }
+.stem { position: absolute; left: 50%; bottom: 24px; width: 62px; height: 22px; margin-left: -31px; border-radius: 6px 6px 30px 30px / 6px 6px 14px 14px; background: linear-gradient(90deg, var(--tp-grayscale-950), var(--tp-grayscale-700) 30%, var(--tp-grayscale-900) 65%, var(--tp-grayscale-950)); transform-origin: 50% 100%; transition: transform 260ms var(--ease-pop); }
+.dome { position: absolute; left: 50%; bottom: 33px; display: grid; place-items: center; width: 84px; height: 84px; margin-left: -42px; border-radius: 50%; color: var(--c-icon); background: radial-gradient(circle at 50% 44%, var(--c-top) 0 54%, var(--c) 62%, var(--c-rim) 84%, var(--c-under) 100%); box-shadow: inset 0 -4px 6px color-mix(in srgb, #000 30%, transparent), inset 0 1px 1px color-mix(in srgb, #fff 25%, transparent), 0 10px 10px -3px color-mix(in srgb, var(--color-shadow) 50%, transparent), 0 2px 2px color-mix(in srgb, var(--color-shadow) 30%, transparent); transition: transform 260ms var(--ease-pop), box-shadow 260ms var(--ease-pop), filter 200ms; }
+.dome::before { content: ''; position: absolute; inset: 11px; border-radius: 50%; background: radial-gradient(circle at 42% 34%, var(--c-top-hi) 0, var(--c-top) 45%, var(--c) 100%); box-shadow: inset 0 1px 1px color-mix(in srgb, #fff 28%, transparent), 0 1px 2px color-mix(in srgb, #000 35%, transparent); transition: filter 160ms; }
+.dome::after { content: ''; position: absolute; left: 24%; top: 9%; width: 34%; height: 16%; border-radius: 50%; background: color-mix(in srgb, #fff 28%, transparent); filter: blur(2.5px); }
+.dome .app-icon { position: relative; z-index: 1; width: 38px; height: 38px; }
+.urgency-button:active .dome, .urgency-button.is-latched .dome { transform: translateY(10px); box-shadow: inset 0 -4px 6px color-mix(in srgb, #000 30%, transparent), inset 0 1px 1px color-mix(in srgb, #fff 25%, transparent), 0 3px 4px -1px color-mix(in srgb, var(--color-shadow) 55%, transparent), 0 1px 1px color-mix(in srgb, var(--color-shadow) 30%, transparent); transition-duration: 90ms; transition-timing-function: var(--ease-out); }
+.urgency-button:active .stem, .urgency-button.is-latched .stem { transform: scaleY(.25); transition: transform 90ms var(--ease-out); }
+.urgency-button:active .collar, .urgency-button.is-latched .collar { filter: brightness(1.03); box-shadow: 0 8px 14px color-mix(in srgb, var(--color-shadow) 22%, transparent), 0 1px 2px color-mix(in srgb, var(--color-shadow) 25%, transparent), 0 0 0 6px var(--c-glow), 0 0 26px 6px var(--c-glow), inset 0 -2px 3px color-mix(in srgb, #000 18%, transparent); }
+.urgency-button.is-latched .dome::before { filter: brightness(1.12) saturate(1.1); }
 .urgency-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.urgency-copy strong { font-size: 24px; font-weight: 600; line-height: 1.15; letter-spacing: -.5px; }
-.urgency-copy small { color: var(--muted); font-size: 14px; font-weight: 600; line-height: 1.45; }
-.urgency-arrow { color: var(--muted); }
+.lbl { color: var(--text); font-size: 24px; font-weight: 600; line-height: 1.25; letter-spacing: .16em; transition: color 200ms; }
+.urgency-button.is-latched .lbl { color: var(--c-text); }
+.urgency-copy small { color: var(--muted); font-size: 14px; font-weight: 400; line-height: 1.45; }
+@media (prefers-reduced-motion: no-preference) {
+  .urgency-button { animation: estop-rise 400ms var(--ease-out) both; }
+  .urgency-button:nth-child(2) { animation-delay: 60ms; }
+  .urgency-button:nth-child(3) { animation-delay: 120ms; }
+}
+@keyframes estop-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .urgency-button:active .dome, .urgency-button.is-latched .dome, .urgency-button:active .stem, .urgency-button.is-latched .stem { transform: none; }
+}
+@media (hover: hover) and (pointer: fine) { .urgency-button:hover .dome { filter: brightness(1.03); } }
+@media (max-width: 379px) {
+  .board { padding: 8px 14px 8px 10px; }
+  .urgency-button { grid-template-columns: 108px minmax(0, 1fr); gap: 14px; padding: 6px 0; }
+  .unit { width: 108px; height: 108px; }
+  .dome { width: 73px; height: 73px; margin-left: -36.5px; bottom: 29px; }
+  .dome::before { inset: 10px; }
+  .dome .app-icon { width: 33px; height: 33px; }
+  .stem { width: 54px; margin-left: -27px; bottom: 21px; height: 20px; }
+}
 .home-footer { display: grid; gap: 10px; margin-top: auto; }
 .home-links { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.home-links .secondary-button { border: 1.5px solid var(--color-text); background: transparent; color: var(--color-text); }
 .home-note { color: var(--muted); font-size: 12px; line-height: 1.6; text-align: center; overflow-wrap: anywhere; }
 
 /* Result: the nearest single record, then three ways forward. */

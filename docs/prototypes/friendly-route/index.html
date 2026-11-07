@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#eeede9">
+  <meta name="theme-color" content="#f1f3f4">
   <meta name="description" content="友善同行，尋找身邊的廁所、充電、Wi-Fi 與無障礙資源，離線也能查看。">
   <title>友善同行 · 身邊的城市資源</title>
   <link rel="stylesheet" href="./vendor/leaflet.css">
@@ -15,14 +15,14 @@
 <main id="app" class="friendly-app" data-view="home" aria-label="友善同行資源地圖">
   <section id="home-screen" class="home-screen" aria-labelledby="home-heading">
     <header class="home-header">
-      <p class="home-eyebrow">友善同行 · 臺北</p>
+      <p class="home-eyebrow">救急按鈕</p>
       <h1 id="home-heading">現在最急的是？</h1>
       <div class="home-location"><span id="home-location" class="home-location-text" aria-live="polite">正在定位…</span><button id="home-gps" class="text-button" type="button" data-action="gps"><span data-icon="location"></span>重新定位</button></div>
     </header>
-    <div class="urgency-buttons" role="group" aria-label="找最近的友善資源">
-      <button class="urgency-button" type="button" data-urgency="toilet"><span class="urgency-icon" data-icon="toilet"></span><span class="urgency-copy"><strong>廁所</strong><small>找最近的公廁</small></span><span class="urgency-arrow" data-icon="chevron"></span></button>
-      <button class="urgency-button" type="button" data-urgency="charge"><span class="urgency-icon" data-icon="charge"></span><span class="urgency-copy"><strong>充電</strong><small>找最近的充電點</small></span><span class="urgency-arrow" data-icon="chevron"></span></button>
-      <button class="urgency-button" type="button" data-urgency="wifi"><span class="urgency-icon" data-icon="wifi"></span><span class="urgency-copy"><strong>網路</strong><small>找最近的免費 Wi-Fi</small></span><span class="urgency-arrow" data-icon="chevron"></span></button>
+    <div class="urgency-buttons board" role="group" aria-label="找最近的友善資源">
+      <button class="urgency-button" type="button" data-urgency="toilet"><span class="unit" aria-hidden="true"><span class="collar"></span><span class="stem"></span><span class="dome" data-icon="toilet"></span></span><span class="urgency-copy"><span class="lbl">廁所</span><small>找最近的公廁</small></span></button>
+      <button class="urgency-button" type="button" data-urgency="charge"><span class="unit" aria-hidden="true"><span class="collar"></span><span class="stem"></span><span class="dome" data-icon="charge"></span></span><span class="urgency-copy"><span class="lbl">充電</span><small>找最近的充電點</small></span></button>
+      <button class="urgency-button" type="button" data-urgency="wifi"><span class="unit" aria-hidden="true"><span class="collar"></span><span class="stem"></span><span class="dome" data-icon="wifi"></span></span><span class="urgency-copy"><span class="lbl">網路</span><small>找最近的免費 Wi-Fi</small></span></button>
     </div>
     <footer class="home-footer">
       <div class="home-links"><button id="home-map" class="secondary-button" type="button"><span data-icon="compass"></span>看地圖</button><button id="home-settings" class="secondary-button" type="button"><span data-icon="settings"></span>設定</button></div>

@@ -295,6 +295,7 @@
     const screen = view === 'card' ? (base === 'map' ? 'map' : 'result') : view;
     state.externalGeneration += 1; closeSheet(); state.view = view; state.screen = screen; $('#app').dataset.view = screen;
     if ($('#home-screen')) $('#home-screen').hidden = screen !== 'home';
+    if (screen === 'home') urgencyButtons().forEach(el => el.classList.remove('is-latched'));
     if ($('#result-screen')) $('#result-screen').hidden = screen !== 'result';
     if ($('#explore-screen')) $('#explore-screen').hidden = !['guide', 'map'].includes(screen);
     window.scrollTo?.(0, 0);
@@ -414,6 +415,16 @@
     return { urgency: category, items: ranked.items, stepFreeFallback: ranked.stepFreeFallback };
   }
   const resultStore = () => state.result?.items[state.resultIndex]?.store || null;
+  // 首頁按鈕：按住由 CSS :active 下沉，放開加 .is-latched 卡住，停 180ms 讓人看見卡住再換頁；回首頁時 setView 清掉。
+  const urgencyButtons = () => [...document.querySelectorAll('[data-urgency]')];
+  function pressUrgency(button) {
+    const category = button.dataset.urgency;
+    if (!Object.hasOwn(URGENCIES, category) || urgencyButtons().some(el => el.classList.contains('is-latched'))) return;
+    button.classList.add('is-latched');
+    try { navigator.vibrate?.([22, 40, 10]); } catch { /* Optional. */ }
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { openUrgency(category); return; }
+    setTimeout(() => { if (state.screen === 'home') openUrgency(category); }, 180);
+  }
   function openUrgency(category) { if (!Object.hasOwn(URGENCIES, category)) return; state.urgency = category; state.result = rankFor(category); pushScreen({ view: 'result', urgency: category, index: 0 }); }
   function nextResult() { if (!state.result || state.resultIndex + 1 >= state.result.items.length) return; state.resultIndex += 1; replaceScreen({ index: state.resultIndex }); renderResult(); }
   function renderResult() {
@@ -575,7 +586,7 @@
   document.addEventListener('click', event => {
     const button = event.target.closest('button'); if (!button) return;
     if (button.dataset.resource) openResource(button.dataset.resource);
-    if (button.dataset.urgency) openUrgency(button.dataset.urgency);
+    if (button.dataset.urgency) pressUrgency(button);
     if (button.dataset.langChoice) { const code = button.dataset.langChoice; if (availableLangs().some(item => item.code === code)) { state.prefs = { ...state.prefs, lang: code }; state.prefsNotice = ''; savePref(LANG_KEY, code); openSettings(); } }
     if (button.dataset.stepFreeChoice) { state.prefs = { ...state.prefs, stepFree: button.dataset.stepFreeChoice === '1' }; savePref(STEP_FREE_KEY, state.prefs.stepFree ? '1' : '0'); openSettings(); }
     if (button.dataset.service) { const service = button.dataset.service; state.filters.has(service) ? state.filters.delete(service) : state.filters.add(service); renderFilters(); renderPanel(); renderDestinationRoute(); renderMarkers(); renderGuidance(); if (document.documentElement.dataset.input === 'keyboard') document.querySelector(`[data-service="${service}"]`)?.focus({ preventScroll: true }); }

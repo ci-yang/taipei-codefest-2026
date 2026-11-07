@@ -168,6 +168,8 @@ function runtime(options = {}) {
     localStorage: options.storageThrows ? { getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); } } : { getItem: key => options.storage?.[key] ?? null, setItem: (key, value) => storageWrites.push([key, value]), removeItem: key => storageWrites.push([key, null]) },
     requestAnimationFrame(callback) { queueMicrotask(() => callback(0)); return 1; }, cancelAnimationFrame() {},
     ResizeObserver: class { constructor(callback) { this.callback = callback; } observe(target) { observed.push({ target, callback: this.callback }); } disconnect() {} },
+    // 以減少動態模式跑：首頁按鈕不等卡住動畫，點下就換頁（setTimeout 在此不執行）。
+    matchMedia: query => ({ matches: query === '(prefers-reduced-motion: reduce)' }),
     setTimeout() { return 1; }, clearTimeout() {},
     addEventListener(name, callback) { (listeners.get(name) || listeners.set(name, []).get(name)).push(callback); },
     DeviceOrientationEvent: options.orientation,
