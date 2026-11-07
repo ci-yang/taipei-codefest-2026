@@ -2,6 +2,7 @@
 (() => {
   'use strict';
   const MODES = { wifi: ['wifi', 'Wi-Fi', '找一片訊號綠洲'], toilet: ['toilet', '倒數', '離下一間廁所，還有幾步？'], gold: ['store', '含金量', '這一刻，值多少城市含金量？'], battery: ['charge', '生存圈', '把剩下的電，留給下一站'] };
+  const token = name => window.getComputedStyle?.(document.documentElement).getPropertyValue(name).trim() || '';
   const DEMO = Object.freeze({ lat: 25.0375, lng: 121.5637 });
   const valid = point => point && Number.isFinite(point.lat) && Number.isFinite(point.lng) && Math.abs(point.lat) <= 90 && Math.abs(point.lng) <= 180;
   const meters = value => value >= 1000 ? `${(value / 1000).toFixed(1)} km` : `${Math.round(value)} m`;
@@ -153,18 +154,20 @@
       circles.clearLayers(); pulses.clearLayers();
       const center = map.getCenter(); const bounds = map.getBounds().pad(.12);
       const points = wifiPoints.filter(point => bounds.contains([point.lat, point.lng])).sort((a, b) => distance(center, a) - distance(center, b)).slice(0, 120);
-      L.circle(center, { radius: 300, renderer, color: '#3525cd', weight: 1.5, dashArray: '4 6', fill: false, opacity: .6, interactive: false }).addTo(circles);
+      L.circle(center, { radius: 300, renderer, color: token('--color-primary'), weight: 1.5, dashArray: '4 6', fill: false, opacity: .6, interactive: false }).addTo(circles);
+      const wifi = token('--tp-primary-500');
       points.forEach((point, index) => {
-        L.circle([point.lat, point.lng], { radius: 100, renderer, color: '#16a7a0', weight: 1, fill: false, opacity: .16, interactive: false }).addTo(circles);
-        L.circle([point.lat, point.lng], { radius: 50, renderer, color: '#16a7a0', weight: 1.5, fillColor: '#16a7a0', fillOpacity: .035, opacity: .25, interactive: false }).addTo(circles);
+        L.circle([point.lat, point.lng], { radius: 100, renderer, color: wifi, weight: 1, fill: false, opacity: .16, interactive: false }).addTo(circles);
+        L.circle([point.lat, point.lng], { radius: 50, renderer, color: wifi, weight: 1.5, fillColor: wifi, fillOpacity: .035, opacity: .25, interactive: false }).addTo(circles);
         if (index < 12) L.marker([point.lat, point.lng], { icon: L.divIcon({ className: 'hl-pulse-marker', html: '<span></span>', iconSize: [24, 24], iconAnchor: [12, 12] }), interactive: false, keyboard: false }).addTo(pulses);
       });
     }
     function drawToilet() {
       routeLayer.clearLayers();
       if (toiletRoute) {
-        toiletRoute.roadSegments.forEach(segment => L.polyline(segment, { renderer, color: '#2e8bd8', weight: 5, opacity: .95, interactive: false }).addTo(routeLayer));
-        toiletRoute.connectors.forEach(segment => L.polyline(segment, { renderer, color: '#2e8bd8', weight: 4, dashArray: '4 7', opacity: .8, interactive: false }).addTo(routeLayer));
+        const route = token('--cat-toilet');
+        toiletRoute.roadSegments.forEach(segment => L.polyline(segment, { renderer, color: route, weight: 5, opacity: .95, interactive: false }).addTo(routeLayer));
+        toiletRoute.connectors.forEach(segment => L.polyline(segment, { renderer, color: route, weight: 4, dashArray: '4 7', opacity: .8, interactive: false }).addTo(routeLayer));
       }
       if (selected) L.marker([selected.lat, selected.lng], { icon: L.divIcon({ className: 'hl-toilet-pin', html: icon('toilet', 23), iconSize: [42, 42], iconAnchor: [21, 21] }), interactive: false, keyboard: false, zIndexOffset: 1100 }).addTo(routeLayer);
     }
@@ -182,9 +185,9 @@
         const hole = [];
         for (let i = 0; i <= 96; i += 1) { const angle = i / 96 * Math.PI * 2; hole.push([center.lat + Math.sin(angle) * budget.radiusM / 111320, center.lng + Math.cos(angle) * budget.radiusM / (111320 * Math.cos(center.lat * Math.PI / 180))]); }
         rings.push(hole);
-        L.circle([center.lat, center.lng], { renderer, radius: budget.radiusM, color: '#6ca928', weight: 3, fillColor: '#6ca928', fillOpacity: .05, interactive: false }).addTo(layer);
+        L.circle([center.lat, center.lng], { renderer, radius: budget.radiusM, color: token('--cat-charge'), weight: 3, fillColor: token('--cat-charge'), fillOpacity: .05, interactive: false }).addTo(layer);
       }
-      L.polygon(rings, { renderer: maskRenderer, stroke: false, fillColor: '#17202a', fillOpacity: .62, fillRule: 'evenodd', interactive: false }).addTo(layer);
+      L.polygon(rings, { renderer: maskRenderer, stroke: false, fillColor: token('--color-shadow'), fillOpacity: .62, fillRule: 'evenodd', interactive: false }).addTo(layer);
       if (withChargers) candidateChargers.slice(0, 80).forEach(store => L.marker([store.lat, store.lng], { icon: L.divIcon({ className: 'hl-charge-pin', html: `<span>${icon('charge', 20)}</span>`, iconSize: [32, 32], iconAnchor: [16, 16] }), keyboard: false, zIndexOffset: 800 }).on('click', () => openCharge(store)).addTo(layer));
     }
     function drawLayers() {

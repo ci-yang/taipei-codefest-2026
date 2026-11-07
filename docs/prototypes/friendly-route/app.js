@@ -32,7 +32,12 @@
   const markers = new Map();
   const geoLayers = [];
   function isInBasemap(point) { const b = basemap.bounds; return valid(point) && point.lat >= b[0][0] && point.lat <= b[1][0] && point.lng >= b[0][1] && point.lng <= b[1][1]; }
-  function palette() { return state.theme === 'dark' ? { bg: '#171f1a', building: '#253129', road: '#46534b', park: '#2b3d2c', line: '#687763', accent: '#a89bff', muted: '#91a0b8' } : { bg: '#edf1f8', building: '#dfe6f2', road: '#ffffff', park: '#e1eddf', line: '#cad3e4', accent: '#3525cd', muted: '#8e9db4' }; }
+  // 地圖畫在 canvas 上吃不到 CSS 變數，每次取用時讀 app-ui.css 的 token；換主題後下一次呼叫就是新色。
+  const PALETTE_TOKENS = { bg: '--color-map', building: '--color-building', road: '--color-road', park: '--map-park', line: '--map-line', accent: '--color-primary', route: '--map-route', connector: '--map-connector', muted: '--color-muted', surface: '--color-surface', toilet: '--cat-toilet', charge: '--cat-charge', wifi: '--cat-wifi', accessible: '--cat-accessible' };
+  function palette() {
+    const style = window.getComputedStyle?.(document.documentElement);
+    return Object.fromEntries(Object.entries(PALETTE_TOKENS).map(([key, token]) => [key, style?.getPropertyValue(token).trim() || '']));
+  }
   function drawBasemap() {
     geoLayers.forEach(layer => map.removeLayer(layer)); geoLayers.length = 0;
     const colors = palette();
@@ -115,14 +120,15 @@
     if (selectedLine) { map.removeLayer(selectedLine); selectedLine = null; }
     selectedLineKey = key;
     if (!key) return;
-    selectedLine = L.polyline([[state.position.lat, state.position.lng], [store.lat, store.lng]], { color: '#ff5e3a', weight: 4, dashArray: '7 9', opacity: .8, interactive: false }).addTo(map);
+    selectedLine = L.polyline([[state.position.lat, state.position.lng], [store.lat, store.lng]], { color: palette().route, weight: 4, dashArray: '7 9', opacity: .8, interactive: false }).addTo(map);
   }
   function renderDestinationRoute() {
     if (renderedRoute !== state.route) {
       destinationRouteLayer.clearLayers(); renderedRoute = state.route;
       if (state.route) {
-        for (const segment of state.route.roadSegments) L.polyline(segment, { color: '#ff5e3a', weight: 5, opacity: .95, interactive: false }).addTo(destinationRouteLayer);
-        for (const connector of state.route.connectors) L.polyline(connector, { color: '#ff5e3a', weight: 4, dashArray: '4 7', opacity: .8, interactive: false }).addTo(destinationRouteLayer);
+        const colors = palette();
+        for (const segment of state.route.roadSegments) L.polyline(segment, { color: colors.route, weight: 5, opacity: .95, interactive: false }).addTo(destinationRouteLayer);
+        for (const connector of state.route.connectors) L.polyline(connector, { color: colors.connector, weight: 4, dashArray: '4 7', opacity: .8, interactive: false }).addTo(destinationRouteLayer);
       }
     }
     $('#destination-route').hidden = !state.destination;
@@ -234,7 +240,7 @@
     $('#location-notice').hidden = Boolean(p && !state.gpsMessage);
     $('#location-notice').innerHTML = p ? esc(state.gpsMessage) : `${esc(state.gpsMessage || '尚未取得位置；距離依地圖中心估算。')} <button class="text-button" data-action="gps">重新定位</button>`;
     if (gpsMarker) { map.removeLayer(gpsMarker); gpsMarker = null; }
-    if (p) gpsMarker = L.circleMarker([p.lat, p.lng], { radius: 8, color: '#fff', weight: 3, fillColor: '#3525cd', fillOpacity: 1, interactive: false }).addTo(map);
+    if (p) { const colors = palette(); gpsMarker = L.circleMarker([p.lat, p.lng], { radius: 8, color: colors.surface, weight: 3, fillColor: colors.accent, fillOpacity: 1, interactive: false }).addTo(map); }
   }
   function selectedCard(store) {
     const d = valid(store) ? distanceLabel(distance(pointForDistance(), store)) : '未提供座標';
@@ -320,9 +326,9 @@
   function arrowRotation(position, store) { const angle = bearing(position, store); return state.orientationEnabled && state.heading !== null ? angle - state.heading : angle; }
   const approx = () => state.position?.accuracy > 100 ? '約 ' : '';
   function drawGuideRoute() {
-    guideRouteLayer.clearLayers(); const route = state.guideRoute; if (!route) return;
-    for (const segment of route.roadSegments) L.polyline(segment, { color: '#3525cd', weight: 6, opacity: .9, interactive: false }).addTo(guideRouteLayer);
-    for (const connector of route.connectors) L.polyline(connector, { color: '#3525cd', weight: 4, dashArray: '4 7', opacity: .8, interactive: false }).addTo(guideRouteLayer);
+    guideRouteLayer.clearLayers(); const route = state.guideRoute; if (!route) return; const colors = palette();
+    for (const segment of route.roadSegments) L.polyline(segment, { color: colors.route, weight: 6, opacity: .9, interactive: false }).addTo(guideRouteLayer);
+    for (const connector of route.connectors) L.polyline(connector, { color: colors.connector, weight: 4, dashArray: '4 7', opacity: .8, interactive: false }).addTo(guideRouteLayer);
   }
   // 獨立的 guideRouteClient／guideGeneration：不和目的地路線互相取消；只在進入 guide、重試、或等待定位後計算一次。
   async function scheduleGuideRoute(store) {
@@ -565,7 +571,7 @@
   }
   async function cacheData() { state.cache = await FriendlyOffline.initialize(status => { state.cache = status; renderCache(); }); renderCache(); }
   async function copyValue(key) { const store = actionResource(); const value = store?.[key]; if (!value) { toast('資料未提供'); return; } try { await navigator.clipboard.writeText(value); toast(key === 'phone' ? '已複製電話' : '已複製地址'); } catch { toast('無法自動複製，請長按卡片文字複製。'); } }
-  function setTheme(theme) { state.theme = theme; document.documentElement.dataset.theme = theme; try { localStorage.setItem('friendly-theme-v6', theme); } catch { /* Optional. */ } drawBasemap(); renderMarkers(); if (state.activeSheet === 'settings') openSettings(); }
+  function setTheme(theme) { state.theme = theme; document.documentElement.dataset.theme = theme; try { localStorage.setItem('friendly-theme-v6', theme); } catch { /* Optional. */ } drawBasemap(); renderPosition(); renderMarkers(); if (state.activeSheet === 'settings') openSettings(); }
   document.addEventListener('click', event => {
     const button = event.target.closest('button'); if (!button) return;
     if (button.dataset.resource) openResource(button.dataset.resource);
