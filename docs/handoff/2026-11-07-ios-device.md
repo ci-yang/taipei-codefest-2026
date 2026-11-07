@@ -27,8 +27,18 @@ Ci 授權將已發布的友善同行 App 安裝到實體 iPhone。本次沿用 T
 
 ## 後續重建
 
-在原生 repo 先執行 `flutter pub get --enforce-lockfile` 與 `dart run build_runner build`，再用 `flutter build ios --release --no-codesign --config-only --dart-define=CODEFEST_SERVICE_URL=https://taipei-friendly-platform.jason21131.workers.dev` 產生設定；首次需要準備原生依賴。Flutter／Dart 須使用 `.fvmrc` 對應版本。
+在原生 repo 先執行 `flutter pub get --enforce-lockfile` 與 `dart run build_runner build`，再用 `flutter build ios --release --no-codesign --config-only --dart-define=CODEFEST_SERVICE_URL=https://taipei-friendly-platform.jason21131.workers.dev` 產生設定；接著在 `ios/` 執行 `pod install`，讓 `Podfile.lock` 與本機 Pods sandbox 同步。Flutter／Dart 須使用 `.fvmrc` 對應版本。直接重跑 `xcodebuild` 前若曾還原 lockfile，也須先重新執行 `pod install`。
 
 Xcode 建置使用 `Runner.xcworkspace`、`Runner` scheme、`Release`、實機 destination；傳入實際開發團隊的 `DEVELOPMENT_TEAM`、`CODEFEST_IOS_BUNDLE_ID=com.ciyang.friendlytaipei`、`CODE_SIGN_STYLE=Automatic`、`CODE_SIGN_IDENTITY=Apple Development`、`CODE_SIGNING_ALLOWED=YES`，依裝置／profile 狀態使用 provisioning updates 與 device registration。**不要全域覆寫 `PRODUCT_BUNDLE_IDENTIFIER`**。安裝使用 `xcrun devicectl device install app`，啟動使用 `device process launch`。
 
 手機首次使用開發者測試版可能需要在「設定 → 一般 → VPN 與裝置管理」信任開發者；電腦配對的「信任這部電腦」與 App 開發者信任是不同步驟。簽章到期後需重新簽署安裝。尚未完成實機 GPS、離線及外部導航功能驗證。
+
+## 第二台 iPhone 13
+
+Ci 另行授權安裝到新接上的 iPhone 13（iOS 26.6）。完成配對後，工具確認開發者模式原先關閉；Ci 開啟並重開機後，已重新讀回 `enabled`、DDI 可用與連線正常。
+
+沿用 `7180078` 與同一正式網址，重新為第二台簽署，沒有修改 App 功能或網站。2026-11-07 21:25 `devicectl` 回報安裝成功；21:26 首次啟動被 iOS Security／開發者信任檢查拒絕。Ci 完成第二台開發者信任後，21:26:44 再次啟動成功。
+
+獨立代理核對新 profile 已包含第二台、App 與內嵌 frameworks 的識別碼不重複、簽署及 entitlements 相符、AOT binary 正式網址正確。新 profile 有效至 **2026-11-14 21:24:27（臺北）**。第一台的已安裝版本仍使用先前 profile；本機 build 產物路徑目前保存第二次建置結果。
+
+第二台的 [實機首頁](evidence/2026-11-07-ios-device/device-iphone13-home.png) 與 [去識別驗證紀錄](evidence/2026-11-07-ios-device/iphone13-verification.json) 分開保留。畫面確認新版首頁、目前已連線、5,948 筆名冊與出發按鈕，也顯示「此環境不支援離線快取」。GPS、斷網與外部導航尚未驗證；第一台的成功啟動不代替第二台的證據。

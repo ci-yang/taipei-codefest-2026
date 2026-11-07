@@ -1,0 +1,30 @@
+{
+  "recordedAt": "2026-11-07T13:27:48.182219+00:00",
+  "nativeCommit": "718007878a96b028f56f188b68b086a0ab6df199",
+  "mode": "Release",
+  "bundleId": "com.ciyang.friendlytaipei",
+  "displayName": "Town Pass",
+  "version": "0.0.12",
+  "buildNumber": "0.0.12",
+  "deviceModel": "iPhone 13",
+  "deviceIos": "26.6",
+  "serviceUrl": "https://taipei-friendly-platform.jason21131.workers.dev",
+  "profileExpiryUtc": "2026-11-14T13:24:27Z",
+  "profileIncludesTargetDevice": true,
+  "buildSucceeded": true,
+  "appAotSha256": "e3b4800c302c948937e359c040ba3c0e124e70d6d991c18b4f10464469426e4a",
+  "installOutcome": "success",
+  "launchOutcome": "success",
+  "visualVerification": true,
+  "visualEvidence": "device-iphone13-home.png",
+  "visualObservations": [
+    "Friendly app home",
+    "5,948 resources",
+    "Connected status",
+    "Offline cache is not supported in this environment"
+  ],
+  "gpsVerified": false,
+  "offlineVerified": false,
+  "externalNavigationVerified": false,
+  "offlineLimitation": "The iOS WebView home explicitly reports unsupported offline cache. No disconnected-network test was performed."
+}
