@@ -1,0 +1,1857 @@
+{
+  "source": {
+    "name": "台北服務通申辦服務目錄",
+    "provider": "臺北市政府",
+    "endpoint": "https://service.taipei/TGC_TPOB_API/api/Search/Search",
+    "catalogUrl": "https://service.taipei/search-item",
+    "fetchedAt": "2026-11-07T16:27:09.185Z",
+    "filterVersion": 1,
+    "terms": [
+      "補助",
+      "津貼",
+      "減免",
+      "扶助",
+      "救助",
+      "獎勵金",
+      "慰問金"
+    ],
+    "totalServiceCount": 1647,
+    "keywordMatchCount": 248,
+    "candidateCount": 165,
+    "note": "候選數是本專案依名稱、摘要與標籤篩選所得，不是官方公布的補助總數或資格分類。"
+  },
+  "programs": [
+    {
+      "id": "AC042",
+      "name": "臺北市生育補助",
+      "summary": "1.相關申請資格及規定依《臺北市生育補助發放辦法》辦理。\n2.其他有關生育補助相關規定可逕上「助您好孕」網站(http://born.taipei/)或至民政局網站（http://www.ca.taipei.gov.tw/）「常見問答」-「助您好孕」Q&A查詢。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AC042"
+    },
+    {
+      "id": "AE001",
+      "name": "教育部補助地方政府發放二歲以上未滿五歲幼兒育兒津貼及五歲至入國民小學前幼兒就學補助",
+      "summary": "1.本津貼及補助以申請人檢附完整資料之日為受理申請日。\n2.屬特殊情況者，受理機關得請申請人自行舉證資料；受理單位如有查驗文件正本之必要，申請人應配合提出。\n3.幼兒滿2歲當月(第1個月)還領有衛生福利部發放的0至未滿2歲育兒津貼或托育公共化及準公共服務者，由教育部依衛生福利部資訊系統提供之資料直接審核，無須重新申請；符合資格者，自受理申請之次月起，按月於每月月底前撥付至申請人指定帳戶。\n4.倘申領本津貼及補助後因不符資格中斷者，日後重新符合申請條件，則需再提出申請。\n5.申請人之申請案件經區公所收件後，將於次月1日進行系統審核，符合資格者，將於月底前撥付金額至申請人指定帳戶。\n6.經審查為「不符資格」者，可於收到通知書次日起30日內申復。\n7.若仍有疑問，可參考全國教保資訊網（https://www.ece.moe.edu.tw/）閱讀相關說明，或電洽諮詢專線：0800-205-105或臺北市政府市民熱線1999，將有專人為您服務說明。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AE001"
+    },
+    {
+      "id": "AE002",
+      "name": "就讀外縣市立案私立幼兒園幼兒申請「助您好孕－5歲幼兒就學費用」補助",
+      "summary": "**重要須知**\n補助對象：115學年度9月1日前年滿5足歲幼兒（109年9月2日至110年9月1日出生者）或緩讀生。\n完成線上填寫後，仍需將規定之正本文件郵寄至審核機關，經文件審核無誤後，始完成申請程序。\n請將相關申請文件寄達向臺北市政府教育局學前教育科（110204臺北市信義區市府路1號9樓西北區）申請，信封請加註「申請助您好孕-5歲幼兒就學費用補助-外縣市」，俾利後續審核流程。\n1.本局每年9月1日至10月15日(上學期)；3月1日至4月15日(下學期)辦理2次申請，處理時限自收件截止日後次一上班日起算。\n2.如屬中低收或低收入戶身分者，請一併檢附當年度中低收入戶或低收入戶證明書影本。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AE002"
+    },
+    {
+      "id": "AE026",
+      "name": "臺北市特殊教育學生獎補助",
+      "summary": "1.學校申請案件之處理時限自本局收件截止日後次1上班日起算。\n2.臺北市特殊教育學生獎補助申請之日期、程序等相關規定由臺北市政府教育局另函通知各校辦理。\n3.相關規定請參考「臺北市特殊教育學生獎補助辦法」。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦 / 公文申辦",
+      "officialUrl": "https://service.taipei/case-detail/AE026"
+    },
+    {
+      "id": "AF014",
+      "name": "臺北市產業發展獎勵補貼申請",
+      "summary": "1.以第1及第3至第7項文件之影本作為第2項獎勵補貼計畫書之附錄。\n2.第6項「使用市有房地租金減免」，同一地址市有房地不得與「促進民間參與公共建設公有土地出租及設定地上權租金優惠辦法」重複申請。\n3.以上檢附文件如為影本，需加蓋申請人(公司、商業)及負責人印鑑章（外國公司請加蓋訴訟及非訴訟代理人印鑑章），並註明「與正本相符」。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AF014"
+    },
+    {
+      "id": "AF127",
+      "name": "「臺北新創旗艦基地新創加速器補助計畫」申請",
+      "summary": "1.財務相關文件，依法設立之公司，檢附最近1年「營利事業所得稅結算申報書」（成立未滿1年之公司得以最近1期「營業稅申報書」替代）、最新「營利事業無欠稅證明」、「廠商信用證明」（金融機構出具之信用證明文件）及「公司淨值（股東權益）」等影本各1份；學校或財（社）團法人，檢附最近一年受核(審)定財務報告。\n2.其他申請文件：如為影本，需加蓋申請人及負責人印鑑章（外國公司請加蓋訴訟及非訴訟代理人印鑑章），並註明「與正本相符」：\n(1)如為「一般型加速器」，應檢附自設或連結投資基金之相關佐證資料，如自設投資基金規章，或與外部投資基金合作之意向書等文件。\n(2)如為「企業垂直加速器」，應檢附最近1期勞工保險投保人數明細之證明文件。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AF127"
+    },
+    {
+      "id": "AH012",
+      "name": "車輛駕訓與道路安駕訓練補助",
+      "summary": "1.符合本項計畫補助資格者，由民眾備妥身分證或居留證逕洽執行本計畫之駕訓班報名申請並繳納學費(詳洽駕訓班)，各駕訓班執行內容詳細資訊，請至臺北市政府交通局官網車輛駕訓補助專區查詢\nhttps://www.dot.gov.taipei/News.aspx?n=E1B75DAECDBEACC5&sms=CD68C6019F3D2C1A。\n2.本項補助由本市參與計畫之駕訓班向交通局提出申請。駕訓班出具補助款代墊切結書及彙整請款清冊，並附民眾領款收據正本、民眾身分證與駕照影本與結訓證明(僅道路安駕訓練)，向交通局辦理代償墊付請款。",
+      "tags": [],
+      "online": false,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/AH012"
+    },
+    {
+      "id": "AI001",
+      "name": "孕婦乘車補助",
+      "summary": "",
+      "tags": [
+        "好孕",
+        "好孕2U",
+        "2U",
+        "孕婦補助",
+        "孕婦",
+        "專車",
+        "計程車",
+        "懷孕"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI001"
+    },
+    {
+      "id": "AI004",
+      "name": "特殊境遇家庭扶助",
+      "summary": "1.本局得視審查需要派社工訪視。\n2.扶助對象及其得補助項目詳其他文件對應表。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI004"
+    },
+    {
+      "id": "AI005",
+      "name": "中低收入老人生活津貼核定",
+      "summary": "1.福利申請以申請人檢附完整資料之日為受理申請日，經審核通過後溯至受理申請月份生效。\n2.網路申辦者將採自然人憑證及行動自然人憑證作為身分驗證方式（請先備妥讀卡機及自然人憑證），且僅限申請者本人親自驗證遞送。\n3.申請時請自行檢視，相關文件經同意受理將不予退件。\n4.外國文件需先翻譯成中文並經駐外單位驗證簽章。",
+      "tags": [
+        "中低收入",
+        "老人生活津貼",
+        "老人",
+        "社會救助",
+        "生活補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI005"
+    },
+    {
+      "id": "AI007",
+      "name": "中低收入老人假牙補助",
+      "summary": "補助對象係凡設籍本市，經本市立聯合醫院以及臺北市牙醫師公會所屬醫療院所醫師評估缺牙需裝置假牙，並符合下列條件之一者：\r\n1.年滿55歲以上列冊本市之低收入戶者。\r\n2.年滿65歲以上經本市公費收容安置者。\r\n3.年滿55歲以上列冊本市之中低收入戶者。\r\n4.年滿65歲以上領有本市中低收入老人生活津貼者。\r\n5.年滿65 歲以上中低收入領有本市收容安置補助者。\r\n6.年滿65歲以上領有本市身心障礙者生活補助費者。\r\n7.年滿65歲以上經本市補助身心障礙者日間照顧及住宿式照顧費用達50%以上者。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI007"
+    },
+    {
+      "id": "AI010",
+      "name": "臺北市弱勢兒童及少年醫療補助",
+      "summary": "1.\t透過網路申辦者，應備齊所有的證件並送（寄）達社會局時，才開始計算申請處理時限。\n2.\t醫療診斷證明書應載明入院及出院日期；另指定藥品材料費應經醫師診斷證明係因該使用藥品及材料有其必要性與不可替代性；指定病房費應經醫師診斷證明係因特殊原因，或因住院期間因該醫療院所無健保床，故非自願性住非健保床。",
+      "tags": [
+        "弱勢兒少醫療補助",
+        "兒童及少年",
+        "醫療補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI010"
+    },
+    {
+      "id": "AI011",
+      "name": "失能者生活輔助器具自辦補助",
+      "summary": "1.項補助申請為本市自辦補助項目，每項補助以申請一次為限（補助項目、補助最高額度及補助相關規定詳如附表)。\n2.發票或收據正本注意事項：\n(1)購買日期：應為取得核定函或輔具評估報告書後3個月內之日期。\n(2)載明內容：註明申請人姓名、品名(應與臺北市政府社會局辦理失能者生活輔助器具及居家無障礙環境改善補助計畫項目名稱相同)、價格、蓋立免用統一發票章/統一發票專用章及負責人章。若為臺、澎、金、馬以外地區開立，應符合以下規定：\nA.擇要譯註本國文。\nB.支出憑證列有其他貨幣數額者，應註明折合率及檢附兌換水單或其他匯率證明。\nC.依社會局要求提出相關憑證。\n3.輔具保固書注意事項：保固書應載明產品規格（含本辦法所定本項輔具之規格或功能規範內容）、型號、序號、保固年限及起迄日期（含年、月、日）、輔具供應商行號名稱、統一編號、負責人姓名、服務電話，並應標示經中央主管機關醫療器材查驗合格之登記字號及其他必要資訊。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI011"
+    },
+    {
+      "id": "AI013",
+      "name": "身心障礙者輔具費用補助",
+      "summary": "1.申請資格：\r\n(1)設籍臺北市，且最近1年居住國內超過183日。\r\n(2)領有臺北市核（換、補）發或註記之身心障礙證明。\r\n(3)申請補助項目係未獲政府其它醫療補助、社會保險給付或相同性質（輔助器具）之補助者。\r\n(4)已超過輔助器具之補助年限。\r\n2.補助內容：詳見衛生福利部「身心障礙者輔具費用補助辦法」及其附表及其他相關規定。（可至臺北市政府社會局網站https://dosw.gov.taipei/ 下載）\r\n3.資格核定後向特約廠商購買輔具，將由特約廠商代償墊付核銷，不用再另行提出補助款申請。",
+      "tags": [
+        "輔具",
+        "身障輔具",
+        "身心障礙者輔具",
+        "輔助器具",
+        "生活輔具",
+        "生活輔助器具"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI013"
+    },
+    {
+      "id": "AI015",
+      "name": "協助中低收入老人修繕住屋補助",
+      "summary": "申請人亦可透過財團法人伊甸社會福利基金會（連絡電話：0800-894-580）協助申請、媒合廠商及估價、驗收及後續核銷事宜（詳本局網頁／銀髮族服務／居住服務／「臺北扶老軟硬兼施」作業流程）",
+      "tags": [
+        "老人修繕住屋補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI015"
+    },
+    {
+      "id": "AI016",
+      "name": "身心障礙者專用停車位識別證",
+      "summary": "1.具有下列申請人資格之一者，以一人為限，得申請專用停車位識別證：設籍本市經需求評估為行動不便之身心障礙者本人(需求評估結果載明於通知鑑定結果、需求評估複評等公文或身心障礙證明四項福利服務核定結果通知書)、身心障礙者之配偶或一親等親屬、與身心障礙者設於同一戶籍或同址分戶之二親等以上親屬。\n2.申請車輛以自用小客車、自用小客貨車、自用小貨車、計程車為限，但計程車、自用小貨車者，其車主及駕駛人應為身障者本人。汽車行照登記為公司車及租賃車，不得申請專用停車位識別證。\n3.專用停車位識別證應於駕駛本識別證註記牌照之車輛時使用，並由身心障礙者本人親自持用或其配偶、親屬乘載身心障礙者本人時持用，未乘載身障者不得使用該證，不得轉借他人；偽造或冒用專用停車位識別證經查證屬實者，自查獲之日起3年內不得再申請核發，其涉有刑責者，移送司法機關偵辦。\n4.專用停車位識別證或專用牌照擇一申請。\n5.專用停車位識別證申請原因消滅時（如:到期、戶籍遷出、死亡、重新鑑定不符合行動不便資格、換車等），應主動繳回本局，本局於事實發生之次日起即註銷該證。\n6.申請人為申請身心障礙者專用停車位識別證案件，同意基於申辦需要，由臺北市政府社會局查申請本項福利措施之戶籍相關資料、駕籍相關資料、車籍相關資料以利審核及核發後之複查。\n7. 依身心障礙者專用停車位設置管理辦法核發專用停車位識別證予身心障礙者本人及其親屬使用，法條內容及立意精神在保障身心障礙者停車權益，並非優惠身心障礙者停車費用之免費或減免。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI016"
+    },
+    {
+      "id": "AI020",
+      "name": "身心障礙者承租停車位租金補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI020"
+    },
+    {
+      "id": "AI021",
+      "name": "發展遲緩兒童早期療育補助",
+      "summary": "1.上傳附件須以正本掃描，並請詳實填寫、勾選並核章，未依規定填寫者不予補助。\n2.經查證有偽造或冒用情形，將依法究辦。\n3.申請「療育訓練費」，不得再申請同一療育單位相同療育項目之「交通補助費」。\n4.本補助與本市身心障礙者日間照顧及住宿式照顧費用補助、弱勢兒童及少年醫療補助之全民健康保險未涵蓋之發展遲緩兒童療育訓練費補助僅擇一領取。\n5.已申請且獲本局核定本補助之月份，不得重複申請。",
+      "tags": [
+        "早期",
+        "早療",
+        "遲緩",
+        "發展遲緩",
+        "療育補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI021"
+    },
+    {
+      "id": "AI022",
+      "name": "市民醫療補助",
+      "summary": "網路申辦者將採自然人憑證作為身分驗證方式（請先備妥讀卡機及自然人憑證），且僅限申請者本人親自驗證遞送。",
+      "tags": [
+        "醫療補助",
+        "醫療",
+        "市民醫療補助",
+        "低收入戶醫療",
+        "中低收入戶醫療"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI022"
+    },
+    {
+      "id": "AI024",
+      "name": "身心障礙者日間照顧及住宿式照顧費用補助申請（改列、申復與複查）",
+      "summary": "如尚未取得身心障礙需求評估核定公文，請洽身心障礙需求評估中心，聯絡電話：02-25112895，提出申請補助後再補正。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI024"
+    },
+    {
+      "id": "AI025",
+      "name": "老人收容安置補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI025"
+    },
+    {
+      "id": "AI026",
+      "name": "弱勢家庭兒童托育補助",
+      "summary": "1.本局處理時限自收到就托機構寄送申請資料起算。\n2.申請表及請款領據區分「就托機構」及「就托保母」2種格式，請依就托性質選擇合適表格。",
+      "tags": [
+        "托育補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI026"
+    },
+    {
+      "id": "AI027",
+      "name": "危機家庭兒童及少年緊急生活扶助",
+      "summary": "透過網路申辦者，應備齊所有的證件並送（寄）達社會局時，才開始計算申請處理時限。",
+      "tags": [
+        "危機"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI027"
+    },
+    {
+      "id": "AI028",
+      "name": "臨時看護補助",
+      "summary": "",
+      "tags": [
+        "臨時看護"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI028"
+    },
+    {
+      "id": "AI029",
+      "name": "弱勢家庭兒童及少年緊急生活扶助",
+      "summary": "透過網路申辦者，應備齊所有的證件並送（寄）達社會局時，才開始計算申請處理時限。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI029"
+    },
+    {
+      "id": "AI030",
+      "name": "老人全民健康保險保險費自付額補助",
+      "summary": "1.本項目補助對象如下：\r\n(1)本市未滿70歲符合中低收入老人生活津貼發給辦法第2條第1項規定資格之老人。\r\n(2)其他符合下列3項規定之老人：\r\nA.年滿65歲之老人或年滿55歲之原住民，且設籍並實際居住本市滿1年者。\r\nB.經稅捐稽徵機關核定之最近1年綜合所得總額合計未達申報標準或綜合所得稅稅率未達20%者，申報老人為受扶養人之納稅義務人，有上開情事者亦同。\r\nC.未獲政府機關健保自付額之全額補助者。\r\n2.因綜合所得核定稅率達20%或未實際居住本市而不符資格者，可於資格符合後主動提出申請，經審核通過後，自申請當月補助。\r\n3.市民提出申請前，可先電洽本局確認補助資格。",
+      "tags": [
+        "健保",
+        "健保",
+        "老人",
+        "老人"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI030"
+    },
+    {
+      "id": "AI031",
+      "name": "急難救助",
+      "summary": "1.\t本項補助申請單位為區公所或社會福利服務中心，由該單位進行會談、評估及審查作業，故請親自向區公所或社會福利服務中心申請。\n2.\t本補助為臺北市民急難救助金，如您於最近2個月內已有急難救助申辦紀錄，不得重複申請。另區公所及社福中心請擇一管道申請。\n3.\t申請本救助金，將同意並授權審查人員查調本人及同戶籍家人最近一年度財稅、戶籍等資料，且同戶籍家人業已知悉。\n4.\t「因疫情急難救助」目前已停止受理，如仍有急難事由致生活陷困之本市市民，仍可申請急難救助。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI031"
+    },
+    {
+      "id": "AI032",
+      "name": "中低收入老人特別照顧津貼",
+      "summary": "請逕向老人服務中心申請，並由老人中心送回或寄回業務科辦理。",
+      "tags": [
+        "中低收入老人特別照顧津貼",
+        "照顧者",
+        "受照顧者",
+        "照顧家中失能老人",
+        "特別照顧津貼"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI032"
+    },
+    {
+      "id": "AI033",
+      "name": "危機家庭兒童托育補助",
+      "summary": "申請托育補助者，請於兒童已實際就托或近就托時間再行提出申請；申請優先就托本市公立幼兒園者，請敘明欲就托之公立幼兒園名稱。",
+      "tags": [
+        "兒童托育"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI033"
+    },
+    {
+      "id": "AI040",
+      "name": "中低收入戶查定",
+      "summary": "1.福利申請以申請人檢附完整資料之日為受理申請日，經審核通過後溯至受理申請月份生效。\n2.網路申辦者將採自然人憑證及行動自然人憑證作為身分驗證方式（請先備妥讀卡機及自然人憑證），且僅限申請者本人親自驗證遞送。\n3.申請時請自行檢視，相關文件經同意受理將不予退件。\n4.外國文件需先翻譯成中文並經駐外單位驗證簽章。",
+      "tags": [
+        "低收入戶",
+        "中低收入戶",
+        "最低生活費",
+        "社會救助",
+        "生活補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI040"
+    },
+    {
+      "id": "AI041",
+      "name": "低收入戶查定",
+      "summary": "1.福利申請以申請人檢附完整資料之日為受理申請日，經審核通過後溯至受理申請月份生效。\n2.網路申辦者將採自然人憑證及行動自然人憑證作為身分驗證方式（請先備妥讀卡機及自然人憑證），且僅限申請者本人親自驗證遞送。\n3.申請時請自行檢視，相關文件經同意受理將不予退件。\n4.外國文件需先翻譯成中文並經駐外單位驗證簽章。",
+      "tags": [
+        "低收入戶",
+        "生活補助",
+        "最低生活費",
+        "社會救助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI041"
+    },
+    {
+      "id": "AI043",
+      "name": "低收入戶及中低收入戶生育補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI043"
+    },
+    {
+      "id": "AI053",
+      "name": "低收入戶及中低收入戶老人、孕產婦及嬰兒營養補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI053"
+    },
+    {
+      "id": "AI054",
+      "name": "低收入戶18歲以上就學生活補助",
+      "summary": "若您為18歲至25歲之低收入戶成員，且為就讀臺灣地區經教育部承認之高中(職)、專科學校或大學院校以上之學生，請於申請期限內(每學年度第1學期為12月31日前；每學年度第2學期為6月30日前)檢附資料上傳檔案提出申請。",
+      "tags": [
+        "就學生活補助",
+        "低收入戶"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI054"
+    },
+    {
+      "id": "AI060",
+      "name": "臺北市設籍前新住民社會救助",
+      "summary": "1.扶助項目包括：【1】生活扶助【2】醫療補助【3】急難救助。\r\n2.透過網路申辦者，應備齊所有的證件並送（寄）達社會局時，才開始計算申請處理時限。\r\n3.身分款別、選備文件及可申請扶助項目說明：\r\n(1)低收入戶0類家戶及低收入戶1類家戶。\r\nA.選備文件：薪資證明/薪資轉帳存摺內頁。\r\nB.可申請扶助項目：【1】。\r\n(2)低收入戶及中低收入戶。\r\nA.選備文件：6個月內醫療收據正本。\r\nB.可申請扶助項目：【2】。\r\n(3)低收入戶及中低收入戶。\r\nA.選備文件：薪資證明/薪資轉帳存摺內頁、警察受（處）理查詢人口案件登記表之收執聯、6個月內醫療收據正本、最近3個月醫院開立診斷證明書正本、在監執行證明書、保安處分處所執行證明書、離職證明、領取失業給付證明。\r\nB.可申請扶助項目：【3】。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI060"
+    },
+    {
+      "id": "AI063",
+      "name": "未滿二歲兒童托育公共化及準公共服務費用補助暨友善托育補助",
+      "summary": "本局處理時限自收到就托機構寄送申請資料起算。",
+      "tags": [
+        "托育補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI063"
+    },
+    {
+      "id": "AI067",
+      "name": "協力照顧補助",
+      "summary": "本局處理時限自收到就托機構寄送申請資料起算。",
+      "tags": [
+        "托育補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI067"
+    },
+    {
+      "id": "AI075",
+      "name": "住宿式服務機構使用者補助方案",
+      "summary": "1.僅受理入住本市老人養護機構之申請案。\n2.相關規定請參考「衛生福利部住宿式服務機構使用者補助方案」。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI075"
+    },
+    {
+      "id": "AI076",
+      "name": "低收入戶及受保護安置市民喪葬補助",
+      "summary": "1.申請本補助者應於低收入戶或受保護安置市民死亡事實發生後三個月內檢附文件提出申請。\n2.委託辦理者須填寫「低收喪葬補助委託書」（格式如附）。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI076"
+    },
+    {
+      "id": "AI085",
+      "name": "市民醫療補助、市民醫療補助(需查稅)(MyData申辦)",
+      "summary": "1.低收入戶、中低收入戶、受保護安置市民醫療補助：不須財稅審核。\n(1)臺北市市民醫療補助申請表。\n(2)醫療診斷證明書：應載明入院、出院日期。\n(3)最近6個月內醫療費用收據正本（6個月以上者恕不受理)。\n(4)病患指定帳戶之存摺封面影本（請勿提供救助專戶存摺)。\n(5)低收入戶或中低收入戶相關證明。\n\n2.一般市民醫療補助：須審核財稅。\n(1)臺北市市民醫療補助申請表。\n(2)醫療診斷證明書：應載明入院、出院日期。\n(3)最近6個月內醫療費用收據正本（6個月以上者恕不受理)。\n(4)病患指定帳戶之存摺封面影本（請勿提供救助專戶存摺)。\n(5)各類所得及財產資料。",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/AI085"
+    },
+    {
+      "id": "AI094",
+      "name": "身心障礙者生活補助查定",
+      "summary": "1.福利申請以申請人檢附完整資料之日為受理申請日，經審核通過後溯至受理申請月份生效。\n2.網路申辦者將採自然人憑證及行動自然人憑證作為身分驗證方式（請先備妥讀卡機及自然人憑證），限申請者本人或受委託人本人親自驗證遞送。\n3.申請時請自行檢視，相關文件經同意受理將不予退件。\n4.外國文件需先翻譯成中文並經駐外單位驗證簽章。",
+      "tags": [
+        "身心障礙者生活補助",
+        "身心障礙",
+        "社會救助",
+        "生活補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AI094"
+    },
+    {
+      "id": "AI102",
+      "name": "新生兒臨托券補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/AI102"
+    },
+    {
+      "id": "AJ004",
+      "name": "04、臺北市失業勞工子女就學費用補助",
+      "summary": "本補助受理申請截止後，初審合格名單將整批上傳教育部助學措施系統，並依教育部作業期程與相關單位進行有無重複補助之查核比對後，函復核定結果並依程序辦理撥款。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AJ004"
+    },
+    {
+      "id": "AJ018",
+      "name": "17、哺集乳室與企業托兒設施措施補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AJ018"
+    },
+    {
+      "id": "AJ019",
+      "name": "19、臺北市勞資爭議法律及生活費用補助",
+      "summary": "1.應備證件第2項申請資格證明文件，例如勞工資格要件僅勾選設籍臺北市者，檢附新式戶口名簿含詳細記事影本或戶籍謄本含詳細記事正本。\n2.網路申辦屬線上申請（非全程式），申請人仍須臨櫃繳驗相關應備證件。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AJ019"
+    },
+    {
+      "id": "AJ047",
+      "name": "48、臺北市勞動教育經費補助",
+      "summary": "1.一般申辦(非網路)：14日\n2.網路申辦： 14日",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AJ047"
+    },
+    {
+      "id": "AJ048",
+      "name": "82、臺北市勞工職業災害慰問金申請",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AJ048"
+    },
+    {
+      "id": "AJ054",
+      "name": "108、臺北市性別平等工作法律扶助補助",
+      "summary": "受理時間截止日至115年11月30日【以郵戳為憑】。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AJ054"
+    },
+    {
+      "id": "AJ062",
+      "name": "103、臺北市辦理補助工作場所性騷擾案件心理諮商費用",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AJ062"
+    },
+    {
+      "id": "AJ063",
+      "name": "104、臺北市辦理僱用受僱者未達100人之雇主調查工作場所性騷擾案件補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AJ063"
+    },
+    {
+      "id": "AL039",
+      "name": "臺北市兒童醫療補助資格",
+      "summary": "1.申辦對象\n(1)第1類兒童：\n設籍本市未滿6歲參加全民健康保險之兒童，且其父、母（或監護人）之一設籍後實際居住本市連續滿十個月者。\n(2)第2類兒童：\nA.設籍本市未滿6歲參加全民健康保險之兒童，且具本府社會局核定之低收入戶身分者，或經本府社會局核定之特殊個案、特殊境遇家庭之兒童。\nB.設籍本市未滿12歲參加全民健康保險之兒童，且符合衛生福利部公告之罕見疾病患者，或經中央健康保險署核定符合全民健康保險重大傷病範圍者。\nC.設籍本市未滿2歲之兒童，且於衛生福利部中央健康保險署特約醫院出生或治療之極低體重兒童。\n2.注意事項\n符合中央健康保險署核定重大傷病範圍者、罕見疾病者須填寫全民健康保險個人資料查詢授權書。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 傳真申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AL039"
+    },
+    {
+      "id": "AL045",
+      "name": "住宿式服務機構使用者補助方案(護理之家、住宿式機構)",
+      "summary": "1.\t主管機關審查所附文件是否符合相關規定例如文件是否齊全、證件影本是否清晰以供辨識等。\n2.\t申請書、文件或資料有缺漏且得補正者，將通知限期補正；屆期未補正者，函文駁回申請。\n3.\t申請人逕向補助年度最近1次入住機構所在地之直轄市、縣(市)政府之機構主管機關提出申請，機構主管機關如下：\n(1)\t衛生局長照科：護理之家、住宿式長照機構。\n(2)\t衛生局心衛科：精神護理之家。\n(3)\t社會局老福科：老人福利機構(除安養床外)。\n(4)\t社會局身障科：身心障礙福利機構。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AL045"
+    },
+    {
+      "id": "AL062",
+      "name": "臺北市輻射污染建築物事件慰問金",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AL062"
+    },
+    {
+      "id": "AL073",
+      "name": "臺北市身心障礙者醫療輔具及醫療費用補助申請",
+      "summary": "1補助對象：\n(1)領有身心障礙證明。\n(2)最近1年居住國內超過183日。\n(3)尚未納入全民健康保險給付範圍且經醫師診斷或醫事人員評估為醫療復健所需，具有促進恢復身體結構、生理功能或避免併發症之輔助器具。\n(4)限居家照護者申請。\n2.身心障礙者醫療費用限市民申請人工電子耳之植入手術費用、為申請醫療輔具所開具之診斷證明書及醫療輔具評估報告等費用。",
+      "tags": [
+        "醫療輔具",
+        "身障"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AL073"
+    },
+    {
+      "id": "AL074",
+      "name": "臺北市氣切個案進住照護機構費用補助申請",
+      "summary": "1. 補助對象：\r\n(1)實際進住經主管機關評估通過之立案護理之家及長期照護機構者。\r\n(2)設籍並實際居住臺北市滿一年之低收入戶或中低收入戶氣切個案。\r\n2.應自補助對象進住照護機構之日起六個月內提出申請，逾期不受理。",
+      "tags": [
+        "氣切"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AL074"
+    },
+    {
+      "id": "AL087",
+      "name": "助孕生殖「醫療性凍卵」補助",
+      "summary": "1.本補助自114年1月1日起辦理，療程結束指取卵日或因不可抗因素無法取卵之療程終止日，療程完成超過6個月（僅申請保存費為繳款後6個月）始申請者，不予補助，申請前請務必詳閱問答集。\n2.網路申辦：於本府市民服務大平台檢附上開文件(可以照片、掃描檔案等形式上傳，建議採PDF檔案，且務必清晰可辨識)，經機關審核後，於系統回復申請結果。\n3.本補助無臨櫃收件服務，若有紙本申辦需求，請以「掛號」寄件方式辦理（郵寄地址：臺北市信義區市府路1號西南區3樓健康管理科　臺北市政府衛生局收）。\n4.補助對象：設籍臺北市，年齡為40歲(含)以下生理女性，且需經由腫瘤科醫師(或癌症專科醫師)認定個案因罹癌須治療而影響生育功能者。\n5.補助項目及額度：每案最高補助3萬2,000元：\n(1)凍卵療程：2萬元，終身補助1次。\n(2)保存費：每年申請1次為限，每次最高補助3,000元，最多補助4年，計1萬2,000元。\n(3)非接受本局凍卵療程補助而凍卵者，不得申請保存費補助。\n6.已婚配偶若同時符合兩項補助條件，得選擇申請人工生殖(試管嬰兒)療程保存胚胎(或卵子)，或選擇醫療性凍卵保存卵子，惟同一療程僅得就其中一項補助提出申請。\n7.補助方案查詢連結：https://health.gov.taipei/cp.aspx?n=B9E2BC16F7EB04A3。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AL087"
+    },
+    {
+      "id": "AL088",
+      "name": "助孕生殖「人工生殖(試管嬰兒)加碼」補助",
+      "summary": "1.本補助自114年1月1日起辦理，療程結束指胚胎植入日或因不可抗因素無法植入之療程終止日，療程完成超過6個月始申請者，不予補助，申請前請務必詳閱問答集。\n2.網路申辦：於本府市民服務大平台檢附上開文件(可以照片、掃描檔案等形式上傳，建議採PDF檔案，且務必清晰可辨識)，經機關審核後，於系統回復申請結果。\n3.本補助無臨櫃收件服務，若有紙本申辦需求，請以「掛號」寄件方式辦理（郵寄地址：臺北市信義區市府路1號西南區3樓健康管理科　臺北市政府衛生局收）。\n4.補助對象：受術不孕配偶雙方任一方設籍在臺北市，符合人工生殖法規範得實施人工生殖者，且接受胚胎植入方年齡為44歲(含)以下。\n5.補助項目及額度：人工生殖（試管嬰兒）療程費用，每年補助1次為限。每次療程依實際費用覈實支付，補助2萬5,000元(經費用罄為止)。\n6.已婚配偶若同時符合兩項補助條件，得選擇申請人工生殖(試管嬰兒)療程保存胚胎(或卵子)，或選擇醫療性凍卵保存卵子，惟同一療程僅得就其中一項補助提出申請。\n7.補助方案查詢連結：https://health.gov.taipei/cp.aspx?n=B9E2BC16F7EB04A3。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AL088"
+    },
+    {
+      "id": "AM050",
+      "name": "臺北松山機場周圍地區住戶航空噪音防制經費補助申請",
+      "summary": "1.環保局僅負責申請案之初審，後續之複審部份由交通部民航局臺北國際航空站負責辦理，故處理期限之計算係指受理申請至完成初審日止，而非指完成整個補助程序。\r\n2.申請人應於收到環保局之補助通知函的1個月內以郵寄申辦、臨櫃親自或委託方式提出申請。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AM050"
+    },
+    {
+      "id": "AM058",
+      "name": "辦理機車汰舊換新購買電動機車補助",
+      "summary": "1.本案採分批審查，每星期為一批次。\n2.本局得視每年預算辦理本項補助，依申請順序用罄為止。\n3.計畫補助對象申請須知：\n(1)個人：車主身分證明文件，請檢附身分證正反面影本。\n(2)獨資、合夥或法人：\nA.車主身分證明文件：請檢附政府機關登記證明文件影本。\nB.本局核准函：如購買2台以上電動機車，或曾申請電動機車補助者，應事先來函（加蓋公司大小章）向本局說明使用效益（包括詳細使用用途、使用頻率、使用範圍等），經本局核准，再行申請補助。\n(3)外籍人士：\nA.發票收執聯影本：購車及申請補助日期，應介於居留證核發日期及有效日期間。\nB.車主身分證明文件：請檢附（永久）居留證影本，如為持有「外僑居留證(ARC)」或「外僑永久居留證(APRC)」之外籍人士，居留證上之在臺地址需為臺北市。\nC.車主居留/登記地址於本市滿1年之證明文件：持有「外僑居留證(ARC)」之外籍人士，須檢附最近1期之繳稅證明影本。",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/AM058"
+    },
+    {
+      "id": "AM067",
+      "name": "臺北市輻射污染建築物改善工程補助費用申請",
+      "summary": "總補正日數30日，不算入審查期限內。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AM067"
+    },
+    {
+      "id": "AM068",
+      "name": "臺北市輻射污染建築物拆除補助費用申請",
+      "summary": "總補正日數30日，不算入審查期限內。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AM068"
+    },
+    {
+      "id": "AM076",
+      "name": "淘汰二行程機車申請通勤月票補助",
+      "summary": "1.本案採分批審查，每星期為一批次。\n2.本局得視每年預算辦理本項補助，依申請順序用罄為止。\n3.計畫補助對象申請須知：\n(1)個人：車主身分證明文件，請檢附身分證正反面影本。\n(2)獨資、合夥或法人：車主身分證明文件，請檢附政府機關登記證明文件影本。\n(3)外籍人士：\nA.發票收執聯影本：購買月票及申請補助日期，應介於居留證核發日期及有效日期間。\nB.車主身分證明文件：請檢附（永久）居留證影本、「外僑居留證(ARC)」或「外僑永久居留證(APRC)」。",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/AM076"
+    },
+    {
+      "id": "AO034",
+      "name": "37、臺北市政府文化局補助無形文化資產保存維護計畫",
+      "summary": "1.以上文件請以A4紙張直式橫書缮打、影印，一式15份，以本申請書為封面左側簡易裝訂成冊，請詳參本局補助「臺北市無形文化資產保存維護計畫申請須知」。\n2.本局收受之所有申請資料及附件，不論是否給予補助，原則上不予退還。\n3.經核定補助之申請案，應依計畫內容確實執行，若因計畫變更或因故無法履行，應即函報本局同意。",
+      "tags": [
+        "無形文化資產補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AO034"
+    },
+    {
+      "id": "AO038",
+      "name": "42、臺北市受保護樹木保育作業補助",
+      "summary": "1.非全年度開放申請，詳細時間將公布於文化局網站及台北服務通，原則每年公告2次，遇緊急狀況得逕自向文化局提出申請。\n2.格式請詳參每年度「臺北市受保護樹木保育作業補助申請須知」。",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/AO038"
+    },
+    {
+      "id": "AO049",
+      "name": "81、文化創意產業永續補助",
+      "summary": "1.非全年度開放申請，詳細時間將公布於文化局網站。\n2.上述文件說明請詳參臺北市政府文化局官網「臺北巿政府文化局文化創意產業永續補助專區-臺北巿政府文化局文化創意產業永續補助申請表格及計畫書範本」。",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/AO049"
+    },
+    {
+      "id": "AT084",
+      "name": "出租耕地災歉減免地租",
+      "summary": "查勘時，出租人及承租人應實地參加，如屆時不到，由租佃委員、區公所及地政局人員逕行查勘。",
+      "tags": [
+        "耕地",
+        "災歉",
+        "地租",
+        "三七五"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/AT084"
+    },
+    {
+      "id": "AU008",
+      "name": "8、服兵役役男家屬及遺屬特別補助費",
+      "summary": "申請書僅針對臨櫃親自申辦使用。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/AU008"
+    },
+    {
+      "id": "AU009",
+      "name": "9、服兵役役男家屬生活扶助各項補（慰）助",
+      "summary": "申請書僅針對臨櫃親自申辦使用。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/AU009"
+    },
+    {
+      "id": "AU010",
+      "name": "10、服兵役役男家屬生活扶助",
+      "summary": "審查表僅針對臨櫃親自申辦使用。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/AU010"
+    },
+    {
+      "id": "AU017",
+      "name": "17、服義務役致身心障礙人員購置輔具費用補助",
+      "summary": "1.依據服義務役致身心障礙人員購置輔具費用補助作業要點辦理，須陳轉內政部核定逕復當事人。\r\n2.申請書與領據正本僅針對臨櫃親自申辦或委託申辦使用。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/AU017"
+    },
+    {
+      "id": "AV006",
+      "name": "臺北市績優運動選手與教練及學校或體育團體獎勵金申請",
+      "summary": "1. 申請發給獎勵金，應依「臺北市績優運動選手與教練及學校或體育團體獎勵金發給辦法」第11條所定申請期限檢附應備資料向體育局提出申請，未依規定時間申請者，駁回申請；但經體育局認有特殊原因者，不在此限。\r\n2. 請於臺北市體育獎補助金申請管理系統-績優運動選手與教練及學校或體育團體獎勵金申請（https://grant.sports.taipei/）進行申請。\r\n3. 相關規定請參考「臺北市績優運動選手與教練及學校或體育團體獎勵金發給辦法」。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AV006"
+    },
+    {
+      "id": "AV008",
+      "name": "臺北市績優運動選手訓練補助金申請",
+      "summary": "1. 請於臺北市政府體育局體育獎補助金申請系統-績優運動選手訓練補助金申請（https://grant.sports.taipei/）進行申請。\r\n2. 相關規定請參考「臺北市績優運動選手訓練補助金發給辦法」。",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/AV008"
+    },
+    {
+      "id": "AX001",
+      "name": "5、消保團體補助",
+      "summary": "公職人員利益衝突迴避揭露義務：依據公職人員利益衝突迴避法第14條，公職人員或其關係人與公職人員服務之機關團體或受其監督之機關團體為補助或交易行為前，應主動於申請或投標文件內據實表明其身分關係。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/AX001"
+    },
+    {
+      "id": "BE005",
+      "name": "臺北市原住民族服飾購製補助",
+      "summary": "1.補助對象：設籍並實際居住本市滿4個月以上，具原住民身分者。\n2.補助額度：\n（1）0歲至6歲(含)補助新臺幣1,500元。\n（2）7歲至12歲(含)補助新臺幣2,000元。\n（3）13歲至17歲(含)補助新臺幣2,500元。\n（4）18歲(足)以上補助新臺幣2,500元。\n3.申請方式：採網路申請，受理時間至當年度11月底止，逾期不受理。\n4.申請期限：購製當年度1月至11月底止。\n5.補助限制：依臺北市原住民族服飾購製補助計畫第四點，各年齡層每人限申請1次1套，不得重復申請。",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/BE005"
+    },
+    {
+      "id": "BE006",
+      "name": "原住民身心障礙者機構式服務生活資材費用補助",
+      "summary": "申請單位上網提出申請後，請於收到通知補正訊息後，將紙本資料寄送至本會(以郵戳為憑)，逾期不受理。",
+      "tags": [
+        "原住民",
+        "身心障礙"
+      ],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/BE006"
+    },
+    {
+      "id": "BE007",
+      "name": "原住民族委員會公益彩券回饋金補助",
+      "summary": "1.中央原民會申請網址：https://pwl.cip.gov.tw/Outer/ApplyProcess\r\n2.處理期程：開放申請單位至系統申請(30日曆天)，申請截止後，由本府原民會進行初審(15日曆天)，本府原民會初審後，彙整初審結果函送中央原民會",
+      "tags": [
+        "原住民",
+        "公益彩券",
+        "回饋金"
+      ],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/BE007"
+    },
+    {
+      "id": "BE010",
+      "name": "法律訴訟費補助",
+      "summary": "1.戶籍資料由本會透過政府資料整合平臺查詢。\n2.申請前項補助，自該案件發生之當年度11月底前向本會提出申請。\n本項法律訴訟費補助預算計40萬元。",
+      "tags": [
+        "法律",
+        "訴訟",
+        "民事",
+        "刑事",
+        "原住民"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE010"
+    },
+    {
+      "id": "BE014",
+      "name": "臺北市經濟弱勢原住民家庭建購或修繕住宅補助",
+      "summary": "1.戶籍資料及土地、建物登記資料由本會透過政府資料整合平臺查詢。\n2.非設籍臺北市之人民，因政府資料整合平臺無法查詢戶籍資料，申請時需檢附一個月內之全戶戶籍謄本1份，但原民會已有相關資料足以證明者除外。\n3.申請人若與配偶分戶者，應同時檢附配偶之戶籍謄本。\n4.應備證件需附正本部分，可以影本先行申請，俟審核通過後再補寄正本，始得撥款。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE014"
+    },
+    {
+      "id": "BE015",
+      "name": "臺北市原住民醫療補助",
+      "summary": "戶籍資料由本會透過政府資料整合平臺查詢。",
+      "tags": [
+        "原住民",
+        "醫療"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE015"
+    },
+    {
+      "id": "BE016",
+      "name": "補助原住民文化及社會教育活動",
+      "summary": "一、補助項目\n補助原住民族文化及社會教育相關活動，包括原住民民俗活動或藝文展演、族語教育及師資培訓、原住民青少年文化生活教育、原住民老人教育、婦女教育、親職教育、成人教育、赴國外地區進行原住民歌舞藝術展演或族語推廣交流活動、原住民性別意識培力，以及其他配合原住民族政策推動之相關活動。 \n二、資格條件\n申請對象包括臺北市立案原住民社團、於本市辦理活動之國內合法立案原住民社團、本市各機關學校或民間團體，以及經臺北市政府原住民族事務委員會輔導並登錄有案之本市原住民組織。 \n三、審查方式\n申請單位應於活動開始前一個月提出申請，檢附活動計畫書及相關證明文件，由承辦單位進行初審後，提送審查小組複審，並以書面通知審查結果。 \n四、個別受補助者之補助金額上限\n補助金額以計畫總經費百分之八十為上限，申請單位應編列自籌款；每一申請單位每年以補助一次為原則，補助金額以新臺幣十萬元為上限。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE016"
+    },
+    {
+      "id": "BE017",
+      "name": "原住民裝置假牙補助",
+      "summary": "1.申請資格：設籍並實際居住臺北市年滿55歲以上原住民，且經「醫師評估有嚴重影響咀嚼功能需製作假牙贗復者或植入人工牙根 (植體)者。」。\n2.申請對象之活動假牙同一顎已取得相同補助項目者，3年內不予重複補助；固定假牙每人每年限申請上限6顆，同一齒5年內不予重複補助。\n3.戶籍資料由本會透過政府資料整合平臺查詢。\n4.至本市聯合醫院及各院區社會工作課辦理者，應提出註記有原住民身份之戶籍資料，供聯合醫院審查。",
+      "tags": [
+        "原住民",
+        "假牙"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE017"
+    },
+    {
+      "id": "BE018",
+      "name": "都市原住民家庭租屋補貼",
+      "summary": "1.非全年度開放申請，詳細時間將公佈於原民會網站及市府申辦網站，全年度開放2期申請。\n2.原民會每年受理2次，申請人應於承租後備齊應檢附文件，向戶籍所在地區公所原住民櫃臺申請。（1.第一次申請自4月1日起至4月30日止。2.第二次申請自8月1日起至8月31日止。）\n3.案件採受理後分期撥款原則，區公所受理案件後應依檢附文件逐一審查，並將受補助清冊、申請表及其他相關證明文件送本會，由本會撥款、區公所函知審查結果。補助款項分二期撥付，本會依據承租人承租期間及各區函報清冊覈實撥款。第一期補助款於8月31日前、第二期補助款於11月30日前匯入申請人指定帳戶。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE018"
+    },
+    {
+      "id": "BE019",
+      "name": "臺北市原住民老人收容安置補助",
+      "summary": "戶籍資料由本會透過政府資料整合平臺查詢。\n本項老人收容安置補助預算計4,5400,00萬元。",
+      "tags": [
+        "原住民",
+        "老人",
+        "收容安置"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE019"
+    },
+    {
+      "id": "BE020",
+      "name": "臺北市原住民單項體育活動推廣補助計畫",
+      "summary": "1.本會於年初公告收件時間，並於收件截止日後27日內遴聘審查委員並擇期舉行審查會議，審查結果以書面通知申請單位。\n2.每年10月31日前完成各項體育休閒活動，並依規定時程檢附核准函影本、收支結算表、原始支出憑證、各項活動計畫執行成果報告辦理核銷結案。\n3.本項補助線上辦理即可，相關紙本文件毋須寄回本會。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE020"
+    },
+    {
+      "id": "BE022",
+      "name": "原住民職業訓練生活津貼差額補助",
+      "summary": "1.戶籍資料由本會透過政府資料整合平臺查詢。\r\n2.須設籍本市滿四個月之原住民。\r\n3.符合「就業促進津貼實施辦法」第十八條，經公立就業服務機構就業諮詢並推介參訓，或經政府機關主辦或委託辦理之職業訓練單位甄選錄訓，得發給職業訓練生活津貼者。\r\n4.職業訓練結訓之日起二個月內，備妥應檢附之文件，逕向本會申請補助款。\r\n5.本補助最高補助金額以新臺幣3萬元為限，申請人於同年度內申請本補助者，其補助以一次為限。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE022"
+    },
+    {
+      "id": "BE023",
+      "name": "原住民婦女補助及優先扶助",
+      "summary": "1.戶籍資料由本會透過政府資料整合平臺查詢。\n2.非設籍臺北市之人民，因政府資料整合平臺無法查詢戶籍資料，申請時需檢附3個月內之全戶戶籍謄本，但本會已有相關資料足以證明者除外。\n3.申請「訴訟及法律服務費用」及「醫療費用」項目補助者，須檢附收據正本。",
+      "tags": [
+        "婦女",
+        "原住民",
+        "生活補助",
+        "訴訟",
+        "醫療",
+        "生育"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE023"
+    },
+    {
+      "id": "BE024",
+      "name": "原住民意外傷亡慰問金",
+      "summary": "1.戶籍資料由本會透過政府資料整合平臺查詢。\n2.非設籍臺北市之人民，因政府資料整合平臺無法查詢戶籍資料，申請時需檢附一個月內之全戶戶籍謄本或蓋有原住民身分戳記之戶口名簿影本1份，但原民會已有相關資料足以證明者除外。",
+      "tags": [
+        "意外死亡",
+        "意外失能",
+        "原住民",
+        "意外事故"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE024"
+    },
+    {
+      "id": "BE026",
+      "name": "原住民職業訓練學費及材料費補助",
+      "summary": "一、申請本補助應具備之資格如下：\n（一）開課前已開課前已設籍本市滿四個月且非有正式學籍在學學生之原住民，高中職或大專學校應屆畢業設籍本市滿四個月且非有正式學籍在學學生之原住民，高中職或大專學校應屆畢業學生除外。\n（二）參加下列任一機構舉辦之職業訓練或技術訓練相關課程或就業考試補習課程。但不包括各公私立大學開設之學分班課程：\n1.各級公私立學校、社區大學或推廣教育部。\n2.合法立案之民間訓練機構或補習教育機構。\n3.依章程得辦理職業訓練或技術教學之合法立案人民團體。\n二、應檢附文件\n（一）須載明政府機關核准立案字號及印花稅之繳費收據或統一發票。\n（二）經承訓機構核章之課程表、結業證書、合格結業相關證明，或出席紀錄，另函授或線上點名系統者，需自製出席紀錄。\n（三）金融機構存摺封面影本。\n三 、 補助標準：\n（一）首次申請者，當年度補助金額合計最高以新臺幣三萬元為限。\n（二）再次申請者，當年度補助金額合計最高以一萬五千元為限，惟前年度已獲補助者不予補助。\n（三）其他配合本會政策推動之職業訓練培訓職類，補助金額最高以新臺幣三萬元為限。\n四、申請審核程序\n（一）申請人於職業訓練結訓之日起二個月內，備妥應檢附之文件，透過「臺北市政府市民服務大平臺」向本會提出申請，逾期不予受理。\n（二）經本會審核符合者，核撥補助款匯入申請人帳戶。\n五、注意事項：受訓課程於每年十二月一日前（含當日）結訓者，其申請案視為當年度補助案件。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE026"
+    },
+    {
+      "id": "BE027",
+      "name": "原住民急難關懷慰問金",
+      "summary": "1.戶籍資料由本會透過政府資料整合平臺查詢。\n2.非設籍臺北市之人民，因政府資料整合平臺無法查詢戶籍資料，申請時需檢附一個月內之全戶戶籍謄本1份，但本會已有相關資料足以證明者除外。",
+      "tags": [
+        "急難",
+        "生活救助",
+        "醫療補助",
+        "災害救助",
+        "原住民"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE027"
+    },
+    {
+      "id": "BE028",
+      "name": "原住民兒童托育及協力照顧補助",
+      "summary": "1.申請對象：(1)具有原住民身分之國民小學以下兒童。(2)兒童及父母一方 (監護人或實際扶養者)必須設籍並實際居住本市。\n2.辦理程序：兒童於實際就托後，由申請人向就托機構提出申請，經就托機構彙整相關申請文件上網申請。\n3.一般相關證明文件：如中低收入戶相關證明、申請人及其配偶與十六歲以上具有工作能力之直系血親最近一年度綜合所得稅各類所得資料清單(或3年有效期限之本會托育補助核定函影本)、在學或兵役證明、戶籍資料(須註記原住民身分)、居住證明(例如可證明居住本市之水電費、電話費帳單或租賃契約影本)、身心障礙證明、失業證明……等。",
+      "tags": [
+        "托育",
+        "協力照顧",
+        "幼兒園",
+        "原住民",
+        "托嬰中心",
+        "課後留園",
+        "公托",
+        "原住民托育",
+        "托育補助"
+      ],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE028"
+    },
+    {
+      "id": "BE029",
+      "name": "臺北市政府原住民學生獎助學金",
+      "summary": "1.本市學生（國小、國中、高中、高職、特殊教育學生）得向該就讀學校申請，外縣市學生（高中、高職）或大專院校得向臺北市12區公所申請。\n2.設籍時間依公告為主。\n3.戶籍得透過政府資料整合平臺查詢。\n4.以上申請者不包含碩士班、博士班及學分班之學生。\n5.申請時間:上學期9月初；下學期3月初。(依公告為準)設籍時間依本會公告。\n6.本項補助線上辦理即可，相關紙本文件毋須寄回本會。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE029"
+    },
+    {
+      "id": "BE030",
+      "name": "臺北市原住民學生生活津貼補助",
+      "summary": "1.需設籍並實際居住本市連續滿4個月，設籍時間依本會公告。\n2.戶籍得透過政府資料整合平臺查詢。\n3.就讀本市公私立高中（職）者及公私立大專校院者或外縣市高中（職）者得向戶籍所在地區公所申請。\n4.已申請低收入戶減免或補助者，不得重複申請。\n5. 以上申請者不包含碩士班、博士班及學分班之學生。\n6.申請時間:上學期9月初；下學期3月初。(依公告為準)。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE030"
+    },
+    {
+      "id": "BE034",
+      "name": "原住民取得技術士證照獎勵申請",
+      "summary": "一、依據行政院原住民族委員會「原住民取得技術士證照獎勵辦法」辦理。\n二、申請人請詳閱「原住民取得技術士證照獎勵辦法」之規定，若檢附證件不齊，該項獎勵金申請案不予受理。\n三、申請人應檢附文件如下：\n1、原住民取得技術士證照獎勵申請表正本1份（下方部分須由申請人親筆簽名）。\n2、原住民取得技術士證照獎勵金領據正本1份（上方部分須由申請人親筆簽名）。\n3、技術士證照之正、反面影本1份。\n4、申請人金融存摺封面影本1份。\n5、取得單一級技術士證得比照甲級或乙級者，應檢附中央勞工主管機關認可得比照甲級或乙級之證明文件影本1份。\n6、申請人如為受刑人或因故不能使用本人存摺，得使用配偶、直系血親或旁系血親二親等之存摺，並填寫切結書正本1份。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE034"
+    },
+    {
+      "id": "BE036",
+      "name": "臺北市原住民心理健康支持補助",
+      "summary": "1.戶籍資料由本會透過政府資料整合平臺查詢。\n2.本計畫補助每次心理諮商所生之諮商費用，但不含掛號費其他費用。\n3.每人每年最多補助6次，每次最高補助新臺幣1,600元整，且服務機構應於當年11月30日以前提出申請。\n4.本項心理健康支持補助預算計60萬元。",
+      "tags": [
+        "原住民",
+        "心理諮詢"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE036"
+    },
+    {
+      "id": "BE037",
+      "name": "補助原住民返鄉參加歲時祭儀、文化、體育活動交通費",
+      "summary": "1.申請人須為臺北市戶籍。\n2.戶籍得透過政府資料整合平臺庫查詢。\n3.請領帳戶非申請人，須另提供身分證明文件及委任書。\n4.每人每年以申請1次並補助1次為限。\n5.同戶籍內之直系血親及配偶，參加申請人所屬部落原住民族歲時祭儀，亦得申請交通費補助，人數以2人為限（含申請人以3人為限）。\n6. 申請資料經審核不符規定或經通知限期補正，逾期未補正者，不予受理。\n7. 自參加歲時祭儀、文化、體育活動日起3個月內提出申請，逾期不予受理。\n8. 線上申請應備證件：\n(1)身分證影本。(申請由代理人為之者，應另檢附代理人身分證明文件及委任書)\n(2)參加歲時祭儀、文化、體育活動之照片(需含申請人並標註姓名以供查驗)。\n(3)歲時祭儀邀請函、公文、公告或其他足資證明之文件。\n(4)郵局或銀行存摺影本。",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/BE037"
+    },
+    {
+      "id": "BE039",
+      "name": "臺北市原住民族語教師平板電腦購置補助計畫",
+      "summary": "1. 補助對象：設籍本市滿4個月以上，實際於本市原住民族部落大學或本市各級學校擔任族語教師者，每人每3年以申請1次補助為限；過去3年已受本計畫補助購置平板電腦者，不予補助。\n2. 補助額度：依實際購置金額補助80%，最高補助新臺幣1萬元整。\n3. 申請方式：採網路申請，檢附本計畫公告受理申請前一年及當年合法廠商開立之統一發票及明細（須有商品名稱及購買金額明細），登入本市「台北服務通」填寫申請「臺北市原住民族語教師平板電腦購置補助計畫」，受理時間至公告受理申請當年12月20日止，逾期不受理。\n4. 申請人有下列情形之一者，不予補助；已予補助者，本會得追繳溢領金額，逾期不繳回者，依法移送強制執行，且2年內不得申請本計畫之補助：\n(1) 提供不實資料或虛偽之證明文件。\n(2) 以詐欺或其他不當方法取得補助。\n(3) 過去3年內已領取本計畫補助購置平板電腦。\n5. 申請人申請本案補助之案件處理期限，自本會收迄申請人電子發票正本無誤後起算。",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/BE039"
+    },
+    {
+      "id": "BE040",
+      "name": "促進原住民族就業獎勵津貼",
+      "summary": "1. 本案係依據原住民族委員會「每年公告「促進原住民族就業獎勵計畫」規定辦理，相關獎勵資格、申請文件請詳閱計畫內容。\n2. 由勞工至原住民族委員會「原JOB 原住民人力資源網」https://iwork.cip.gov.tw/，依其工作地之直轄市、縣（市）政府提出線上申請。\n3. 申請文件有欠缺者，通知限期補正，申請資料經審核不符規定或經通知限期補正，逾期未補正者，不予受理。",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/BE040"
+    },
+    {
+      "id": "BF007",
+      "name": "補助設籍臺北市客家團體協同辦理義民祭典等系列計畫",
+      "summary": "1.非全年度開放申請，詳細時間將公布於客委會網站。\r\n2.分二階段辦理，初審(資格審查)期間為18日，複審(專業審查)期間為7日，合計總期程為25日。",
+      "tags": [
+        "客家",
+        "藝文",
+        "民俗節慶"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BF007"
+    },
+    {
+      "id": "BU003",
+      "name": "推廣寵物保險補助",
+      "summary": "1.申請人已更新寵物登記證之「絕育」、「狂犬病注射日」及「狂犬病接種牌證號」等欄位資料者免附相關應備證件。\r\n2.動保處於每年1月1日起至12月20日止受理補助之申請。但如有必要者，得視情形調整，並將調整結果公告之。\r\n3.補助金額，由動保處公告之。\r\n4.當年度編列之經費預算用罄後，不再受理本案申請。",
+      "tags": [
+        "寵物保險",
+        "補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BU003"
+    },
+    {
+      "id": "BU007",
+      "name": "家犬貓絕育補助",
+      "summary": "1.申請書表表格可於網站下載或洽動保處，或本市各動物醫院索取。\n2.動物施術後請於進行手術之同年度12月20日前(或經費用罄)提出申請，逾期申請或經費用罄則予以退件不受理。（以戳章日期或動保處收文章日期為憑）。\n3.補助總金額：全年補助金額，依臺北市議會審定預算金額為準，依「先申請，先審核」原則，若補助款用罄時則不予以補助。若本年度補助款剩餘僅10％時，將提前於動保處網站主動公告相關事項。同一飼主每年申請頭數在五頭（含）以上，申請人應檢附妥善飼養家犬貓證明書，並經書面審核或實地訪查核可後，始得辦理。\n4.本絕育補助申請案，動保處得派員實地查核申請案件之實際情況，申請人不得藉故規避、妨礙或拒絕，在查核過程中，如發現請領人無法提供動物查驗、查與事實不符或不願意配合查核者，即限制該申請人當年度不得再申請其他家犬貓絕育補助案。若有資料缺漏經通知限期補正，申請人未予以補正或違反相關規定者，動保處將原件退還不予受理。\n5.特殊案件：全年申請隻數達5隻以上，須進行現場實地查察者，處理時限30日。",
+      "tags": [
+        "絕育補助",
+        "絕育"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BU007"
+    },
+    {
+      "id": "BU008",
+      "name": "街貓友善照護行動方案（TCCP）獎勵補助申請",
+      "summary": "",
+      "tags": [
+        "街貓",
+        "TCCP",
+        "獎勵補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BU008"
+    },
+    {
+      "id": "BU011",
+      "name": "臺北市動物保護獎勵補助申請",
+      "summary": "特殊案件：申請補助案件內容繁複，單一案件由2個以上申請單位或涉及機關協處事項者，處理時限60日。",
+      "tags": [
+        "獎勵補助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BU011"
+    },
+    {
+      "id": "BU048",
+      "name": "民間動物收容處所補助申請",
+      "summary": "1.需擇期現場勘驗。\n2.土地登記謄本、土地使用分區證明、建築物登記謄本及使用執照可由申請人提供相關地段地號資料，由本處透過網路逕向主管機關擷取。\n3.使用網路申辦者，應備證件為影本者，上傳掃描檔；若為正本者則請郵寄至臺北市動物保護處動物收容組收。\n4.特殊案件：涉及2次以上會勘，或跨機關協助審查等內容繁複者，處理時限60日。",
+      "tags": [
+        "民間動物收容",
+        "動物收容"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BU048"
+    },
+    {
+      "id": "BX004",
+      "name": "申請地價稅減免",
+      "summary": "1.此申請項目為免書證免謄本案件，請務必將申請書上各欄位填載清楚。\r\n2.委託他人代辦者，仍須以地價稅納稅義務人名義為申請人。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦 / 傳真申辦",
+      "officialUrl": "https://service.taipei/case-detail/BX004"
+    },
+    {
+      "id": "BX022",
+      "name": "申報房屋稅減免",
+      "summary": "本表單適用於房屋拆除、坍塌或遭受淹水、焚毀、受重大損害災毀等情事，申報減免房屋稅。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/BX022"
+    },
+    {
+      "id": "BX058",
+      "name": "申請災害損失減免使用牌照稅",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/BX058"
+    },
+    {
+      "id": "CD003",
+      "name": "臺北市協助民間推動都市更新事業經費補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/CD003"
+    },
+    {
+      "id": "CD014",
+      "name": "都市更新整建維護補助（事業）計畫案申請審查",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/CD014"
+    },
+    {
+      "id": "CD021",
+      "name": "臺北市整建住宅更新初期規劃費補助申請",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/CD021"
+    },
+    {
+      "id": "CD022",
+      "name": "臺北市協助老舊建築物增設電梯補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/CD022"
+    },
+    {
+      "id": "CH056",
+      "name": "臺北市廣告物示範區美化更置申請及補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/CH056"
+    },
+    {
+      "id": "CH069",
+      "name": "申請耐震評估補助部分費用",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/CH069"
+    },
+    {
+      "id": "CH074",
+      "name": "老舊建物外牆修繕補助申請",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/CH074"
+    },
+    {
+      "id": "CJ009",
+      "name": "申請低收入戶(無親屬)喪葬補助",
+      "summary": "1.本業務受社會局委託代辦。\n2.網路申辦者，應備齊所有證件並送達前揭承辦單位或代收處時，才開始計算申請處理時限。",
+      "tags": [
+        "殯葬管理處",
+        "殯葬處"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/CJ009"
+    },
+    {
+      "id": "CN012",
+      "name": "『建築物既有化糞池廢除或改設為污水坑補助』資格鑑定",
+      "summary": "1、 建築物為民國88年2月13日前領得建照執照者。\r\n2、 申請之建築物位於本市污水下水道完成地區內，經勘查可藉修改既有污水管線以重力流銜接公共污水下水道而廢除既有化糞池，或無法修改既有污水管線以重力流銜接公共污水下水道而將既有化糞池改設為污水坑者。",
+      "tags": [
+        "下水道",
+        "接管",
+        "化糞池",
+        "污水坑"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/CN012"
+    },
+    {
+      "id": "CN014",
+      "name": "『建築物既有化糞池廢除或改設為污水坑補助』申請",
+      "summary": "1、 所有區分所有權人之相關證明文件：如為影本應註明與正本相符，並親自簽名或蓋章。\r\n2、 全體區分所有權人同意申請補助之證明文件：所有區分所有權人均應親自簽名，並說明以上資料為本人親簽無誤，如有不實願負法律責任，如無法親簽者，須提出委託書，另同意書正本須親送或郵寄至本處。",
+      "tags": [
+        "下水道",
+        "化糞池",
+        "污水坑",
+        "汙水坑"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/CN014"
+    },
+    {
+      "id": "CV001",
+      "name": "特殊境遇家庭扶助之家庭暴力被害人補助",
+      "summary": "各項補助申請期限：\n1.緊急生活扶助：受害事實發生後6個月內。\n2.法律訴訟補助：提出訴訟至判決確定後6個月內提出申請。\n3.傷病醫療補助：就診後3個月內。\n4. 兒童托育津貼：托育事實發生後6個月內。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/CV001"
+    },
+    {
+      "id": "CV002",
+      "name": "臺北市性侵害被害人補助",
+      "summary": "各項補助申請期限：\n1.心理復健費用：就診後3個月內。\n2.訴訟及律師費用：提出訴訟至判決確定後6個月內提出申請。\n3.緊急庇護費用：受害事實發生後6個月內。\n4.緊急生活費用：受害事實發生後6個月內。\n5.醫療費用：就診後3個月內。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/CV002"
+    },
+    {
+      "id": "CV003",
+      "name": "臺北市家庭暴力被害人補助",
+      "summary": "各項補助申請期限：\n1.驗傷醫療費用：每次家庭暴力事件發生就診後次日起3個月內。\n2.心理復健費用：家庭暴力事實發生後就診後次日起3個月內。\n3.安置住宿費用：家庭暴力事實發生後經家防中心轉介安置於旅宿業者，安置結束次日起3個月內。\n4.房屋租金費用：家庭暴力事實發生後2年內且自租屋事實發生之次日起3個月內提出。\n5.必要之生活費用：家庭暴力事實發生後次日起2年內提出。\n6.律師費用：因家庭暴力事實提起訴訟後提出申請，至遲並應於判決確定後6個月內提出。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/CV003"
+    },
+    {
+      "id": "DW002",
+      "name": "申請鼓勵老舊計程車更新補助登記",
+      "summary": "注意事項：\n1. 本案為交通部補助計畫。\n2. 各項證件或執照影本請註明「與正本相符」並簽名。\n3. 向車籍所在地公路(或監理)機關(臺北市為臺北市公共運輸處)\n4. 補助數量：依當年度公告為準。\n5. 連絡電話請確實填寫，以利通知補正資料相關作業。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/DW002"
+    },
+    {
+      "id": "EA003",
+      "name": "臨時工作津貼人員申請",
+      "summary": "網路申辦屬預約申請，申請人仍須臨櫃繳驗相關證件，即網路預約至就服站進行就業諮詢及推介就業服務，經就服站服務後14日未能就業，始受理申請文件。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/EA003"
+    },
+    {
+      "id": "EA012",
+      "name": "雇主聘僱本國籍照顧服務員補助津貼",
+      "summary": "1.凡聘僱每滿3個月之次日起90日內，檢附上列文件向本處提出申請。\n2.補助金以每一被看護者發給雇主每月新臺幣1萬元，合計最長以12個月為限。\n3.雇主是否符合於時效內提出申請，仍依掛號郵戳或親自送件日期為審查依據。\n4.若聘僱時間滿30日、未滿3個月，申請期限應自照顧服務員離職日之次日起算90日內，檢附上列文件向本處提出申請。\n5.照服員工作地必須是在臺北市轄區內者。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EA012"
+    },
+    {
+      "id": "EA014",
+      "name": "職場學習及再適應計畫-個案職場學習及再適應津貼及用人單位行政管理及輔導費",
+      "summary": "本計畫補助個案職場學習及再適應津貼及用人單位行政管理及輔導費，標準如下：\r\n（一）個案職場學習及再適應津貼：按中央主管機關公告之每小時基本工資核給，且不超過每月基本工資。\r\n（二）用人單位行政管理及輔導費：以實際核發職場學習及再適應津貼金額之百分之三十核給。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EA014"
+    },
+    {
+      "id": "EA016",
+      "name": "臺北市特定對象失業者穩定就業補助辦法",
+      "summary": "補助標準如下：\r\n1.受補助之失業者每週工作時數應達三十二小時以上、若為身心障礙者，每週工作時數應達二十小時以上，就業期間應繼續滿30日，且應參加勞工保險月投保薪資等級符合本處當年度公告之標準以下者，每人每月補助新臺幣伍仟元整。\r\n2.受補助之失業者轉換雇主，其補助期間應合併計算，且二年內合計補助不得逾六個月。\r\n3.就業期間之認定，自失業者到職投保就業保險生效或勞工保險之日起算。\r\n4.本計畫補助期間最長為六個月，受補助之失業者在補助期限內轉換雇主應以一家為限。\r\n5.本辦法補助金額，以年度預算額度為限。當年度預算額度用罄時，得不再受理案件之申請，並由本處公告之。\r\n6.網路申辦屬預約申請，申請人仍須臨櫃繳驗相關證件，即網路預約至就服站進行就業諮詢及推介就業服務，始受理申請文件。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/EA016"
+    },
+    {
+      "id": "EA017",
+      "name": "鼓勵失業勞工受僱特定行業作業要點（核發津貼）",
+      "summary": "本要點定義失業勞工及雇主為：\r\n1.勞工：\r\n（1）待業期間達30日以上之失業勞工。但非自願離職或經公立就業服務機構評估者，不在此限。\r\n（2）失業勞工向公立就業服務機構辦理「求職登記」， 經諮詢評估其確有需要，並發給特定行業推介卡。\r\n（3）失業勞工從事主管人員、經理人員、商業及行政專業人員、商業及行政助理專業人員、事務支援人員等工作時，不適用本要點。\r\n2.雇主：\r\n（1）雇主向公立就業服務機構辦理求才登記。\r\n（2）持有「經濟部工業局或自由貿易港區管理機關核發特定製程或特殊時程之行業證明文件。\r\n（3）薪資達勞動部依就業服務法第四十七條規定，公告之合理勞動條件薪資基準以上。\r\n3.申請日期以郵戳或實際送件日為依據。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/EA017"
+    },
+    {
+      "id": "EA018",
+      "name": "跨域就業津貼-異地就業交通補助金",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EA018"
+    },
+    {
+      "id": "EA019",
+      "name": "跨域就業津貼-搬遷補助金",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EA019"
+    },
+    {
+      "id": "EA020",
+      "name": "跨域就業津貼-租屋補助金",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EA020"
+    },
+    {
+      "id": "EA025",
+      "name": "照顧服務就業獎勵(核發津貼)",
+      "summary": "1.因天災或其他不可歸責於勞工之事由，致逾期提出申請者，其經本市就業服務處許可後，得依規定申請津貼。\r\n2.第2次起之申請案，得免附第1.3.6項文件，匯款帳戶未有變更者，免附第5項文件。\r\n3.勞工受僱期間之認定，自投保就業保險或職業災害保險生效之日起算。\r\n4.勞工未檢齊規定文件，經本市就業服務處通知限期補正，屆期未補正者，視為未申請。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/EA025"
+    },
+    {
+      "id": "EA026",
+      "name": "「青年就業領航計畫」穩定就業津貼(津貼核發審查)",
+      "summary": "1.依青年就業領航計畫(下稱該計畫)第四點(二)(三)，本處於收到勞動部勞動力發展署北基宜花金馬分署當年度參加本計畫青年名單後，展開就業媒合服務，並由就服員將輔導過程登錄於資訊系統中。\r\n2.依該計畫第六點及第七點，青年獲錄取並上工連續受僱於同一雇主滿30日之日起90日內，檢附相關文件向工作所在地之公立就業服務機構申請穩定就業津貼。\r\n3.本處受理申請後辦理審查，並依該計畫第八點，本處每年1、4、7、10月檢送撥款清冊至勞動部勞動力發展署北基宜花金馬分署辦理後續津貼核定及撥款事宜。",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "",
+      "officialUrl": "https://service.taipei/case-detail/EA026"
+    },
+    {
+      "id": "EB002",
+      "name": "身心障礙者參加國家考試、職業駕照暨技術士課程補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB002"
+    },
+    {
+      "id": "EB003",
+      "name": "臺北市補助民營事業單位、團體、私立學校邀請身心障礙(街頭)藝人展演費用",
+      "summary": "1.第一階段申請注意事項:申請單位應於活動14日前檢附相關文件向重建處提出申請，逾期不予受理。例如3月30日辦活動，則應於3月16日（含）前提出申請，遇假日順延。\r\n2.第二階段核銷注意事項:受補助單位應於活動結束翌日起30日內檢附核銷文件向重建處辦理請款，逾期不予受理",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB003"
+    },
+    {
+      "id": "EB004",
+      "name": "事業單位僱用職業災害勞工補助",
+      "summary": "1.原事業單位：協助符合勞工職業災害保險及保護法第四十三條失能程度，且有工作能力之職業災害勞工，恢復其原工作、調整職務或安置適當工作後，有繼續僱用滿六個月者，得向地方主管機關申請補助。\r\n2.前項所定協助，為事業單位採取合理調整職業災害勞工工作時間、工作方式或提供教育訓練課程等各項措施，以利職業災害勞工恢復原工作、調整職務或安置適當工作之作為。\r\n3.新事業單位：僱用其他事業單位符合勞工職業災害保險及保護法第四十三條失能程度，且有工作能力之職業災害勞工之事業單位，並繼續僱用滿六個月者，得向地方主管機關申請僱用職業災害勞工補助。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB004"
+    },
+    {
+      "id": "EB005",
+      "name": "職能復健津貼",
+      "summary": "職業災害勞工於認可職能復健機構完成職能復健生理或心理強化訓練後提出申請。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB005"
+    },
+    {
+      "id": "EB006",
+      "name": "雇主提供職業災害勞工輔助設施補助",
+      "summary": "職業災害勞工之雇主\n1.已依職能復健專業機構建議，提供職業災害勞工從事工作必要之輔助設施。\n2.提供輔助設施90日內具備書件提出申請。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB006"
+    },
+    {
+      "id": "EB007",
+      "name": "臺北市補助身心障礙街頭藝人表演費用",
+      "summary": "1.第一階段申請注意事項：申請者應於展演日10日前檢附下列文件提出申請，逾期不予受理，如遇假日得順延至次一工作日(展演日10日前之計算，例如：12月15日之展演，最遲應於12月5日（含）提出申請)。\n2. 第二階段核銷注意事項：受補助者應於表演結束翌日起30日內，檢附核銷相關文件向重建處辦理請款。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB007"
+    },
+    {
+      "id": "EB008",
+      "name": "私立義務機構超額進用身心障礙者獎勵金",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB008"
+    },
+    {
+      "id": "EB009",
+      "name": "私立非義務機構進用身心障礙者獎勵金",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": false,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB009"
+    },
+    {
+      "id": "EB011",
+      "name": "「頭家寶障—訓用留」實施計畫",
+      "summary": "1. 身障者薪資單、身障者出勤紀錄如為影本須加蓋與正本相符及公司大小印章。\r\n2. 民營事業機構雇主於僱用身障員工作期滿90日或僱用關係結束等情形之次日起60日內申請第一階段獎勵金。\r\n3. 民營事業機構雇主於僱用身障員工作期滿180日或僱用關係結束等情形之次日起60日內申請第二階段獎勵金。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB011"
+    },
+    {
+      "id": "EB012",
+      "name": "身心障礙者新創及經營事業補助資格申請",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB012"
+    },
+    {
+      "id": "EB017",
+      "name": "身心障礙者新創及經營事業補助款第1次請款案",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB017"
+    },
+    {
+      "id": "EB021",
+      "name": "視障按摩據點設施設備補助申請",
+      "summary": "網路申辦屬預約申請，申請人仍須臨櫃繳驗相關證件。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EB021"
+    },
+    {
+      "id": "EC002",
+      "name": "臺北市促進勞工職業技能補助",
+      "summary": "1.申請人於網路申辦後，須於7日內將申請書、領據正本及應備文件郵寄至臺北市職能發展學院，逾7日不予受理。\n2.依臺北市促進勞工職業技能補助辦法辦理。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EC002"
+    },
+    {
+      "id": "EF001",
+      "name": "國民年金被保險人所得未達一定標準認定資格",
+      "summary": "1.各項資料填寫無誤後，申請人須親自簽名或蓋章。\n2.申請日以申請人備齊所有證件後起算。\n3.所得未達一定標準者，申辦保險費補助之標準，請參考本府社會局網站 (https://dosw.gov.taipei/)/社會救助/國民年金保費補助/所得未達一定標準資格認定申請。\n4.查稅44日，原因為衛生福利部統一協查財稅需時30日，惟財稅資料申請查調後，如列計人口有被申報所得稅扶養親屬，則需再增加第2次查調該申報人財稅之情況，需時14日。\n5.依社會救助法第5之1條第1項第1款，有工作能力未就業者，工作收入依基本工資核算。\n6.跨區申辦公文交換需2日，處理時限以實際受理案件區公所為起算日。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦 / 跨區申辦",
+      "officialUrl": "https://service.taipei/case-detail/EF001"
+    },
+    {
+      "id": "EF002",
+      "name": "臺北市原住民學生就學交通費補助",
+      "summary": "1.補助對象：除具本市低收入戶資格者，應向本府社會局提出申請外，餘依下列3項資格向區公所民政課申請。\n(1)設籍並實際居住本市，且就讀國中以上至大專院校之原住民在學學生。\n(2)未領有其他政府機關之相同補助者。\n(3)本補助所稱大專院校，係指就讀臺灣地區經教育部承認之二專、五專、二技、四技或大學之法定修業年限以內之學生（含夜間部）。但不包括延長修業年限、碩、博士班、空中大學(專科)、進修補習學校、遠距教學、學分班及在職進修班學生。\n2.申請時間：上學期9月初；下學期3月初(依公告為準)。前由申請人檢具有關證明文件申請。\n3.由本市各區公所依權責審查學生之原住民身分，自受理案件截止日後檢具清冊、申請人之金融帳簿封面影本，逕送臺北市政府原住民族事務委員會。\n4.跨區申辦公文交換需2日，處理時限以實際受理案件區公所為起算日。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦 / 跨區申辦",
+      "officialUrl": "https://service.taipei/case-detail/EF002"
+    },
+    {
+      "id": "EG001",
+      "name": "臺北市育兒津貼",
+      "summary": "1.本補助以申請人檢附完整資料之日為受理申請日。\n2.委託辦理者應檢附受委託人、委託人之國民身分證或戶口名簿正本。\n3.區公所無法從內政部入出國及移民署電子資料作業系統查詢者，仍需檢附入出國日期證明書。\n4.新生兒之育兒津貼申請書表可於申辦新生兒登記時一倂由該戶政事務所代收。\n5.臺北市育兒津貼自110年8月起配合行政院擴大實施育兒津貼之意旨，已轉優先發放中央(衛福部或教育部)育兒津貼，且因中央育兒津貼與「臺北市育兒津貼」同屬生活類補助，不得併領。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/EG001"
+    },
+    {
+      "id": "EG002",
+      "name": "育有未滿2歲兒童育兒津貼申請查定",
+      "summary": "1.本補助以申請人檢附完整資料之日為受理申請日。\n2.委託辦理者應檢附受委託人、委託人之國民身分證或戶口名簿正本。\n3.新生兒之育兒津貼申請書表可於申辦新生兒登記時一併由該戶政事務所代收。\n4.「育有未滿2歲兒童育兒津貼」與「臺北市育兒津貼」同屬生活類補助，不得併領。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EG002"
+    },
+    {
+      "id": "EG003",
+      "name": "教育部補助地方政府發放二歲以上未滿五歲幼兒育兒津貼及五歲至入國民小學前幼兒就學補助",
+      "summary": "1.本津貼及補助以申請人檢附完整資料之日為受理申請日。\n2.屬特殊情況者，受理機關得請申請人自行舉證資料；受理單位如有查驗文件正本之必要，申請人應配合提出。\n3.幼兒滿2歲當月(第1個月)還領有衛生福利部發放的0至未滿2歲育兒津貼或托育公共化及準公共服務者，由教育部依衛生福利部資訊系統提供之資料直接審核，無須重新申請；符合資格者，自受理申請之次月起，按月於每月月底前撥付至申請人指定帳戶。\n4.倘申領本津貼及補助後因不符資格中斷者，日後重新符合申請條件，則需再提出申請。\n5.申請人之申請案件經區公所收件後，將於次月1日進行系統審核，符合資格者，將於月底前撥付金額至申請人指定帳戶。\n6.經審查為「不符資格」者，可於收到通知書次日起30日內申復。\n7.若仍有疑問，可參考全國教保資訊網（https://www.ece.moe.edu.tw/）閱讀相關說明，或電洽諮詢專線：0800-205-105或臺北市政府市民熱線1999，將有專人為您服務說明。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EG003"
+    },
+    {
+      "id": "EL003",
+      "name": "服兵役役男家屬生活扶助各項補(慰)助",
+      "summary": "委託辦理者應檢附委託書及委託人、受委託人之國民身分證正本及印章",
+      "tags": [
+        "役男家屬生活扶助"
+      ],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 跨區申辦",
+      "officialUrl": "https://service.taipei/case-detail/EL003"
+    },
+    {
+      "id": "EN001",
+      "name": "農業動力用電申辦基本電費減免輔導",
+      "summary": "1.臺北市政府第6次擴大授權區公所辦理。\n2.申請接電請逕洽電力公司辦理。\n3.依「農業動力用電範圍及標準」規定，農業動力用電以合於下列規定之用電並直接供農業所需者為限：\n（1）農業灌溉及水利設施操作用電：抽水或揚水以灌溉農作物為目的或操作各種農業水利設施之用電。\n（2）農作物栽培及收穫後處理用電：農作物播種、育苗及栽培管理或各種農產品乾燥、脫粒、洗選、分級、包裝之處理機械用電，或設施園藝所需之光照及溫度調節用電。\n（3）農產品冷藏及糧食倉儲用電：農民團體及農產品批發市場冷藏農產品，或農民團體存儲公糧、稻米、雜糧之倉儲操作或碾米機械之用電。\n（4）水產養殖用電：海上養殖所需之岸上飼料原料儲藏、冷凍、混合、投餌、洗網機械；陸上養殖所需之抽水、排水、打氣、溫室加溫、循環水等水質改善設備、飼料原料儲藏、冷凍、混合、投餌機械之用電。\n （5）畜牧用電：飼養家畜、家禽、污染防治設施、雞蛋洗選、分級包裝或集乳站機械之用電。\n4.委託辦理者應檢附委託人、受委託人之國民身分證正本及印章。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EN001"
+    },
+    {
+      "id": "EN003",
+      "name": "受理農戶種稻及轉(契)作、休耕補助申請",
+      "summary": "1.區公所僅負責申請案之收件，後續之審查部分由本府產業發展局轉農糧署負責辦理，故處理期限之計算係指區公所受理申請時間，而非指完成整個補助程序。\n2.申報期限為每年1月1日至31日止，受理兩個期作申報作業；每年6月1日至6月30日辦理補(變更)申報第2期作。(依每年「調整耕作制度活化農地計畫」申報作業規範公告日期為準)。\n3.已建檔之農戶免附農戶基本耕地總清冊。\n4.網路申辦(非全程式)，申請人填具申請書電子檔後，將申請書及相關應備證件正本資料掃描PDF上傳，並透過自然人憑證驗證；惟經審查仍有尚待釐清疑義，將請申請人提供相關應備證件正本資料，俾利審查。\n5.設於84年1月1日以後(不含異動資料)土地登記謄本，得由該申請案件之受理機關逕至地政資料庫下載檢附(僅限位於臺北市之土地)。\n6.設籍臺北市84年6月後之除、現戶之謄本，得由該申請案件之受理機關逕至市政資料庫下載檢附。\n7.委託辦理者應檢附委託人、受委託人之國民身分證正本及印章。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/EN003"
+    },
+    {
+      "id": "EO003",
+      "name": "家境清寒證明",
+      "summary": "1.包括申請獎助學金、減免學雜費、減免課業輔導費3項。\n2.委託辦中低收入老人生活津貼理者應檢附受委託人之國民身分證正本及印章。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦 / 跨區申辦",
+      "officialUrl": "https://service.taipei/case-detail/EO003"
+    },
+    {
+      "id": "EO006",
+      "name": "急難救助",
+      "summary": "1.里幹事訪視、案件審核、核發救助款2天。\n2.委託辦理者應檢附委託人、受委託人之國民身分證正本及印章。\n3.跨區收件公文交換需2日，處理時限以實際受理案件區公所為起算日。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 跨區申辦",
+      "officialUrl": "https://service.taipei/case-detail/EO006"
+    },
+    {
+      "id": "EO007",
+      "name": "災害救助",
+      "summary": "1.申請日以「里幹事」備齊資料且符合救濟標準起算。\n2.集中支付處完成撥款工作平均約3天。\n3.網路預約，申請人仍需臨櫃繳驗相關應備證件至區公所後方能正式受理。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦",
+      "officialUrl": "https://service.taipei/case-detail/EO007"
+    },
+    {
+      "id": "EP003",
+      "name": "中低收入老人生活津貼",
+      "summary": "1.福利申請以申請人檢附完整資料之日為受理申請日，經審核通過後溯至受理申請月份生效。\n2.網路申辦者將採自然人憑證及行動自然人憑證作為身分驗證方式（請先備妥讀卡機及自然人憑證），且僅限申請者本人親自驗證遞送。\n3.申請時請自行檢視，相關文件經同意受理將不予退件。\n4.外國文件需先翻譯成中文並經駐外單位驗證簽章。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EP003"
+    },
+    {
+      "id": "EP004",
+      "name": "身心障礙者生活補助",
+      "summary": "1.福利申請以申請人檢附完整資料之日為受理申請日，經審核通過後溯至受理申請月份生效。\n2.網路申辦者將採自然人憑證及行動自然人憑證作為身分驗證方式（請先備妥讀卡機及自然人憑證），限申請者本人或受委託人本人親自驗證遞送。\n3.申請時請自行檢視，相關文件經同意受理將不予退件。\n4.外國文件需先翻譯成中文並經駐外單位驗證簽章。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/EP004"
+    },
+    {
+      "id": "EQ001",
+      "name": "服兵役役男家屬及遺屬特別補助費",
+      "summary": "申請書僅針對臨櫃親自申辦使用。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/EQ001"
+    },
+    {
+      "id": "EQ003",
+      "name": "服兵役役男家屬生活扶助",
+      "summary": "審查表僅針對臨櫃親自申辦使用。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/EQ003"
+    },
+    {
+      "id": "PO002",
+      "name": "臺北市青年留學生就學貸款補助",
+      "summary": "",
+      "tags": [],
+      "online": false,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/PO002"
+    },
+    {
+      "id": "PO003",
+      "name": "青年AI工具補助",
+      "summary": "受理收件：臺北青年職涯發展中心(02-23958567；臺北市中正區仁愛路一段17號2樓)",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/PO003"
+    },
+    {
+      "id": "PO004",
+      "name": "臺北市青年實習津貼",
+      "summary": "受理收件：臺北青年職涯發展中心(02-23958567)；臺北市中正區仁愛路一段17號2樓)",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/PO004"
+    },
+    {
+      "id": "PO006",
+      "name": "青年創業共享空間租賃補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/PO006"
+    },
+    {
+      "id": "PO007",
+      "name": "臺北市職涯培力及創業活動補助",
+      "summary": "1.受理申請期間：\n（一）補助類型屬「臺北市政府青年局職涯培力及創業活動補助作業要點」第3點第1款之申請案件：每年1月1日至1月15日止，受理申請補助當年度2月至5月內辦理之活動；每年5月1日至5月15日止，受理申請補助當年度6月至9月內辦理之活動；每年9月1日至9月15日止，受理申請補助當年度10月至次年1月內辦理之活動。\n（二）補助類型屬「臺北市政府青年局職涯培力及創業活動補助作業要點」第3點第2款之申請案件：申請人應於活動前20日提出申請；惟當年度11月30日（含）（遇假日順延至次一工作日）後，不再受理當年度補助案件之申請。\n\n2.受理核銷期間：\n受補助者應於活動結束後20日內，檢附所須文件送達本局辦理核銷，如因故無法於期限內提送，應於期限內敘明理由報本局核准，逾期得不予核銷。但當年度11月10日（含）後辦理之活動，應於11月30日（含）（遇假日順延至次一工作日）前辦理核銷。當年度12月辦理之活動，應於次年度1月1日至1月31日（含）（遇假日順延至次一工作日）前辦理核銷。\n\n3.注意事項\n（一）申請補助活動如有收費情形，應於活動計畫書敘明，預估收費總金額將列為核發補助參據；如未於計畫書敘明者，經查證屬實，本局得刪減全部補助款。\n（二）受補助者應依核定補助活動計畫書內容確實執行，如變更活動辦理內容、時間或地點等，須於活動原訂辦理前七日先函報本局核定。\n（三）受補助者應依活動性質及本府相關規定自行投保傷害保險、相關產險或公共意外責任保險。",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/PO007"
+    },
+    {
+      "id": "PO008",
+      "name": "臺北市政府促進青年國際發展補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "郵寄申辦 / 臨櫃申辦",
+      "officialUrl": "https://service.taipei/case-detail/PO008"
+    },
+    {
+      "id": "PO010",
+      "name": "青年創新職場實習補助",
+      "summary": "",
+      "tags": [],
+      "online": true,
+      "counter": true,
+      "applicationMethods": "臨櫃申辦 / 郵寄申辦",
+      "officialUrl": "https://service.taipei/case-detail/PO010"
+    }
+  ]
+}

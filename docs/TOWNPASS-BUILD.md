@@ -40,6 +40,8 @@ open -a Simulator
 fvm flutter run -d "iPhone 17 Pro" --dart-define=CODEFEST_SERVICE_URL=http://localhost:5173
 ```
 
+若要直接測福利雷達服務，先在本 repo 執行 `pnpm dev:web`，再把 URL 改為 `http://localhost:5173/benefits`。既有服務註冊與 `userinfo` bridge 不需修改；一般瀏覽器則用 `/benefits?mockBridge=1` 模擬殼回覆。
+
 （這次是用 `xcrun simctl install/launch` 裝上已經 build 好的 Runner.app，確認 App 能啟動、首頁正常顯示。）
 
 ## 踩到的坑

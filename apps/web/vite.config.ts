@@ -12,6 +12,8 @@ export default defineConfig(({ mode }) => {
 
   return {
     envDir,
+    // 福利專用分支不打包原友善地圖的 public 快照。
+    publicDir: false,
     plugins: [vue()],
     resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
     server: {
@@ -26,7 +28,6 @@ export default defineConfig(({ mode }) => {
         '/config': apiTarget,
       },
     },
-    // maplibre-gl 本身約 1MB（已 lazy load 在 /map），不用為它警告
     build: { chunkSizeWarningLimit: 1200 },
     test: {
       environment: 'jsdom',
