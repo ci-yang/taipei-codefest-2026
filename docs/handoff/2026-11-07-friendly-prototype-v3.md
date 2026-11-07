@@ -2,6 +2,11 @@
 
 2026-11-07。Ci 指定先更新 prototype，稍後才改規格。本次在獨立 worktree `tcf-prototype-map`、分支 `feat/prototype-resource-map` 完成；未改正式 spec、`apps/`、平台部署或 TownPass App。
 
+- [操作分享版](https://ci-share.pages.dev/da352bef2ecaca09/)
+- [Draft PR #3](https://github.com/ci-yang/taipei-codefest-2026/pull/3)，實作 commit `6e4227f`，尚未合併。
+- 分享版已以 Chrome 點選布納咖啡館，顯示路線與沿線高亮、店家預覽，未擷取到 console error。任何取得連結的人都能查看及轉傳。
+- 收回分享：`bash ~/.claude/skills/publish-report/scripts/share.sh --revoke da352bef2ecaca09`。
+
 ## 這版可以操作
 
 - 深灰綠地圖、螢光綠路線、四類服務快捷篩選。
