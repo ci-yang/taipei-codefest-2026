@@ -1,5 +1,6 @@
-// Every colour and type value lives in styles.css, where css-audit checks it. Inline styles would bypass that
-// check, so the page has none: not in index.html, not in anything app.js renders, not set from script.
+// Every colour and type value lives in styles.css, where css-audit checks it. Inline styles or another stylesheet
+// would bypass that check, so the page has none: not in index.html, not in anything app.js renders, not set from
+// script. The CSP in index.html makes the browser refuse them (situation-csp.test.mjs); this file is the second line.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -38,10 +39,14 @@ function renderedPages(app) {
   return out;
 }
 
-/** Inline style in markup: a style attribute on any element, or a <style> element. */
+/** Markup that styles the page from outside styles.css: a style attribute, or a <style>, <link> or <base> element. */
 function inlineStyles(html) {
-  return [...html.matchAll(/<[a-z][^>]*?\sstyle\s*=|<style[\s>]/gi)].map((m) => m[0]);
+  return [...html.matchAll(/<[a-z][^>]*?\sstyle\s*=|<(style|link|base)[\s>/]/gi)].map((m) => m[0]);
 }
+
+// index.html's only <link>s: the empty data: icon (stops a favicon request) and the page's own stylesheet.
+const PAGE_LINKS = ['<link rel="icon" href="data:,">', '<link rel="stylesheet" href="./styles.css">'];
+const withoutPageLinks = (html) => PAGE_LINKS.reduce((h, link) => h.replace(link, ''), html);
 
 /*
  * Script that writes styles, found on the syntax tree (TypeScript's parser, already a repo devDependency) so spacing,
@@ -52,7 +57,7 @@ const STYLE_MEMBERS = new Set(['style', 'cssText', 'setProperty', 'insertRule', 
   'attributeStyleMap', 'CSSStyleSheet']);
 const SET_ATTR = /^(setAttribute|setAttributeNS|setAttributeNode|setAttributeNodeNS|toggleAttribute)$/;
 const STYLE_WORD = /^(style|csstext|setattribute(ns)?)$/i;
-const STYLE_MARKUP = /<style[\s>/]|\sstyle\s*=/i;
+const STYLE_MARKUP = /<(style|link|base)[\s>/]|\sstyle\s*=/i;
 
 function literalText(node) {
   return node && (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) ? node.text : null;
@@ -143,6 +148,16 @@ function runtimeStyleWrites(appSource = read('app.js')) {
   return { log, drawn: app.innerHTML.length };
 }
 
+test('index.html has no style attribute, no <style> or <base>, and links only styles.css and the data: icon', () => {
+  const html = read('index.html');
+  for (const link of PAGE_LINKS) assert.ok(html.includes(link), `index.html lost ${link}`);
+  assert.deepEqual(inlineStyles(withoutPageLinks(html)), []);
+});
+
+test('every rendered page (home filters, every card, day and night) has no inline style, <style>, <link> or <base>', () => {
+  for (const [name, html] of renderedPages(loadApp())) assert.deepEqual(inlineStyles(html), [], name);
+});
+
 test('no page script writes styles directly (syntax-tree scan of app.js, core.js, bridge.js)', () => {
   for (const file of SCRIPTS) assert.deepEqual(styleWrites(read(file), file), [], `${file} writes a style`);
 });
@@ -156,10 +171,32 @@ test('running app.js (boot, home, every card, day/night flip, district, search) 
 // Review round 14: each injection must make the checks above fail.
 const INJECTED = 'style="color: rebeccapurple !important; font-weight: 900"';
 
-test('mutation: a style attribute on <body> in index.html is caught', () => {
-  const html = read('index.html').replace('<body>', `<body ${INJECTED}>`);
-  assert.notDeepEqual(inlineStyles(html), []);
-});
+for (const [what, from, to] of [
+  ['a style attribute on <body>', '<body>', `<body ${INJECTED}>`],
+  ['an outside stylesheet <link>', '</head>', '<link rel="stylesheet" href="https://evil.test/x.css">\n</head>'],
+  ['a <style> element', '</head>', '<style>body { color: red }</style>\n</head>'],
+  ['a <base> element', '</head>', '<base href="https://evil.test/">\n</head>'],
+]) {
+  test(`mutation: ${what} in index.html is caught`, () => {
+    const html = read('index.html').replace(from, to);
+    assert.notEqual(html, read('index.html'), 'mutation did not apply');
+    assert.notDeepEqual(inlineStyles(withoutPageLinks(html)), []);
+  });
+}
+
+// Review round 16: app.js rendering an element that pulls styles from elsewhere must fail the render scan, the
+// source scan and the run.
+for (const tag of ['<link rel="stylesheet" href="https://evil.test/x.css">', '<LINK REL=stylesheet HREF=//evil.test/x.css>',
+  '<style>.dial { color: red }</style>', '<base href="https://evil.test/">']) {
+  test(`mutation: app.js rendering ${tag} is caught`, () => {
+    const source = read('app.js').replace('return (situation ? renderCard', `return ${JSON.stringify(tag)} + (situation ? renderCard`);
+    assert.notEqual(source, read('app.js'), 'mutation did not apply');
+    const home = renderedPages(loadApp(source)).find(([name]) => name.startsWith('home day'))[1];
+    assert.notDeepEqual(inlineStyles(home), [], 'render scan missed it');
+    assert.notDeepEqual(styleWrites(source), [], 'source scan missed it');
+    assert.notDeepEqual(runtimeStyleWrites(source).log, [], 'runtime check missed it');
+  });
+}
 
 test('mutation: a style attribute app.js puts on every home mini-band is caught', () => {
   const source = read('app.js').replace('<span class="mini-band">', `<span class="mini-band" ${INJECTED.replace(/"/g, '\\"')}>`);

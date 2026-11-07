@@ -4,11 +4,16 @@
 export const TP_SIZES = [12, 14, 16, 18, 24, 36]; // TPTextStyles: caption, body, h3, title, h2, h1
 export const TP_WEIGHTS = [400, 600];
 
-/** Undoes CSS escapes (`\62 old` and `\62old` → `bold`, `\o` → `o`) so an escaped name or value is checked as what it means. */
+/**
+ * Undoes CSS escapes (`\62 old` and `\62old` → `bold`, `\o` → `o`) so an escaped name or value is checked as what it
+ * means. A backslash before a line break is a line continuation inside a string (`"ht\⏎tps:"` is `"https:"`), so
+ * it is dropped. One left-to-right pass, so `\\` stays an escaped backslash and never starts a continuation.
+ */
 export function unescapeCss(text) {
-  return text.replace(/\\([0-9a-f]{1,6})[ \t\n\r\f]?|\\([^\n\r\f0-9a-f])/gi,
+  return text.replace(/\\([0-9a-f]{1,6})[ \t\n\r\f]?|\\([^\n\r\f0-9a-f])|\\(?:\r\n|[\n\r\f])/gi,
     (_, code, ch) => {
-      if (!code) return ch;
+      if (ch !== undefined) return ch;
+      if (!code) return '';
       const n = Number.parseInt(code, 16);
       return String.fromCodePoint(n > 0 && n <= 0x10ffff && (n < 0xd800 || n > 0xdfff) ? n : 0xfffd);
     });

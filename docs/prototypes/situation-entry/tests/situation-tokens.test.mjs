@@ -105,6 +105,12 @@ const MUTATIONS = {
   '@FONT-FACE with a protocol-relative src': '@FONT-FACE { font-family: x; src: url("//evil.test/x.woff2"); }',
   'image-set with an external string': '.x { background-image: image-set("https://evil.test/x.png" 1x); }',
   'unknown at-rule @namespace': '@namespace svg url(http://www.w3.org/2000/svg);',
+  // Review round 16: a backslash-newline inside a string is a line continuation; Chrome reads these as https://.
+  'backslash-newline splitting https in a quoted url': '.x { background: url("ht\\\ntps://evil.test/x.png"); }',
+  'backslash-CRLF splitting https in a quoted url': ".x { background: url('ht\\\r\ntps://evil.test/x.png'); }",
+  'backslash-newline splitting the // in a string': '.x { background-image: image-set("/\\\n/evil.test/x.png" 1x); }',
+  'backslash-newline plus hex escape': '.x { background: url("\\68 t\\\ntps://evil.test/x.png"); }',
+  'backslash-newline splitting @import': '@im\\\nport "evil.css";',
 };
 for (const [name, rule] of Object.entries(MUTATIONS)) {
   test(`audit rejects ${name}`, () => {
@@ -147,7 +153,8 @@ test('the page loads nothing from another origin (zero external requests)', () =
   const html = readFileSync(join(pageDir, 'index.html'), 'utf8');
   const refs = [...html.matchAll(/\b(?:src|href|srcset|poster|data)\s*=\s*"([^"]*)"/gi)].map((m) => m[1]);
   assert.ok(refs.length >= 5, 'expected the page’s own stylesheet and scripts');
-  for (const ref of refs) assert.doesNotMatch(ref, /^(?:[a-z][\w+.-]*:|\/\/)/i, `external resource ${ref}`);
+  // `data:,` is the empty favicon: it stops the browser asking the server for /favicon.ico and loads nothing.
+  for (const ref of refs.filter((r) => r !== 'data:,')) assert.doesNotMatch(ref, /^(?:[a-z][\w+.-]*:|\/\/)/i, `external resource ${ref}`);
   assert.doesNotMatch(html, /rel="(?:preconnect|dns-prefetch|preload|prefetch)"/, 'resource hints open connections');
   assert.deepEqual(externalLoads(css), []);
 });

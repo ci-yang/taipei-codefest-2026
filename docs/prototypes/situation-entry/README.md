@@ -63,6 +63,24 @@ pnpm test:situation        # 檢查 situations-data.js 與 data/situation/ 同�
 - 一般瀏覽器：沒有 `flutterObject`，按鈕就是 `tel:` 連結。
 - 分機號碼不自動撥，按鈕下方寫「接通後轉分機」。
 
+## 內容安全政策（CSP）
+
+`index.html` 的 `<head>` 第一行是 CSP meta，只允許頁面自己的檔案：
+
+```
+default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'
+```
+
+- 這是主要防線：style 屬性、內嵌 `<style>`、外部 `<link>`、`@import`、外部圖片和字型，瀏覽器直接拒絕，寫法再怎麼繞都一樣。`frame-ancestors` 在 meta 裡無效，所以沒寫。
+- `tests/situation-csp.test.mjs` 用 headless Chrome（`tests/chrome.mjs`，走 DevTools protocol，不加套件）實際開頁面：首頁、搜尋、分類、八張卡、選區、勾選、日夜切換，`securitypolicyviolation` 必須是 0、沒有 console 錯誤、沒有連到別的來源。再把審查列的三種攻擊（body style、app.js 渲染的外部 `<link>`、反斜線換行拼出的 `url()`）放進實際檔案，確認 Chrome 擋下並觸發違規；拿掉 CSP 後同樣的攻擊會生效，證明測試靠的是 CSP。找不到 Chrome 就失敗（可用 `CHROME_PATH` 指定），不會 skip。
+- `<link rel="icon" href="data:,">` 是空圖示，讓瀏覽器不去要 `/favicon.ico`（原本每次都 404）。
+- 原有的 `css-audit.mjs` 與 `situation-inline-style.test.mjs` 保留，當第二道防線。
+- **TownPass bridge 不受這組 CSP 影響（判斷，待真機確認）**：
+  - Android：殼用 `controller.addWebMessageListener(...)`（TownPass `lib/util/tp_web_view.dart:257`），flutter_inappwebview 6.1.5 轉給 AndroidX `WebViewCompat.addWebMessageListener`（`flutter_inappwebview_android-1.1.3` 的 `InAppWebView.java:1890`）。`flutterObject` 由 WebView 原生注入，不是頁面載入的 script；`postMessage` 不是網路請求，不歸 `connect-src` 管。
+  - iOS：`flutterObject` 由 plugin 以 `WKUserScript`（`atDocumentStart`）注入，送訊息走 `window.webkit.messageHandlers`（`flutter_inappwebview_ios-1.1.2` 的 `WebMessageListener.swift:109`、`WebMessageListenerJS.swift:21`）。原生注入的 script 與 App 端執行的 JavaScript 一般不受頁面 CSP 限制，但這點沒有在 iOS 實機驗證。
+  - 本頁自己的 `bridge.js` 只呼叫 `flutterObject.postMessage` 與監聽 `message` 事件，不用 `eval`、不發網路請求。`tel:` 連結是導覽，不受 CSP 限制。
+  - 上面是讀原始碼的判斷，**兩個平台都待真機確認**（模擬器或手機開頁面，按一支電話看撥號畫面是否跳出）。
+
 ## 在城市通裡開
 
 TownPass 分支 `feat/situation-entry` 有獨立服務「我遇到了」，網址用 `--dart-define=SITUATION_SERVICE_URL=...`（預設 `http://10.0.2.2:8767`，給 Android 模擬器）。
