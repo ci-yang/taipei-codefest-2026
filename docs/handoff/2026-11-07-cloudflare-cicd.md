@@ -1,5 +1,7 @@
 # Cloudflare CI/CD 交接
 
+> 本文保留 CI/CD 初次建置時的紀錄；之後已將 Cloudflare 根頁切換成 App，實際上線 SHA 與待辦見 [App 根入口交接](2026-11-07-app-root.md)。
+
 日期：2026-11-07。Ci 本輪要求提供 Cloudflare 入口並完成 CI/CD；程式在 `ci/cloudflare-continuous-deploy`，由 [PR #5](https://github.com/ci-yang/taipei-codefest-2026/pull/5) 整合。
 
 ## 入口與範圍

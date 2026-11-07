@@ -1,0 +1,28 @@
+{
+  "sourceSha": "8044891fd3642d441214fb9b7c88522b65355952",
+  "url": "https://taipei-friendly-platform.jason21131.workers.dev",
+  "browser": "Chrome",
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "horizontalOverflow": false
+  },
+  "root": "App map; no platform landing page",
+  "categoryToggle": {
+    "off": "false",
+    "on": "true"
+  },
+  "resourceCard": {
+    "name": "市政大樓",
+    "source": "臺北市公廁點位資訊",
+    "updatedAt": "2026-11-05"
+  },
+  "localDestinationSearch": "台北101購物中心",
+  "destinationRetainsSelectedResource": true,
+  "cacheStatus": "已快取 19:21 · 底圖限信義／大安東",
+  "consoleErrors": [],
+  "locationResult": "timeout; map centre explicitly labelled as not current position",
+  "nativeTownPassTest": "not-run",
+  "airplaneModeReopen": "not-run",
+  "screenshot": "app-mobile.png"
+}
