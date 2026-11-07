@@ -7,7 +7,7 @@
   "packageManager": "pnpm@11.13.1",
   "scripts": {
     "prototype": "python3 -m http.server 8766 --bind 127.0.0.1 --directory docs/prototypes/friendly-route",
-    "test:prototype": "node --test docs/prototypes/tests/friendly-app-state.test.cjs docs/prototypes/tests/friendly-routing.test.cjs docs/prototypes/tests/friendly-search.test.cjs",
+    "test:prototype": "node --test docs/prototypes/tests/*.test.cjs && python3 -m unittest discover -s docs/prototypes/tests -p \"test_*.py\"",
     "dev": "concurrently -k -n api,web -c blue,green \"pnpm --filter @app/api dev\" \"pnpm --filter @app/web dev\"",
     "dev:api": "pnpm --filter @app/api dev",
     "dev:web": "pnpm --filter @app/web dev",

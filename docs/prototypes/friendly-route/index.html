@@ -1,31 +1,43 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-TW" data-theme="dark">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#101114"><meta name="robots" content="noindex,nofollow">
-  <title>友善同行｜App Prototype</title>
-  <link rel="stylesheet" href="./vendor/leaflet.css"><link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./map-ui.css">
-  <script defer src="./vendor/leaflet.js"></script><script defer src="./data.js"></script><script defer src="./routing-data.js"></script><script defer src="./routing.js"></script><script defer src="./search.js"></script><script defer src="./app.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#171d19">
+  <meta name="description" content="友善同行，尋找身邊的廁所、充電、Wi-Fi 與無障礙資源，離線也能查看。">
+  <title>友善同行 · 身邊的城市資源</title>
+  <link rel="stylesheet" href="./vendor/leaflet.css">
+  <link rel="stylesheet" href="./app-ui.css">
 </head>
 <body>
-<noscript>這份原型需要 JavaScript。<a href="analysis.html">閱讀提案</a></noscript>
-<div class="desktop-note"><span class="note-symbol">↗</span><p>FRIENDLY, ALONG THE WAY</p><h1>需要的資源，<br>順路帶著走。</h1><p>目前位置 · 附近資源 · 離線備援</p><a href="./analysis.html">前版提案與規格 ↗</a><small>手機 App 互動原型 v4<br>示範圖資：信義區及大安東側</small></div>
-<main class="phone-shell" id="app" data-screen="home">
-  <header class="app-header"><button id="back-button" class="icon-button" aria-label="返回上一頁" hidden>‹</button><a class="brand" href="./"><span class="brand-mark">↗</span><span>友善同行<small>FRIENDLY</small></span></a><span id="screen-step" class="step-label">APP / V4</span><button id="open-info" class="icon-button" aria-label="開啟資料與離線設定">⋯</button></header>
-  <div class="screen-stage">
-    <div class="map-view" id="map-view"><div id="map" role="region" aria-label="友善店家地圖，可縮放；資源清單可用鍵盤選店"></div><div class="map-shade"></div><div class="map-top-status"><span id="map-area">信義生活圈・示範圖資</span><span id="network-status">裝置在線</span></div><button id="fit-map" class="icon-button map-recenter" aria-label="縮放至目前路線或位置">⌖</button><div id="no-cache-overlay" class="no-cache-overlay" hidden><strong>還沒有離線路線</strong><p>先連線、點選資源並下載，再把路線帶著走。</p><button id="leave-offline" class="primary">結束離線示範</button></div></div>
-    <section class="app-screen home-screen" id="home-screen" aria-label="地圖首頁">
-      <div class="home-map-tools"><div class="home-heading"><p class="eyebrow">FRIENDLY, ALONG THE WAY</p><h2>附近的友善，點一下就出發。</h2></div><button id="home-search" class="home-search-bar"><span aria-hidden="true">⌕</span><span>搜尋目的地，標記在地圖上</span><span aria-hidden="true">↗</span></button><div id="map-filters" class="map-filters" role="group" aria-label="地圖服務篩選"></div><div id="destination-reference" class="destination-reference" hidden><button id="destination-chip" class="text-button"></button><button id="clear-destination" class="icon-button" aria-label="清除目的地標記">×</button><small>僅標記位置</small></div><small id="home-location-label" class="home-location-label" role="status">尚未取得目前位置</small></div>
-      <div class="home-bottom"><section id="place-preview" class="place-preview" aria-label="資源路線" hidden><button id="close-preview" class="icon-button close-button" aria-label="關閉資源預覽">×</button><div id="place-preview-content"></div><p id="preview-status" class="preview-status" role="status" aria-live="polite"></p><p id="preview-location-note" class="micro"></p><div class="place-preview-actions"><button id="preview-details" class="primary">店家資訊</button><button id="preview-save-offline" class="secondary">離線帶著走</button><button id="preview-refresh-location" class="text-button">重新定位</button><button id="preview-help" class="text-button">附近協助</button></div></section><div id="home-overview" class="home-overview"><div class="gps-card"><span class="gps-symbol">⌖</span><div><strong id="home-gps-title">目前位置與附近資源</strong><p id="home-gps-detail">取得定位後，點資源即可查看步行路線。</p></div><button id="home-gps" class="icon-button" aria-label="取得目前位置並更新資源路線">⌖</button></div><button id="home-resources" class="primary start-button"><span>查看資源清單</span><span>↗</span></button><div class="home-links"><button id="demo-location" class="text-button">使用示範位置（非目前位置）</button><button id="home-help" class="text-button">附近協助</button></div></div></div>
-    </section>
-  </div>
-  <div class="home-indicator" aria-hidden="true"></div>
-  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<main id="app" class="friendly-app" aria-label="友善同行資源地圖">
+  <div id="map" aria-label="臺北友善資源地圖"></div>
+  <header class="app-header">
+    <div class="brand-row"><a href="#" class="brand" id="home-button" aria-label="友善同行，回到地圖"><span class="brand-symbol" data-icon="navigation"></span><span>友善同行</span></a><span id="network-label" class="connection-label" aria-live="polite"></span><button id="settings-button" class="icon-button settings-button" aria-label="地圖設定" data-icon="settings"></button></div>
+    <button id="search-trigger" class="search-trigger"><span data-icon="search"></span><span id="search-label">想去哪裡？</span><span data-icon="arrowUpRight" class="muted"></span></button>
+  </header>
+  <div class="map-status"><span id="location-status" class="map-status-pill" aria-live="polite">正在取得目前位置…</span><span id="cache-status" class="map-status-pill" aria-live="polite">準備離線資料</span><button id="destination-clear" class="destination-pill" hidden><span data-icon="flag"></span><span id="destination-name"></span><span data-icon="close"></span></button></div>
+  <div class="map-tools"><button id="overview-button" class="map-tool" aria-label="查看台北資源範圍" data-icon="compass"></button><button id="gps-button" class="map-tool location-tool" aria-label="重新取得目前位置" data-icon="location"></button></div>
+  <section id="bottom-panel" class="map-panel" aria-label="附近資源">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="nearby-heading"><div><p id="location-kicker" class="location-kicker">臺北資源地圖</p><h1 id="panel-heading">友善，就在身邊</h1></div><button id="list-button" class="text-button">清單 <span data-icon="chevron"></span></button></div>
+    <div id="category-filters" class="filters" aria-label="資源類別"></div>
+    <div class="category-selection-note"><span>可多選 · 任一符合</span><span id="visible-count" aria-live="polite"></span></div>
+    <div id="location-notice" class="location-notice" role="status"></div>
+    <div id="nearby-preview" class="preview-list"></div>
+    <article id="selected-card" hidden></article>
+  </section>
 </main>
-<dialog id="search-dialog" class="sheet-dialog search-dialog" aria-labelledby="search-title"><div class="dialog-heading"><div><p class="eyebrow">FIND YOUR PLACE</p><h2 id="search-title">搜尋目的地</h2></div><button class="icon-button" data-close="search-dialog" aria-label="關閉地點搜尋">×</button></div><form id="search-form"><label class="sr-only" for="place-search">地點、地址或店家名稱</label><div class="search-form-row"><input id="place-search" type="search" placeholder="地點、地址或店家" autocomplete="off"><button id="search-submit" class="primary" type="submit">搜尋</button></div></form><p class="micro">輸入時搜尋本機名冊；按「搜尋」或 Enter 才會把關鍵字送至 Photon 地點搜尋服務。GPS 與行程不會傳送。</p><p id="search-status" class="fine-print" role="status" aria-live="polite"></p><div id="search-results" class="search-results"></div><p class="micro">搜尋結果只標記目的地，不改變資源路線。地點：OpenStreetMap contributors · Photon。資源路線僅支援信義區及大安東側路網快照。</p></dialog>
-<dialog id="resources-dialog" class="sheet-dialog" aria-labelledby="resources-title"><div class="dialog-heading"><div><p class="eyebrow">A LITTLE SUPPORT, NEARBY.</p><h2 id="resources-title">友善資源</h2></div><button class="icon-button" data-close="resources-dialog" aria-label="關閉資源清單">×</button></div><div id="resource-filters" class="filter-grid"></div><label class="checkbox-field"><input id="route-only" type="checkbox"><span>只看路線附近</span></label><div id="range-options" class="segmented" role="group" aria-label="沿線搜尋範圍"><button data-radius="100">100 m</button><button data-radius="250" aria-pressed="true">250 m</button><button data-radius="500">500 m</button></div><p class="micro">直線搜尋範圍不是 Wi-Fi 訊號覆蓋，也不保證步行可達。</p><label class="sr-only" for="search-store">搜尋店名或地址</label><input id="search-store" type="search" placeholder="搜尋店名或地址"><div class="section-heading"><h3 id="results-title">0 間友善店家</h3><span class="micro">名冊更新 2026-07-20</span></div><p id="result-context" class="micro"></p><div id="store-list"></div></dialog>
-<dialog id="place-info-dialog" class="sheet-dialog" aria-label="地點資訊"><button class="icon-button close-button" data-close="place-info-dialog" aria-label="關閉地點資訊">×</button><div id="place-info-content"></div></dialog>
-<dialog id="store-drawer" class="sheet-dialog store-drawer" aria-label="店家詳細資訊"><button id="close-store" class="icon-button close-button" aria-label="關閉店家詳細資訊">×</button><div id="store-detail"></div></dialog>
-<dialog id="info-dialog" class="sheet-dialog" aria-labelledby="info-title"><div class="dialog-heading"><div><p class="eyebrow">KEEP IT WITH YOU</p><h2 id="info-title">離線與資料</h2></div><button class="icon-button" data-close="info-dialog" aria-label="關閉離線設定">×</button></div><div class="offline-card"><h3>把這段路帶著走</h3><p id="cache-summary">尚未下載離線資料</p><button id="save-offline" class="primary wide">下載路線與地圖</button><p class="micro">下載會將本次位置、資源路線、目的地參考標記與地圖保存於此裝置；不會傳送至伺服器。</p><label class="checkbox-field"><input id="simulate-offline" type="checkbox"><span>試試看：模擬沒有網路</span></label><p id="offline-detail" class="fine-print"></p><button id="restore-offline" class="text-button" hidden>開啟已下載行程</button></div><div class="source-section"><strong>開放資料，清楚標示</strong><p id="dataset-count"></p><a id="source-link" href="https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1" target="_blank" rel="noopener">臺北市友善店家清冊 ↗</a><p id="data-version" class="micro"></p><p class="fine-print">本地圖資範圍為信義區及大安東側。GPS 範圍外仍顯示真實位置，但無法在這份路網計算資源路線。</p><a href="./analysis.html">前版提案與規格 ↗</a><p class="micro">App Prototype v4 · 本機評論與互助示範，不會通知真人。</p></div></dialog>
-<dialog id="help-dialog" class="sheet-dialog help-dialog" aria-labelledby="help-title"><div class="dialog-heading"><div><p class="eyebrow">A LITTLE HELP, NEARBY.</p><h2 id="help-title">附近協助</h2></div><button id="close-help" class="icon-button" aria-label="關閉互助示範">×</button></div><div class="demo-notice">雙角色本機示範，不會通知真人，也不是緊急救援服務。</div><div class="side-tabs" role="tablist" aria-label="互助角色"><button id="sender-tab" role="tab" aria-selected="true" aria-controls="sender-panel">我需要幫忙</button><button id="helper-tab" role="tab" aria-selected="false" aria-controls="helper-panel">我是幫忙的人</button></div><section id="sender-panel" role="tabpanel" aria-labelledby="sender-tab"></section><section id="helper-panel" role="tabpanel" aria-labelledby="helper-tab" hidden></section></dialog>
-</body></html>
+<dialog id="app-sheet" class="app-sheet" aria-labelledby="sheet-title"><div class="sheet-handle" aria-hidden="true"></div><header class="sheet-header"><h2 id="sheet-title"></h2><button id="sheet-close" class="sheet-close" aria-label="關閉" data-icon="close"></button></header><div id="sheet-body" class="sheet-body"></div></dialog>
+<div id="toast" class="app-toast" role="status" hidden></div>
+<noscript>請開啟 JavaScript，才能使用資源地圖。</noscript>
+<script src="./vendor/leaflet.js"></script>
+<script src="./data.js"></script>
+<script src="./resources-data.js"></script>
+<script src="./icons.js"></script>
+<script src="./search.js"></script>
+<script src="./bridge.js"></script>
+<script src="./offline.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
