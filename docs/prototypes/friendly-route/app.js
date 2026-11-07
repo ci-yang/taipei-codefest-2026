@@ -195,7 +195,13 @@
     renderMapLayout(); syncHighlights();
     requestAnimationFrame(() => { map.invalidateSize({ animate: false }); if (state.route) fitDestinationRoute(); });
   }
-  function openResource(id) { if (!byId.has(String(id))) return; if (state.screen === 'guide') { startGuide(byId.get(String(id))); return; } selectResource(id); const store = byId.get(state.selectedId); if (!highlights?.handleResource(store)) showDetails(store); }
+  // 地圖上點 pin 或清單列只選取：聚焦地圖、面板換成選取卡；詳細資訊要按卡上的按鈕才開。
+  function openResource(id) {
+    const store = byId.get(String(id)); if (!store) return;
+    if (state.screen === 'guide') { startGuide(store); return; }
+    selectResource(store.id);
+    if (!highlights?.handleResource(store)) requestAnimationFrame(() => $('#selected-card')?.scrollIntoView?.({ block: 'nearest' }));
+  }
   function renderMarkers() {
     renderResourceLine();
     const colors = palette();

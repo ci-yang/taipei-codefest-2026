@@ -456,10 +456,18 @@ test('guidance without GPS has no route or arrow and opens a source-attributed d
   await app.click('#sheet-close'); await app.click('#guidance-end'); assert.equal(app.state.view, 'map'); assert.equal(app.state.selectedId, resource.id);
 });
 
-test('map taps open details and an unlocated search record never replaces selected resource or destination', async () => {
+test('map taps only select; details open from the card button; an unlocated search record never replaces selection', async () => {
   const app = runtime(); await app.fix(); const [resource, destination] = actualData.stores.filter(hasCoordinates);
-  app.r.__test.markers.get(resource.id).handlers.click(); assert.equal(app.element('#app-sheet').dataset.sheet, 'detail');
-  assert.equal(app.state.selectedId, resource.id); app.r.__test.setDestination(destination);
+  await app.click('#home-map'); await app.click('[data-service="toilet"]');
+  app.r.__test.markers.get(resource.id).handlers.click(); await settle();
+  assert.equal(app.state.selectedId, resource.id); assert.equal(app.element('#app-sheet').open, false); assert.equal(app.state.activeSheet, null);
+  assert.equal(app.element('#selected-card').hidden, false);
+  await app.click('[data-action="clear"]');
+  const listed = app.element('#nearby-preview').querySelector('[data-resource]'); await listed.dispatch('click');
+  assert.equal(app.state.selectedId, listed.dataset.resource); assert.equal(app.element('#app-sheet').open, false);
+  await app.element('#selected-card').querySelector('[data-action="detail"]').dispatch('click'); assert.equal(app.element('#app-sheet').dataset.sheet, 'detail');
+  await app.click('#sheet-close');
+  app.r.__test.selectResource(resource.id); app.r.__test.setDestination(destination);
   const missing = actualData.stores.find(s => !hasCoordinates(s)); app.r.__test.setDestination(missing);
   assert.equal(app.state.selectedId, resource.id); assert.equal(app.state.destination.id, destination.id);
   assert.equal(app.state.detailId, missing.id); assert(app.element('#sheet-body').textContent.includes(missing.name));
@@ -488,7 +496,7 @@ test('closing or replacing a detail sheet cancels UI reactions from an older ext
 
 test('late GPS refreshes the open detail distance without reopening the sheet or changing focus', async () => {
   const app = runtime(); const resource = actualData.stores.find(hasCoordinates);
-  app.r.__test.markers.get(resource.id).handlers.click(); await settle();
+  app.r.__test.markers.get(resource.id).handlers.click(); await app.click('[data-action="detail"]');
   assert.match(app.element('#detail-distance').textContent, /依地圖中心估算/);
   const active = app.r.document.activeElement; const body = app.element('#sheet-body'); const distanceNode = app.element('#detail-distance');
   await app.fix(0, { lat: resource.lat + .001, lng: resource.lng });
@@ -595,7 +603,7 @@ test('resource selection and repeated renders preserve destination layers withou
   const app = runtime(); await app.fix(); const resources = actualData.stores.filter(hasCoordinates);
   app.r.__test.setDestination(resources[0]); const route = routeResult([resources[1].id]); app.routeRequests[0].resolve(route); await settle();
   const destinationLines = [...app.layers].filter(layer => layer.kind === 'polyline');
-  app.r.__test.markers.get(resources[1].id).handlers.click(); assert.equal(app.state.activeSheet, 'details');
+  app.r.__test.markers.get(resources[1].id).handlers.click(); assert.equal(app.state.selectedId, resources[1].id); assert.equal(app.state.activeSheet, null);
   app.r.__test.renderAll(); app.r.__test.renderAll();
   destinationLines.forEach(layer => assert(app.layers.has(layer)));
   assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 4);
