@@ -72,7 +72,7 @@
     </div>
 
     <section id="bottom-panel" class="map-panel" aria-label="附近資源">
-      <div class="panel-toolbar"><span id="panel-summary">附近資源</span><button id="panel-toggle" class="icon-button panel-toggle" type="button" aria-expanded="true" aria-controls="panel-content"><span id="panel-toggle-label" class="sr-only">收合面板</span><span data-icon="chevron"></span></button></div>
+      <div class="panel-toolbar"><span id="panel-summary" aria-live="polite">附近資源</span><button id="panel-toggle" class="icon-button panel-toggle" type="button" aria-expanded="true" aria-controls="panel-content"><span id="panel-toggle-label" class="sr-only">收合面板</span><span data-icon="chevron"></span></button></div>
       <div id="panel-content">
       <section id="highlight-host" aria-label="城市生存雷達"></section>
       <section id="destination-route" class="destination-route" aria-label="目的地步行路線" hidden>
@@ -82,7 +82,7 @@
       </section>
       <div id="category-filters" class="filters" role="group" aria-label="資源類別，可多選"></div>
       <h2 id="panel-heading" class="sr-only">附近資源</h2>
-      <div class="panel-meta"><p id="location-notice" class="location-notice" role="status"></p><span id="visible-count" aria-live="polite"></span><button id="list-button" class="text-button" type="button" hidden><span id="list-button-label">全部</span><span data-icon="chevron"></span></button></div>
+      <div class="panel-meta"><p id="location-notice" class="location-notice" role="status"></p><button id="list-button" class="text-button" type="button" hidden><span id="list-button-label">全部</span><span data-icon="chevron"></span></button></div>
       <div id="nearby-preview" class="preview-list"></div>
       <article id="selected-card" hidden></article>
       <footer class="explore-footer">

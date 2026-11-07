@@ -236,7 +236,7 @@ async function routeChecks(browser) {
         if (current.includes(key) !== categories.includes(key)) await page.locator(`[data-service="${key}"]`).click();
       }
       const value = await snapshot(page);
-      const countText = await page.locator('#visible-count').textContent();
+      const countText = await page.locator('#panel-summary').textContent();
       // 「全部 N 筆」只在超過預覽的 6 筆時出現；不到 6 筆時預覽列就是完整清單。
       const fullList = await page.locator('#list-button').isVisible();
       if (fullList) await page.locator('#list-button').click();

@@ -104,7 +104,7 @@ const m = await ctx.newPage(); m.on('pageerror', e => errors.push(e.message));
 await m.goto(base); await m.waitForFunction(() => /±/.test(document.querySelector('#home-location').textContent));
 await m.click('#home-map'); await m.waitForFunction(() => document.querySelector('#app').dataset.view === 'map'); await m.waitForTimeout(500);
 const pins = () => m.locator('.resource-map-pin').count();
-const empty = await m.evaluate(() => ({ state: Boolean(document.querySelector('#nearby-preview [data-empty="no-category"]')), rows: document.querySelectorAll('#nearby-preview [data-resource]').length, count: document.querySelector('#visible-count').textContent }));
+const empty = await m.evaluate(() => ({ state: Boolean(document.querySelector('#nearby-preview [data-empty="no-category"]')), rows: document.querySelectorAll('#nearby-preview [data-resource]').length, count: document.querySelector('#panel-summary').textContent }));
 const emptyPins = await pins();
 ok('map from home starts with no category: empty state and zero pins', empty.state && empty.rows === 0 && emptyPins === 0, JSON.stringify({ ...empty, pins: emptyPins }));
 await m.screenshot({ path: `${out}/17-map-no-category.png`, fullPage: true });
@@ -118,6 +118,15 @@ await m.waitForTimeout(500);
 const picked = await m.evaluate(() => ({ sheetOpen: document.querySelector('#app-sheet').hasAttribute('open'), cardHidden: document.querySelector('#selected-card').hidden }));
 ok('tapping a map pin selects without opening the detail dialog', Boolean(target) && !picked.sheetOpen && !picked.cardHidden, JSON.stringify({ target, ...picked }));
 await m.screenshot({ path: `${out}/19-map-selected-card.png`, fullPage: true });
+// 首頁「看地圖」一律空狀態：結果卡留下的類別與選取不能帶進來。
+const e = await ctx.newPage(); e.on('pageerror', err => errors.push(err.message));
+await e.goto(base); await e.waitForFunction(() => /±/.test(document.querySelector('#home-location').textContent));
+await e.click('[data-urgency="toilet"]'); await e.waitForSelector('[data-result-id]'); await e.click('#result-body [data-action="map"]'); await e.waitForTimeout(500);
+await e.goBack(); await e.waitForTimeout(300); await e.goBack(); await e.waitForTimeout(300);
+await e.click('#home-map'); await e.waitForFunction(() => document.querySelector('#app').dataset.view === 'map'); await e.waitForTimeout(500);
+const reset = await e.evaluate(() => ({ empty: /先選一種服務/.test(document.querySelector('#nearby-preview').textContent), pins: document.querySelectorAll('.resource-map-pin').length, cardHidden: document.querySelector('#selected-card').hidden, chips: document.querySelectorAll('#category-filters .selected').length }));
+ok('home map after result map starts empty: no category, no pins, no selected card', reset.empty && reset.pins === 0 && reset.cardHidden && reset.chips === 0, JSON.stringify(reset));
+await e.screenshot({ path: `${out}/20-home-map-after-result.png`, fullPage: true });
 // no location
 const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: 'zh-TW', serviceWorkers: 'block' });
 await ctx2.route('**/*', r => new URL(r.request().url()).host !== origin.host ? r.abort() : r.continue());

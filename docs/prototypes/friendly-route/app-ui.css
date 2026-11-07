@@ -287,7 +287,6 @@ button.urgency-button:active:not(:disabled) { transform: none; }
 .secondary-text { color: var(--muted); }
 .panel-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; margin: -2px 0 8px; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .panel-meta .location-notice { flex: 1 1 auto; min-width: 0; margin: 0; }
-#visible-count { color: var(--text); font-weight: 600; }
 #list-button { min-height: 44px; font-size: 12px; }
 .location-notice { margin-bottom: 10px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .location-notice .text-button { min-height: 34px; font-size: 12px; }

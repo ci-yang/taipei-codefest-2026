@@ -252,7 +252,7 @@ test('offline reopening requests GPS; OR category highlighting never removes non
 test('no selected category means no resources: empty list, dim dots and an explicit empty state', async () => {
   const app = runtime({ offline: true }); await app.fix(); await app.click('#home-map');
   assert.equal(app.state.filters.size, 0); assert.equal(app.r.__test.visibleStores().length, 0);
-  assert.equal(app.element('#visible-count').textContent, '尚未選類別');
+  assert.equal(app.element('#panel-summary').textContent, '附近資源 · 尚未選類別');
   assert.match(app.element('#nearby-preview').innerHTML, /data-empty="no-category"/); assert.match(app.element('#nearby-preview').innerHTML, /先選一種服務/);
   assert([...app.r.__test.markers.values()].every(marker => marker.styles.opacity === .2));
   await app.click('#list-button'); assert.match(app.element('#sheet-body').innerHTML, /先選一種服務/);
@@ -269,7 +269,7 @@ test('four categories agree with source flags and zero counts refer to the viewp
     await app.click(`[data-service="${service}"]`);
   }
   await app.click('[data-service="toilet"]'); await app.setBounds([[0, 0], [1, 1]]);
-  assert.equal(app.element('#visible-count').textContent, '視窗內 0 筆'); assert.match(app.element('#nearby-preview').innerHTML, /視窗內沒有符合/);
+  assert.equal(app.element('#panel-summary').textContent, '附近資源 · 視窗內 0 筆'); assert.match(app.element('#nearby-preview').innerHTML, /視窗內沒有符合/);
   assert.deepEqual([...app.state.filters], ['toilet']); assert(app.r.__test.markers.size > 0);
 });
 
@@ -410,7 +410,7 @@ test('home is the first screen with three urgencies; the map is a second layer a
   assert.equal(app.state.view, 'map'); assert.equal(app.element('#app').dataset.view, 'map'); assert.equal(app.state.gpsPending, true); assert(app.invalidations.length > 0);
   await app.fix(); const position = app.state.position; assert.match(app.element('#home-location').textContent, /±15 m/);
   await app.click('#home-button'); assert.equal(app.state.view, 'home'); assert.equal(app.state.position, position); assert.equal(app.history.index, 0);
-  await app.click('#home-map'); assert.equal(app.element('#visible-count').textContent, '尚未選類別');
+  await app.click('#home-map'); assert.equal(app.element('#panel-summary').textContent, '附近資源 · 尚未選類別');
   assert.equal(app.state.selectedId, null); assert.equal(app.gpsRequests.length, 1); assert.equal(app.state.position, position);
   await app.click('#map-back'); assert.equal(app.state.view, 'home'); assert(app.history.calls.every(([kind, value]) => kind !== 'go' || value !== 0));
 });
@@ -577,7 +577,7 @@ test('replacement, clear and GPS failure invalidate old destination requests and
   assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 0);
   await app.click('#destination-clear'); app.routeRequests[2].resolve(routeResult([first.id])); await settle();
   assert.equal(app.state.route, null); assert.equal(app.state.routeStatus, 'idle'); assert.equal(app.state.destination, null);
-  assert(app.state.filters.has('wifi')); assert.match(app.element('#visible-count').textContent, /視窗內/);
+  assert(app.state.filters.has('wifi')); assert.match(app.element('#panel-summary').textContent, /視窗內/);
   app.r.__test.setDestination(second); await app.click('#gps-button'); await app.fail('GEO_DENIED');
   app.routeRequests[3].resolve(current); await settle();
   assert.equal(app.state.position, null); assert.equal(app.state.route, null); assert.equal(app.state.routeStatus, 'waiting-location');
@@ -593,7 +593,7 @@ test('route IDs and OR categories drive one list, count and highlight even outsi
   await app.setBounds([[0, 0], [1, 1]]);
   assert.equal(app.routeRequests.length, 1, 'Category and viewport changes must not recompute a route');
   assert.deepEqual([...app.r.__test.visibleStores()].map(s => s.id).sort(), Array.from(wanted, s => s.id).sort());
-  assert.equal(app.element('#visible-count').textContent, `沿線 ${wanted.length} 筆`);
+  assert.equal(app.element('#panel-summary').textContent, `沿線資源 · ${wanted.length} 筆`);
   await app.click('#list-button'); assert.equal(app.element('#sheet-body').querySelectorAll('[data-resource]').length, wanted.length);
   const expected = new Set(wanted.map(s => s.id));
   for (const [id, marker] of app.r.__test.markers) assert.equal(marker.styles.opacity, expected.has(id) ? .9 : .2);
@@ -743,6 +743,17 @@ test('nested back: home → result → map → speak card unwinds one screen per
   app.history.back(); await settle(); assert.equal(app.state.view, 'result'); assert.equal(resultId(app), id);
   app.history.back(); await settle(); assert.equal(app.state.view, 'home');
   app.history.back(); await settle(); assert.equal(app.history.exited, true);
+});
+
+test('map from home is empty even after a result card left a category and selection', async () => {
+  const app = runtime(); await app.fix(0, { ...cityHall });
+  await app.click('[data-urgency="toilet"]'); await app.click('[data-action="map"]');
+  assert.deepEqual([...app.state.filters], ['toilet']); assert.notEqual(app.state.selectedId, null);
+  app.history.back(); await settle(); app.history.back(); await settle(); assert.equal(app.state.view, 'home');
+  await app.click('#home-map');
+  assert.equal(app.state.view, 'map'); assert.equal(app.state.filters.size, 0); assert.equal(app.state.selectedId, null); assert.equal(app.state.mode, 'free');
+  assert.equal(app.element('#selected-card').hidden, true); assert.match(app.element('#nearby-preview').innerHTML, /先選一種服務/);
+  assert.equal(app.element('#category-filters').querySelectorAll('.selected').length, 0);
 });
 
 test('closing the speak card returns to its source: result card from results, selected map card from the map', async () => {

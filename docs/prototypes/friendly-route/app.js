@@ -261,8 +261,7 @@
   function renderPanel() {
     const visible = visibleStores(); const store = byId.get(state.selectedId);
     const noCategory = state.filters.size === 0;
-    $('#visible-count').textContent = noCategory ? '尚未選類別' : `${resourceScope()} ${visible.length} 筆`;
-    $('#panel-summary').textContent = state.routeStatus === 'loading' ? '正在計算路線…' : state.routeStatus === 'ready' ? `沿線資源 · ${noCategory ? '尚未選類別' : `${visible.length} 筆`}` : `附近資源 · ${$('#visible-count').textContent}`;
+    $('#panel-summary').textContent = state.routeStatus === 'loading' ? '正在計算路線…' : state.routeStatus === 'ready' ? `沿線資源 · ${noCategory ? '尚未選類別' : `${visible.length} 筆`}` : `附近資源 · ${noCategory ? '尚未選類別' : `視窗內 ${visible.length} 筆`}`;
     $('#list-button').hidden = noCategory || visible.length <= 6; $('#list-button-label').textContent = `全部 ${visible.length} 筆`;
     $('#bottom-panel').classList.toggle('has-selection', Boolean(store)); $('#selected-card').hidden = !store; $('#nearby-preview').hidden = Boolean(store);
     if (store) $('#selected-card').innerHTML = selectedCard(store);
@@ -455,7 +454,11 @@
       highlights?.close?.(); const store = resultStore(); state.filters = new Set([state.urgency]); renderFilters();
       if (store) selectResource(store.id);
       pushScreen({ view: 'map', urgency: state.urgency, storeId: store?.id ?? null });
-    } else pushScreen({ view: 'map', urgency: state.urgency });
+    } else {
+      // 從首頁進地圖一律是空狀態，不沿用上一趟結果卡留下的類別與選取。
+      if (state.screen === 'home' && !state.urgency) { state.filters = new Set(); renderFilters(); clearResource(); }
+      pushScreen({ view: 'map', urgency: state.urgency });
+    }
   }
   // 開口卡類別：有急用類別且店家具備就用它，否則取店家第一個三急類別；三類都沒有就不出開口卡。
   function speakCategory(store) {
@@ -621,7 +624,7 @@
   $('#map-expand').addEventListener('click', () => { state.mapExpanded = !state.mapExpanded; refreshMapLayout(); });
   $('#panel-toggle').addEventListener('click', () => { state.panelCollapsed = !state.panelCollapsed; refreshMapLayout(); });
   $('#home-button').addEventListener('click', event => { event.preventDefault(); goHome(); });
-  $('#home-map').addEventListener('click', () => pushScreen({ view: 'map' })); $('#home-settings').addEventListener('click', openSettings);
+  $('#home-map').addEventListener('click', openMap); $('#home-settings').addEventListener('click', openSettings);
   $('#result-back').addEventListener('click', goBack); $('#map-back').addEventListener('click', goBack);
   $('#guide-retry').addEventListener('click', () => { const store = guideStore(); if (store) scheduleGuideRoute(store); });
   window.addEventListener('popstate', event => applyScreen(event.state));
