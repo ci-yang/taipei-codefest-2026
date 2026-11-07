@@ -49,7 +49,7 @@ pnpm platform:dev
 
 D1 使用單列 immutable snapshot，version 為主鍵。名冊、manifest 與內容 hash 一起寫入；同版本同內容可重跑，異內容拒絕。Worker 的 `DATA_VERSION` 指定讀哪一列；缺版本回錯誤。新增資料請用新版本，先測再改設定；不要覆寫或刪除舊版。
 
-匯入 SQL 使用 Wrangler `--file`；驗證讀回使用 `--command`。遠端 `--file` 走檔案匯入流程，只回統計資訊，不能用它取得 SELECT 的資料列。本機與遠端的這個差異已有回歸測試。
+匯入 SQL 使用 Wrangler `--file`；驗證讀回使用 `--command`。遠端 `--file` 的 stdout 可能混有進度文字與統計，即使指定 JSON 也不能把它當查詢結果。匯入器先確認子程序成功結束，再由 `--command` 的完整資料列、hash 與 schema 判斷匯入結果。本機與遠端的這個差異已有回歸測試。
 
 MapLibre 使用本地 OSM GeoJSON；不使用 Google Maps、Mapbox 或雲端路由。shared routing 對固定站序求最短路徑，資源較多是有限候選比較；虛線接線、現場通行及無障礙未驗證。正式 Vue 尚無完整離線保存包，需要網路載入；不能引用 prototype 的離線結果當作正式 Vue 的驗證。
 

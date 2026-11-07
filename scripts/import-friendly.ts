@@ -86,7 +86,7 @@ function execute(
   opts: Options,
   directory: string,
   mode: 'file' | 'command' = 'file',
-): unknown {
+): string {
   const sqlFile = resolve(directory, 'statement.sql');
   if (mode === 'file') writeFileSync(sqlFile, sql, { mode: 0o600 });
   const args = [
@@ -129,13 +129,15 @@ function execute(
       { cause: { status, code, signal } },
     );
   }
+  return output;
+}
+function resultRows(output: string): unknown[] {
+  let value: unknown;
   try {
-    return JSON.parse(output) as unknown;
+    value = JSON.parse(output) as unknown;
   } catch {
     throw new Error('D1 response was not valid JSON; raw output omitted');
   }
-}
-function resultRows(value: unknown): unknown[] {
   if (!Array.isArray(value)) throw new Error('Unexpected D1 response');
   const rows: unknown[] = [];
   for (const result of value) {
@@ -158,7 +160,9 @@ export async function importFriendly(args: string[]): Promise<void> {
   const temp = mkdtempSync(resolve(tmpdir(), 'friendly-import-'));
   try {
     // One statement publishes the complete version. Concurrent imports cannot replace an existing key.
-    resultRows(execute(snapshotInsertSQL(snapshot, hash), opts, temp));
+    // Remote file imports can print progress before JSON; exit zero alone is not success.
+    // Ignore that output and require the complete command readback below to validate.
+    execute(snapshotInsertSQL(snapshot, hash), opts, temp);
     // Remote --file returns import statistics, while --command returns the SELECT rows.
     const rows = resultRows(
       execute(

@@ -22,6 +22,7 @@ const canonical = resolve(import.meta.dirname, '../../../data/friendly');
 const temporary: string[] = [];
 afterEach(() => {
   vi.clearAllMocks();
+  vi.mocked(execFileSync).mockReset();
   vi.restoreAllMocks();
   for (const directory of temporary.splice(0)) rmSync(directory, { recursive: true, force: true });
 });
@@ -104,6 +105,50 @@ describe('D1 CLI boundary', () => {
       contentHash: hash,
     });
   });
+  it('accepts mixed remote INSERT progress only after exact readback validation', async () => {
+    const snapshot = await loadImportSnapshot(canonical);
+    const hash = await snapshotHash(snapshot);
+    const row = {
+      version: snapshot.version,
+      stores_json: JSON.stringify(snapshot.stores),
+      manifest_json: JSON.stringify(snapshot.manifest),
+      content_hash: hash,
+    };
+    vi.mocked(execFileSync)
+      .mockReturnValueOnce(remoteFileProgress())
+      .mockReturnValueOnce(JSON.stringify([{ success: true, results: [row] }]));
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    await importFriendly(['--remote']);
+    expect(execFileSync).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(execFileSync).mock.calls[0]![1]).toContain('--file');
+    expect(vi.mocked(execFileSync).mock.calls[1]![1]).toContain('--command');
+    expect(JSON.parse(log.mock.calls[0]![0] as string)).toMatchObject({
+      ok: true,
+      contentHash: hash,
+    });
+  });
+  it('does not report success from INSERT exit zero when readback is empty', async () => {
+    vi.mocked(execFileSync)
+      .mockReturnValueOnce(remoteFileProgress())
+      .mockReturnValueOnce(JSON.stringify([{ success: true, results: [] }]));
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    await expect(importFriendly(['--remote'])).rejects.toThrow('Snapshot readback failed');
+    expect(execFileSync).toHaveBeenCalledTimes(2);
+    expect(log).not.toHaveBeenCalled();
+  });
+  it('rejects a SELECT command failure even after the INSERT process succeeds', async () => {
+    vi.mocked(execFileSync)
+      .mockReturnValueOnce(remoteFileProgress())
+      .mockImplementationOnce(() => {
+        throw Object.assign(new Error('private-secret'), { status: 1 });
+      });
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    await expect(importFriendly(['--remote'])).rejects.toThrow(
+      'D1 command failed (exit=1, code=UNKNOWN, signal=none)',
+    );
+    expect(execFileSync).toHaveBeenCalledTimes(2);
+    expect(log).not.toHaveBeenCalled();
+  });
   it.each([
     { status: 1, code: undefined, signal: null, expected: 'exit=1, code=UNKNOWN, signal=none' },
     {
@@ -133,14 +178,35 @@ describe('D1 CLI boundary', () => {
       expect(execFileSync).toHaveBeenCalledTimes(1);
     },
   );
-  it('distinguishes invalid JSON and never proceeds to readback', async () => {
-    vi.mocked(execFileSync).mockReturnValueOnce('Progress: private-secret\n[]');
+  it('rejects invalid SELECT JSON after a completed write without extracting embedded JSON', async () => {
+    vi.mocked(execFileSync)
+      .mockReturnValueOnce(JSON.stringify([{ success: true, results: [] }]))
+      .mockReturnValueOnce('Progress: private-secret\n[]');
     await expect(importFriendly(['--local'])).rejects.toThrow(
       'D1 response was not valid JSON; raw output omitted',
     );
-    expect(execFileSync).toHaveBeenCalledTimes(1);
+    expect(execFileSync).toHaveBeenCalledTimes(2);
   });
 });
+
+function remoteFileProgress(): string {
+  return (
+    '├ Checking if file needs uploading\n│\n├ 🌀 Uploading statement.sql\n│ 🌀 Uploading complete.\n│\n' +
+    JSON.stringify([
+      {
+        success: true,
+        results: [
+          {
+            'Total queries executed': 1,
+            'Rows read': 0,
+            'Rows written': 1,
+            'Database size (MB)': '0.01',
+          },
+        ],
+      },
+    ])
+  );
+}
 
 /** Mirrors Wrangler 4.158.0: remote --file uses import statistics, --command returns query rows. */
 function mockWranglerDatabase(db: DatabaseSync): void {

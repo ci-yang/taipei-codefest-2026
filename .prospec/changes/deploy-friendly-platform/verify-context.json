@@ -106,14 +106,14 @@
   },
   "test_attempt": {
     "status": "passed",
-    "attempt_id": "ad2301fb-d6d3-4b9e-8354-0fdde913a81e",
+    "attempt_id": "401dba50-3e18-4e6f-9004-818eb75658ee",
     "exit_code": 0,
     "command": "pnpm test",
     "summary": "test run passed against current repository inputs"
   },
   "snapshot": {
-    "digest": "cd02b2ac579e4bea883b993e754a496ea8cf26cb2a9198955c0731d2b605afc1",
+    "digest": "256f3f36109bc01a47b5fd1aea5636cad4bae5337170650187d4e5c2725f4a12",
     "scope": "repository-inputs-v2"
   },
-  "context_id": "2d7c8bb0513d86064aa495c9e6d3b22da2de5869d42135522da2eacbd8c47272"
+  "context_id": "47961b4fd9f75e8ecd312ed1feebab28f92fa50643b8d5ef0840e1aadb672bcc"
 }
