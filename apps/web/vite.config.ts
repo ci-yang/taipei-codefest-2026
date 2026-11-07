@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/api': apiTarget,
         '/healthz': apiTarget,
+        '/config': apiTarget,
       },
     },
     // maplibre-gl 本身約 1MB（已 lazy load 在 /map），不用為它警告

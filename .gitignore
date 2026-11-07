@@ -8,3 +8,8 @@ dist/
 coverage/
 .turbo/
 prospec-report.json
+.wrangler/
+.artifacts/
+apps/web/public/friendly/
+.dev.vars
+.dev.vars.*

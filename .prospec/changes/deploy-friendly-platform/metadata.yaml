@@ -1,0 +1,311 @@
+name: deploy-friendly-platform
+created_at: 2026-11-07T07:24:24.051Z
+status: verified
+scale: full
+description: Deploy the friendly service platform and configure TownPass entry
+quality_log:
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    baseline_revision: 1
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - Greenfield Knowledge has no registered modules or Feature Specs;
+        deployment and APK stories depend on the chosen HTTPS URL. Product
+        prototype/spec remain owned by teammates.
+  - skill: prospec-plan
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - Node app.ts 現有全域 logger：新增附近查詢後，需明確排除 query string，並對 Node 與 Worker 的非
+        test 路徑驗證 GPS 不進應用 log。
+      - 為 API/graph 載入與部署 smoke 設明確時間上限及取消／重試策略；既有 apiGet 沒有 AbortSignal 或
+        timeout。
+      - CI concurrency 已規劃；本機 release 同環境發布與 rollback 應有互斥或版本前置檢查，避免人工並行時回退他人的新版。
+      - 候選 A 仍描述多列 batch，最終 plan 已採單列 immutable snapshot；後續 tasks
+        以後者為準並記錄細化，避免產生兩種 writer。
+      - TownPass-platform 已具 HTTPS parser 與 coarse/fine；後續重用並驗證既有成果，交接需寫實際外 repo
+        路徑與 commit，避免使用主 TownPass 的舊現況。
+      - "blast_radius: 涵蓋 API、Vue、shared、資料、CI、腳本與外部 TownPass，並保留
+        Node/PostGIS/GCP 舊契約。現有 app.ts 全域 logger 與新增 nearby 查詢的隱私要求有整合風險；實作應明列
+        Node/Worker 兩入口的 query 遮蔽驗證。"
+      - "state_safety: immutable version 主鍵、單列原子寫入、同 hash no-op、部署前回讀、保留舊資料及
+        Worker-only rollback 已交代。定位 generation 防手動點被晚到覆蓋。API/graph 載入與部署 smoke
+        的時間上限、逾時取消和本機同環境發布互斥尚未具體化，屬可在實作補足的邊界。"
+    verifier_verdict: WARN
+    audited_option: option-a
+    audited_plan_digest: 5bf8dd9755598aa1dbdb556bb99724b02eec86f3e4ace0012aa0e613c11c4c97
+    attempt_id: prospec-plan:00b0580c2630b2940e0052c6e221d6e1742246f29da86b19fe2f450fb4683ad3
+    accepted:
+      request_id: prospec-plan:00b0580c2630b2940e0052c6e221d6e1742246f29da86b19fe2f450fb4683ad3
+  - skill: prospec-tasks
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - 任務共 28 項，略高於建議的 15–25 項但低於 30 項上限；現有分割有明確責任邊界，屬非阻擋提示。
+      - "task_sizing_schema: 共 28 項，Summary 計數一致且未超過 30 項上限；23
+        項程式／文件任務、T19／T26／T27 的 [M] 與 T24／T25 的 [V] 符合 tasks-format §4。28 項略高於
+        15–25 項建議範圍，屬提示；未提供行數估算不是缺陷，也未據此推斷任務超過 200 行。"
+    verifier_verdict: WARN
+    attempt_id: prospec-tasks:f02f7867799b6424b78c9689884ba15eec2f7940585539f7cb719ac4a3643ff5
+    accepted:
+      request_id: prospec-tasks:f02f7867799b6424b78c9689884ba15eec2f7940585539f7cb719ac4a3643ff5
+  - skill: prospec-tasks
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - Knowledge 尚無模組：以實際路徑與 plan 呼叫鏈排序，新增檔案已標明，各責任區有測試任務；不宣稱空 module-map 已驗證依賴。
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    criticals_found: 1
+    criticals_fixed: 1
+    majors: 4
+    round: 1
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    attempt_id: prospec-review:370be0c3c5cabbcf6e48ee4886e9c90db579a0af565aea4311f2e2d888737ca3
+    accepted:
+      request_id: a6bd3736416b1f6ef2ac58e5e06d270313ac48184062414ca4e0daff91851692
+      artifact_digest: a3f8ee9b5a0a020d8f471e7e074e24081c066f5caa4e4abd4fde860d7b6aa131
+      base_digest: 12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    criticals_found: 0
+    criticals_fixed: 0
+    majors: 0
+    round: 2
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    attempt_id: prospec-review:2b12af786e20471163ec42f49103ca47af052eb92fb922ebc7e73acbf3aedc5a
+    accepted:
+      request_id: afec1752a62653d0838f6ee6c5aadd1cc8d1b51baf66c9c5c7831532d7481e95
+      artifact_digest: e3aec2a904232ce910d3b05d528867c7a63899b80af98c6d2fff0423136d9523
+      base_digest: a3f8ee9b5a0a020d8f471e7e074e24081c066f5caa4e4abd4fde860d7b6aa131
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+  - skill: prospec-verify
+    date: 2026-11-07
+    result: PASS
+    warnings:
+      - 部署、回退與 APK 實際交付證據須在潔淨 commit 建立後執行並補入；尚無實機驗證。
+      - 設計兩項落差：服務 chip 圓角被按鈕樣式覆蓋、路線計算中提示尚未呈現；主要操作及備援測試通過。
+    grade: A
+    dimensions:
+      - name: task-completion
+        result: PASS
+        adjudicator: machine
+      - name: knowledge
+        result: PASS
+        adjudicator: machine
+      - name: tests
+        result: PASS
+        adjudicator: machine
+      - name: delta-spec-compliance
+        result: WARN
+        adjudicator: judgment
+        graded_by: fresh-subagent
+        context_id: 2d7c8bb0513d86064aa495c9e6d3b22da2de5869d42135522da2eacbd8c47272
+        baseline_revision: 1
+      - name: constitution
+        result: PASS
+        adjudicator: judgment
+        graded_by: fresh-subagent
+      - name: design
+        result: WARN
+        adjudicator: judgment
+        graded_by: fresh-subagent
+    context_id: 2d7c8bb0513d86064aa495c9e6d3b22da2de5869d42135522da2eacbd8c47272
+    baseline_revision: 1
+    coverage_summary: 5/5
+    attempt_id: prospec-verify:dcceffb361a68f61b8aba9082a82a2ff4d925282e4ee3eeac77e52b3ba0b32c2
+    accepted:
+      request_id: prospec-verify:dcceffb361a68f61b8aba9082a82a2ff4d925282e4ee3eeac77e52b3ba0b32c2
+      artifact_digest: c32f7c2fd2ca45ee69df01967d9a424fa4fa2a44e85082c42c3af362530890ac
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    criticals_found: 0
+    criticals_fixed: 0
+    majors: 0
+    round: 3
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    attempt_id: prospec-review:2a61c7e7a35a56cf0fc7666d8121d29ee53c454a2fc845e998e6644c39c657f3
+    accepted:
+      request_id: 8ab6b633720bd5eab83b7179057953d6936e2f573086ed76739efd6eeeee9c25
+      artifact_digest: 9d4fd1e18cec68e54e4cb501d7422bb346cbc7b3758558dd5067e061f8b3c595
+      base_digest: e3aec2a904232ce910d3b05d528867c7a63899b80af98c6d2fff0423136d9523
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+  - skill: prospec-verify
+    date: 2026-11-07
+    result: PASS
+    warnings:
+      - 部署、回退與 APK 實際交付證據須在潔淨 commit 建立後執行並補入；尚無實機驗證。
+      - 設計兩項落差：服務 chip 圓角被按鈕樣式覆蓋、路線計算中提示尚未呈現；主要操作及備援測試通過。
+    grade: A
+    dimensions:
+      - name: task-completion
+        result: PASS
+        adjudicator: machine
+      - name: knowledge
+        result: PASS
+        adjudicator: machine
+      - name: tests
+        result: PASS
+        adjudicator: machine
+      - name: delta-spec-compliance
+        result: WARN
+        adjudicator: judgment
+        graded_by: fresh-subagent
+        context_id: 47961b4fd9f75e8ecd312ed1feebab28f92fa50643b8d5ef0840e1aadb672bcc
+        baseline_revision: 1
+      - name: constitution
+        result: PASS
+        adjudicator: judgment
+        graded_by: fresh-subagent
+      - name: design
+        result: WARN
+        adjudicator: judgment
+        graded_by: fresh-subagent
+    context_id: 47961b4fd9f75e8ecd312ed1feebab28f92fa50643b8d5ef0840e1aadb672bcc
+    baseline_revision: 1
+    coverage_summary: 5/5
+    attempt_id: prospec-verify:9bf2b34a7de05d2378e2911bc0da2f9a7bbde7b00a9f1ebb3d3115655264c98b
+    accepted:
+      request_id: prospec-verify:9bf2b34a7de05d2378e2911bc0da2f9a7bbde7b00a9f1ebb3d3115655264c98b
+      artifact_digest: 1403cadbadf9d77d9f85850bcafe587121a1152f205bf23199d1bc970fb754a9
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    criticals_found: 0
+    criticals_fixed: 0
+    majors: 0
+    round: 4
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    attempt_id: prospec-review:e02cb0c9e89f5d5493a7944c85725cd5f0ce4c8d91d842621ecf37e35fd02731
+    accepted:
+      request_id: b60a48717548e0a51131600620ef2821f460e5c1e47e6d810b7c8cab3f4b72a8
+      artifact_digest: 72174678f88e22dcf52a13fc14865dc7f638328b22ba9778ca55f6ae02de0736
+      base_digest: 9d4fd1e18cec68e54e4cb501d7422bb346cbc7b3758558dd5067e061f8b3c595
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+review_provenance:
+  digest: 0bdc50d4613e43d6352eeabf2982d5b3a9d6c2894b81a6a61cf6375b815c6377
+  date: 2026-11-07
+  fingerprint_version: snapshot-v2
+  scope: repository-inputs-v2
+  graded_by: fresh-subagent
+test_provenance:
+  command: pnpm test
+  exit_code: 0
+  digest: 0bdc50d4613e43d6352eeabf2982d5b3a9d6c2894b81a6a61cf6375b815c6377
+  date: 2026-11-07
+  fingerprint_version: snapshot-v2
+  scope: repository-inputs-v2
+  attempt_id: b4330d35-eb7f-491a-8c58-a7104c51b6dc
+test_attempt:
+  id: b4330d35-eb7f-491a-8c58-a7104c51b6dc
+  date: 2026-11-07
+  outcome: passed
+  command: pnpm test
+  before_digest: 0bdc50d4613e43d6352eeabf2982d5b3a9d6c2894b81a6a61cf6375b815c6377
+  after_digest: 0bdc50d4613e43d6352eeabf2982d5b3a9d6c2894b81a6a61cf6375b815c6377
+  exit_code: 0
+delta_spec_provenance:
+  digest: cf6ee855ebdf3cd02a741a8de2f316b02ce8a7223d3353f1c9e74702f215b419
+  date: 2026-11-07
+acceptance:
+  version: 1
+  current_revision: 1
+  revisions:
+    - revision: 1
+      digest: 6ffc284db810bf5f939f293b9cb800e9642a178690dd39228e2e15e7b332fc59
+      captured_at: 2026-11-07T07:26:44.465Z
+      captured_status: story
+      origin: story
+      reason: initial freeze
+      scenarios:
+        - id: US-1.1
+          story_id: US-1
+          text: WHEN 開啟首頁、前端深層路由與健康端點，THEN 正確載入資產並回報版本及資料可讀狀態。
+          source: proposal.md:26
+        - id: US-1.2
+          story_id: US-1
+          text: WHEN API 不存在、查詢無效或資料不可讀，THEN 回明確 JSON 與 HTTP 錯誤碼，不回首頁或假店家。
+          source: proposal.md:27
+        - id: US-2.1
+          story_id: US-2
+          text: WHEN 依四類服務、附近位置或範圍查詢，THEN 回真實快照的名稱、地址、座標及已標示項目，多選任一符合、查無回空集合，空白不推定可用。
+          source: proposal.md:33
+        - id: US-2.2
+          story_id: US-2
+          text: WHEN 讀取公開設定與來源，THEN 可核對日期、範圍、來源及雜湊，不含 secret；查詢不保存 GPS 或行程。
+          source: proposal.md:34
+        - id: US-2.3
+          story_id: US-2
+          text: WHEN 重跑同版本匯入，THEN 不重複新增店家；失敗不把半份資料標成有效版本。
+          source: proposal.md:35
+        - id: US-3.1
+          story_id: US-3
+          text: WHEN 在整合頁選服務與起迄點，THEN 地圖清單同步並呈現本地路網候選、距離及資源；出界、不連通不偽造可走直線。
+          source: proposal.md:41
+        - id: US-3.2
+          story_id: US-3
+          text: WHEN 定位拒絕、逾時、低精度、過期或出界，THEN 顯示原因、重試與手動入口，不以展示座標冒充 GPS；晚到不覆蓋手動。
+          source: proposal.md:42
+        - id: US-3.3
+          story_id: US-3
+          text: WHEN 地圖或路網資產失敗，THEN 清單仍可讀並可重試；介面可注入替身測試，不呼叫商用地圖或雲端 LLM。
+          source: proposal.md:43
+        - id: US-4.1
+          story_id: US-4
+          text: WHEN 正式建置 App，THEN 要求有效 HTTPS URL，產物附來源 commit 與雜湊，不帶模擬器 HTTP 位址。
+          source: proposal.md:49
+        - id: US-4.2
+          story_id: US-4
+          text: WHEN App 請求定位，THEN manifest 同時宣告 coarse/fine 並保留其他官方服務相容；無實機時明示未驗，不冒稱
+            GPS／WebGL／離線實機通過。
+          source: proposal.md:50
+        - id: US-5.1
+          story_id: US-5
+          text: WHEN 驗證與部署，THEN 型別、lint、測試及建置有真實結果，發布明確產物與版本；不把 secret 或未追蹤檔無差別打包。
+          source: proposal.md:56
+        - id: US-5.2
+          story_id: US-5
+          text: WHEN 新版驗證失敗，THEN 可回復先前 Worker，明示不回復 DB；既有 GCP 站與資料保留。
+          source: proposal.md:57
+        - id: US-5.3
+          story_id: US-5
+          text: WHEN 組員修改 prototype／產品規格，THEN 本輪不覆寫其檔案，交接有正式程式、契約與部署責任表。
+          source: proposal.md:58
+premise_version: 1
+retry_of: []

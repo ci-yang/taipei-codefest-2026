@@ -4,7 +4,19 @@
 
 ## 專案說明
 
-目前主題是「友善同行」：協助網路或電力受限的市民，查詢沿途的 WiFi、充電、友善廁所與無障礙友善店家。**目前先做前端 prototype，規格仍在討論，尚未串接後端。**
+目前主題是「友善同行」：協助網路或電力受限的市民，查詢沿途的 WiFi、充電、友善廁所與無障礙友善店家。Ci 負責正式平台、開源地圖與部署；組員持續調整 App prototype 與產品規格。
+
+## 正式平台
+
+Cloudflare Workers + Static Assets + D1 提供同源 Vue 前端與真實友善名冊 API；MapLibre 顯示 OSM 地方快照，路線在裝置計算。原有 Node/PostGIS 與 GCP 保留。平台交接與部署方式見 [Cloudflare 操作手冊](docs/CLOUDFLARE.md)。
+
+```bash
+pnpm install --frozen-lockfile
+pnpm platform:assets
+pnpm test:platform
+```
+
+`test:platform` 在獨立本機 D1 驗證匯入、API 與 SPA，不寫正式資料庫。這是可接線的平台版本；公開評論、真人互助、完整離線包與全市導航仍待後續產品實作。
 
 ## 先看 App Prototype
 
@@ -27,7 +39,7 @@ python3 -m http.server 8766 --bind 127.0.0.1 --directory docs/prototypes/friendl
 
 流程：地圖首頁 → 日期／歷史與起迄設定 → 路線比較 → 開始行程。店家與路網來自開放資料；評論與互助是明示的本機示範。定位、離線需要 localhost 或 HTTPS，手機可直接使用上方 HTTPS 原型連結。
 
-## 既有正式服務骨架
+## 既有 Node／GCP 基線
 
 本作品是一個在台北通（TownPass）App 內以 WebView 開啟的城市通微服務：Vue 3 網頁 ＋ Hono API ＋ PostGIS，地圖用 MapLibre ＋ OpenStreetMap，核心資料來自政府開放資料。
 
@@ -73,10 +85,13 @@ pnpm install
 | 連鎖餐飲服務推定 | 原型內建規則 | 對既有官方點位補上常見 Wi-Fi、充電與廁所線索，畫面明確標示「推定」 | 是；非單店官方保證 |
 | OpenStreetMap 地方路網與向量底圖 | OpenStreetMap contributors | [來源與授權](docs/prototypes/friendly-route/README.md) | 否；未驗證現場通行 |
 
+| [臺北市友善店家清冊](https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1) | 臺北市政府 | 正式平台採地方 103 筆；[來源、日期與 hash](data/friendly/manifest.json) | 否 |
+| OpenStreetMap 地方路網與向量底圖 | OpenStreetMap contributors | [ODbL 與來源](https://www.openstreetmap.org/copyright)、[快照 manifest](data/friendly/manifest.json) | 否；未驗證現場通行 |
+
 ## 第三方套件與 AI 揭露
 
 - 第三方套件清單（名稱＋授權）：待補，交件前整理。
-- 執行期 AI：若有，僅在裝置端推論；模型名稱／版本／量化格式／推論框架／來源：待補。開發過程使用 Claude Code、Codex 協助撰寫程式。
+- 本輪平台沒有執行期 LLM；路線是裝置端圖演算法。開發過程使用 Claude Code（Opus 5.5）與 Codex 協作。
 
 ## 團隊
 

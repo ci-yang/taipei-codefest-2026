@@ -1,0 +1,28 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "taipei-friendly-platform",
+  "account_id": "bb0097fdc915604c5902feb38e8bf463",
+  "main": "apps/api/src/worker.ts",
+  "compatibility_date": "2026-11-04",
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "apps/web/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/healthz", "/config"]
+  },
+  "vars": {
+    "PUBLIC_ORIGIN": "https://taipei-friendly-platform.jason21131.workers.dev",
+    "DATA_VERSION": "friendly-route-2026-11-07-v1",
+    "BUILD_SHA": "local"
+  },
+  "d1_databases": [
+    {
+      "binding": "FRIENDLY_DB",
+      "database_name": "taipei-friendly-platform",
+      "database_id": "1e0f3668-ef50-4a8b-9a11-0dedb5ab54e5",
+      "migrations_dir": "apps/api/migrations/friendly"
+    }
+  ]
+}

@@ -1,55 +1,32 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { OpenDataResponseSchema, type OpenDataResponse } from '@app/shared';
-import { apiGet } from '@/lib/api';
-
-const sample = ref<OpenDataResponse | null>(null);
-const error = ref<string | null>(null);
-
-onMounted(async () => {
+import { onBeforeUnmount, onMounted, shallowRef, ref } from 'vue';
+import type { SourceManifest } from '@app/shared';
+import FriendlySources from '@/components/FriendlySources.vue';
+import { friendlyData } from '@/lib/friendly-data';
+const source = shallowRef<SourceManifest | null>(null); const error = ref('');
+const buildSha = import.meta.env.VITE_BUILD_SHA ?? '';
+const sourceRef = /^[a-f0-9]{40}$/.test(buildSha) ? buildSha : 'feat/deploy-cloudflare-platform';
+const sourceUrl = `https://github.com/ci-yang/taipei-codefest-2026/tree/${sourceRef}`;
+let controller: AbortController | null = null;
+async function load(): Promise<void> {
+  controller?.abort(); const request = new AbortController(); controller = request; error.value = '';
   try {
-    // API 端已處理 data.taipei 斷線：失敗時回 mock 並標 mocked:true
-    sample.value = await apiGet('/api/v1/opendata/sample', OpenDataResponseSchema, { limit: 3 });
-  } catch (err) {
-    error.value = (err as Error).message;
-  }
-});
+    const value = await friendlyData.source(request.signal);
+    if (!request.signal.aborted) source.value = value;
+  } catch (failure) { if (!request.signal.aborted) error.value = failure instanceof Error ? failure.message : '讀取失敗'; }
+}
+onMounted(() => void load());
+onBeforeUnmount(() => controller?.abort());
 </script>
-
 <template>
   <main class="page">
     <h1>關於與資料來源</h1>
-
-    <h2>資料來源</h2>
-    <ul>
-      <li>地圖圖磚：&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors（ODbL）</li>
-      <li>地圖元件：<a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre GL JS</a>（BSD-3-Clause）</li>
-      <li>開放資料：<a href="https://data.taipei/" target="_blank" rel="noopener">臺北市資料大平臺 data.taipei</a>（政府資料開放授權條款）</li>
-      <li>地點資料目前為<strong>示範用假資料</strong>（source = seed:demo），正式版會換成開放資料並逐筆標註來源。</li>
-    </ul>
-
-    <h2>開放資料範例</h2>
-    <p v-if="error" class="muted">讀取失敗：{{ error }}</p>
-    <template v-else-if="sample">
-      <p class="muted">
-        來源：{{ sample.source.name }}<span v-if="sample.mocked">（目前為 mock：{{ sample.reason }}）</span>
-      </p>
-      <ul>
-        <li v-for="item in sample.items" :key="item.id">{{ item.name }}<span v-if="item.address" class="muted"> · {{ item.address }}</span></li>
-      </ul>
-    </template>
-    <p v-else class="muted">載入中…</p>
-
-    <h2>授權</h2>
-    <p>
-      本專案原始碼以 <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">GNU AGPL-3.0-or-later</a>
-      授權釋出。依 AGPL 第 13 條，透過網路使用本服務的使用者有權取得對應原始碼。
-    </p>
+    <FriendlySources :source="source" :error="error" @retry="load" />
+    <h2>開源地圖與授權</h2>
+    <p>地圖使用 <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre GL JS</a>（BSD-3-Clause）與本版 OpenStreetMap 地方快照（ODbL）。</p>
+    <p>本專案原始碼以 <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">GNU AGPL-3.0-or-later</a> 授權釋出。</p>
+    <p><a :href="sourceUrl" target="_blank" rel="noopener">取得此版本的原始碼</a></p>
+    <p><RouterLink to="/map">返回友善地圖</RouterLink></p>
   </main>
 </template>
-
-<style scoped>
-h1 { font-size: 22px; }
-h2 { font-size: 16px; margin-top: 24px; }
-li { margin: 6px 0; line-height: 1.5; }
-</style>
+<style scoped>h1 { font-size: 22px; } h2 { font-size: 18px; } p { line-height: 1.6; }</style>
