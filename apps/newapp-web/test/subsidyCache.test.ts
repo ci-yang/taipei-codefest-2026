@@ -23,7 +23,7 @@ function breakLocalStorage(): void {
   });
 }
 
-const ANSWER_KEYS = ['age', 'residency', 'identities', 'incomeBracket'];
+const ANSWER_KEYS = ['age', 'ageBand', 'residency', 'identities', 'incomeBracket'];
 
 describe('subsidyCache', () => {
   beforeEach(() => {
@@ -178,12 +178,12 @@ describe('useQuery 清單狀態（S2）', () => {
     vi.stubGlobal('fetch', ok());
     const q = useQuery();
     await q.loadList();
-    q.setAge(50);
+    q.setAgeBand('45-64');
     q.setResidency(false);
     q.toggleIdentity('none');
     q.setIncomeBracket(5);
     q.applyDemo(2);
-    q.resetAnswers();
+    q.startOver();
     expect(Object.keys(localStorage)).toEqual([SUBSIDY_CACHE_KEY]);
     const stored = JSON.parse(localStorage.getItem(SUBSIDY_CACHE_KEY)!) as Record<string, unknown>;
     for (const k of ANSWER_KEYS) expect(stored).not.toHaveProperty(k);

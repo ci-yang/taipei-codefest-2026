@@ -1,8 +1,10 @@
 import {
-  ELDER_AGE,
+  AGE_BANDS,
+  ELDER_BAND,
   INCOME_BRACKETS,
   INCOME_UNKNOWN,
   SUBSIDY_IDENTITY_LABELS,
+  type AgeBand,
   type Answers,
   type IncomeBracket,
   type SubsidyIdentity,
@@ -11,7 +13,7 @@ import {
 
 /** 四題都答完的答案（由 isCompleted 收窄） */
 export interface CompletedAnswers {
-  age: number;
+  ageBand: AgeBand;
   residency: boolean;
   identities: Answers['identities'];
   incomeBracket: IncomeBracket;
@@ -23,12 +25,14 @@ export interface MatchResult {
   reason: string;
   /** 白話不過原因，依年齡、設籍、身分、收入順序 */
   failures: string[];
-  /** SubsidyItem.toVerify 加上收入選不清楚時的一條 */
+  /** SubsidyItem.toVerify 加上年齡區間跨門檻、收入選不清楚時各一條（排在最前面） */
   toVerify: string[];
 }
 
 export const REASON_ALL_OK = '年齡、設籍、身分、收入都在條件內';
 export const REASON_INCOME_UNKNOWN = '其他條件都在範圍內，收入要再確認';
+export const REASON_AGE_CHECK = '其他條件都在範圍內，年齡要再確認';
+export const REASON_AGE_INCOME_CHECK = '其他條件都在範圍內，年齡與收入要再確認';
 export const REASON_HAS_STATUS = '已具此身分，可洽區公所確認扶助內容';
 export const REASON_INCOME_MAY_EXCEED = '收入可能超過上限';
 
@@ -37,16 +41,23 @@ export function formatYuan(n: number): string {
   return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-/** 一律用 `=== null` 判斷，0 歲與收入不清楚（0）都算有值 */
+/** 一律用 `=== null` 判斷，收入不清楚（0）也算有值 */
 export function isCompleted(a: Answers): a is Answers & CompletedAnswers {
-  return a.age !== null && a.residency !== null && a.identities.length > 0 && a.incomeBracket !== null;
+  return a.ageBand !== null && a.residency !== null && a.identities.length > 0 && a.incomeBracket !== null;
 }
 
-/** [SUBS-R15] 答案身分去掉 none，加上年齡推得的 elder */
+/** 年齡區間涵蓋的歲數上下界（ADR-030） */
+export function bandRange(band: AgeBand): { min: number; max: number } {
+  const b = AGE_BANDS.find((x) => x.value === band);
+  if (!b) throw new Error(`未知的年齡區間：${band}`);
+  return { min: b.min, max: b.max };
+}
+
+/** [SUBS-R15] 答案身分去掉 none，選 65歲+ 時加上 elder */
 export function effectiveIdentities(a: CompletedAnswers): Set<SubsidyIdentity> {
   const have = new Set<SubsidyIdentity>();
   for (const id of a.identities) if (id !== 'none' && id !== 'stu') have.add(id);
-  if (a.age >= ELDER_AGE) have.add('elder');
+  if (a.ageBand === ELDER_BAND) have.add('elder');
   return have;
 }
 
@@ -55,9 +66,23 @@ export function matchItem(item: SubsidyItem, a: CompletedAnswers): MatchResult {
   const failures: string[] = [];
   const toVerify = [...item.toVerify];
 
-  // [SUBS-R13] 年齡含上下限
-  if (item.ageMin !== null && a.age < item.ageMin) failures.push(`需 ${item.ageMin} 歲以上`);
-  if (item.ageMax !== null && a.age > item.ageMax) failures.push(`需 ${item.ageMax} 歲以下`);
+  // [SUBS-R13] 年齡用區間上下界比：完全在限制外不過；跨門檻不算不過，還需確認最前面加一條（ADR-030）
+  const band = bandRange(a.ageBand);
+  let ageCheck = false;
+  if (item.ageMin !== null) {
+    if (band.max < item.ageMin) failures.push(`需 ${item.ageMin} 歲以上`);
+    else if (band.min < item.ageMin) {
+      toVerify.unshift(`年齡：需 ${item.ageMin} 歲以上，你選的區間跨過門檻`);
+      ageCheck = true;
+    }
+  }
+  if (item.ageMax !== null) {
+    if (band.min > item.ageMax) failures.push(`需 ${item.ageMax} 歲以下`);
+    else if (band.max > item.ageMax) {
+      toVerify.unshift(`年齡：需 ${item.ageMax} 歲以下，你選的區間跨過門檻`);
+      ageCheck = true;
+    }
+  }
 
   // [SUBS-R14] 需設籍而答否
   if (item.residency && a.residency === false) failures.push('需設籍臺北市');
@@ -87,6 +112,8 @@ export function matchItem(item: SubsidyItem, a: CompletedAnswers): MatchResult {
   let reason: string;
   if (failures.length > 0) reason = failures[0]!;
   else if (item.appliesForStatus && hasItemIdentity) reason = REASON_HAS_STATUS;
+  else if (ageCheck && incomeUnknown && item.incomeMax !== null) reason = REASON_AGE_INCOME_CHECK;
+  else if (ageCheck) reason = REASON_AGE_CHECK;
   else if (incomeUnknown && item.incomeMax !== null) reason = REASON_INCOME_UNKNOWN;
   else reason = REASON_ALL_OK;
 

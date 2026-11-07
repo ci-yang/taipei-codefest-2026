@@ -3,6 +3,8 @@ import fixtureWithMock from './fixtures/subsidy-list-with-mock.json';
 import { describe, expect, it } from 'vitest';
 import { SubsidyListSchema, type SubsidyItem } from '@app/shared';
 import {
+  REASON_AGE_CHECK,
+  REASON_AGE_INCOME_CHECK,
   REASON_ALL_OK,
   REASON_HAS_STATUS,
   REASON_INCOME_MAY_EXCEED,
@@ -20,33 +22,47 @@ import {
   DEMO_SCENARIOS,
   MSG_AGE,
   MSG_IDENTITY,
+  MSG_INCOME,
+  MSG_RESIDENCY,
   demoAnswers,
   emptyAnswers,
-  parseAgeInput,
+  firstErrorIndex,
   toggleIdentity,
+  validateAnswers,
   validateStep,
 } from '@/lib/answers';
+import {
+  AGENCY_FALLBACK,
+  agencyShort,
+  bigCardDesc,
+  bigCardPoints,
+  filterSearch,
+  matchesSearch,
+  searchNoteText,
+} from '@/lib/resultView';
 
 /** 2026-11-08 本機 newapp-api 實打 GET /api/v1/subsidies 的回應（data.taipei 10 筆整理後） */
 const list = SubsidyListSchema.parse(
   fixture,
 );
 const items = list.items;
+/** 2026-11-08 本機 newapp-api（S2）實打的回應：開放 10 項 + 模擬 3 項 */
+const items13 = SubsidyListSchema.parse(fixtureWithMock).items;
 const item = (no: number): SubsidyItem => {
   const found = items.find((i) => i.no === no);
   if (!found) throw new Error(`沒有序號 ${no}`);
   return found;
 };
 const answers = (over: Partial<CompletedAnswers> = {}): CompletedAnswers => ({
-  age: 40,
+  ageBand: '30-44',
   residency: true,
   identities: ['none'],
   incomeBracket: 1,
   ...over,
 });
 
-describe('S1 驗收：70 歲、設籍臺北、以上皆無、級距 3', () => {
-  const a = answers({ age: 70, identities: ['none'], incomeBracket: 3 });
+describe('S1 驗收：65歲+、設籍臺北、以上皆無、級距 3', () => {
+  const a = answers({ ageBand: '65+', identities: ['none'], incomeBracket: 3 });
   const grouped = groupResults(items, a);
 
   it('[SUBS-R13][SUBS-R14][SUBS-R15][SUBS-R16] 可能符合恰為中低收入老人生活津貼、市民醫療補助 2 項', () => {
@@ -72,16 +88,42 @@ describe('S1 驗收：70 歲、設籍臺北、以上皆無、級距 3', () => {
 });
 
 describe('比對規則邊界', () => {
-  it('[SUBS-R13] 年齡含上下限：18、25 歲過，17、26 歲不過', () => {
+  it('[SUBS-R13] 年齡用區間比：完全在內過、完全在外不過、跨門檻列可能符合並加還需確認（ADR-030）', () => {
     const low = answers({ identities: ['low'] });
-    expect(matchItem(item(2), { ...low, age: 18 }).ok).toBe(true);
-    expect(matchItem(item(2), { ...low, age: 25 }).ok).toBe(true);
-    expect(matchItem(item(2), { ...low, age: 17 }).reason).toBe('需 18 歲以上');
-    expect(matchItem(item(2), { ...low, age: 26 }).reason).toBe('需 25 歲以下');
+    // 序號 2：18～25 歲
+    expect(matchItem(item(2), { ...low, ageBand: 'u18' }).reason).toBe('需 18 歲以上');
+    expect(matchItem(item(2), { ...low, ageBand: '30-44' }).reason).toBe('需 25 歲以下');
+    const cross = matchItem(item(2), { ...low, ageBand: '18-29' });
+    expect(cross.ok).toBe(true);
+    expect(cross.reason).toBe(REASON_AGE_CHECK);
+    expect(cross.toVerify[0]).toBe('年齡：需 25 歲以下，你選的區間跨過門檻');
+    expect(cross.toVerify.length).toBe(item(2).toVerify.length + 1);
+    // 模擬 102：20～40 歲，30-44 跨上限、18-29 跨下限
+    const m102 = items13.find((x) => x.no === 102)!;
+    expect(matchItem(m102, answers({ ageBand: '18-29', incomeBracket: 1 })).toVerify[0]).toBe('年齡：需 20 歲以上，你選的區間跨過門檻');
+    expect(matchItem(m102, answers({ ageBand: '30-44', incomeBracket: 1 })).toVerify[0]).toBe('年齡：需 40 歲以下，你選的區間跨過門檻');
+    expect(matchItem(m102, answers({ ageBand: '45-64', incomeBracket: 1 })).reason).toBe('需 40 歲以下');
   });
 
-  it('[SUBS-R13] 0 歲是有效年齡', () => {
-    expect(matchItem(item(3), answers({ age: 0, identities: ['low'] })).ok).toBe(true);
+  it('[SUBS-R13][SUBS-R17] S1 驗收：18-29歲、設籍、低收入戶、級距 1，序號 3（25 歲以下）年齡要再確認', () => {
+    const r = matchItem(item(3), answers({ ageBand: '18-29', identities: ['low'], incomeBracket: 1 }));
+    expect(r.ok).toBe(true);
+    expect(r.reason).toBe('其他條件都在範圍內，年齡要再確認');
+    expect(r.toVerify).toContain('年齡：需 25 歲以下，你選的區間跨過門檻');
+  });
+
+  it('[SUBS-R17] 年齡跨門檻又選收入不清楚：年齡與收入要再確認；收入條目排在最前', () => {
+    const r = matchItem(item(3), answers({ ageBand: '18-29', identities: ['low'], incomeBracket: 0 }));
+    expect(r.ok).toBe(true);
+    expect(r.reason).toBe(REASON_AGE_INCOME_CHECK);
+    expect(r.reason).toBe('其他條件都在範圍內，年齡與收入要再確認');
+    expect(r.toVerify.slice(0, 2)).toEqual(['每人每月收入需在 17,005 元以下（你選了不清楚）', '年齡：需 25 歲以下，你選的區間跨過門檻']);
+  });
+
+  it('[SUBS-R13] 18歲以下完全落在 25 歲以下內', () => {
+    const r = matchItem(item(3), answers({ ageBand: 'u18', identities: ['low'] }));
+    expect(r.ok).toBe(true);
+    expect(r.reason).toBe(REASON_ALL_OK);
   });
 
   it('[SUBS-R14] 需設籍而答否不過', () => {
@@ -90,10 +132,10 @@ describe('比對規則邊界', () => {
     expect(r.failures[0]).toBe('需設籍臺北市');
   });
 
-  it('[SUBS-R15] 年齡 65 歲推得老人，64 歲不過身分', () => {
-    expect(matchItem(item(6), answers({ age: 65 })).ok).toBe(true);
-    const r64 = matchItem(item(6), answers({ age: 64 }));
-    expect(r64.failures).toEqual(['需 65 歲以上', '需具65 歲以上身分']);
+  it('[SUBS-R15] 選 65歲+ 推得老人；45-64歲不過年齡也不過身分', () => {
+    expect(matchItem(item(6), answers({ ageBand: '65+' })).ok).toBe(true);
+    const r = matchItem(item(6), answers({ ageBand: '45-64' }));
+    expect(r.failures).toEqual(['需 65 歲以上', '需具65 歲以上身分']);
   });
 
   it('[SUBS-R15] 以上皆無不命中任何身分', () => {
@@ -102,7 +144,7 @@ describe('比對規則邊界', () => {
 
   it('[SUBS-R15] 中低收入戶身分命中「低收入戶或中低收入戶」，不命中只要低收入戶的項目', () => {
     expect(matchItem(item(8), answers({ identities: ['mid'] })).ok).toBe(true);
-    expect(matchItem(item(2), answers({ age: 20, identities: ['mid'] })).reason).toBe('需具低收入戶身分');
+    expect(matchItem(item(2), answers({ ageBand: '18-29', identities: ['mid'] })).reason).toBe('需具低收入戶身分');
   });
 
   it('[SUBS-R15][SUBS-R17] 申請取得身分：無該身分也不判身分；已具該身分改寫原因', () => {
@@ -120,7 +162,7 @@ describe('比對規則邊界', () => {
 
   it('[SUBS-R16] 級距下界超過上限寫金額；級距 5 無上界算跨上限', () => {
     expect(matchItem(item(9), answers({ incomeBracket: 4 })).reason).toBe('每人每月收入需在 28,550 元以下');
-    expect(matchItem(item(6), answers({ age: 70, incomeBracket: 5 })).reason).toBe('每人每月收入需在 33,252 元以下');
+    expect(matchItem(item(6), answers({ ageBand: '65+', incomeBracket: 5 })).reason).toBe('每人每月收入需在 33,252 元以下');
   });
 
   it('[SUBS-R16] 級距跨過上限寫「收入可能超過上限」', () => {
@@ -147,7 +189,7 @@ describe('比對規則邊界', () => {
   });
 
   it('[SUBS-R17] 不符合原因取第一條（年齡在前）', () => {
-    const r = matchItem(item(2), answers({ age: 10, residency: false, identities: ['none'], incomeBracket: 5 }));
+    const r = matchItem(item(2), answers({ ageBand: 'u18', residency: false, identities: ['none'], incomeBracket: 5 }));
     expect(r.failures).toHaveLength(4);
     expect(r.reason).toBe(r.failures[0]);
     expect(r.reason).toBe('需 18 歲以上');
@@ -155,7 +197,7 @@ describe('比對規則邊界', () => {
 
   it('[SUBS-R18] 分組內依序號排列，開放資料在模擬前', () => {
     const mock: SubsidyItem = { ...item(10), no: 101, kind: 'mock', name: '模擬', url: '' };
-    const g = groupResults([mock, ...items].reverse(), answers({ age: 70, incomeBracket: 3 }));
+    const g = groupResults([mock, ...items].reverse(), answers({ ageBand: '65+', incomeBracket: 3 }));
     const nos = g.eligible.map((r) => r.item.no);
     expect(nos).toEqual([6, 9]);
     const inel = g.ineligible.map((r) => r.item.no);
@@ -165,19 +207,24 @@ describe('比對規則邊界', () => {
 });
 
 describe('答案驗證與狀態', () => {
-  it('[SUBS-R11] 年齡 abc、121、-1、1.5 不合法；0、120 合法', () => {
-    expect(parseAgeInput('abc')).toBeNull();
-    expect(parseAgeInput('121')).toBeNull();
-    expect(parseAgeInput('-1')).toBeNull();
-    expect(parseAgeInput('1.5')).toBeNull();
-    expect(parseAgeInput('0')).toBe(0);
-    expect(parseAgeInput(' 120 ')).toBe(120);
-  });
-
   it('[SUBS-R11] 第 1 題、第 3 題未答回提示', () => {
     expect(validateStep(0, emptyAnswers())).toBe(MSG_AGE);
     expect(validateStep(2, emptyAnswers())).toBe(MSG_IDENTITY);
-    expect(validateStep(0, { ...emptyAnswers(), age: 0 })).toBeNull();
+    expect(validateStep(0, { ...emptyAnswers(), ageBand: 'u18' })).toBeNull();
+  });
+
+  it('[SUBS-R11] 送出時一次驗四題：四種訊息照 spec 7.2，第一張有錯的卡', () => {
+    expect(validateAnswers(emptyAnswers())).toEqual([
+      '請選擇年齡區間',
+      '請選擇戶籍縣市',
+      '請至少選一項，沒有就選以上皆無',
+      '請選一個級距，不確定就選不清楚',
+    ]);
+    expect([MSG_AGE, MSG_RESIDENCY, MSG_IDENTITY, MSG_INCOME]).toEqual(validateAnswers(emptyAnswers()));
+    const errs = validateAnswers({ ageBand: '65+', residency: true, identities: [], incomeBracket: null });
+    expect(errs).toEqual([null, null, MSG_IDENTITY, MSG_INCOME]);
+    expect(firstErrorIndex(errs)).toBe(2);
+    expect(firstErrorIndex(validateAnswers({ ageBand: 'u18', residency: false, identities: ['none'], incomeBracket: 0 }))).toBe(-1);
   });
 
   it('[SUBS-R12] 以上皆無與其他身分互斥', () => {
@@ -186,10 +233,11 @@ describe('答案驗證與狀態', () => {
     expect(toggleIdentity(['low'], 'low')).toEqual([]);
   });
 
-  it('完成判斷用 === null：0 歲與收入不清楚 0 都算已答', () => {
-    expect(isCompleted({ age: 0, residency: false, identities: ['none'], incomeBracket: 0 })).toBe(true);
-    expect(isCompleted({ age: 0, residency: null, identities: ['none'], incomeBracket: 0 })).toBe(false);
-    expect(isCompleted({ age: 30, residency: true, identities: [], incomeBracket: 1 })).toBe(false);
+  it('完成判斷用 === null：收入不清楚 0 也算已答', () => {
+    expect(isCompleted({ ageBand: 'u18', residency: false, identities: ['none'], incomeBracket: 0 })).toBe(true);
+    expect(isCompleted({ ageBand: 'u18', residency: null, identities: ['none'], incomeBracket: 0 })).toBe(false);
+    expect(isCompleted({ ageBand: null, residency: true, identities: ['none'], incomeBracket: 1 })).toBe(false);
+    expect(isCompleted({ ageBand: '30-44', residency: true, identities: [], incomeBracket: 1 })).toBe(false);
   });
 
   it('金額千分位', () => {
@@ -198,12 +246,10 @@ describe('答案驗證與狀態', () => {
   });
 });
 
-/** 2026-11-08 本機 newapp-api（S2）實打的回應：開放 10 項 + 模擬 3 項 */
-const items13 = SubsidyListSchema.parse(fixtureWithMock).items;
 
 describe('S2 驗收：13 項清單、示範情境、無符合', () => {
   it('[SUBS-R07][SUBS-R18] 結果合計 13 項，模擬 3 項排在各組開放資料之後', () => {
-    const g = groupResults(items13, answers({ age: 30, identities: ['preg', 'mid'], incomeBracket: 2 }));
+    const g = groupResults(items13, answers({ ageBand: '30-44', identities: ['preg', 'mid'], incomeBracket: 2 }));
     expect(g.eligible.length + g.ineligible.length).toBe(13);
     for (const group of [g.eligible, g.ineligible]) {
       const kinds = group.map((r) => r.item.kind);
@@ -249,8 +295,8 @@ describe('S2 驗收：13 項清單、示範情境、無符合', () => {
     expect(findNoMatch(groupResults(items13, a))).toBeNull();
   });
 
-  describe('[SUBS-R19] 50 歲、未設籍、以上皆無、級距 5', () => {
-    const a = answers({ age: 50, residency: false, identities: ['none'], incomeBracket: 5 });
+  describe('[SUBS-R19] 45-64歲、未設籍、以上皆無、級距 5', () => {
+    const a = answers({ ageBand: '45-64', residency: false, identities: ['none'], incomeBracket: 5 });
     const g = groupResults(items13, a);
     const nm = findNoMatch(g);
 
@@ -278,7 +324,47 @@ describe('S2 驗收：13 項清單、示範情境、無符合', () => {
 
   it('[SUBS-R20] 清除後答案回到未填（四題都空）', () => {
     const cleared = emptyAnswers();
-    expect(cleared).toEqual({ age: null, residency: null, identities: [], incomeBracket: null });
+    expect(cleared).toEqual({ ageBand: null, residency: null, identities: [], incomeBracket: null });
     expect(isCompleted(cleared)).toBe(false);
+  });
+});
+
+describe('結果頁顯示用純函式', () => {
+  it('[SUBS-R29] agencyShort：取第一段；條文片段（編號、依）或空白改顯示臺北市政府社會局', () => {
+    // 營養品補助（序號 7）的收件洽辦單位以「1.依前述…」開頭
+    expect(agencyShort(item(7).office)).toBe(AGENCY_FALLBACK);
+    expect(AGENCY_FALLBACK).toBe('臺北市政府社會局');
+    expect(agencyShort('戶籍所在地區公所')).toBe('戶籍所在地區公所');
+    expect(agencyShort('臺北市政府社會局社會救助科')).toBe('臺北市政府社會局社會救助科');
+    expect(agencyShort('都市發展局（模擬）')).toBe('都市發展局（模擬）');
+    expect(agencyShort('甲單位。乙單位')).toBe('甲單位');
+    expect(agencyShort('甲單位；乙單位')).toBe('甲單位');
+    expect(agencyShort('甲單位;乙單位')).toBe('甲單位');
+    expect(agencyShort('甲單位 乙單位')).toBe('甲單位');
+    expect(agencyShort('1、某單位')).toBe(AGENCY_FALLBACK);
+    expect(agencyShort('1．某單位')).toBe(AGENCY_FALLBACK);
+    expect(agencyShort('依規定辦理')).toBe(AGENCY_FALLBACK);
+    expect(agencyShort('')).toBe(AGENCY_FALLBACK);
+    expect(agencyShort('   ')).toBe(AGENCY_FALLBACK);
+  });
+
+  it('[W9] 大卡三點重點與說明', () => {
+    expect(bigCardPoints(item(6))).toEqual(['65 歲以上', '65 歲以上', '上限 33,252 元 / 月']);
+    expect(bigCardPoints(item(9))).toEqual(['不限身分', '不限年齡', '上限 28,550 元 / 月']);
+    const mock = SubsidyListSchema.parse(fixtureWithMock).items.find((x) => x.no === 103)!;
+    expect(bigCardPoints(mock)).toEqual(['不限身分', '18～29 歲', '不限收入']);
+    expect(bigCardDesc({ reason: '年齡、設籍、身分、收入都在條件內', toVerify: ['a', 'b'] })).toBe('年齡、設籍、身分、收入都在條件內；另有 2 項條件要再確認。');
+    expect(bigCardDesc({ reason: 'x', toVerify: [] })).toBe('x。');
+  });
+
+  it('[SUBS-R25] 搜尋只看名稱包含關鍵字，空白不算；提示文字', () => {
+    expect(matchesSearch('市民醫療補助', '補助')).toBe(true);
+    expect(matchesSearch('中低收入戶', '補助')).toBe(false);
+    expect(matchesSearch('中低收入戶', '  ')).toBe(true);
+    const rows = items.map((it) => ({ item: it }));
+    expect(filterSearch(rows, ' 補助 ').map((r) => r.item.no)).toEqual(
+      items.filter((it) => it.name.includes('補助')).map((it) => it.no),
+    );
+    expect(searchNoteText(' 補助 ', 3)).toBe('名稱含「補助」：3 項');
   });
 });

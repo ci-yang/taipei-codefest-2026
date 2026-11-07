@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ageFromBirthday, prefillFrom, residencyFromAddresses } from '@/lib/userinfo';
+import { ageFromBirthday, bandOfAge, prefillFrom, residencyFromAddresses, townFromAddresses } from '@/lib/userinfo';
 import { DEMO_ACCOUNT, installFakeBridge, sentNames } from './helpers/bridge';
 
 const TODAY = new Date(2026, 10, 8); // 2026-11-08
@@ -36,16 +36,30 @@ describe('userinfo 純函式', () => {
     },
   );
 
-  it('[SUBS-R24] prefillFrom：帳號 null（回 []、逾時、沒 bridge）兩欄都是 null；缺欄位只空該欄', () => {
-    expect(prefillFrom(null, TODAY)).toEqual({ age: null, residency: null });
-    expect(prefillFrom(DEMO_ACCOUNT, TODAY)).toEqual({ age: 36, residency: true });
-    expect(prefillFrom({ birthday: '1990/01/01' }, TODAY)).toEqual({ age: 36, residency: null });
-    expect(prefillFrom({ addresses: [{ city: '新北市' }] }, TODAY)).toEqual({ age: null, residency: false });
+  it('[SUBS-R24] 實歲對應年齡區間（ADR-030）：17→18歲以下、18、29、30、44、45、64、65、120 邊界', () => {
+    expect([0, 17, 18, 29, 30, 44, 45, 64, 65, 120].map(bandOfAge)).toEqual(['u18', 'u18', '18-29', '18-29', '30-44', '30-44', '45-64', '45-64', '65+', '65+']);
+    expect(bandOfAge(null)).toBeNull();
+    expect(bandOfAge(121)).toBeNull();
   });
 
-  it('[SUBS-R24] 只回 age、residency 兩欄，不帶出 idNo、realName', () => {
+  it('[SUBS-R24] 區：取 addresses[0].town；缺欄位、空字串、不是字串為 null', () => {
+    expect(townFromAddresses([{ city: '臺北市', town: '信義區' }])).toBe('信義區');
+    expect(townFromAddresses([{ city: '臺北市', town: ' 大安區 ' }])).toBe('大安區');
+    for (const bad of [undefined, null, [], [{}], [{ town: '' }], [{ town: 3 }], [null], 'x']) {
+      expect(townFromAddresses(bad)).toBeNull();
+    }
+  });
+
+  it('[SUBS-R24] prefillFrom：帳號 null（回 []、逾時、沒 bridge）三欄都是 null；缺欄位只空該欄', () => {
+    expect(prefillFrom(null, TODAY)).toEqual({ ageBand: null, residency: null, town: null });
+    expect(prefillFrom(DEMO_ACCOUNT, TODAY)).toEqual({ ageBand: '30-44', residency: true, town: '信義區' });
+    expect(prefillFrom({ birthday: '1990/01/01' }, TODAY)).toEqual({ ageBand: '30-44', residency: null, town: null });
+    expect(prefillFrom({ addresses: [{ city: '新北市' }] }, TODAY)).toEqual({ ageBand: null, residency: false, town: null });
+  });
+
+  it('[SUBS-R24] 只回 ageBand、residency、town 三欄，不帶出實歲、idNo、realName', () => {
     const p = prefillFrom(DEMO_ACCOUNT, TODAY);
-    expect(Object.keys(p).sort()).toEqual(['age', 'residency']);
+    expect(Object.keys(p).sort()).toEqual(['ageBand', 'residency', 'town']);
     expect(JSON.stringify(p)).not.toContain('A000000000');
     expect(JSON.stringify(p)).not.toContain('測試市民');
   });

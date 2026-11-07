@@ -1,13 +1,14 @@
 import { computed, readonly, ref, type Ref } from 'vue';
 import {
   SubsidyListSchema,
+  type AgeBand,
   type AnswerIdentity,
   type Answers,
   type IncomeBracket,
   type SubsidyList,
 } from '@app/shared';
 import { apiGet } from '@/lib/api';
-import { demoAnswers, emptyAnswers, toggleIdentity } from '@/lib/answers';
+import { demoAnswers, emptyAnswers, toggleIdentity, validateAnswers } from '@/lib/answers';
 import {
   findNoMatch,
   groupResults,
@@ -17,61 +18,64 @@ import {
 } from '@/lib/match';
 import { readCachedList, writeCachedList } from '@/lib/subsidyCache';
 import { requestUserInfo } from '@/lib/townpass';
-import { prefillFrom, type Prefill } from '@/lib/userinfo';
+import { EMPTY_PREFILL, prefillFrom, type Prefill } from '@/lib/userinfo';
 
 /** [SUBS-R10] 請求完成前 notLoaded；成功 fresh；失敗有上次清單 cached，沒有 unavailable */
 export type ListState = 'notLoaded' | 'fresh' | 'cached' | 'unavailable';
 export type AnswersState = 'empty' | 'inProgress' | 'completed';
-/** [SUBS-R25] 結果頁閱讀模式：grid 大圖卡（預設）、list 小圖清單 */
-export type ResultView = 'grid' | 'list';
+/** [SUBS-R25] 結果頁閱讀模式：carousel 輪播（預設，只放可能符合）、list 清單（兩組） */
+export type ResultView = 'carousel' | 'list';
 /** [SUBS-R25] 資料類型篩選，只改顯示 */
 export type KindFilter = 'all' | 'open' | 'mock';
-/** 我的資料第 5 張卡的文件（原型 DOCS） */
-export const DOCS = ['身分證', '戶口名簿', '存摺封面'] as const;
 
 /**
  * [SUBS-R21] 查詢答案只放在這個模組的記憶體 ref：
  * 不寫 localStorage、sessionStorage、cookie，也不放進任何請求。頁面關閉即消失。
- * 用模組層級狀態，讓問答頁與結果頁共用同一份答案。
+ * 用模組層級狀態，讓首頁表單、結果頁、我的珍藏與詳細資訊彈窗共用同一份答案。
  */
 const answers = ref<Answers>(emptyAnswers());
 const list = ref<SubsidyList | null>(null);
 const listState = ref<ListState>('notLoaded');
-/** 問答頁目前停在第幾題（0～3）；回首頁再「繼續作答」時回到這一題。只在記憶體（SUBS-R21） */
-const currentQuestion = ref(0);
-export const LAST_STEP = 3;
 /**
- * [SUBS-R24][SUBS-R25] 台北通帳號帶入值、閱讀模式、篩選、文件勾選：只在這個模組的記憶體，
- * 不寫任何儲存、不放進任何請求；進出詳細資訊頁保留，重新進入服務（重載）即回預設。
+ * 作答旗標（sa-2-overview.md 0.3）：`touched` 市民動過表單任一題；`submitted` 送出成功（或示範情境）且之後沒改過。
+ * 台北通帳號帶入不設 touched。只在記憶體（SUBS-R21）。
  */
-const prefill = ref<Prefill>({ age: null, residency: null });
-const resultView = ref<ResultView>('grid');
+const touched = ref(false);
+const submitted = ref(false);
+/**
+ * [SUBS-R24][SUBS-R25] 台北通帳號帶入值、閱讀模式、篩選、搜尋關鍵字：只在這個模組的記憶體，
+ * 不寫任何儲存、不放進任何請求；開關詳細資訊彈窗保留，重新進入服務（重載）即回預設。
+ */
+const prefill = ref<Prefill>({ ...EMPTY_PREFILL });
+const resultView = ref<ResultView>('carousel');
 const kindFilter = ref<KindFilter>('all');
-const docsReady = ref<boolean[]>(DOCS.map(() => false));
+const searchQuery = ref('');
+/**
+ * [SUBS-R24] 目前這份 Answers 建立時帶入的台北通值（原型 answers.tp）：欄位仍等於它時畫面標「台北通帶入」。
+ * 示範情境的答案不是帶入的，設為 null（不標）。
+ */
+const prefilledFrom = ref<Pick<Prefill, 'ageBand' | 'residency'> | null>(null);
 let prefillRequested = false;
 
-/** 由 Answers 現值推得，不另存；一律 `=== null` 判斷 */
+/** 由作答旗標推得，不另存（sa-2-overview.md 0.3） */
 const answersState = computed<AnswersState>(() => {
-  const a = answers.value;
-  if (a.age === null && a.residency === null && a.identities.length === 0 && a.incomeBracket === null) {
-    return 'empty';
-  }
-  return isCompleted(a) ? 'completed' : 'inProgress';
+  if (submitted.value) return 'completed';
+  return touched.value ? 'inProgress' : 'empty';
 });
 
-/** 答完且有清單時才有結果；答案一改就重算 */
+/** 送出成功後才有結果；之後改任一題（submitted 變假）就沒有，等再送出 */
 const results = computed<GroupedResults | null>(() => {
   const a = answers.value;
-  if (!list.value || !isCompleted(a)) return null;
+  if (!submitted.value || !list.value || !isCompleted(a)) return null;
   return groupResults(list.value.items, a);
 });
 
-/** [SUBS-R19] 答完且可能符合為 0 項時才有值 */
+/** [SUBS-R19] 送出後可能符合為 0 項時才有值 */
 const noMatch = computed<NoMatchResult | null>(() => (results.value ? findNoMatch(results.value) : null));
 
-/** [SUBS-R22] 只有 fresh、cached 能開始與用示範情境 */
+/** [SUBS-R22] 只有 fresh、cached 能送出與用示範情境；notLoaded、unavailable 時表單整張停用 */
 const canStart = computed(() => listState.value === 'fresh' || listState.value === 'cached');
-/** [SUBS-R10] cached、unavailable 時開始頁顯示重試 */
+/** [SUBS-R10] cached、unavailable 時首頁顯示重試 */
 const canRetry = computed(() => listState.value === 'cached' || listState.value === 'unavailable');
 
 /**
@@ -94,56 +98,77 @@ async function loadList(): Promise<void> {
   }
 }
 
-function setAge(age: number | null): void {
-  answers.value = { ...answers.value, age };
+/** 市民改了任一題：填寫中，之前的送出失效（結果要再送出才更新） */
+function edit(next: Answers): void {
+  answers.value = next;
+  touched.value = true;
+  submitted.value = false;
+}
+/** 年齡區間單選（ADR-030） */
+function setAgeBand(ageBand: AgeBand | null): void {
+  edit({ ...answers.value, ageBand });
 }
 function setResidency(residency: boolean | null): void {
-  answers.value = { ...answers.value, residency };
+  edit({ ...answers.value, residency });
 }
 /** [SUBS-R12] */
 function toggle(id: AnswerIdentity): void {
-  answers.value = { ...answers.value, identities: toggleIdentity(answers.value.identities, id) };
+  edit({ ...answers.value, identities: toggleIdentity(answers.value.identities, id) });
 }
 function setIncomeBracket(incomeBracket: IncomeBracket | null): void {
-  answers.value = { ...answers.value, incomeBracket };
+  edit({ ...answers.value, incomeBracket });
 }
-/** [SUBS-R24] 新的 Answers：年齡、設籍先取 prefill（null 就不帶入），其餘未填 */
+
+/** [SUBS-R24] 新的 Answers：年齡區間、設籍先取 prefill（null 就不帶入），其餘未填 */
 function answersWithPrefill(): Answers {
-  return { ...emptyAnswers(), age: prefill.value.age, residency: prefill.value.residency };
+  prefilledFrom.value = { ageBand: prefill.value.ageBand, residency: prefill.value.residency };
+  return { ...emptyAnswers(), ageBand: prefill.value.ageBand, residency: prefill.value.residency };
 }
+
 /**
- * [SUBS-R24] 進入服務時讀一次台北通帳號（逾時 3 秒在 townpass.ts）。只取 birthday、addresses[0].city 算 prefill；
- * 帳號物件本身不保留。重複呼叫不再讀。
+ * [SUBS-R24] 進入服務時讀一次台北通帳號（逾時 3 秒在 townpass.ts）。只取 birthday（換成年齡區間）、addresses[0].city、town 算 prefill；
+ * 帳號物件本身不保留。帳號回來時市民還沒動過表單，就立刻把年齡區間與設籍帶進目前的 Answers（帶入不算作答）。
+ * 重複呼叫不再讀。
  */
 async function loadPrefill(today: Date = new Date()): Promise<void> {
   if (prefillRequested) return;
   prefillRequested = true;
   const account = await requestUserInfo();
   prefill.value = prefillFrom(account, today);
+  if (!touched.value && !submitted.value) answers.value = answersWithPrefill();
 }
+
 /**
- * [SUBS-R20] 清除填寫答案：重設後依 SUBS-R24 回填台北通帳號值、題號回第 1 題，補助清單不動；
- * 開始查詢也用這支（新的一輪作答先帶入）。要不要導頁由頁面決定。
+ * [SUBS-R11] 送出：一次驗四題，回四個位置的錯誤訊息（null＝該題沒問題）。
+ * 全部通過且清單可用時為已完成（submitted）；有錯或清單不能用時不比對。
  */
-function resetAnswers(): void {
-  answers.value = answersWithPrefill();
-  currentQuestion.value = 0;
+function submit(): Array<string | null> {
+  const errors = validateAnswers(answers.value);
+  if (canStart.value && errors.every((e) => e === null)) {
+    touched.value = true;
+    submitted.value = true;
+  }
+  return errors;
 }
+
 /**
- * [SUBS-R24][SUBS-R26] 開始作答並停在第 step 題（點卡片跳題）：未填時先建立帶入 prefill 的新答案；
- * 填寫中或已完成時保留答案，只換題。
- */
-function startQuery(step = 0): void {
-  if (answersState.value === 'empty') answers.value = answersWithPrefill();
-  setQuestion(step);
-}
-/**
- * [SUBS-R27] 重新查詢：答案重設為未填、題號回第 1 題，留在開始頁；不帶入台北通帳號值（清除填寫答案 resetAnswers 才回填，SUBS-R20）
+ * [SUBS-R20][SUBS-R27] 重新查詢、清除填寫答案共用：Answers 重設為未填，依 SUBS-R24 立刻帶入台北通帳號值；
+ * 作答旗標都設假。補助清單與收藏不動；要不要導頁由頁面決定。
  */
 function startOver(): void {
-  answers.value = emptyAnswers();
-  currentQuestion.value = 0;
+  answers.value = answersWithPrefill();
+  touched.value = false;
+  submitted.value = false;
 }
+
+/** [SUBS-R23] 一鍵帶入示範情境，答案直接成為已完成（等同送出）、結果立即算好 */
+function applyDemo(index: number): void {
+  answers.value = demoAnswers(index);
+  prefilledFrom.value = null;
+  touched.value = true;
+  submitted.value = canStart.value;
+}
+
 /** [SUBS-R25] */
 function setResultView(v: ResultView): void {
   resultView.value = v;
@@ -152,18 +177,9 @@ function setResultView(v: ResultView): void {
 function setKindFilter(k: KindFilter): void {
   kindFilter.value = k;
 }
-/** [SUBS-R25] 文件勾選只在記憶體 */
-function toggleDoc(index: number): void {
-  if (index < 0 || index >= DOCS.length) return;
-  docsReady.value = docsReady.value.map((v, i) => (i === index ? !v : v));
-}
-/** [SUBS-R26] 設定問答頁目前題號（超出 0～3 會夾回範圍） */
-function setQuestion(step: number): void {
-  currentQuestion.value = Math.min(Math.max(Math.trunc(step), 0), LAST_STEP);
-}
-/** [SUBS-R23] 一鍵帶入示範情境，答案直接成為已完成、結果立即算好 */
-function applyDemo(index: number): void {
-  answers.value = demoAnswers(index);
+/** [SUBS-R25] 搜尋關鍵字只改顯示；關閉搜尋或離開頁面時清空 */
+function setSearchQuery(text: string): void {
+  searchQuery.value = text;
 }
 
 export interface UseQuery {
@@ -171,31 +187,29 @@ export interface UseQuery {
   answersState: Readonly<Ref<AnswersState>>;
   list: Readonly<Ref<SubsidyList | null>>;
   listState: Readonly<Ref<ListState>>;
-  currentQuestion: Readonly<Ref<number>>;
   results: Readonly<Ref<GroupedResults | null>>;
   noMatch: Readonly<Ref<NoMatchResult | null>>;
   canStart: Readonly<Ref<boolean>>;
   canRetry: Readonly<Ref<boolean>>;
   prefill: Readonly<Ref<Prefill>>;
+  prefilledFrom: Readonly<Ref<Pick<Prefill, 'ageBand' | 'residency'> | null>>;
   resultView: Readonly<Ref<ResultView>>;
   kindFilter: Readonly<Ref<KindFilter>>;
-  docsReady: Readonly<Ref<readonly boolean[]>>;
+  searchQuery: Readonly<Ref<string>>;
   loadList(): Promise<void>;
   loadPrefill(today?: Date): Promise<void>;
   /** [SUBS-R10] 重試＝再取一次清單 */
   retryList(): Promise<void>;
-  setAge(age: number | null): void;
+  setAgeBand(ageBand: AgeBand | null): void;
   setResidency(residency: boolean | null): void;
   toggleIdentity(id: AnswerIdentity): void;
   setIncomeBracket(incomeBracket: IncomeBracket | null): void;
-  resetAnswers(): void;
+  submit(): Array<string | null>;
   startOver(): void;
-  startQuery(step?: number): void;
-  setQuestion(step: number): void;
   applyDemo(index: number): void;
   setResultView(v: ResultView): void;
   setKindFilter(k: KindFilter): void;
-  toggleDoc(index: number): void;
+  setSearchQuery(text: string): void;
 }
 
 export function useQuery(): UseQuery {
@@ -204,29 +218,27 @@ export function useQuery(): UseQuery {
     answersState,
     list: readonly(list) as Readonly<Ref<SubsidyList | null>>,
     listState: readonly(listState),
-    currentQuestion: readonly(currentQuestion),
     results,
     noMatch,
     canStart,
     canRetry,
     prefill: readonly(prefill) as Readonly<Ref<Prefill>>,
+    prefilledFrom: readonly(prefilledFrom) as Readonly<Ref<Pick<Prefill, 'ageBand' | 'residency'> | null>>,
     resultView: readonly(resultView),
     kindFilter: readonly(kindFilter),
-    docsReady: readonly(docsReady) as Readonly<Ref<readonly boolean[]>>,
+    searchQuery: readonly(searchQuery),
     loadList,
     loadPrefill,
     retryList: loadList,
-    setAge,
+    setAgeBand,
     setResidency,
     toggleIdentity: toggle,
     setIncomeBracket,
-    resetAnswers,
+    submit,
     startOver,
-    startQuery,
-    setQuestion,
     applyDemo,
     setResultView,
     setKindFilter,
-    toggleDoc,
+    setSearchQuery,
   };
 }

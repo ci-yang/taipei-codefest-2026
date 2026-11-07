@@ -108,7 +108,7 @@ export function openLink(url: string): 'bridge' | 'browser' | null {
 // ---------- userinfo（SUBS-R24） ----------
 
 /**
- * 台北通帳號資料：只宣告本服務會讀的兩個欄位（birthday、addresses[0].city）。
+ * 台北通帳號資料：只宣告本服務會讀的欄位（birthday、addresses[0].city、addresses[0].town）。
  * 其他欄位（idNo、realName…）型別上不存在，程式也不讀（SUBS-R24、ADR-019）。
  */
 export interface TownPassAccount {

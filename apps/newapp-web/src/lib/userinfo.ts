@@ -1,13 +1,16 @@
-import { AGE_MAX, AGE_MIN } from '@app/shared';
+import { AGE_BANDS, AGE_MAX, AGE_MIN, type AgeBand } from '@app/shared';
 import type { TownPassAccount } from '@/lib/townpass';
 
 /** [SUBS-R24] 台北通帳號帶入值：頁面記憶體，不寫儲存、不放進請求（SUBS-R25） */
 export interface Prefill {
-  age: number | null;
+  /** 生日算出的實歲對應的年齡區間（ADR-030） */
+  ageBand: AgeBand | null;
   residency: boolean | null;
+  /** 第一筆地址的區（例「信義區」）：只給首頁戶籍選項顯示「臺北市 · ○○區」，不參與比對、不送後端、不寫儲存 */
+  town: string | null;
 }
 
-export const EMPTY_PREFILL: Prefill = Object.freeze({ age: null, residency: null }) as Prefill;
+export const EMPTY_PREFILL: Prefill = Object.freeze({ ageBand: null, residency: null, town: null }) as Prefill;
 
 /** 「臺北市」或「台北市」視為設籍臺北市 */
 const TAIPEI = new Set(['臺北市', '台北市']);
@@ -31,6 +34,12 @@ export function ageFromBirthday(birthday: unknown, today: Date): number | null {
   return age >= AGE_MIN && age <= AGE_MAX ? age : null;
 }
 
+/** [SUBS-R24] 實歲對應的年齡區間（ADR-030）；null 或不在 0～120 回 null */
+export function bandOfAge(age: number | null): AgeBand | null {
+  if (age === null) return null;
+  return AGE_BANDS.find((b) => age >= b.min && age <= b.max)?.value ?? null;
+}
+
 /** [SUBS-R24] 第一筆地址的縣市：臺北市／台北市為 true，其他縣市 false，缺欄位或格式不對 null */
 export function residencyFromAddresses(addresses: unknown): boolean | null {
   if (!Array.isArray(addresses) || addresses.length === 0) return null;
@@ -40,14 +49,23 @@ export function residencyFromAddresses(addresses: unknown): boolean | null {
   return TAIPEI.has(city.trim());
 }
 
+/** [SUBS-R24] 第一筆地址的區；缺欄位、空字串或不是字串回 null */
+export function townFromAddresses(addresses: unknown): string | null {
+  if (!Array.isArray(addresses) || addresses.length === 0) return null;
+  const first = addresses[0] as { town?: unknown } | null;
+  const town = first && typeof first === 'object' ? first.town : undefined;
+  return typeof town === 'string' && town.trim() !== '' ? town.trim() : null;
+}
+
 /**
- * [SUBS-R24] 由台北通帳號資料算帶入值。只讀 birthday 與 addresses[0].city，其他欄位一律不讀。
- * 帳號為 null（沒有 bridge、逾時、回 []）時兩欄都是 null。
+ * [SUBS-R24] 由台北通帳號資料算帶入值（年齡只留區間，實歲不保留）。只讀 birthday、addresses[0].city、addresses[0].town，其他欄位一律不讀。
+ * 帳號為 null（沒有 bridge、逾時、回 []）時三欄都是 null。
  */
 export function prefillFrom(account: TownPassAccount | null, today: Date): Prefill {
-  if (!account) return { age: null, residency: null };
+  if (!account) return { ageBand: null, residency: null, town: null };
   return {
-    age: ageFromBirthday(account.birthday, today),
+    ageBand: bandOfAge(ageFromBirthday(account.birthday, today)),
     residency: residencyFromAddresses(account.addresses),
+    town: townFromAddresses(account.addresses),
   };
 }

@@ -1,7 +1,7 @@
 /**
  * 原創 3D 卡通插畫（SVG 字串，spec 7.10、ADR-018，sa-3-s2.md W10）。
  * 逐字取自 .plan/.1108/sprint/prototype/index.html 的 ILLUS／TONE（使用者定案原型），不重畫。
- * 鍵：補助序號 1～10、101～103；p1～p5 為開始頁「我的資料」5 張卡。
+ * 鍵：補助序號 1～10、101～103（補助通改版拿掉開始頁「我的資料」5 張卡插畫，ADR-023）。
  * 漸層 #g-* 由 components/IllusDefs.vue 在 App 裡定義一次；不載入任何外部圖片。
  */
 const G = (c: string): string => `url(#g-${c})`;
@@ -25,18 +25,10 @@ const ILLUS: Record<string, string> = {
   101: `${SH(100, 134, 66)}${cube(76, 106, 22, '#F4B992', '#FD853A', '#E6692C')}${cube(124, 106, 22, '#EDF8FA', '#93D4DF', '#5AB4C5')}${cube(100, 62, 22, '#F4D69E', '#F5BA4B', '#E7A43C')}`,
   102: `${SH(104, 132, 66)}<rect x="86" y="80" width="80" height="14" rx="7" fill="${G('gold')}"/><rect x="138" y="90" width="10" height="18" rx="3" fill="${G('gold')}"/><rect x="153" y="90" width="10" height="24" rx="3" fill="${G('gold')}"/><circle cx="66" cy="86" r="29" fill="${G('gold')}"/><circle cx="58" cy="80" r="8.5" fill="#AD7B2B"/>${HI(56, 70, 10, 5, -35)}${HI(116, 83, 22, 2.5)}<path d="M58 80m-8 0a8 8 0 0 1 16 0" fill="none" stroke="#30383D" stroke-width="0"/><rect x="34" y="104" width="30" height="22" rx="7" transform="rotate(-14 49 115)" fill="${G('mint')}"/>`,
   103: `${SH(100, 134, 54)}<rect x="93" y="28" width="14" height="12" rx="5" fill="${G('mint')}"/><circle cx="100" cy="82" r="46" fill="${G('mint')}"/><circle cx="100" cy="82" r="36" fill="${G('cream')}"/><path d="M100 50v6M100 108v6M68 82h6M126 82h6" stroke="#9a8f80" stroke-width="3" stroke-linecap="round"/><path d="M100 54L111 82H89Z" fill="${G('orange')}"/><path d="M89 82H111L100 110Z" fill="${G('char')}"/><circle cx="100" cy="82" r="5" fill="${G('gold')}"/>${HI(80, 56, 16, 6, -35)}`,
-  p1: `${SH(100, 132, 60)}<rect x="66" y="30" width="9" height="20" rx="4.5" fill="${G('char')}"/><rect x="125" y="30" width="9" height="20" rx="4.5" fill="${G('char')}"/><rect x="52" y="40" width="96" height="86" rx="18" fill="${G('cream')}"/><path d="M52 72V58q0-18 18-18h60q18 0 18 18v14z" fill="${G('orange')}"/><text x="100" y="114" text-anchor="middle" font-family="Roboto, PingFang TC, sans-serif" font-weight="600" font-size="34" fill="#171B1D">__V__</text>${HI(72, 50, 14, 4)}`,
-  p2: `${SH(96, 130, 66)}${house(86, 128, 1, 'mint', '#5AB4C5')}<path d="M150 18a20 20 0 0 1 20 20c0 16-20 34-20 34s-20-18-20-34a20 20 0 0 1 20-20z" fill="${G('orange')}"/><circle cx="150" cy="38" r="7.5" fill="#fff6ec"/>${HI(142, 28, 5, 3, -40)}`,
-  p3: `${SH(100, 132, 64)}<rect x="38" y="44" width="120" height="78" rx="16" fill="${G('cream')}"/><circle cx="74" cy="82" r="20" fill="${G('mint')}"/><circle cx="74" cy="76" r="7.5" fill="#356C77"/><path d="M60 96q14-14 28 0" fill="#356C77"/><rect x="102" y="66" width="44" height="8" rx="4" fill="#ddd1c1"/><rect x="102" y="80" width="34" height="8" rx="4" fill="#ddd1c1"/><rect x="102" y="94" width="40" height="8" rx="4" fill="#ddd1c1"/>${HI(64, 52, 20, 4)}<circle cx="154" cy="46" r="19" fill="${G('orange')}"/><path d="M145 46l6 6l11-12" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>`,
-  p4: `${SH(104, 132, 66)}${coins(70, 122, 4)}${coins(106, 122, 6)}${coins(142, 122, 3)}<circle cx="156" cy="44" r="19" fill="${G('mint')}"/><text x="156" y="52" text-anchor="middle" font-family="Roboto, sans-serif" font-weight="600" font-size="24" fill="#171B1D">÷</text>${HI(150, 36, 6, 3, -30)}`,
-  p5: `${SH(100, 132, 66)}<rect x="48" y="34" width="70" height="88" rx="10" transform="rotate(-10 83 78)" fill="${G('cream')}"/><rect x="82" y="30" width="70" height="88" rx="10" transform="rotate(7 117 74)" fill="${G('cream')}"/><path d="M94 50h40M93 62h44M92 74h30" stroke="#ddd1c1" stroke-width="5" stroke-linecap="round" transform="rotate(7 117 74)"/><rect x="96" y="78" width="62" height="46" rx="9" fill="${G('mint')}"/><rect x="96" y="90" width="62" height="7" fill="#9cc8c2"/><rect x="40" y="92" width="58" height="36" rx="8" fill="${G('orange')}"/><circle cx="56" cy="110" r="8" fill="#fff6ec"/><path d="M70 104h20M70 114h14" stroke="#fff6ec" stroke-width="4" stroke-linecap="round"/>${HI(58, 98, 12, 3)}${HI(112, 84, 14, 3)}`,
 };
 
 /** 插畫底色（依補助序號）；2026-11-08 改淺色台北通主題，取 tp_colors.dart 的 primary／secondary／orange／red 淺階 */
 export const TONE: Record<number, string> = { 1: '#fbe7d9', 2: '#fdf8ed', 3: '#edf8fa', 4: '#dbf1f5', 5: '#fdf8ed', 6: '#fcf2df', 7: '#faeeee', 8: '#fbe7d9', 9: '#edf8fa', 10: '#fcf2df', 101: '#faeeee', 102: '#fcf2df', 103: '#dbf1f5' };
-
-/** 我的資料 5 張卡的底色（原型 .pcard style --tone） */
-export const PREP_TONE = ['#dbf1f5', '#fbe7d9', '#fdf8ed', '#fcf2df', '#edf8fa'] as const;
 
 const FALLBACK_TONE = '#dbf1f5';
 
@@ -49,7 +41,7 @@ export function hasArt(key: number | string): boolean {
   return Object.prototype.hasOwnProperty.call(ILLUS, String(key));
 }
 
-/** 回整張 <svg> 字串；p1 的 __V__ 換成年齡（未填為 ?） */
-export function art(key: number | string, v: string | number = '?'): string {
-  return `<svg viewBox="0 0 200 150" aria-hidden="true" focusable="false">${(ILLUS[String(key)] ?? '').replace('__V__', String(v))}</svg>`;
+/** 回整張 <svg> 字串（輪播大卡、清單列、彈窗共用） */
+export function art(key: number | string): string {
+  return `<svg viewBox="0 0 200 150" aria-hidden="true" focusable="false">${ILLUS[String(key)] ?? ''}</svg>`;
 }

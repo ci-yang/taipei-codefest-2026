@@ -88,8 +88,21 @@ export const SUBSIDY_IDENTITY_LABELS: Record<SubsidyIdentity, string> = {
   preg: '懷孕或 60 天內分娩',
 };
 
-/** 年齡達此值視同具備 elder（SUBS-R15） */
-export const ELDER_AGE = 65;
+/**
+ * 年齡區間（ADR-030，SUBS-R11、R13）：首頁五顆單選膠囊；min、max 為涵蓋的歲數（含）。
+ * 「18歲以下」涵蓋 0～17 歲，「65歲+」涵蓋 65～120 歲。
+ */
+export const AGE_BANDS = [
+  { value: 'u18', label: '18歲以下', min: 0, max: 17 },
+  { value: '18-29', label: '18-29歲', min: 18, max: 29 },
+  { value: '30-44', label: '30-44歲', min: 30, max: 44 },
+  { value: '45-64', label: '45-64歲', min: 45, max: 64 },
+  { value: '65+', label: '65歲+', min: 65, max: 120 },
+] as const;
+export type AgeBand = (typeof AGE_BANDS)[number]['value'];
+
+/** 選這個區間時視同具備 elder（SUBS-R15，ADR-030） */
+export const ELDER_BAND: AgeBand = '65+';
 
 /** 每人月收入級距（ADR-006）。0 為不清楚；max 為 null 表示無上限 */
 export const INCOME_BRACKETS = [
@@ -104,13 +117,15 @@ export const INCOME_UNKNOWN_LABEL = '不清楚';
 export const INCOME_HINT = '全家每月總收入除以家中人數';
 export type IncomeBracket = 0 | 1 | 2 | 3 | 4 | 5;
 
-/** 查詢答案；未答一律是 null，判斷用 `=== null`（0 歲與收入不清楚 0 都算有值） */
+/** 查詢答案；未答一律是 null，判斷用 `=== null`（收入不清楚 0 也算有值） */
 export interface Answers {
-  age: number | null;
+  /** 年齡區間（ADR-030：只選區間，不填實際歲數） */
+  ageBand: AgeBand | null;
   residency: boolean | null;
   identities: AnswerIdentity[];
   incomeBracket: IncomeBracket | null;
 }
 
+/** 實歲合理範圍（台北通生日換算用，SUBS-R24） */
 export const AGE_MIN = 0;
 export const AGE_MAX = 120;
