@@ -1,0 +1,55 @@
+name: Deploy Cloudflare platform
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-taipei-friendly-platform
+  cancel-in-progress: false
+
+jobs:
+  # This blocks accidental non-main dispatches; repository writers can still edit workflows.
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require main branch
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF:-}" != "refs/heads/main" ]]; then
+            printf '%s\n' '::error::Cloudflare deployment requires refs/heads/main.'
+            exit 1
+          fi
+  verify:
+    needs: preflight
+    if: ${{ github.ref == 'refs/heads/main' }}
+    uses: ./.github/workflows/ci.yml
+  deploy:
+    needs: [preflight, verify]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: bb0097fdc915604c5902feb38e8bf463
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Require deployment credential
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Set the repository CLOUDFLARE_API_TOKEN secret before using this workflow.'; exit 1; }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm platform:deploy --url https://taipei-friendly-platform.jason21131.workers.dev
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cloudflare-receipt-${{ github.sha }}
+          path: .artifacts/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30

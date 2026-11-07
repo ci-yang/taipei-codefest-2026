@@ -8,29 +8,40 @@
   "scripts": {
     "prototype": "python3 -m http.server 8766 --bind 127.0.0.1 --directory docs/prototypes/friendly-route",
     "test:prototype": "node --test docs/prototypes/tests/friendly-app-state.test.cjs docs/prototypes/tests/friendly-routing.test.cjs",
-    "dev": "concurrently -k -n api,web -c blue,green \"pnpm --filter @app/api dev\" \"pnpm --filter @app/web dev\"",
+    "dev": "pnpm platform:assets && concurrently -k -n api,web -c blue,green \"pnpm --filter @app/api dev\" \"pnpm --filter @app/web dev\"",
     "dev:api": "pnpm --filter @app/api dev",
-    "dev:web": "pnpm --filter @app/web dev",
+    "dev:web": "pnpm platform:assets && pnpm --filter @app/web dev",
     "test": "pnpm -r --if-present test",
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "pnpm -r --if-present typecheck",
-    "build": "pnpm -r --if-present build",
+    "build": "pnpm platform:assets && pnpm -r --if-present build",
     "db:push": "pnpm --filter @app/api exec drizzle-kit push",
     "db:push:force": "pnpm --filter @app/api exec drizzle-kit push --force",
-    "db:seed": "pnpm --filter @app/api db:seed"
+    "db:seed": "pnpm --filter @app/api db:seed",
+    "platform:assets": "node scripts/prepare-platform-assets.mjs",
+    "platform:build": "pnpm platform:assets && pnpm --filter @app/web build",
+    "platform:dev": "pnpm platform:build && wrangler dev --port 8791",
+    "platform:smoke": "node scripts/smoke-platform.mjs",
+    "platform:deploy": "node scripts/release-platform.mjs deploy",
+    "platform:rollback": "node scripts/release-platform.mjs rollback",
+    "test:platform": "node scripts/test-platform-integration.mjs",
+    "test:tooling": "node --test scripts/*.test.mjs"
   },
   "engines": {
     "node": ">=22"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261106.1",
     "@eslint/js": "^10.0.0",
     "concurrently": "^10.0.6",
     "eslint": "^10.14.0",
     "eslint-plugin-vue": "^10.12.0",
     "globals": "^17.0.0",
     "prettier": "^3.9.10",
+    "tsx": "4.23.15",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.72.1"
+    "typescript-eslint": "^8.72.1",
+    "wrangler": "4.158.0"
   }
 }

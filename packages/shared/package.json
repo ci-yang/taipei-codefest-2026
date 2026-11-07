@@ -6,12 +6,18 @@
   "type": "module",
   "description": "前後端共用的 zod schema 與 TS 型別（直接吃 TS 原始碼，不需 build）",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./routing": "./src/routing.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "vitest": "5.1.0"
   }
 }

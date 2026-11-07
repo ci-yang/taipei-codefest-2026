@@ -2,6 +2,8 @@
 
 前置：Node 24（`>=22` 可）、pnpm 11、Docker Desktop（含 compose v2）。
 
+Cloudflare 正式平台不需要 PostGIS。從 [Cloudflare 操作手冊](CLOUDFLARE.md) 開始，`pnpm test:platform` 使用獨立暫存 D1 做整合驗證。以下保留 Node／PostGIS 開發方式；兩邊的 friendly 名冊 API 共用契約，舊 places/opendata 僅在 Node 基線提供。
+
 ## 1. 第一次啟動
 
 ```bash
@@ -54,7 +56,7 @@ curl 'http://localhost:8787/api/v1/places?lat=25.04&lng=121.56&radius=3000'
 5. 若一定要讓手機直接打 API（例如 `VITE_API_BASE=http://192.168.1.23:8787`），要把手機頁面的來源加到 CORS：
    `.env` 設 `PUBLIC_WEB_URL=http://localhost:5173,http://192.168.1.23:5173`，重啟 API。
 6. macOS 第一次會跳「允許 node 接受連入連線」，要按允許；否則到「系統設定 → 網路 → 防火牆」放行。
-7. 手機瀏覽器的 `navigator.geolocation` 只在 HTTPS 或 localhost 可用，用 IP 連時瀏覽器定位會失敗（頁面會退回市政府為中心）。測定位請用 `?mockBridge=1` 或在 TownPass App 內開。
+7. 手機瀏覽器的 `navigator.geolocation` 只在 HTTPS 或 localhost 可用；正式友善整合頁定位失敗會顯示原因並提供手動選點，不把展示中心當作 GPS。`?mockBridge=1` 只供開發，不能當實機定位證據。
 
 ## 4. 常見錯誤
 

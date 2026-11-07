@@ -1,0 +1,45 @@
+{
+  "id": "option-a",
+  "title": "沿用 Node/PostGIS，新增獨立 Worker 友善平台入口",
+  "overview": "以增加一條正式友善資料流程完成五個平台故事，不遷移既有 Node/PostGIS 骨架。apps/api/src/worker.ts 與 edge-app.ts 僅組裝友善名冊、來源、公開設定、平台健康與 JSON 錯誤；保留 index.ts、db/client.ts、db/schema.ts、既有 health/places/opendata 行為。友善 Hono route 接受一個小型 FriendlyRepository 介面，正式 Worker 注入 D1 repository，本機 Node app.ts 掛同一 route 並注入版本化快照 repository；Worker import graph 不穿過原本 env.ts 或全域 pg.Pool。正式 API 為 GET /api/v1/friendly-stores、GET /api/v1/sources、GET /config 與 GET /healthz，無寫入／身分／評論／互助端點。名冊查詢支援四服務任一符合、bbox 或附近距離，依 shared Zod 契約驗證；空集合與資料不可讀分別回正常空結果和明確錯誤，不退回 seed:demo。D1 新建獨立資料庫，只放版本化真實名冊與來源 manifest；schema 不改既有 Postgres。正式資料移入 data/friendly，先核對來源雜湊、筆數與地方範圍，再由具版本主鍵的 importer 寫入；103 筆快照以 D1 transaction batch 同時寫入名冊與有效 manifest，失敗維持前版、同版本重跑不重複，端點固定讀有效版本。匯入使用受控腳本及環境憑證，不提供公開寫入路由。packages/shared 新增 friendly/platform 契約及無 window 依賴的純路由，從已核對的原型演算法抽出並鎖定同一地方圖與候選上限；資料檔與來源 manifest 作正式單一來源，不持續依賴組員 prototype。apps/web 新增 FriendlyMapPage 與 map/location/route adapter，沿用既有樣式、MapLibre 初始化方式、apiGet、useTownPassBridge 及定位重試；首頁與 /map 指向這一整合頁，/about 更新正式來源。GPS 僅留在裝置；前端取回範圍名冊並在本機計算沿線資源和候選，伺服器附近查詢能力不讓整合頁自動傳 GPS。新定位狀態防止晚到回覆覆蓋手動選點，檢查精度、時間與範圍；資產錯誤保留清單和重試，不畫假路線。Worker Static Assets 同源提供既有 Vite 產物，worker-first 只匹配 /api/*、/healthz、/config，未知 API 維持 JSON 404，其他深層路由使用 SPA fallback。CI 保留 PostGIS 舊測試並加獨立 D1/Worker 測試，發布明確 SHA 的產物與 Worker version，先使用隔離網址，失敗回退 Worker 而不回退 DB；GCP 站與原資料保留。US-4 另在 TownPass repo 對既有 CODEFEST_SERVICE_URL 建置入口補 release HTTPS 驗證與 coarse permission，保留 fine 與官方服務，產出 APK、來源 SHA、APK SHA-256 及待實機清單。本 repo 只提供建置協調腳本／交接文件，TownPass 不假登錄成此 repo 模組。docs/prototypes/** 與 enable-friendly-routes 規格完全不納入寫入範圍。",
+  "trade_offs": {
+    "pros": [
+      "US-1、US-2 直接建立可部署的真資料 Worker；不必先抽象化既有三支骨架 API，也不需要把目前 Docker 私網 PostGIS 開放給 Cloudflare。",
+      "既有 Node、PostGIS、GCP、places/health 測試保持原語意；舊本機 pnpm dev 透過新 snapshot repository 也能使用友善 route，正式頁不再呼叫 Worker 未提供的 places/opendata。",
+      "同一 friendly route、shared schemas 與 query 純函式供 D1/snapshot 兩個 repository 共用，測試覆蓋服務 OR 篩選、查無資料、座標／bbox／半徑無效、讀取失敗及版本來源一致。",
+      "正式資料、純路由與 Vue adapters 由 Ci 管，組員可繼續調整 prototype/spec；原型只作本次移植及回歸參照，沒有執行期反向 import。",
+      "獨立 D1 與版本主鍵使匯入可重跑；batch 成功後才有效的 manifest 避免半份資料被當成功。Worker 回退保留舊版資料與 schema，GCP 仍可作既有基線。",
+      "GPS、路由計算留在裝置，沿用開源地圖與既有地方快照；不引入雲端 LLM、商用圖磚、遠端導航或尚未確認的多人資料政策。",
+      "US-4 包含真正 APK 建置、URL 拒絕案例與 manifest 檢查；adb 無裝置時以證據清楚區分建置成功與尚未執行的定位／WebGL／離線實機驗收。"
+    ],
+    "cons": [
+      "Node 與 Worker 各有組裝入口和健康語意；需明確記錄 Node /healthz 仍檢查 PostGIS、Worker /healthz 檢查平台版本與 D1 讀取，不能把兩者輸出誤認為同一部署。",
+      "快照與 D1 repository 仍有兩個讀取實作，必須以同一 fixture 和 shared query 規則做契約一致性測試；若將來導入大量全市資料，現有小快照策略需重新量測與索引。",
+      "整合頁與原型 UX 並存。正式頁需要完整接好資料、位置、地圖、路由與錯誤狀態，不能只放 prototype iframe，也不宣稱七故事完整產品或正式整包離線已完成。",
+      "純路由移植後會與組員原型存在演算法副本；以固定來源版本和結果回歸鎖住本輪，後續演算法改動需明確交接，避免兩邊各自演進。",
+      "D1 batch 原子性、重跑主鍵及讀取一致性須用實際 Worker/D1 測試證明；禁止以新資料不可讀時回 mock 來讓 smoke 通過。公開 API 僅有讀取權能，匯入腳本與 token 不進前端或公開 config。",
+      "Worker 版本回退不能回復 DB；本輪僅新增資料版本與相容 schema，清除資料和破壞性 migration 不屬本方案。正式 hostname 未決先用隔離網址，不能提前更換 GCP DNS。",
+      "APK 依外部 TownPass repo、Flutter 工具鏈與部署 HTTPS URL；建置與 manifest 可驗，真實手機入口、精度、WebGL 與離線仍是明示未完成的裝置驗證。"
+    ],
+    "blast_radius": "新增集中於 apps/api/src/worker.ts、edge-app.ts、routes/friendly.ts、routes/platform.ts、friendly/{repository,d1,snapshot,query}.ts；僅在既有 app.ts 加 friendly route，不重寫原本 DB/route。另新增 packages/shared/src/{friendly,platform,routing}.ts、data/friendly/**、apps/api/migrations/friendly/**、scripts/{import-friendly,smoke-platform,release-platform,build-townpass}.*、apps/web/src/pages/FriendlyMapPage.vue、apps/web/src/composables/{useFriendlyMap,useFriendlyLocation,useFriendlyRoutes}.ts、apps/web/src/lib/friendly-api.ts，調整 router.ts、AboutPage.vue、package/tsconfig、wrangler.jsonc、.github/workflows/ci.yml 與必要交接文件。估計 3,400 行人工維護的程式／測試／設定／文件差異：shared 契約與純路由約 500、Worker/route/repository 約 550、D1 schema/匯入約 250、Vue 整合與 adapters 約 650、針對五故事及退化情境的測試約 1,000、部署/CI/文件約 450；不含原樣搬移的生成圖資與名冊。TownPass repo 約另 40–80 行 URL 驗證／Android 權限與建置證據變更，不冒算成本 repo 模組。這是估計而非已量測 diff 或工時承諾。module-map 為 modules: []，touched_modules 保持空陣列，所有未登錄路徑交 CLI 如實列 unknown references；不虛構模組名稱。docs/prototypes/**、.prospec/changes/enable-friendly-routes/**、既有 GCP 部署內容及 PostgreSQL schema 無本輪 diff。"
+  },
+  "call_chain": [
+    "GET /api/v1/friendly-stores（Worker，驗參）: apps/api/src/worker.ts → apps/api/src/edge-app.ts → apps/api/src/routes/friendly.ts → packages/shared/src/friendly.ts",
+    "GET /api/v1/friendly-stores（Worker，讀名冊）: apps/api/src/worker.ts → apps/api/src/edge-app.ts → apps/api/src/routes/friendly.ts → apps/api/src/friendly/d1.ts → apps/api/src/friendly/query.ts",
+    "GET /api/v1/sources（Worker）: apps/api/src/worker.ts → apps/api/src/edge-app.ts → apps/api/src/routes/friendly.ts → apps/api/src/friendly/d1.ts",
+    "GET /config（Worker）: apps/api/src/worker.ts → apps/api/src/edge-app.ts → apps/api/src/routes/platform.ts → packages/shared/src/platform.ts",
+    "GET /healthz（Worker）: apps/api/src/worker.ts → apps/api/src/edge-app.ts → apps/api/src/routes/platform.ts → apps/api/src/friendly/d1.ts",
+    "未知 /api/*（JSON 404）: apps/api/src/worker.ts → apps/api/src/edge-app.ts",
+    "GET /api/v1/friendly-stores 與 /api/v1/sources（Node 開發）: apps/api/src/index.ts → apps/api/src/app.ts → apps/api/src/routes/friendly.ts → apps/api/src/friendly/snapshot.ts → apps/api/src/friendly/query.ts",
+    "GET / 與 /map（SPA 整合頁）: apps/web/src/main.ts → apps/web/src/router.ts → apps/web/src/pages/FriendlyMapPage.vue → apps/web/src/lib/friendly-api.ts → apps/web/src/lib/api.ts",
+    "整合頁名冊繪圖: apps/web/src/pages/FriendlyMapPage.vue → apps/web/src/composables/useFriendlyMap.ts",
+    "定位／重試／手動切換: apps/web/src/pages/FriendlyMapPage.vue → apps/web/src/composables/useFriendlyLocation.ts → apps/web/src/lib/locate.ts → apps/web/src/composables/useTownPassBridge.ts",
+    "候選路線計算: apps/web/src/pages/FriendlyMapPage.vue → apps/web/src/composables/useFriendlyRoutes.ts → packages/shared/src/routing.ts",
+    "名冊匯入驗證: scripts/import-friendly.ts → packages/shared/src/friendly.ts",
+    "平台 smoke: scripts/smoke-platform.ts → packages/shared/src/platform.ts",
+    "發布／回退後驗證: scripts/release-platform.sh → scripts/smoke-platform.ts",
+    "HTTPS APK 建置入口（外部 TownPass 呼叫在此 repo 邊界終止）: scripts/build-townpass.sh"
+  ],
+  "estimated_lines": 3400,
+  "touched_modules": []
+}

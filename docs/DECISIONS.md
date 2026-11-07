@@ -3,6 +3,12 @@
 > 「之後還會再問一次」的結論寫在這裡，最新的放最上面。一條三段：決定、理由、影響／何時重議。
 > 聊天訊息會被洗掉，這裡不會。值以 `.env`／程式碼為準，這裡記的是「為什麼」。
 
+## 2026-11-07 ｜ D9 ｜ Ci 建正式平台，組員調整 prototype 與產品規格
+
+- **決定**：依 Ci 本輪指示，恢復實際前後端與部署工作，採 Cloudflare Workers + Static Assets + D1；MapLibre 顯示開放 OSM 快照，路線在裝置計算。另以既有 TownPass fork 建 Android APK。正式平台 change 為 `deploy-friendly-platform`，組員持續持有 prototype 與 `enable-friendly-routes`。
+- **理由**：本輪 readonly 名冊與裝置路由可用 Cloudflare 同源部署，不需要維護新的 VM 或公開現有 PostgreSQL。D1 沒有 PostGIS，使用版本化地方名冊與窄 repository，保留既有 Node/PostGIS API。Claude Code Opus 5.5 已參與架構比較；獨立架構與任務複核列出的逾時、log 與回退邊界納入計畫。
+- **影響／重議**：先發獨立 workers.dev；正式 hostname 未決前，既有 GCP／DNS／資料保持不變。D8 的「後端暫不實作」由本輪指示更新；評論、真人互助、身分與治理仍待組員定規格，不擅自設公開寫入政策。地方路網不等於全市導航；正式 Vue 尚未完成整包離線與 Android 實機驗收時如實標示。之後若需要全市路由、長任務或 PostGIS，再評估 GCP 容器服務。
+
 ## 2026-11-07 ｜ D8 ｜ 先上前端 prototype，後端暫不實作
 
 - **決定**：Ci 說明規格尚未完全確定，本輪收斂為將目前手機前端 prototype、討論規格與協作說明放進既有 GitHub 專案。以獨立分支和 PR 交接，讓成員操作並認領前端工作。
