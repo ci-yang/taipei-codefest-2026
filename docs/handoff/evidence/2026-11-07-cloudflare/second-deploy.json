@@ -1,0 +1,122 @@
+{
+  "id": "2026-11-07T08-19-28.406Z-f5842b3b-2519-4a85-9258-6a8f1ea84764",
+  "action": "deploy",
+  "status": "deployed",
+  "accountId": "bb0097fdc915604c5902feb38e8bf463",
+  "workerName": "taipei-friendly-platform",
+  "sourceSha": "412dd870ea9ebb3fb903794e61a289a462b44e5a",
+  "startedAt": "2026-11-07T08:19:28.406Z",
+  "databaseRollback": false,
+  "url": "https://taipei-friendly-platform.jason21131.workers.dev",
+  "previous": {
+    "versionId": "49b107b7-6dd0-4cf3-a56d-a93f8dde4678",
+    "sourceSha": "412dd870ea9ebb3fb903794e61a289a462b44e5a",
+    "manifest": {
+      "version": "friendly-route-2026-11-07-v1",
+      "fetchedAt": "2026-11-07T04:28:29.616811+00:00",
+      "bounds": [
+        [
+          25.023,
+          121.546
+        ],
+        [
+          25.044,
+          121.574
+        ]
+      ],
+      "storeCount": 103,
+      "source": {
+        "name": "友善店家清冊（繁體中文）",
+        "url": "https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1",
+        "downloadUrl": "https://data.taipei/api/frontstage/tpeod/dataset/resource.download?rid=5a5b36e0-f870-4b7f-8378-c91ac5f57941",
+        "updatedAt": "2026-07-20",
+        "license": "臺北市資料大平臺資料使用規範：https://data.taipei/rule",
+        "declaredSha256": "301a3fe1b08dbcf2fc478eeaaa4a19886451df4a7b6f507ceca0ab09b67126c5",
+        "measuredSha256": "301a3fe1b08dbcf2fc478eeaaa4a19886451df4a7b6f507ceca0ab09b67126c5",
+        "verification": "verified"
+      },
+      "files": {
+        "snapshot": {
+          "path": "/friendly/snapshot.json",
+          "sha256": "eec6fd8f52e815942c58c377e53d7c8b691df545f934f01c6ad7d622f96076f3"
+        },
+        "routingGraph": {
+          "path": "/friendly/routing-graph.json",
+          "sha256": "eb196909c2b737cb120b7cbdf32487cd74bf2d30c1e507d05de93be367ea2bb3"
+        },
+        "mapData": {
+          "path": "/friendly/map-data.geojson",
+          "sha256": "1227ef2eacc9b6ce94f0aef5b09580c641c296ad24decf4eebb37ba21655e3c7"
+        }
+      },
+      "graph": {
+        "version": "friendly-pedestrian-snapshot-2026-11-07-v1",
+        "nodeCount": 9483,
+        "edgeCount": 24314,
+        "license": "ODbL-1.0",
+        "attribution": "© OpenStreetMap contributors",
+        "source": "https://api.openstreetmap.org/api/0.6/map",
+        "sources": [
+          {
+            "file": "codefest-osm-core.osm",
+            "declaredSha256": "55c726e9b2d3a0c0da899a9d6e70dc15289e84b5a6bca9896a18e26ba0917bfa",
+            "measuredSha256": "55c726e9b2d3a0c0da899a9d6e70dc15289e84b5a6bca9896a18e26ba0917bfa",
+            "verification": "verified"
+          },
+          {
+            "file": "codefest-osm-east-edge.osm",
+            "declaredSha256": "473e4c9dab922ba7e697a2d227a42a9fe30e7e7acc0caa3dbb7e0865ddf5792b",
+            "measuredSha256": "473e4c9dab922ba7e697a2d227a42a9fe30e7e7acc0caa3dbb7e0865ddf5792b",
+            "verification": "verified"
+          },
+          {
+            "file": "codefest-osm-east-north.osm",
+            "declaredSha256": "faa842da48d27ec2d21cd1c1ac8cb4522027e4e90c006360a0b782dde402c837",
+            "measuredSha256": "faa842da48d27ec2d21cd1c1ac8cb4522027e4e90c006360a0b782dde402c837",
+            "verification": "verified"
+          },
+          {
+            "file": "codefest-osm-east-south.osm",
+            "declaredSha256": "78619f9b988e898026842800bb4153fb128957ea5b16e16680f28580659837f4",
+            "measuredSha256": "78619f9b988e898026842800bb4153fb128957ea5b16e16680f28580659837f4",
+            "verification": "verified"
+          },
+          {
+            "file": "codefest-osm-west-north.osm",
+            "declaredSha256": "776fc6beffdddb85e4edf94c0e477fd0d31163859c985d13521fa97534f24a70",
+            "measuredSha256": "776fc6beffdddb85e4edf94c0e477fd0d31163859c985d13521fa97534f24a70",
+            "verification": "verified"
+          },
+          {
+            "file": "codefest-osm-west-south.osm",
+            "declaredSha256": "36866132a75e39afa15d86d2f6d582d83805142caa69546b9ae1169ff521f7d7",
+            "measuredSha256": "36866132a75e39afa15d86d2f6d582d83805142caa69546b9ae1169ff521f7d7",
+            "verification": "verified"
+          }
+        ]
+      },
+      "provenance": {
+        "stores": "docs/prototypes/friendly-route/data.js",
+        "routingGraph": "docs/prototypes/friendly-route/routing-data.js",
+        "mapData": "docs/prototypes/friendly-route/map-data.geojson"
+      },
+      "limitations": [
+        "地方快照不是全臺北或即時資料。",
+        "服務空白表示未標示；實際可用、營業與消費條件須向店家確認。",
+        "路線是本地 OSM 候選計算；接線與現場通行、無障礙條件未驗證。"
+      ]
+    }
+  },
+  "dataVersion": "friendly-route-2026-11-07-v1",
+  "snapshotSha256": "eec6fd8f52e815942c58c377e53d7c8b691df545f934f01c6ad7d622f96076f3",
+  "deployedVersion": "e3ce7236-905a-4b5b-988a-514b896e5926",
+  "smoke": {
+    "url": "https://taipei-friendly-platform.jason21131.workers.dev",
+    "sourceSha": "412dd870ea9ebb3fb903794e61a289a462b44e5a",
+    "dataVersion": "friendly-route-2026-11-07-v1",
+    "storeCount": 103,
+    "snapshotSha256": "eec6fd8f52e815942c58c377e53d7c8b691df545f934f01c6ad7d622f96076f3",
+    "checkedAt": "2026-11-07T08:19:50.899Z"
+  },
+  "completedAt": "2026-11-07T08:19:51.841Z"
+}

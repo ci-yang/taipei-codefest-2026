@@ -27,7 +27,7 @@
 - [x] T16 Wrangler Assets/D1/版本配置與明確資產準備，API worker-first、SPA 深層路由、公開 config 白名單（step 4；REQ-FRIENDLY-PLATFORM-001、REQ-FRIENDLY-PLATFORM-005）。
 - [x] T17 Cloudflare release／rollback 腳本與 smoke，dirtytree 拒絕、環境互斥／版本前置檢查、有限逾時，首次失敗保留 GCP（step 4；REQ-FRIENDLY-PLATFORM-005）。
 - [x] T18 CI 保留 PostGIS、加入 D1 與部署 smoke，發布 concurrency 與 commit/artifact metadata（step 4；REQ-FRIENDLY-PLATFORM-005）。
-- [ ] T19 [M] 重用外 repo TownPass-platform 的 HTTPS parser、coarse/fine 與建置腳本成果；依最終已驗 URL 交接，主 repo wrapper 不另寫 URL parser（step 5；REQ-FRIENDLY-PLATFORM-004）。
+- [x] T19 [M] 重用外 repo TownPass-platform 的 HTTPS parser、coarse/fine 與建置腳本成果；依最終已驗 URL 交接，主 repo wrapper 不另寫 URL parser（step 5；REQ-FRIENDLY-PLATFORM-004）。
 
 ## Tests
 - [x] T20 Vitest shared schema／query 與固定路由差異、出界／無路線測試；核對正式 data manifest/hash，不修改 prototype（step 6；REQ-FRIENDLY-PLATFORM-002、REQ-FRIENDLY-PLATFORM-003；shared/data）。
@@ -38,8 +38,8 @@
 - [x] T25 [V] workspace typecheck/lint/test/build、手機寬度瀏覽器 smoke、fresh review／Claude 協作與文件來源核對（step 6；REQ-FRIENDLY-PLATFORM-001 至 REQ-FRIENDLY-PLATFORM-005；所有責任區含 docs）。
 
 ## 交付與紀錄
-- [ ] T26 [M] 建獨立 Cloudflare D1/Worker、匯入並部署明確 commit，驗 health/版本/來源/API；回退與重部署演練，核對 GCP仍健康（step 4、6；REQ-FRIENDLY-PLATFORM-001、REQ-FRIENDLY-PLATFORM-005）。
-- [ ] T27 [M] 對已驗 HTTPS 入口建 APK，核對 manifest、來源 SHA 與產物 hash；無實機時記待驗，不冒稱通過（step 5；REQ-FRIENDLY-PLATFORM-004）。
+- [x] T26 [M] 建獨立 Cloudflare D1/Worker、匯入並部署明確 commit，驗 health/版本/來源/API；回退與重部署演練，核對 GCP仍健康（step 4、6；REQ-FRIENDLY-PLATFORM-001、REQ-FRIENDLY-PLATFORM-005）。
+- [x] T27 [M] 對已驗 HTTPS 入口建 APK，核對 manifest、來源 SHA 與產物 hash；無實機時記待驗，不冒稱通過（step 5；REQ-FRIENDLY-PLATFORM-004）。
 - [x] T28 更新 README／RUNBOOK／DECISIONS／handoff：端點契約、部署責任、正式／prototype 邊界、來源授權、APK 證據與未驗清單（step 6；REQ-FRIENDLY-PLATFORM-002、REQ-FRIENDLY-PLATFORM-004、REQ-FRIENDLY-PLATFORM-005）。
 
 ## Summary

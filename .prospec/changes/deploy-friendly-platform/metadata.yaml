@@ -197,8 +197,29 @@ quality_log:
     accepted:
       request_id: prospec-verify:9bf2b34a7de05d2378e2911bc0da2f9a7bbde7b00a9f1ebb3d3115655264c98b
       artifact_digest: 1403cadbadf9d77d9f85850bcafe587121a1152f205bf23199d1bc970fb754a9
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    criticals_found: 0
+    criticals_fixed: 0
+    majors: 0
+    round: 4
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    attempt_id: prospec-review:e02cb0c9e89f5d5493a7944c85725cd5f0ce4c8d91d842621ecf37e35fd02731
+    accepted:
+      request_id: b60a48717548e0a51131600620ef2821f460e5c1e47e6d810b7c8cab3f4b72a8
+      artifact_digest: 72174678f88e22dcf52a13fc14865dc7f638328b22ba9778ca55f6ae02de0736
+      base_digest: 9d4fd1e18cec68e54e4cb501d7422bb346cbc7b3758558dd5067e061f8b3c595
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
 review_provenance:
-  digest: 256f3f36109bc01a47b5fd1aea5636cad4bae5337170650187d4e5c2725f4a12
+  digest: 0bdc50d4613e43d6352eeabf2982d5b3a9d6c2894b81a6a61cf6375b815c6377
   date: 2026-11-07
   fingerprint_version: snapshot-v2
   scope: repository-inputs-v2
@@ -206,18 +227,18 @@ review_provenance:
 test_provenance:
   command: pnpm test
   exit_code: 0
-  digest: 256f3f36109bc01a47b5fd1aea5636cad4bae5337170650187d4e5c2725f4a12
+  digest: 0bdc50d4613e43d6352eeabf2982d5b3a9d6c2894b81a6a61cf6375b815c6377
   date: 2026-11-07
   fingerprint_version: snapshot-v2
   scope: repository-inputs-v2
-  attempt_id: 401dba50-3e18-4e6f-9004-818eb75658ee
+  attempt_id: b4330d35-eb7f-491a-8c58-a7104c51b6dc
 test_attempt:
-  id: 401dba50-3e18-4e6f-9004-818eb75658ee
+  id: b4330d35-eb7f-491a-8c58-a7104c51b6dc
   date: 2026-11-07
   outcome: passed
   command: pnpm test
-  before_digest: 256f3f36109bc01a47b5fd1aea5636cad4bae5337170650187d4e5c2725f4a12
-  after_digest: 256f3f36109bc01a47b5fd1aea5636cad4bae5337170650187d4e5c2725f4a12
+  before_digest: 0bdc50d4613e43d6352eeabf2982d5b3a9d6c2894b81a6a61cf6375b815c6377
+  after_digest: 0bdc50d4613e43d6352eeabf2982d5b3a9d6c2894b81a6a61cf6375b815c6377
   exit_code: 0
 delta_spec_provenance:
   digest: cf6ee855ebdf3cd02a741a8de2f316b02ce8a7223d3353f1c9e74702f215b419

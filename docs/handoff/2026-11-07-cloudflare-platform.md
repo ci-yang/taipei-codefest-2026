@@ -29,11 +29,27 @@ Workers + Static Assets + D1 承接正式 Vue／Hono 平台；MapLibre 呈現本
 ## 部署與 APK 執行紀錄
 
 - Cloudflare D1 已建立：`taipei-friendly-platform`，ID `1e0f3668-ef50-4a8b-9a11-0dedb5ab54e5`。
-- 預定獨立入口：`https://taipei-friendly-platform.jason21131.workers.dev`。本節初稿時尚未發布；實際 URL／Worker version／source SHA／smoke／rollback 收據待部署後追加。
+- 已發布入口：[友善平台](https://taipei-friendly-platform.jason21131.workers.dev)。部署來源為 `412dd870ea9ebb3fb903794e61a289a462b44e5a`，最終 Worker version 為 `9f239e0b-0667-45b8-a26e-92911f476159`。
+- 先發布兩個 Worker version，實際回退到第一個，再重新發布；四次線上 smoke 均成功。這次演練各版本使用相同程式與資料，驗證版本切換及資料保留，未宣稱跨資料 schema 升級回退。詳見下表原始收據。
 - 原入口 `https://codefest.ciyang.dev` 與 GCP VM 保留，不改 DNS。
 - GitHub 部署 workflow 已具備 concurrency 及先驗後發流程；repository 尚未設定專用 `CLOUDFLARE_API_TOKEN` secret，本機 OAuth 不上傳至 GitHub。
-- APK 待入口驗證後建置；外 repo 路徑 `/Users/ciyang/Documents/repos/TownPass-platform`，wrapper 為 `scripts/build-townpass.sh`。產物 hash、來源 SHA 與 URL 由 `.artifacts/townpass/` 收據記錄。
+- APK 已以驗證後的 HTTPS 入口建置；外 repo 路徑 `/Users/ciyang/Documents/repos/TownPass-platform`，wrapper 為 `scripts/build-townpass.sh`。平台與 App 建置前後均為乾淨 commit。APK 為 `com.example.townpass`／`0.0.12`（code 1），115,790,112 bytes；SHA-256：`fb815e2f9d03f0402d5db3105c2a93fd4fda506391e6ebf2c9716d7db1cb7a68`。
+- [APK 與 SHA-256 下載](https://github.com/ci-yang/TownPass/releases/tag/untagged-f991213db1395b66fcdb)位於 GitHub release 草稿（tag `platform-demo-20261107`），需有 repository 的草稿存取權限。fresh-context reviewer 已獨立核對 APK hash、manifest、簽章及三種 ABI 內嵌的服務網址。
 - 尚無 Android 實機／模擬器連線，不能宣稱 native GPS／實機 WebView 通過。release 配置沿用 debug signing，產物供展示測試，不作商店正式簽署。
+
+| 實際操作 | 收據 |
+|---|---|
+| 第一次發布：Worker `49b107b7-6dd0-4cf3-a56d-a93f8dde4678` | [first-deploy.json](evidence/2026-11-07-cloudflare/first-deploy.json) |
+| 第二次發布：Worker `e3ce7236-905a-4b5b-988a-514b896e5926` | [second-deploy.json](evidence/2026-11-07-cloudflare/second-deploy.json) |
+| 回退第二版至第一版，D1 保留 | [rollback.json](evidence/2026-11-07-cloudflare/rollback.json) |
+| 重新發布最終版，103 筆資料與檔案 hash 通過 smoke | [final-deploy.json](evidence/2026-11-07-cloudflare/final-deploy.json) |
+| APK 建置與兩個 repository 的來源 commit | [apk-build.json](evidence/2026-11-07-cloudflare/apk-build.json) |
+| APK manifest、簽章與內嵌 URL 檢查 | [apk-verification.json](evidence/2026-11-07-cloudflare/apk-verification.json) |
+| 原 GCP／PostGIS 仍健康 | [gcp-health.json](evidence/2026-11-07-cloudflare/gcp-health.json) |
+
+最終 workspace 109 tests、工具腳本 29 tests 通過；平台 commit `412dd87` 的 [GitHub CI](https://github.com/ci-yang/taipei-codefest-2026/actions/runs/42354923870) 成功。線上 Chrome 亦完成選點、路線比較與資源路線繪製。獨立 review 與 Prospec 驗證紀錄位於 `.prospec/changes/deploy-friendly-platform/`；部署前等級 A，包含兩項設計細節 WARN，產品 UI 仍由組員接續。
+
+首次遠端匯入曾因 Wrangler `--file --json` 的 stdout 混有進度文字而停止發布。修正為 INSERT 子程序成功後，以獨立 SELECT 回讀完整資料並核對 hash；修正版已通過獨立 review、回歸測試與實際雲端匯入。失敗發生在 Worker 發布之前。
 
 ## 接手位置
 
