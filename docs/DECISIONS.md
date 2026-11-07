@@ -3,6 +3,12 @@
 > 「之後還會再問一次」的結論寫在這裡，最新的放最上面。一條三段：決定、理由、影響／何時重議。
 > 聊天訊息會被洗掉，這裡不會。值以 `.env`／程式碼為準，這裡記的是「為什麼」。
 
+## 2026-11-08 ｜ D13 ｜ 三急首頁視覺採「緊急停止鈕」，全 App 改用城市通官方色票
+
+- **決定**：三急首頁的三顆大按鈕做成真實緊急停止鈕（e-stop）：直排三列，每列一顆蘑菇頭＋底座＋標示環，右側大字標籤（廁所／充電／網路）；按住時頂部沉進底座，放開後卡在按下位置並短震動，停約 180ms 讓人看見再進結果卡，回首頁時彈回。視覺原則沿用主工作樹 D12 的 prototype（`docs/prototypes/rescue-buttons-estop/`，在主工作樹、尚未進本分支）：低飽和、同色系柔和陰影，不做亮球高光與貼紙式裝飾。配色不再用 D12 v3 的自訂綠橘藍，全 App 改用 TownPass `tp_colors.dart` 官方 ramp（primary teal、secondary amber、grayscale、red、orange）；類別色為廁所 primary-500、充電 secondary-500、Wi-Fi primary-800、無障礙 grayscale-700；黃色標示環改為鋼環。字體 Roboto＋PingFang TC，字級只用 36／24／18／16／14／12，字重只用 400／600。同一輪一併定案：dark 主題的選中 chip 一律用深字；首頁「看地圖」一律進空狀態（不帶類別、不帶選取）；地圖上點 pin 只選取、不開詳細資訊；地圖面板刪掉 START 模式卡，城市雷達入口移到 footer。
+- **理由**：Ci 要「有儀式感、不要太 AI、有按下去的急救感」，緊急停止鈕是大家都認得的實體物件，「按下卡住」讓人確定自己按到了哪一顆。服務跑在台北通 WebView 裡，用城市通官方色票、字體與字級，畫面才像宿主 App 的一部分，不像外掛頁。dark 主題 primary-600 與 grayscale-500 上的白字對比只有 3.79 與 3.66，不到 4.5，所以改深字。首頁「看地圖」若沿用上一趟結果卡的類別與選取，使用者會以為地圖只有那一類，空狀態才符合「第二層自己選」的規格。
+- **影響**：主工作樹 D12「首頁以外頁面配色不跟著改」由本條取代，全 App 都走官方 ramp。官方 ramp 寫成 `docs/prototypes/friendly-route/app-ui.css` 的 `--tp-*` token。地圖圓點描邊改用類別的 text token，淺色底圖上的描邊對比要維持 3:1 以上。`navigator.vibrate` 在 TownPass WebView 的行為仍未實機驗證。
+
 ## 2026-11-08 ｜ D12 ｜ 三急版已發布：分享頁、APK、正式站三件套
 
 - **決定**：Ci 2026-11-08 凌晨授權「直接做完」，lead session 代 Codex 完成實作與發布。分支 `feat/three-urgencies-flow`（App 本體 `5da7250`）發布為分享頁 `https://ci-share.pages.dev/d537f3d9f5299fc6/`、TownPass APK Release `three-urgencies-demo-20261108`（內嵌該分享頁），並以本機 wrangler 手動部署到正式站 `https://taipei-friendly-platform.jason21131.workers.dev`（source `d50e0f4`，前版 Worker versionId `c0c9590b-07fe-419d-8427-b24963fd663a` 可 rollback）。舊分享 token `cc521b0047361278` 與舊 APK 不撤。
