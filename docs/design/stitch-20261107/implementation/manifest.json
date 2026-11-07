@@ -1,0 +1,116 @@
+{
+  "capturedDate": "2026-11-07",
+  "tool": "OpenCLI 1.8.4",
+  "profile": "hcxs5tb4",
+  "scope": "原型視覺核對；無 GPS 狀態，不是實機導航驗收",
+  "images": [
+    {
+      "file": "S01-home.png",
+      "cssViewport": [
+        390,
+        884
+      ],
+      "pixelDimensions": [
+        780,
+        1768
+      ],
+      "sha256": "5caa332dc0a4219fbdfa79b4ada42a54d48f23b69ed6789895deca86d7195114"
+    },
+    {
+      "file": "S02-nearby.png",
+      "cssViewport": [
+        390,
+        884
+      ],
+      "pixelDimensions": [
+        780,
+        1768
+      ],
+      "sha256": "0334762258014de37f49cf792c0afa82ea99a0be58b2188d1c9f9d6911685cb7"
+    },
+    {
+      "file": "S03-destination.png",
+      "cssViewport": [
+        390,
+        884
+      ],
+      "pixelDimensions": [
+        780,
+        1768
+      ],
+      "sha256": "f76b98d8d7fbaac96411e191b9b386962bb5acd86900609d5d66e5706e0e16c7"
+    },
+    {
+      "file": "S04-resource-route.png",
+      "cssViewport": [
+        390,
+        884
+      ],
+      "pixelDimensions": [
+        390,
+        884
+      ],
+      "sha256": "28e14ceea067779a31d430eafad3db0dd02872a556948c77a564c0b9d0f99479"
+    },
+    {
+      "file": "S05-detail.png",
+      "cssViewport": [
+        390,
+        884
+      ],
+      "pixelDimensions": [
+        780,
+        1768
+      ],
+      "sha256": "86d8d4124f8fe937ce30a949408f077d99ec0b9acd475ea9e7053c396886f6ab"
+    },
+    {
+      "file": "S06-guidance.png",
+      "cssViewport": [
+        390,
+        884
+      ],
+      "pixelDimensions": [
+        780,
+        1768
+      ],
+      "sha256": "9fab8f9adf176a456b2346d96f906c6c7798ec90aca2fe6148d721f829688493"
+    },
+    {
+      "file": "explore-430x932.png",
+      "cssViewport": [
+        430,
+        932
+      ],
+      "pixelDimensions": [
+        860,
+        1864
+      ],
+      "sha256": "b499fb7c8edb2f6ab313a975b40d07809b908b919c6b64abb1ea1466676b990d"
+    },
+    {
+      "file": "guide-320x568.png",
+      "cssViewport": [
+        320,
+        568
+      ],
+      "pixelDimensions": [
+        640,
+        1136
+      ],
+      "sha256": "e960886f6da404a037912138b9225e7f77f02efaac8f32f1350a18fa09dac8ae"
+    },
+    {
+      "file": "home-320x568.png",
+      "cssViewport": [
+        320,
+        568
+      ],
+      "pixelDimensions": [
+        640,
+        1136
+      ],
+      "sha256": "85649fe9d7889c1d48f307a53648e59da460753567d0eef21e729547257660c4"
+    }
+  ]
+}

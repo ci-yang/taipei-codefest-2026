@@ -25,6 +25,14 @@
 (() => {
   'use strict';
   const shapes = Object.freeze({
+  // Project-drawn icons use the same 256-unit canvas as the vendored geometry.
+  "arrowRight": '<g fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"><path d="M40 128h176m-64-64 64 64-64 64"/></g>',
+  "store": '<g fill="none" stroke="currentColor" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"><path d="M40 112v104h176V112M40 40h176l16 56c0 24-34 32-44 8-12 24-46 24-60 0-14 24-48 24-60 0-10 24-44 16-44-8l16-56Zm36 0-8 64m60-64v64m52-64 8 64M96 216v-64h64v64"/></g>',
+  "route": '<g fill="none" stroke="currentColor" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"><path d="M128 224v-72c0-28-64-32-64-64V32m-32 32 32-32 32 32m32 88c0-28 64-32 64-64V32m-32 32 32-32 32 32"/></g>',
+  "walk": '<g fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"><circle cx="147" cy="35" r="17" fill="currentColor" stroke="none"/><path d="m59 123 24-41 48-16-17 75 40 29 14 55m-54-84-17 43-34 41m63-132 26 32 43 13"/></g>',
+  "transit": '<g fill="none" stroke="currentColor" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"><rect x="56" y="24" width="144" height="176" rx="24"/><path d="M56 72h144M56 128h144M128 72v56M88 200l-24 32m104-32 24 32M104 48h48"/><circle cx="92" cy="164" r="9" fill="currentColor" stroke="none"/><circle cx="164" cy="164" r="9" fill="currentColor" stroke="none"/></g>',
+  "bike": '<g fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"><circle cx="53" cy="172" r="38"/><circle cx="202" cy="172" r="38"/><path d="m53 172 47-80 48 80H53m47-80h72l-24 80 31-108h-31M80 80h35m64-16h24l11 17"/></g>',
+  "car": '<g fill="none" stroke="currentColor" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"><path d="m40 104 18-57h140l18 57M32 104h192v96H32V104Zm0 96v24m192-24v24M72 168h112"/><circle cx="68" cy="137" r="10" fill="currentColor" stroke="none"/><circle cx="188" cy="137" r="10" fill="currentColor" stroke="none"/></g>',
   "navigation": "<g><path d=\"M237.33,106.21,61.41,41l-.16-.05A16,16,0,0,0,40.9,61.25a1,1,0,0,0,.05.16l65.26,175.92A15.77,15.77,0,0,0,121.28,248h.3a15.77,15.77,0,0,0,15-11.29l.06-.2,21.84-78,78-21.84.2-.06a16,16,0,0,0,.62-30.38ZM149.84,144.3a8,8,0,0,0-5.54,5.54L121.3,232l-.06-.17L56,56l175.82,65.22.16.06Z\"></path></g>",
   "search": "<g><path d=\"M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z\"></path></g>",
   "settings": "<g><path d=\"M40,88H73a32,32,0,0,0,62,0h81a8,8,0,0,0,0-16H135a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16Zm64-24A16,16,0,1,1,88,80,16,16,0,0,1,104,64ZM216,168H199a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16h97a32,32,0,0,0,62,0h17a8,8,0,0,0,0-16Zm-48,24a16,16,0,1,1,16-16A16,16,0,0,1,168,192Z\"></path></g>",

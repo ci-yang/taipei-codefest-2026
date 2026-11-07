@@ -1,0 +1,87 @@
+name: adopt-stitch-prototype
+created_at: 2026-11-07T12:16:35.716Z
+status: story
+scale: standard
+description: 依 Stitch 設計稿重做手機 App 原型，建立畫面、截圖與後續實作對照規格
+quality_log:
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    baseline_revision: 1
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - Knowledge module-map 與 Feature Specs 尚空；本 change
+        以六個已匯出設計畫面和現行原型為界，INVEST 情境已凍結。Ci 審閱原型後才定正式路由／交通計畫。
+  - skill: prospec-design
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - 已依六張 Stitch 原稿擷取 design/interaction spec，原型與獨立視覺核對完成；Ci 尚未審閱，保留
+        story，不宣稱正式實作／驗證站通過。
+acceptance:
+  version: 1
+  current_revision: 1
+  revisions:
+    - revision: 1
+      digest: 62770d9ade8a9a700ddedbfba09c6360847624a19ba4644d9bec32bc19b133b2
+      captured_at: 2026-11-07T12:19:02.464Z
+      captured_status: story
+      origin: story
+      reason: initial freeze
+      scenarios:
+        - id: US-1.1
+          story_id: US-1
+          text: WHEN 開啟原型，THEN 顯示 S01 的淺色首頁、橘色出發鈕與兩張資訊卡；卡片使用實際名冊與快取狀態，沒有帳號入口、評分或未證實的認證比例。
+          source: proposal.md:27
+        - id: US-1.2
+          story_id: US-1
+          text: WHEN 按出發，THEN 進入 S02 的地圖、浮動搜尋與右上定位鈕，下方為橫滑類別、橫滑資源卡、探索操作與交通偏好，不經確認路線頁。
+          source: proposal.md:28
+        - id: US-1.3
+          story_id: US-1
+          text: WHEN 切換類別或定位失敗，THEN 保留任一符合的多選 highlight、零筆結果與「非目前位置」提示，距離來源清楚可見。
+          source: proposal.md:29
+        - id: US-2.1
+          story_id: US-2
+          text: WHEN 選擇搜尋目的地，THEN 依 S03 顯示獨立旗標與可修改搜尋膠囊，不取代原選資源及其連線。
+          source: proposal.md:35
+        - id: US-2.2
+          story_id: US-2
+          text: WHEN 點資源，THEN 呈現 S05
+            的中央白卡與灰色遮罩，包含真實名稱、服務、直線距離、來源與更新日；未知營業時間及條件標為待確認，不顯示虛構評分、速度或免費保證。
+          source: proposal.md:36
+        - id: US-2.3
+          story_id: US-2
+          text: WHEN 關閉卡片、導航或撥號，THEN 回到原地圖狀態或沿用既有裝置橋接與失敗退路；無電話不顯示撥號，無座標不畫連線。
+          source: proposal.md:37
+        - id: US-3.1
+          story_id: US-3
+          text: WHEN 選資源並開始導引，THEN 參照 S04／S06
+            的橘紫視覺與白卡呈現實際直線距離及正北基準方位，不生成未驗證的轉彎指令、步行時間或無障礙路況。
+          source: proposal.md:43
+        - id: US-3.2
+          story_id: US-3
+          text: WHEN 自由探索模式開始，THEN 進入滿版附近地圖，不要求目的地；選資源才有對應方位，無 GPS 不假裝取得目前位置。
+          source: proposal.md:44
+        - id: US-3.3
+          story_id: US-3
+          text: WHEN 切換交通偏好或結束導引，THEN 選項有選取狀態但不捏造路線，明示直線距離與交通路線不同；結束後保留搜尋目的地、類別與已選資源。
+          source: proposal.md:45
+        - id: US-4.1
+          story_id: US-4
+          text: WHEN 交付原型，THEN 六個來源畫面有名稱、節點識別、PNG、原始 HTML 與雜湊，並有
+            design-spec、interaction-spec 及畫面對照表。
+          source: proposal.md:51
+        - id: US-4.2
+          story_id: US-4
+          text: WHEN 原型採用不同於原稿的資料或互動，THEN 對照表列明原因、處理及後續驗收；帳號列為排除，不新增收藏、歷史、評論或互助。
+          source: proposal.md:52
+        - id: US-4.3
+          story_id: US-4
+          text: WHEN 後續驗收，THEN 必須依同尺寸截圖、設計 token 與操作案例核對；Ci 尚未審閱前標為待審基準，不宣稱正式產品規格已核准。
+          source: proposal.md:53
+premise_version: 1
+retry_of: []

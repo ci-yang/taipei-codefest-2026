@@ -1,0 +1,162 @@
+<!DOCTYPE html><html lang="zh-TW"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>友善生活圈 - 探索城市溫暖角落</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {theme: {extend: {colors: {brand: {"50": "#EEF2FF", "100": "#E0E7FF", "500": "#4F46E5", "600": "#4338CA", "700": "#3730A3", "900": "#1E1B4B"}, coral: {"500": "#FF5E3A", "600": "#F04C28"}, "on-tertiary": "#ffffff", surface: "#fcf8ff", "surface-tint": "#4d44e3", error: "#ba1a1a", "on-surface-variant": "#464555", "on-background": "#1b1b24", "on-primary-fixed": "#0f0069", "on-surface": "#1b1b24", "surface-container-lowest": "#ffffff", "on-secondary-container": "#fffbff", "on-secondary-fixed-variant": "#8c1800", secondary: "#b22200", "on-primary-container": "#dad7ff", primary: "#3525cd", "tertiary-container": "#a44100", "primary-fixed-dim": "#c3c0ff", "surface-container-high": "#eae6f4", background: "#fcf8ff", outline: "#777587", "on-secondary-fixed": "#3d0600", "on-primary-fixed-variant": "#3323cc", "primary-container": "#4f46e5", "on-primary": "#ffffff", "on-tertiary-container": "#ffd2be", "inverse-surface": "#302f39", "error-container": "#ffdad6", "on-tertiary-fixed": "#351000", "secondary-container": "#d73b19", "surface-dim": "#dcd8e5", "surface-container-highest": "#e4e1ee", "surface-bright": "#fcf8ff", "primary-fixed": "#e2dfff", "outline-variant": "#c7c4d8", "tertiary-fixed": "#ffdbcc", "secondary-fixed-dim": "#ffb4a4", tertiary: "#7e3000", "tertiary-fixed-dim": "#ffb695", "secondary-fixed": "#ffdad3", "inverse-on-surface": "#f3effc", "on-error": "#ffffff", "surface-container-low": "#f5f2ff", "on-secondary": "#ffffff", "surface-container": "#f0ecf9", "surface-variant": "#e4e1ee", "inverse-primary": "#c3c0ff", "on-error-container": "#93000a", "on-tertiary-fixed-variant": "#7b2f00"}, fontFamily: {sans: ["-apple-system", "BlinkMacSystemFont", "\"PingFang TC\"", "\"Noto Sans TC\"", "sans-serif"], "headline-md": ["Plus Jakarta Sans"], "display-hero": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "label-stat": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-metric-mobile": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "display-hero-mobile": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-metric": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"]}, boxShadow: {card: "0 10px 30px -5px rgba(79, 70, 229, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04)", btn: "0 12px 24px -4px rgba(255, 94, 58, 0.35)", pill: "0 4px 16px -2px rgba(79, 70, 229, 0.12)"}, fontSize: {"headline-md": ["20px", {lineHeight: "26px", fontWeight: "600"}], "display-hero": ["44px", {lineHeight: "52px", fontWeight: "800"}], "label-lg": ["13px", {lineHeight: "16px", fontWeight: "600"}], "label-stat": ["10px", {lineHeight: "12px", fontWeight: "700"}], "body-lg": ["16px", {lineHeight: "24px", fontWeight: "400"}], "body-md": ["14px", {lineHeight: "20px", fontWeight: "400"}], "headline-metric-mobile": ["26px", {lineHeight: "32px", fontWeight: "700"}], "label-md": ["11px", {lineHeight: "14px", fontWeight: "600"}], "headline-lg": ["24px", {lineHeight: "30px", fontWeight: "700"}], "display-hero-mobile": ["32px", {lineHeight: "38px", fontWeight: "800"}], "headline-sm": ["16px", {lineHeight: "22px", fontWeight: "600"}], "headline-metric": ["36px", {lineHeight: "40px", fontWeight: "700"}], "body-sm": ["12px", {lineHeight: "16px", fontWeight: "400"}]}, spacing: {gutter: "1rem", "margin-mobile": "1.25rem", "gutter-mobile": "0.75rem", "space-md": "1rem", "space-lg": "1.5rem", margin: "1.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "space-xl": "2rem"}, borderRadius: {DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px"}}}};
+  </script>
+<style data-purpose="base-typography">
+    body {
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+  </style>
+<style data-purpose="ambient-lighting">
+    .glow-aura {
+      background: radial-gradient(circle at 70% 20%, rgba(99, 102, 241, 0.12) 0%, rgba(255, 94, 58, 0.06) 45%, transparent 70%);
+    }
+    .contour-lines {
+      background-image: radial-gradient(circle at 75% 42%, transparent 0, transparent 40px, rgba(99,102,241,0.05) 41px, transparent 42px, transparent 90px, rgba(99,102,241,0.04) 91px, transparent 92px, transparent 150px, rgba(99,102,241,0.03) 151px, transparent 152px, transparent 230px, rgba(99,102,241,0.02) 231px, transparent 232px);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-slate-100 text-slate-800 flex justify-center items-center min-h-screen p-0 sm:p-4">
+<!-- BEGIN: MobileDeviceFrame -->
+<main class="w-full max-w-[390px] h-[844px] bg-[#F8F9FE] relative overflow-hidden flex flex-col justify-between rounded-[44px] shadow-2xl border border-indigo-100/80 select-none">
+<!-- BEGIN: TopoMapBackground -->
+<!-- Contours, topography gradients & trail path inspired by running route layout -->
+<div class="absolute inset-0 z-0 pointer-events-none contour-lines glow-aura">
+<!-- Ambient organic topography rings -->
+<svg class="absolute inset-0 w-full h-full opacity-60" fill="none" viewBox="0 0 390 844" xmlns="http://www.w3.org/2000/svg">
+<path d="M-60 180C40 140 120 220 230 170C340 120 370 210 440 240" stroke="#4F46E5" stroke-dasharray="4 4" stroke-opacity="0.25" stroke-width="1.2"></path>
+<path d="M-40 290C60 250 160 360 270 310C360 270 410 370 450 390" stroke="#4F46E5" stroke-opacity="0.15" stroke-width="1"></path>
+<path d="M-80 430C50 370 140 500 290 440C380 400 420 500 460 520" stroke="#4F46E5" stroke-opacity="0.2" stroke-width="1.2"></path>
+<!-- Main Recommended Route / 溫馨友善步道導引路徑 -->
+<path d="M 62 268 C 110 240, 185 242, 235 275 C 290 312, 280 390, 240 450 C 205 500, 245 565, 275 610" stroke="#FF5E3A" stroke-linecap="round" stroke-opacity="0.9" stroke-width="3.5"></path>
+<!-- Trail Waypoints (Soft glowing nodes) -->
+<!-- Node 1: Origin -->
+<circle cx="62" cy="268" fill="#FFFFFF" r="9" stroke="#FF5E3A" stroke-width="2.5"></circle>
+<circle cx="62" cy="268" fill="#FF5E3A" r="3.5"></circle>
+<!-- Node 2: 奉茶站 -->
+<circle cx="160" cy="248" fill="#FFFFFF" r="16" stroke="#4F46E5" stroke-opacity="0.25" stroke-width="1.5"></circle>
+<circle cx="160" cy="248" fill="#6366F1" r="4.5"></circle>
+<!-- Node 3: 無障礙洗手間 -->
+<circle cx="258" cy="305" fill="#FFFFFF" r="18" stroke="#4F46E5" stroke-opacity="0.25" stroke-width="1.5"></circle>
+<circle cx="258" cy="305" fill="#4F46E5" r="4.5"></circle>
+<!-- Node 4: 友善坡道/獨立書店 (Selected Highlight) -->
+<circle cx="236" cy="460" fill="#FFF2EE" r="22" stroke="#FF5E3A" stroke-opacity="0.4" stroke-width="2"></circle>
+<circle cx="236" cy="460" fill="#FF5E3A" r="6"></circle>
+<circle cx="236" cy="460" r="12" stroke="#FF5E3A" stroke-opacity="0.3" stroke-width="1.5"></circle>
+<!-- Node 5: 轉角充電站 -->
+<circle cx="275" cy="610" fill="#FFFFFF" r="15" stroke="#4F46E5" stroke-opacity="0.2" stroke-width="1.5"></circle>
+<circle cx="275" cy="610" fill="#818CF8" r="4"></circle>
+</svg>
+</div>
+<!-- END: TopoMapBackground -->
+<!-- BEGIN: TopBarAndHeading -->
+<header class="relative z-10 pt-12 px-7 flex flex-col gap-2">
+<!-- Status Bar Area & App Identity -->
+<div class="flex items-center justify-between">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white shadow-sm border border-indigo-100/70">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="text-xs font-semibold tracking-wide text-slate-700">即時連線</span>
+</div>
+
+</div>
+<!-- Main Headline (Minimal & Inviting) -->
+<div class="mt-4">
+<h1 class="text-3xl font-extrabold tracking-tight text-slate-900 leading-tight">
+          探索城市<br>溫暖友善角落
+        </h1>
+<p class="mt-2 text-sm text-slate-500 font-medium">免費WiFi · 安心充電站 ·&nbsp;無障礙步道</p>
+</div>
+</header>
+<!-- END: TopBarAndHeading -->
+<!-- BEGIN: MapFloatingLabels -->
+<!-- Soft callouts along the route canvas -->
+<div class="relative z-10 px-7 flex-1 flex flex-col justify-center pointer-events-none">
+<div class="self-end mr-6 translate-y-3 pointer-events-auto">
+<div class="bg-white/95 backdrop-blur-md border border-indigo-100/80 px-3.5 py-1.5 rounded-2xl flex items-center gap-2 shadow-card">
+<span class="text-xs font-bold text-slate-800"><span style="color: rgb(108, 108, 108); font-family: Arial, sans-serif, &quot;Noto Color Emoji&quot;; font-size: 14px; font-weight: 400; background-color: rgb(255, 255, 255);">📍</span>光芒共好書店</span>
+<span class="text-[10px] font-semibold text-coral-500 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200/60">友善店家</span>
+</div>
+</div>
+</div>
+<!-- END: MapFloatingLabels -->
+<!-- BEGIN: BottomInteractiveCards -->
+<!-- 2x2 Floating grid cards inspired by the target layout -->
+<section class="relative z-10 px-6 pb-6 flex flex-col gap-3">
+<!-- Top Row Cards -->
+<div class="grid grid-cols-12 gap-3">
+<!-- Card 1: Primary Zone Location -->
+<article class="col-span-7 bg-white rounded-[28px] p-4 flex flex-col justify-between h-[122px] shadow-card border border-indigo-50">
+<div class="flex items-center gap-1.5 text-slate-500">
+<div class="w-6 h-6 rounded-full bg-indigo-50 flex items-center justify-center">
+<svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="text-xs font-semibold tracking-wide text-slate-600">目前生活圈</span>
+</div>
+<div>
+<h2 class="text-base font-bold text-slate-900 tracking-normal">台北信義聚落</h2>
+<p class="text-xs font-medium text-slate-400 mt-0.5">18 處已驗證友善商家</p>
+</div>
+</article>
+<!-- Card 2: Amenity Coverage Quick Stat -->
+<article class="col-span-5 bg-white rounded-[28px] p-4 flex flex-col justify-between h-[122px] shadow-card border border-indigo-50">
+<div class="flex items-center gap-1.5 text-slate-500">
+<div class="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center">
+<svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="text-xs font-semibold tracking-wide text-slate-600">無障礙指標</span>
+</div>
+<div>
+<div class="text-xl font-extrabold text-slate-900">100<span class="text-sm font-semibold text-slate-400">%</span></div>
+<p class="text-xs font-medium text-slate-400 mt-0.5">通用步道貫通</p>
+</div>
+</article>
+</div>
+<!-- Bottom Row Cards -->
+<div class="grid gap-3">
+<!-- Card 3: Active Volunteers & Helpers Stack -->
+<!-- Card 4: Start Action Button -->
+<button class="w-full bg-gradient-to-r from-[#FF6B4A] to-[#FF5E3A] text-white font-bold rounded-[28px] px-6 py-4 flex items-center justify-between shadow-btn active:scale-95 transition-all hover:brightness-105 group" type="button">
+<div class="flex flex-col items-start">
+<span class="text-base tracking-wide flex items-center gap-1 font-extrabold text-white">出發</span>
+<span class="text-[11px] font-medium text-white/80 mt-0.5">即時無障礙路線引導</span>
+</div>
+<div class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white transition-transform group-hover:translate-x-1 shadow-inner border border-white/20">
+<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</button>
+</div>
+<!-- Navigation / Carousel Indicators -->
+<nav aria-label="分頁指示器" class="flex justify-center items-center gap-1.5 pt-2">
+<span class="w-6 h-1.5 rounded-full bg-brand-500 transition-all"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-brand-100"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-brand-100"></span>
+</nav>
+</section>
+<!-- END: BottomInteractiveCards -->
+</main>
+<!-- END: MobileDeviceFrame -->
+
+
+
+
+
+
+</body></html>

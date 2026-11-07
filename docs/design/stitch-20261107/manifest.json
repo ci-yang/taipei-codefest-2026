@@ -1,0 +1,149 @@
+{
+  "projectUrl": "https://stitch.withgoogle.com/projects/14902006353412021038",
+  "capturedAt": "2026-11-07T12:13:00Z",
+  "captureMethod": "OpenCLI hcxs5tb4 瀏覽器總覽截圖；Stitch Export .zip 原始 HTML 與 PNG（CUA 點擊匯出）",
+  "archiveSha256": "059a975411ae053e667a2dfa6b0b7c7284367c7c3e62555ad6b20c12767f774f",
+  "screens": [
+    {
+      "id": "S01-home",
+      "stitchLabel": "首頁 - 清爽動感活力版",
+      "nodeId": "1f2299c682aa43b0b2dee66bdcc948aa",
+      "canvasWidth": 390,
+      "canvasHeight": 884,
+      "exportFolder": "_1",
+      "files": {
+        "html.txt": {
+          "path": "docs/design/stitch-20261107/source/S01-home.html.txt",
+          "sha256": "2ff8373b9daa167377d249c206cdb8115dd14cabce37d21cbdca982f266539ce"
+        },
+        "png": {
+          "path": "docs/design/stitch-20261107/source/S01-home.png",
+          "sha256": "a056f97e96d2810af612515aecabc0a6a5c79048370cb488ddcfd476f6dbdf29"
+        }
+      }
+    },
+    {
+      "id": "S02-nearby",
+      "stitchLabel": "1",
+      "nodeId": "125df5080c68424a86a318d1e9f358a2-1794043969791",
+      "canvasWidth": 390,
+      "canvasHeight": 884,
+      "exportFolder": "1",
+      "files": {
+        "html.txt": {
+          "path": "docs/design/stitch-20261107/source/S02-nearby.html.txt",
+          "sha256": "8e94ee29edaeff31a581cce13f006a6a9a3081a445631ac35cdc26d14aeb5746"
+        },
+        "png": {
+          "path": "docs/design/stitch-20261107/source/S02-nearby.png",
+          "sha256": "7303bf37abf4257afff5dd4ee34fdc795ac07d4823a26ac7572d121bbb225ec1"
+        }
+      }
+    },
+    {
+      "id": "S03-destination",
+      "stitchLabel": "4",
+      "nodeId": "125df5080c68424a86a318d1e9f358a2-1794041186032",
+      "canvasWidth": 390,
+      "canvasHeight": 884,
+      "exportFolder": "4",
+      "files": {
+        "html.txt": {
+          "path": "docs/design/stitch-20261107/source/S03-destination.html.txt",
+          "sha256": "031b356df026da43f2e0e98183462b7c22894636a6d46b4221353b99acff1a9c"
+        },
+        "png": {
+          "path": "docs/design/stitch-20261107/source/S03-destination.png",
+          "sha256": "c2632d6fafb49e4267787dadfac558a096430ac54c8c05ab8bed99727e91ca18"
+        }
+      }
+    },
+    {
+      "id": "S04-resource-route",
+      "stitchLabel": "2",
+      "nodeId": "125df5080c68424a86a318d1e9f358a2-1794040523441",
+      "canvasWidth": 390,
+      "canvasHeight": 884,
+      "exportFolder": "2",
+      "files": {
+        "html.txt": {
+          "path": "docs/design/stitch-20261107/source/S04-resource-route.html.txt",
+          "sha256": "4af4d0d650302a6a72c47450a4abf49821017de09607ff9b89aab600f558c282"
+        },
+        "png": {
+          "path": "docs/design/stitch-20261107/source/S04-resource-route.png",
+          "sha256": "80bded634af661a401841eeee33ce5d7f536cdbd1939262626b7b7864ed5e4a0"
+        }
+      }
+    },
+    {
+      "id": "S05-detail",
+      "stitchLabel": "3（店家資訊）",
+      "nodeId": "2fdabb7944da42299a61de6ef6837ea6",
+      "canvasWidth": 390,
+      "canvasHeight": 884,
+      "exportFolder": "3_1",
+      "files": {
+        "html.txt": {
+          "path": "docs/design/stitch-20261107/source/S05-detail.html.txt",
+          "sha256": "1f23514d87d2d2e18ba462c2c752279000520881d5623cba348befb9e48d1ea1"
+        },
+        "png": {
+          "path": "docs/design/stitch-20261107/source/S05-detail.png",
+          "sha256": "8e86ea9d54c81972ee85617e0a8735068b23ab4b2ddc8fae5ebd6894a7e3aae4"
+        }
+      }
+    },
+    {
+      "id": "S06-guidance",
+      "stitchLabel": "3（全螢幕導引）",
+      "nodeId": "648374526ba6447bae8ed5d2a8a31e4e",
+      "canvasWidth": 390,
+      "canvasHeight": 884,
+      "exportFolder": "3_2",
+      "files": {
+        "html.txt": {
+          "path": "docs/design/stitch-20261107/source/S06-guidance.html.txt",
+          "sha256": "d964078c204349cc983cfa4cfadc97e4b6a6fee294fc669e17ece44ad9fbe3b4"
+        },
+        "png": {
+          "path": "docs/design/stitch-20261107/source/S06-guidance.png",
+          "sha256": "b35cc4356cb9ae0e946986468988ab23b19b1179badf826ddc674ce0bb15bdfb"
+        }
+      }
+    }
+  ],
+  "excluded": [
+    {
+      "label": "個人帳號 - 歷史路徑與收藏店家",
+      "nodeId": "47f871802a494b15b248953f5fe9eb0b",
+      "reason": "Ci 本輪明確排除個人帳號"
+    }
+  ],
+  "browserScreenshots": [
+    {
+      "path": "docs/design/stitch-20261107/00-overview.png",
+      "sha256": "328d1bb1d7ce91218e55ce47fca2f9953a83ca6179927a7d86371bcf22ab1026",
+      "tool": "opencli",
+      "profile": "hcxs5tb4"
+    },
+    {
+      "path": "docs/design/stitch-20261107/01-home-browser.png",
+      "sha256": "2862ea4a200eeccb24f7933e6039277a20b2d850a4ab23cacd5d5e8d7a6acc6d",
+      "tool": "opencli",
+      "profile": "hcxs5tb4"
+    },
+    {
+      "path": "docs/design/stitch-20261107/02-route-detail-browser.png",
+      "sha256": "9d8e5f724c94b82e38e4efa0c7fb0fbd0feef6eaa87340aaa9d05fa713978a08",
+      "tool": "opencli",
+      "profile": "hcxs5tb4"
+    },
+    {
+      "path": "docs/design/stitch-20261107/03-guidance-browser.png",
+      "sha256": "9c855e415f837ffeab6cc681ebe3932c0e17afb44fc8877130bb1247f4f7f52b",
+      "tool": "opencli",
+      "profile": "hcxs5tb4"
+    }
+  ]
+}
