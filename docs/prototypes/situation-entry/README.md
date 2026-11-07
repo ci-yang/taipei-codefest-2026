@@ -18,7 +18,7 @@
 - 範本、時段說明用 `for` 指定跟哪一支電話走（`"@closed"`＝全部沒開時顯示）。
 - **搜尋與分類篩選**（首頁標題下面）：搜尋框比對每個情境的標題＋副標＋`keywords`（同義詞、口語說法，例如「餓」「押金」「走丟」），中文直接用包含比對、不斷詞；空白分開的幾個詞要全部符合，臺／台視為同字。打字即時篩選，右側清除鈕 44×44，Esc 清除、Enter 收鍵盤。分類籤是「全部」＋各分類，一次選一個，籤上數字跟著搜尋字變；全部分類都換行顯示，不橫向捲動。分類和搜尋取交集；選「全部」照分類分組，選了某類只顯示那一類。搜不到時不只說查無結果，給下一步：「不確定找誰，先打 1999 市民熱線」（附撥號鍵與研考會出處），提醒底部緊急電話一直都在；在某分類裡搜不到但其他分類有，給「改在全部分類找」。搜尋字只在頁面記憶體：不存 storage、不進網址（沒有 form、input 沒有 name）、不送網路請求。
 - 首頁依 `categories` 分組；每張卡的「現在打」和卡片內第一支電話是同一個計算，並顯示這支電話的簡短說明（`brief`，例如「接通後轉分機 7019」）和服務時段。新增情境或分類只改 `data/situation/situations.json`。
-- **緊急電話列**：每一頁底部固定 110（有立即危險）、119（受傷、急病）、113（家暴、兒少、性侵）、1925（心情撐不住），資料在 `emergencyLines`。紅色外框、不填滿，不壓過主要行動卡；只給號碼，不追問細節、不寫保證安全或保密。家暴、自傷不做完整情境流程。
+- **緊急電話列**：每一頁底部固定 110（有立即危險）、119（受傷、急病）、113（家暴、兒少、性侵）、1925（心情撐不住），資料在 `emergencyLines`。紅色細框（red-200）、不填滿，不壓過主要行動卡；號碼、名稱、標題文字都用 red-600（`--urgent-text`，白底 5.51:1，按下時 red-50 底 4.87:1）；只給號碼，不追問細節、不寫保證安全或保密。家暴、自傷不做完整情境流程。
 - 來源鈕：每一段一顆，44×44 點擊範圍，列出這段引用的所有來源編號。
 - 首頁卡片上「現在打」的電話和卡片內第一支電話是同一個計算（`core.js` 的 `plan`），測試會逐支對回 `data/situation/` 的資料與來源。
 
@@ -89,7 +89,7 @@ TownPass 分支 `feat/situation-entry` 有獨立服務「我遇到了」，網�
 
 ## 截圖
 
-`docs/screenshots/situation-entry/main-*.png`，2026-11-08 以 headless Chrome（DevTools 協定模擬 390px 寬、2 倍像素的行動裝置）截取，**不是** iOS／Android 模擬器截圖。網址用 `?t=day`（固定週三 14:30）、`?t=night`（週三 21:00）、`?at=0915` 指定時間（只給 `?at` 時白天／晚上照那個時間自動判斷）；勾選是腳本實際點擊畫面。整頁截圖時底部緊急列畫在頁尾。所有 `*-night.png` 是 2026-11-08 改成「晚上維持白底＋提示列」後重拍的。首頁、人身安全分類、搜尋「被騙」、搜不到、租屋、出院、健保這 7 張晚上截圖，在第 15 輪審查把提示列改成跟號碼開線狀態一致後再重拍一次。
+`docs/screenshots/situation-entry/main-*.png`，2026-11-08 以 headless Chrome（DevTools 協定模擬 390px 寬、2 倍像素的行動裝置）截取，**不是** iOS／Android 模擬器截圖。網址用 `?t=day`（固定週三 14:30）、`?t=night`（週三 21:00）、`?at=0915` 指定時間（只給 `?at` 時白天／晚上照那個時間自動判斷）；勾選是腳本實際點擊畫面。整頁截圖時底部緊急列畫在頁尾。所有 `*-night.png` 是 2026-11-08 改成「晚上維持白底＋提示列」後重拍的。首頁、人身安全分類、搜尋「被騙」、搜不到、租屋、出院、健保這 7 張晚上截圖，在第 15 輪審查把提示列改成跟號碼開線狀態一致後再重拍一次。第 17 輪把緊急列文字改成 red-600、閉線狀態改成灰色後，重拍了 `main-sos-bar`、首頁白天／晚上、租屋白天／晚上、出院晚上、健保晚上、勞權 0915，以及畫面有閉線框的租屋、出院 12:45 兩張；其餘截圖的緊急列仍是舊的 red-700 字、名稱黑字，閉線框仍是舊的黃底。
 
 | 檔案 | 內容 |
 |---|---|
@@ -119,6 +119,6 @@ TownPass 分支 `feat/situation-entry` 有獨立服務「我遇到了」，網�
 - 顏色全部來自 TownPass `lib/util/tp_colors.dart`（TPColors），在 `styles.css` 開頭照抄成 `--tp-primary-500` 這類變數；其他規則只引用變數。色票快照固定在 `tests/fixtures/tp_colors.json`（記來源檔、commit、抓取日期），`styles.css` 必須跟它一致；有 TownPass checkout 時另外比對 Dart 檔，找不到就明示跳過（可用 `TP_COLORS_DART` 指定路徑）。
 - `tests/css-audit.mjs` 把 CSS 拆成宣告逐條檢查，屬性名和值先轉小寫、去掉 `!important`。只有白名單裡確定不帶顏色的屬性（margin、display、font-size…，vendor prefix 去掉後比對）可以略過顏色檢查；其他屬性（含 `-webkit-text-fill-color`、`caret-color`、`scrollbar-color` 和自訂變數）值裡每個字都只能是 `var(--…)`（且變數有定義）、底色在色票裡的 `rgba()`、長度或線型關鍵字，白名單屬性出現色值也擋。`currentColor` 只准用在 border、outline、fill、stroke、text-decoration，不能用在 `color`、背景或 token。檢查前先還原 CSS 跳脫字元（`\62 old` 就是 `bold`，屬性名也一樣）。`font`、`font-size` 只能是 TPTextStyles 字級；字重 `normal`／`bold`／`bolder`／`lighter` 換算成數字後只能 400／600。`font`、`font-size`、`font-weight` 遇到 `var()` 會代入變數的每一個定義逐一檢查；變數沒定義、帶 fallback 或代不出值就判失敗，不略過。`font-weight` 的 `inherit`／`unset`／`initial`／`revert` 一律擋（看不出實際字重）；`font` 簡寫只放行 `inherit`／`initial`／`unset`（繼承已檢查過的父層或回到 16px 400），尺寸前只准字重、`italic`、`small-caps` 這類已知字。測試另外把具名色、`color()`、`font: 900 23px`、`-webkit-text-fill-color: rebeccapurple !important`、`font: BOLD 16px`、`color: currentColor` 等寫法注入，確認會失敗；第 14 輪審查的 `:root { --heavy: 900; } .dial { font: var(--heavy) 16px sans-serif; }` 和跳脫字元寫的 `bold` 也在注入清單裡。也驗證 border 用 currentColor、`font-weight: normal`、`var(--strong)`＝600 這類合法寫法不會被誤擋。
 - 不准 inline style：`tests/situation-inline-style.test.mjs` 檢查 index.html 和 app.js 實際渲染的首頁（全部、搜尋、搜不到、分類）與每張情境卡（白天／晚上、有無選區），不能有 `style=` 屬性或 `<style>`；也掃 app.js、core.js、bridge.js 原始碼，擋 `.style`、`setProperty`、`cssText`、`setAttribute('style')`、`insertRule`。審查提出的 `style="color: rebeccapurple !important; font-weight: 900"` 注入 body 或 mini-band 都會讓測試失敗。
-- 主要 token：白天 `--desk`/`--paper` white、`--band` primary-50 配 `--band-ink` primary-800、`--go` primary-700 配 white、`--line` grayscale-200；晚上用同一組。晚上提示列 `--note-bg` secondary-50、`--note-edge` secondary-200、`--note-ink` grayscale-900、`--note-mark` secondary-700。
+- 主要 token：白天 `--desk`/`--paper` white、`--band` primary-50 配 `--band-ink` primary-800、`--go` primary-700 配 white、`--line` grayscale-200；晚上用同一組。晚上提示列 `--note-bg` secondary-50、`--note-edge` secondary-200、`--note-ink` grayscale-900、`--note-mark` secondary-700。「上班再打」閉線狀態用灰色：標籤 `--closed-fill` grayscale-100 底配 `--on-closed` grayscale-700 字（6.44:1）；時段那行 `--closed` grayscale-700 字（白底 8.02:1），情境卡上的時段框底色也是 grayscale-100（6.44:1）。待確認的 `--pending-ink` 維持 secondary-800。
 - 字級只用 TPTextStyles：36／24／18／16／14／12，字重 400／600。主要閱讀字用 h3 16 而不是 body 14（390px 上給長輩讀，14 太小），次要說明 14，註解 12。大號電話 36、緊急列號碼 24、「接通後照著說」24。
 - 字體：系統字 `system-ui, -apple-system, "PingFang TC", "Noto Sans TC", Roboto, …`，不載網路字型，頁面零外部請求（測試會擋 index.html 的外部資源與 CSS 的外部 `url()`）。城市通 App 本身用蘋方（TPTextStyles 指定 PingFangTC），iOS 系統字就是蘋方；Android 系統字是 Roboto＋Noto Sans TC，跟 App 的拉丁字 Roboto 一致。自帶 Roboto woff2 只影響數字和英文，還要多帶授權檔和約 70 KB，換不到差別。

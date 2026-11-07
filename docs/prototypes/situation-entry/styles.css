@@ -97,12 +97,12 @@
   --on-urgent: var(--tp-white);
   --on-urgent-sub: var(--tp-red-50);
   --urgent-soft: var(--tp-red-50);
-  --urgent-text: var(--tp-red-700);
+  --urgent-text: var(--tp-red-600);
   --urgent-line: var(--tp-red-200);
   --sos-bg: var(--tp-white);
-  --closed: var(--tp-secondary-800);
-  --closed-fill: var(--tp-secondary-800);
-  --on-closed: var(--tp-white);
+  --closed: var(--tp-grayscale-700);
+  --closed-fill: var(--tp-grayscale-100);
+  --on-closed: var(--tp-grayscale-700);
   --pending-ink: var(--tp-secondary-800);
   --desk-link: var(--tp-primary-700);
   --focus: var(--tp-primary-600);
@@ -318,7 +318,7 @@ a { color: var(--go); }
 }
 .sub { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
 .hours { margin: 6px 0 0; font-size: 14px; font-weight: 600; color: var(--tick); }
-.hours.is-closed { padding: 6px 10px; border-radius: 8px; background: var(--blank); color: var(--closed); }
+.hours.is-closed { padding: 6px 10px; border-radius: 8px; background: var(--closed-fill); color: var(--closed); }
 .dial {
   display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 64px; margin-top: 14px;
   border-radius: 12px; background: var(--go); color: var(--on-go); font-size: 18px; font-weight: 600; text-decoration: none;
@@ -432,7 +432,7 @@ a { color: var(--go); }
   text-decoration: none; line-height: 1.15; text-align: center;
 }
 .sos-call b { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.sos-call span { font-size: 12px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+.sos-call span { font-size: 12px; font-weight: 600; color: var(--urgent-text); white-space: nowrap; }
 .sos-call:active { background: var(--urgent-soft); }
 
 .call-status {
