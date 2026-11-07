@@ -319,6 +319,9 @@ button.urgency-button:active:not(:disabled) { transform: none; }
 .preview-list .resource-card-meta { grid-row: 4; min-width: 0; padding-top: 0; line-height: 16px; }
 .preview-list .resource-card-source { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .preview-list .resource-card-updated { white-space: nowrap; }
+.empty-state { display: grid; gap: 4px; width: 100%; padding: 20px 16px; border: 1px dashed var(--line); border-radius: var(--radius-card); background: var(--surface); }
+.empty-state strong { font-size: 16px; font-weight: 600; line-height: 1.5; }
+.empty-state p { color: var(--muted); font-size: 14px; line-height: 1.6; }
 .preview-list > .empty-copy { min-height: 120px; padding: 24px 16px; border-radius: var(--radius-card); background: var(--surface); }
 .explore-mode-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 7px; margin-top: 12px; padding: 8px 8px 8px 10px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow); }
 .mode-toggle { display: flex; align-items: center; min-width: 0; min-height: 44px; gap: 8px; padding: 4px 0; text-align: left; }
@@ -487,8 +490,8 @@ input::placeholder { color: var(--subtle); }
 .leaflet-control-scale-line { color: var(--muted); background: var(--surface); border-color: var(--muted); text-shadow: none; border-width: 0 1px 2px; font-size: 12px; }
 [data-view='guide'] .leaflet-bottom { bottom: max(88px, calc(env(safe-area-inset-bottom) + 76px)); }
 .resource-map-pin { border: 0; background: none; }
-.resource-map-pin > button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 50%; color: var(--accent); background: var(--surface); box-shadow: var(--shadow); }
-.resource-map-pin.is-selected > button { width: 48px; height: 48px; background: var(--accent); color: var(--accent-text); border: 2px solid var(--surface); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 16%, transparent), var(--shadow); }
+.resource-map-pin > button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 2px solid var(--pin, var(--line)); border-radius: 50%; color: var(--pin-text, var(--accent)); background: var(--surface); box-shadow: var(--shadow); }
+.resource-map-pin.is-selected > button { width: 48px; height: 48px; background: var(--pin, var(--accent)); color: var(--pin-on, var(--accent-text)); border: 2px solid var(--surface); box-shadow: 0 0 0 5px color-mix(in srgb, var(--pin, var(--accent)) 24%, transparent), var(--shadow); }
 .resource-map-pin > button:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
 .destination-map-pin > span { display: grid; place-items: center; width: 40px; height: 40px; background: var(--color-action); color: var(--color-on-action); border: 2px solid var(--surface); border-radius: 50% 50% 50% 2px; box-shadow: var(--shadow); }
 :root[data-theme='dark'] .osm-tiles { filter: grayscale(1) invert(1) brightness(.65) sepia(.1) hue-rotate(190deg) saturate(.65); }

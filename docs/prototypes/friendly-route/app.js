@@ -83,7 +83,10 @@
   const directionName = angle => ['北', '東北', '東', '東南', '南', '西南', '西', '西北'][Math.round(angle / 45) % 8];
   const distanceLabel = meters => meters >= 1000 ? `${(meters / 1000).toFixed(1)} km` : `${Math.round(meters)} 公尺`;
   const pointForDistance = () => state.position || { lat: map.getCenter().lat, lng: map.getCenter().lng };
-  const matches = store => !state.filters.size || store.services.some(service => state.filters.has(service));
+  // 空集合是「尚未選類別」，不是「全部」：沒選就不列、不畫任何資源。
+  const matches = store => state.filters.size > 0 && store.services.some(service => state.filters.has(service));
+  const hitCategory = store => store.services.find(service => state.filters.has(service)) || null;
+  const pinStyle = key => Object.hasOwn(SERVICES, key) ? `--pin:var(--cat-${key});--pin-on:var(--cat-${key}-on);--pin-text:var(--cat-${key}-text)` : '';
   const isVisible = store => valid(store) && map.getBounds().contains([store.lat, store.lng]);
   const matchesRoute = store => state.routeStatus !== 'ready' || state.routeIds.has(store.id);
   function visibleStores() { const from = pointForDistance(); return stores.filter(s => valid(s) && matches(s) && (state.routeStatus === 'ready' ? state.routeIds.has(s.id) : isVisible(s))).sort((a, b) => distance(from, a) - distance(from, b)); }
@@ -198,23 +201,24 @@
     const colors = palette();
     for (const store of stores) {
       if (!valid(store)) continue;
-      const match = matches(store) && matchesRoute(store); const active = (state.filters.size > 0 || state.routeStatus === 'ready') && match;
+      const match = matches(store) && matchesRoute(store); const color = match ? colors[hitCategory(store)] : colors.muted;
       let marker = markers.get(store.id);
       if (!marker) { marker = L.circleMarker([store.lat, store.lng], { renderer: canvas }).on('click', () => openResource(store.id)).addTo(resourceLayer); markers.set(store.id, marker); }
-      marker.setStyle({ radius: active ? 7 : 4, color: active ? colors.accent : colors.muted, weight: active ? 2 : 1, opacity: match ? .9 : .2, fillColor: active ? colors.accent : colors.muted, fillOpacity: match ? .72 : .15 });
+      marker.setStyle({ radius: match ? 7 : 4, color, weight: match ? 2 : 1, opacity: match ? .9 : .2, fillColor: color, fillOpacity: match ? .72 : .15 });
     }
     iconLayer.clearLayers();
     if (map.getZoom() >= 14.5) {
       const candidates = visibleStores().filter(s => isVisible(s) && s.id !== state.selectedId).slice(0, 60); const cells = new Set();
       for (const store of candidates) {
         const p = map.latLngToContainerPoint([store.lat, store.lng]); const cell = `${Math.floor(p.x / 52)},${Math.floor(p.y / 52)}`; if (cells.has(cell)) continue; cells.add(cell);
-        const key = store.services.find(s => state.filters.has(s)) || store.services[0] || 'info';
-        L.marker([store.lat, store.lng], { icon: L.divIcon({ className: 'resource-map-pin', iconSize: [44, 44], iconAnchor: [22, 22], html: `<button aria-label="${esc(store.name)}">${icon(key, 22)}</button>` }), keyboard: false }).on('click', () => openResource(store.id)).addTo(iconLayer);
+        const key = hitCategory(store);
+        L.marker([store.lat, store.lng], { icon: L.divIcon({ className: 'resource-map-pin', iconSize: [44, 44], iconAnchor: [22, 22], html: `<button aria-label="${esc(store.name)}" style="${pinStyle(key)}">${icon(key, 22)}</button>` }), keyboard: false }).on('click', () => openResource(store.id)).addTo(iconLayer);
       }
     }
     if (selectedMarker) map.removeLayer(selectedMarker);
     const selected = byId.get(state.selectedId);
-    if (valid(selected)) selectedMarker = L.marker([selected.lat, selected.lng], { icon: L.divIcon({ className: 'resource-map-pin is-selected', iconSize: [48, 48], iconAnchor: [24, 24], html: `<button aria-label="${esc(selected.name)}，已選取">${icon(selected.services.find(s => state.filters.has(s)) || selected.services[0] || 'info', 24)}</button>` }), keyboard: false, zIndexOffset: 1000 }).on('click', () => openResource(selected.id)).addTo(map);
+    const selectedKey = selected && (hitCategory(selected) || selected.services[0] || 'info');
+    if (valid(selected)) selectedMarker = L.marker([selected.lat, selected.lng], { icon: L.divIcon({ className: 'resource-map-pin is-selected', iconSize: [48, 48], iconAnchor: [24, 24], html: `<button aria-label="${esc(selected.name)}，已選取" style="${pinStyle(selectedKey)}">${icon(selectedKey, 24)}</button>` }), keyboard: false, zIndexOffset: 1000 }).on('click', () => openResource(selected.id)).addTo(map);
     syncHighlights();
   }
   function syncHighlights() {
@@ -246,17 +250,19 @@
     const d = valid(store) ? distanceLabel(distance(pointForDistance(), store)) : '未提供座標';
     return `<div class="route-heading"><span class="route-kind">${icon('info', 17)} 資源資訊</span><button class="icon-button compact" data-action="clear" aria-label="關閉資源卡片">${icon('close')}</button></div><h2 class="resource-title">${esc(store.name)}</h2><p class="distance-value">${d}</p><p class="distance-caption">直線距離（非步行路線）${state.position ? '' : ' · 依地圖中心估算'}</p><div class="route-services">${store.services.map(key => `<span>${icon(key, 16)}${SERVICES[key]}</span>`).join('') || '服務未標示'}</div>${sourceHtml(store)}<div class="route-actions"><button class="primary-button" data-action="navigate" ${valid(store) ? '' : 'disabled'}>${icon('navigation', 19)}導航</button>${phoneFor(store) ? `<button class="secondary-button" data-action="phone">${icon('phone', 19)}撥號</button>` : `<button class="secondary-button" data-action="detail">詳細資訊</button>`}${speakCategory(store) ? '<button class="secondary-button" data-action="speak">開口卡</button>' : ''}</div><div class="card-bottom-actions"><button class="text-button" data-action="direction">方向與距離 ${icon('compass', 16)}</button><button class="text-button secondary-text" data-action="detail">店家資訊 ${icon('chevron', 16)}</button></div>`;
   }
+  const NO_CATEGORY_HTML = '<div class="empty-state" data-empty="no-category"><strong>先選一種服務</strong><p>點上面的類別，就會列出地圖視窗內的地點。</p></div>';
   function renderPanel() {
     const visible = visibleStores(); const store = byId.get(state.selectedId);
-    $('#visible-count').textContent = `${resourceScope()} ${visible.length} 筆`;
+    const noCategory = state.filters.size === 0;
+    $('#visible-count').textContent = noCategory ? '尚未選類別' : `${resourceScope()} ${visible.length} 筆`;
     $('#panel-summary').textContent = state.routeStatus === 'ready' ? `沿線資源 · ${visible.length} 筆` : state.routeStatus === 'loading' ? '正在計算路線…' : state.destination ? '目的地與附近資源' : '附近資源';
     $('#panel-heading').textContent = state.routeStatus === 'ready' ? '沿途的友善資源' : store ? '找到身邊的資源' : '友善，就在身邊';
     $('#bottom-panel').classList.toggle('has-selection', Boolean(store)); $('#selected-card').hidden = !store; $('#nearby-preview').hidden = Boolean(store);
     if (store) $('#selected-card').innerHTML = selectedCard(store);
-    else $('#nearby-preview').innerHTML = visible.length ? visible.slice(0, 6).map(row).join('') : `<p class="empty-copy">${state.routeStatus === 'ready' ? '沿線沒有符合所選類別的資源，可試著調整類別。' : '視窗內沒有符合的資源，試著縮放地圖或搜尋其他地點。'}</p>`;
+    else $('#nearby-preview').innerHTML = noCategory ? NO_CATEGORY_HTML : visible.length ? visible.slice(0, 6).map(row).join('') : `<p class="empty-copy">${state.routeStatus === 'ready' ? '沿線沒有符合所選類別的資源，可試著調整類別。' : '視窗內沒有符合的資源，試著縮放地圖或搜尋其他地點。'}</p>`;
     if (state.activeSheet === 'list') {
       $('#sheet-title').textContent = state.routeStatus === 'ready' ? '沿線的資源' : '視窗內的資源';
-      $('#sheet-body').innerHTML = `<p class="field-note">${resourceScope()} ${visible.length} 筆 · 各資源距離為直線距離（非步行路線）${state.position ? '' : '，依地圖中心估算'}</p>${visible.map(row).join('') || `<p class="empty-copy">${resourceScope()}沒有符合的資源。</p>`}`;
+      $('#sheet-body').innerHTML = noCategory ? NO_CATEGORY_HTML : `<p class="field-note">${resourceScope()} ${visible.length} 筆 · 各資源距離為直線距離（非步行路線）${state.position ? '' : '，依地圖中心估算'}</p>${visible.map(row).join('') || `<p class="empty-copy">${resourceScope()}沒有符合的資源。</p>`}`;
     }
   }
   function setText(selector, text) { const el = $(selector); if (el) el.textContent = text; }

@@ -244,7 +244,19 @@ test('offline reopening requests GPS; OR category highlighting never removes non
   assert.equal(app.r.__test.visibleStores().length, actualData.stores.filter(s => hasCoordinates(s) && s.services.some(service => ['wifi', 'charge'].includes(service))).length);
   await app.click('[data-service="wifi"]'); assert.deepEqual([...app.state.filters], ['charge']);
   await app.click('[data-service="charge"]'); assert.equal(app.state.filters.size, 0);
-  assert.equal(app.r.__test.markers.size, total); assert([...app.r.__test.markers.values()].every(marker => marker.styles.opacity === .9));
+  assert.equal(app.r.__test.markers.size, total); assert([...app.r.__test.markers.values()].every(marker => marker.styles.opacity === .2 && marker.styles.radius === 4));
+});
+
+test('no selected category means no resources: empty list, dim dots and an explicit empty state', async () => {
+  const app = runtime({ offline: true }); await app.fix(); await app.click('#home-map');
+  assert.equal(app.state.filters.size, 0); assert.equal(app.r.__test.visibleStores().length, 0);
+  assert.equal(app.element('#visible-count').textContent, '尚未選類別');
+  assert.match(app.element('#nearby-preview').innerHTML, /data-empty="no-category"/); assert.match(app.element('#nearby-preview').innerHTML, /先選一種服務/);
+  assert([...app.r.__test.markers.values()].every(marker => marker.styles.opacity === .2));
+  await app.click('#list-button'); assert.match(app.element('#sheet-body').innerHTML, /先選一種服務/);
+  assert.equal(app.element('#sheet-body').querySelectorAll('[data-resource]').length, 0);
+  await app.click('#sheet-close'); await app.click('[data-service="wifi"]');
+  assert(app.r.__test.visibleStores().length > 0); assert.doesNotMatch(app.element('#nearby-preview').innerHTML, /no-category/);
 });
 
 test('four categories agree with source flags and zero counts refer to the viewport', async () => {
@@ -514,7 +526,7 @@ test('offline outside cached basemap coverage shows a map notice, clearing onlin
 });
 
 test('compact cards expose address, complete source and update date as separate fields', async () => {
-  const app = runtime(); await settle();
+  const app = runtime(); await settle(); await app.click('[data-service="toilet"]');
   const preview = app.element('#nearby-preview').innerHTML;
   assert.match(preview, /class="resource-card-address"/);
   assert.match(preview, /class="resource-card-source"/);
