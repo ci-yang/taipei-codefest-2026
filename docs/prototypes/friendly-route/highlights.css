@@ -139,3 +139,17 @@ body.hl-active #panel-content > :not(#highlight-host):not(.explore-footer) { dis
 :root[data-theme='dark'] .hl-primary { color: #17202a; }
 @media (max-width: 350px) { .hl-card { padding: 13px; } .hl-hero, .hl-gold-hero { gap: 12px; } .hl-radar-art { width: 66px; height: 66px; } .hl-hero-copy h3 { font-size: 21px; } .hl-water-hero { gap: 12px; } .hl-water-ball { width: 76px; height: 76px; } .hl-timer-copy > strong { font-size: 34px; } .hl-coin { width: 64px; height: 64px; font-size: 35px; } .hl-price-rate { font-size: 25px; } .hl-resource-row { gap: 6px; } .hl-resource-icon { width: 30px; height: 32px; } .hl-resource-distance { font-size: 10px; } }
 @media (prefers-reduced-motion: reduce) { .hl-radar-art::after, .hl-pulse-marker > span, .hl-water-fill::before, .hl-coin { animation: none !important; } .hl-water-fill { transition: none; } }
+/* Guide 內的精簡工具：倒數與生存圈狀態，掛在 #guide-timer。 */
+.hl-guide-timer { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.hl-water-ball.hl-water-ball-small { width: 56px; height: 56px; border-width: 2px; }
+.hl-guide-copy { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.hl-guide-copy strong { font-size: 26px; font-weight: 850; line-height: 1.15; font-variant-numeric: tabular-nums; color: #175a91; }
+.hl-guide-copy span:not(.hl-eyebrow) { color: var(--muted); font-size: 12px; line-height: 1.45; }
+.hl-guide-actions { display: flex; flex-direction: column; gap: 6px; }
+.hl-guide-actions .hl-button { min-height: 38px; padding: 6px 12px; }
+.hl-guide-battery { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.hl-guide-battery-copy { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-size: 13px; font-weight: 700; line-height: 1.45; overflow-wrap: anywhere; }
+.hl-guide-battery .hl-button { flex-shrink: 0; min-height: 38px; }
+#guide-timer .hl-note { margin-top: 8px; font-size: 12px; line-height: 1.5; }
+#guide-timer { --hl-color: #246dac; --hl-soft: #ebf4fc; font-size: 14px; line-height: 1.6; }
+#guide-timer[data-mode='charge'] { --hl-color: #4e771d; --hl-soft: #f0f7e6; }

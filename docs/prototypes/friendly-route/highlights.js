@@ -9,10 +9,11 @@
   const money = (value, digits = 0) => Number(value).toLocaleString('zh-TW', { minimumFractionDigits: digits, maximumFractionDigits: digits });
   const safeUrl = value => { try { const url = new URL(value); return url.protocol === 'https:' ? url.href : ''; } catch { return ''; } };
 
-  function create({ map, stores, icon, escapeHtml: esc, distance, onSelectResource, onShowDetails, onRequestPosition, onUseDemoPosition, onOpenExplore }) {
+  function create({ map, stores, icon, escapeHtml: esc, distance, guideHost: guideHostOption, onSelectResource, onShowDetails, onRequestPosition, onUseDemoPosition, onOpenExplore }) {
     const host = document.querySelector('#highlight-host');
     const launch = document.querySelector('#highlight-launch');
-    if (!host || !window.FriendlyHighlightMath) return { update() {}, open() {}, handleResource() { return false; }, destroy() {} };
+    const guideHost = guideHostOption || document.querySelector('#guide-timer');
+    if (!host || !window.FriendlyHighlightMath) return { update() {}, open() {}, openToilet() {}, handleResource() { return false; }, destroy() {} };
     const math = window.FriendlyHighlightMath;
     const byId = new Map(stores.map(store => [String(store.id), store]));
     const toilets = stores.filter(store => valid(store) && store.services.includes('toilet'));
@@ -24,9 +25,9 @@
       if (seenWifi.has(key)) return false;
       seenWifi.add(key); return true;
     });
-    let snapshot = { view: 'welcome', position: null, gpsPending: false };
+    let snapshot = { view: 'home', urgency: null, position: null, gpsPending: false };
     let mode = null; let selected = null; let routeClient; let routeGeneration = 0; let routeKey = ''; let destroyed = false;
-    let toiletRoute = null; let toiletStatus = 'idle'; let toiletError = ''; let wifiSummary = null;
+    let toiletRoute = null; let toiletStatus = 'idle'; let toiletError = ''; let wifiSummary = null; let injectedRoute = false; let lastGuideKey = ''; let lastGuideHtml = '';
     let timer = { status: 'idle', total: 0, remaining: 0, deadline: 0, speed: 1 };
     let gold = { running: false, elapsed: 0, startedAt: 0 };
     let battery = null; let batteryState = 'checking'; let manualBattery = false; let manualPercent = 18; let drain = 20; let deviceWasLow = false;
@@ -40,7 +41,10 @@
     const pulses = L.layerGroup().addTo(map);
     const routeLayer = L.layerGroup().addTo(map);
     const batteryLayer = L.layerGroup().addTo(map);
-    const active = () => Boolean(mode && snapshot.view === 'explore');
+    // guide 專用：充電導引的生存圈；clearLayers() 不碰它，只依 view／urgency 清除。
+    const guideLayer = L.layerGroup().addTo(map);
+    const active = () => Boolean(mode && snapshot.view === 'map');
+    const guiding = urgency => snapshot.view === 'guide' && snapshot.urgency === urgency && Boolean(snapshot.selectedStore);
     const isDemo = () => snapshot.position?.source === 'demo';
     const currentPercent = () => manualBattery ? manualPercent : battery ? Number((battery.level * 100).toFixed(6)) : null;
     const currentCharging = () => !manualBattery && Boolean(battery?.charging);
@@ -72,7 +76,7 @@
       const estimate = usable ? math.toiletEstimate(toiletRoute.distanceM) : null;
       const running = timer.status === 'running';
       const stateText = { idle: '選廁所後，計算本機步行路程', loading: '正在本機計算步行道路…', 'waiting-location': '需要位置才能計算步行路程', error: toiletError, ready: '本機道路估算 · 未驗證入口' }[toiletStatus];
-      return `${selected ? '' : toiletChoices()}<article class="hl-card">${targetHtml()}<div class="hl-water-hero"><div class="hl-water-ball ${running ? 'is-running' : ''}" aria-hidden="true"><div class="hl-water-fill" style="height:${timer.total ? Math.max(0, timer.remaining / timer.total * 100) : 72}%"></div><span>${icon('toilet', 32)}</span></div><div class="hl-timer-copy"><span class="hl-eyebrow">預估步行倒數</span><strong id="hl-countdown">${usable ? timeLabel(timer.remaining) : '—:—'}</strong><span id="hl-timer-state">${timer.status === 'finished' ? '估計時間到 · 尚未確認抵達' : running ? `倒數中${timer.speed > 1 ? ' · 20 倍展示' : ''}` : timer.status === 'paused' ? '已暫停' : '準備好了再出發'}</span></div></div>${estimate ? `<div class="hl-route-metrics"><span>${icon('walk', 17)}約 <strong>${esc(estimate.steps)}</strong> 步</span><span>${icon('route', 17)}${meters(toiletRoute.distanceM)} 道路＋接線</span></div>` : ''}<p class="hl-note ${toiletStatus === 'error' ? 'hl-error' : ''}" role="status">${esc(stateText)}</p><div class="hl-actions">${running ? primary('pause-timer', '暫停') : primary('start-timer', timer.status === 'paused' ? '繼續倒數' : '開始倒數', usable && timer.remaining > 0 ? '' : 'disabled')}${button('reset-timer', '重置', usable ? '' : 'disabled')}${toiletStatus === 'error' ? button('retry-route', '重試道路') : ''}</div><label class="hl-switch"><input id="hl-speed" type="checkbox" ${timer.speed === 20 ? 'checked' : ''}>20 倍加速試玩<span>展示用</span></label>${timer.status === 'finished' ? primary('arrive-gold', '我已抵達 · 看含金量') : ''}</article>${selected ? toiletChoices() : ''}<details class="hl-details"><summary>步數與倒數的假設</summary><p>步長 0.7 m、每分鐘 100 步。步數與秒數由本機步行道路長度換算，不是計步器讀值。藍色實線為 OSM 道路，虛線為估計接線；${usable ? `接線 ${meters(toiletRoute.connectorDistanceM)}。` : ''}未驗證入口與無障礙通行。</p><p>歸零只代表估計時間到了，不判定實際抵達，也不衡量身體忍耐能力。更換廁所或位置會重算；原本的目的地路線保留。</p></details>`;
+      return `${selected ? '' : toiletChoices()}<article class="hl-card">${targetHtml()}<div class="hl-water-hero"><div class="hl-water-ball ${running ? 'is-running' : ''}" aria-hidden="true"><div class="hl-water-fill" style="height:${timer.total ? Math.max(0, timer.remaining / timer.total * 100) : 72}%"></div><span>${icon('toilet', 32)}</span></div><div class="hl-timer-copy"><span class="hl-eyebrow">預估步行倒數</span><strong id="hl-countdown">${usable ? timeLabel(timer.remaining) : '—:—'}</strong><span id="hl-timer-state">${timer.status === 'finished' ? '估計時間到 · 尚未確認抵達' : running ? `倒數中${timer.speed > 1 ? ' · 20 倍展示' : ''}` : timer.status === 'paused' ? '已暫停' : '準備好了再開始'}</span></div></div>${estimate ? `<div class="hl-route-metrics"><span>${icon('walk', 17)}約 <strong>${esc(estimate.steps)}</strong> 步</span><span>${icon('route', 17)}${meters(toiletRoute.distanceM)} 道路＋接線</span></div>` : ''}<p class="hl-note ${toiletStatus === 'error' ? 'hl-error' : ''}" role="status">${esc(stateText)}</p><div class="hl-actions">${running ? primary('pause-timer', '暫停') : primary('start-timer', timer.status === 'paused' ? '繼續倒數' : '開始倒數', usable && timer.remaining > 0 ? '' : 'disabled')}${button('reset-timer', '重置', usable ? '' : 'disabled')}${toiletStatus === 'error' ? button('retry-route', '重試道路') : ''}</div><label class="hl-switch"><input id="hl-speed" type="checkbox" ${timer.speed === 20 ? 'checked' : ''}>20 倍加速試玩<span>展示用</span></label>${timer.status === 'finished' ? primary('arrive-gold', '我已抵達 · 看含金量') : ''}</article>${selected ? toiletChoices() : ''}<details class="hl-details"><summary>步數與倒數的假設</summary><p>步長 0.7 m、每分鐘 100 步。步數與秒數由本機步行道路長度換算，不是計步器讀值。藍色實線為 OSM 道路，虛線為估計接線；${usable ? `接線 ${meters(toiletRoute.connectorDistanceM)}。` : ''}未驗證入口與無障礙通行。</p><p>歸零只代表估計時間到了，不判定實際抵達，也不衡量身體忍耐能力。更換廁所或位置會重算；原本的目的地路線保留。</p></details>`;
     }
     function priceInfo() {
       if (!selected) return null;
@@ -116,6 +120,32 @@
       }
       syncAnimation();
     }
+    // guide 畫面內的精簡工具：廁所倒數沿用 app 注入的導引路線；充電顯示生存圈狀態。只寫 guideHost。
+    function renderGuide() {
+      if (destroyed || !guideHost) return;
+      const toilet = guiding('toilet') && toiletStatus === 'ready' && toiletRoute && selected?.id === snapshot.selectedStore?.id;
+      const charge = guiding('charge');
+      guideHost.hidden = !(toilet || charge);
+      if (toilet) {
+        const running = timer.status === 'running'; const estimate = math.toiletEstimate(toiletRoute.distanceM);
+        guideHost.dataset.mode = 'toilet';
+        paintGuide(`<div class="hl-guide-timer"><div class="hl-water-ball hl-water-ball-small ${running ? 'is-running' : ''}" aria-hidden="true"><div class="hl-water-fill" style="height:${timer.total ? Math.max(0, timer.remaining / timer.total * 100) : 72}%"></div><span>${icon('toilet', 22)}</span></div><div class="hl-guide-copy"><span class="hl-eyebrow">預估步行倒數 · 約 ${esc(estimate.steps)} 步</span><strong data-hl-countdown>${timeLabel(timer.remaining)}</strong><span>${timer.status === 'finished' ? '估計時間到 · 尚未確認抵達' : running ? `倒數中${timer.speed > 1 ? ' · 20 倍展示' : ''}` : timer.status === 'paused' ? '已暫停' : '準備好了再開始'}</span></div><div class="hl-guide-actions">${running ? primary('pause-timer', '暫停') : primary('start-timer', timer.status === 'paused' ? '繼續' : '開始', timer.remaining > 0 ? '' : 'disabled')}${button('reset-timer', '重設')}</div></div><p class="hl-note">步長 0.7 m、每分鐘 100 步，由本機步行道路長度換算，不是計步器讀值；歸零只代表估計時間到。</p>`);
+      } else if (charge) {
+        refreshBudget(); const percent = currentPercent();
+        guideHost.dataset.mode = 'charge';
+        paintGuide(`<div class="hl-guide-battery"><span class="hl-guide-battery-copy">${icon('charge', 18)}${budget?.active ? `生存圈：${manualBattery ? '試玩' : '裝置'} ${esc(percent)}% · 直線半徑上限 ${meters(budget.radiusM)}` : percent === null ? '裝置電量不可用 · 低於 20% 才顯示生存圈' : `電量 ${esc(percent)}% · 低於 20% 才顯示生存圈`}</span>${manualBattery ? button('device-battery', '使用裝置電量', battery ? '' : 'disabled') : button('manual-battery', '試玩 18%')}</div><p class="hl-note">保留 5% · 每小時耗電 ${drain} 個百分點 · 步速 4 km/h。不是實測續航，也不是道路可達範圍。</p>`);
+      } else { paintGuide(''); delete guideHost.dataset.mode; }
+    }
+    // 同內容不重寫，避免地圖移動觸發的 update() 在點擊途中換掉按鈕。
+    function paintGuide(html) { if (html === lastGuideHtml) return; lastGuideHtml = html; guideHost.innerHTML = html; }
+    function openToilet(store, route) {
+      if (destroyed || !store?.services?.includes('toilet') || !valid(store) || !route) return;
+      routeGeneration += 1; routeClient?.cancel();
+      if (selected?.id !== store.id) gold = { running: false, elapsed: 0, startedAt: 0 };
+      selected = store; toiletRoute = route; toiletStatus = 'ready'; toiletError = ''; injectedRoute = true;
+      routeKey = `${store.id}:${positionKey()}`; resetTimer();
+      render(); renderGuide();
+    }
     function clearLayers() { circles.clearLayers(); pulses.clearLayers(); routeLayer.clearLayers(); batteryLayer.clearLayers(); }
     function drawWifi() {
       circles.clearLayers(); pulses.clearLayers();
@@ -136,8 +166,13 @@
       }
       if (selected) L.marker([selected.lat, selected.lng], { icon: L.divIcon({ className: 'hl-toilet-pin', html: icon('toilet', 23), iconSize: [42, 42], iconAnchor: [21, 21] }), interactive: false, keyboard: false, zIndexOffset: 1100 }).addTo(routeLayer);
     }
-    function drawBattery() {
-      batteryLayer.clearLayers(); refreshBudget();
+    function drawBattery() { paintBudget(batteryLayer, true); }
+    function drawGuide() {
+      guideLayer.clearLayers();
+      if (guiding('charge')) paintBudget(guideLayer, false);
+    }
+    function paintBudget(layer, withChargers) {
+      layer.clearLayers(); refreshBudget();
       if (!budget?.active || !valid(snapshot.position)) return;
       const center = snapshot.position; const outer = [[-85, -179], [-85, 179], [85, 179], [85, -179]];
       const rings = [outer];
@@ -145,10 +180,10 @@
         const hole = [];
         for (let i = 0; i <= 96; i += 1) { const angle = i / 96 * Math.PI * 2; hole.push([center.lat + Math.sin(angle) * budget.radiusM / 111320, center.lng + Math.cos(angle) * budget.radiusM / (111320 * Math.cos(center.lat * Math.PI / 180))]); }
         rings.push(hole);
-        L.circle([center.lat, center.lng], { renderer, radius: budget.radiusM, color: '#6ca928', weight: 3, fillColor: '#6ca928', fillOpacity: .05, interactive: false }).addTo(batteryLayer);
+        L.circle([center.lat, center.lng], { renderer, radius: budget.radiusM, color: '#6ca928', weight: 3, fillColor: '#6ca928', fillOpacity: .05, interactive: false }).addTo(layer);
       }
-      L.polygon(rings, { renderer: maskRenderer, stroke: false, fillColor: '#17202a', fillOpacity: .62, fillRule: 'evenodd', interactive: false }).addTo(batteryLayer);
-      candidateChargers.slice(0, 80).forEach(store => L.marker([store.lat, store.lng], { icon: L.divIcon({ className: 'hl-charge-pin', html: `<span>${icon('charge', 20)}</span>`, iconSize: [32, 32], iconAnchor: [16, 16] }), keyboard: false, zIndexOffset: 800 }).on('click', () => openCharge(store)).addTo(batteryLayer));
+      L.polygon(rings, { renderer: maskRenderer, stroke: false, fillColor: '#17202a', fillOpacity: .62, fillRule: 'evenodd', interactive: false }).addTo(layer);
+      if (withChargers) candidateChargers.slice(0, 80).forEach(store => L.marker([store.lat, store.lng], { icon: L.divIcon({ className: 'hl-charge-pin', html: `<span>${icon('charge', 20)}</span>`, iconSize: [32, 32], iconAnchor: [16, 16] }), keyboard: false, zIndexOffset: 800 }).on('click', () => openCharge(store)).addTo(layer));
     }
     function drawLayers() {
       clearLayers(); if (!active()) return;
@@ -170,7 +205,7 @@
     async function scheduleToiletRoute(force = false) {
       const key = selected && positionKey() ? `${selected.id}:${positionKey()}` : '';
       if (!force && key && key === routeKey) return;
-      routeGeneration += 1; const generation = routeGeneration; routeClient?.cancel(); toiletRoute = null; resetTimer(); toiletError = '';
+      routeGeneration += 1; const generation = routeGeneration; routeClient?.cancel(); toiletRoute = null; injectedRoute = false; resetTimer(); toiletError = '';
       if (!selected) toiletStatus = 'idle';
       else if (!valid(snapshot.position) || snapshot.gpsPending) toiletStatus = 'waiting-location';
       else toiletStatus = 'loading';
@@ -230,9 +265,9 @@
       else if (action === 'start-gold' && priceInfo()?.row) { gold.startedAt = Date.now(); gold.running = true; }
       else if (action === 'stop-gold') pauseGold();
       else if (action === 'reset-gold') gold = { running: false, elapsed: 0, startedAt: 0 };
-      else if (action === 'manual-battery') { manualBattery = true; manualPercent = 18; drawBattery(); fitBattery(); }
-      else if (action === 'device-battery') { manualBattery = false; drawBattery(); }
-      render();
+      else if (action === 'manual-battery') { manualBattery = true; manualPercent = 18; if (active()) { drawBattery(); fitBattery(); } drawGuide(); }
+      else if (action === 'device-battery') { manualBattery = false; if (active()) drawBattery(); drawGuide(); }
+      render(); renderGuide();
     }
     function input(event) {
       if (event.target.id !== 'hl-battery-range') return;
@@ -251,18 +286,24 @@
       if (destroyed) return;
       if (timer.status === 'running') {
         timer.remaining = remainingSeconds();
-        if (timer.remaining <= 0) { timer.status = 'finished'; if (active() && mode === 'toilet') render(); }
+        if (timer.remaining <= 0) { timer.status = 'finished'; if (active() && mode === 'toilet') render(); renderGuide(); }
         const label = host.querySelector('#hl-countdown'); if (label) label.textContent = timeLabel(timer.remaining);
         const fill = host.querySelector('.hl-water-fill'); if (fill) fill.style.height = `${timer.total ? timer.remaining / timer.total * 100 : 0}%`;
+        const guideLabel = guideHost?.querySelector('[data-hl-countdown]'); if (guideLabel) guideLabel.textContent = timeLabel(timer.remaining);
+        const guideFill = guideHost?.querySelector('.hl-water-fill'); if (guideFill) guideFill.style.height = `${timer.total ? timer.remaining / timer.total * 100 : 0}%`;
       }
       if (gold.running && active() && mode === 'gold') { const label = host.querySelector('#hl-gold-total'); const info = priceInfo(); if (label && info?.result) label.textContent = money(goldElapsed() * info.result.perSecond, 2); }
     }
+    // 只在地圖頁自動開生存圈；在其他畫面跳過時不記為已低電量，下次在地圖頁收到電量事件仍會觸發。
     function batteryChanged() {
       const isLow = Boolean(battery && battery.level < .2 && !battery.charging);
-      const justEnteredLow = isLow && !deviceWasLow;
+      if (isLow && !deviceWasLow && !manualBattery) {
+        if (snapshot.view === 'map') { deviceWasLow = true; open('battery'); return; }
+        drawGuide(); renderGuide(); return;
+      }
       deviceWasLow = isLow;
-      if (justEnteredLow && !manualBattery) { open('battery'); return; }
       if (!manualBattery && mode === 'battery') { render(); drawBattery(); }
+      drawGuide(); renderGuide();
     }
     if (typeof navigator.getBattery === 'function') {
       Promise.resolve().then(() => navigator.getBattery()).then(value => {
@@ -282,32 +323,37 @@
       launch.innerHTML = `<div class="hl-launch-heading"><span>${icon('compass', 20)}城市生存雷達</span><small>試玩四種城市感受</small></div><div class="hl-launch-modes">${Object.entries(MODES).map(([key, [glyph, label]]) => `<button type="button" data-hl-mode="${key}">${icon(glyph, 22)}<span>${label}</span></button>`).join('')}</div>`;
       launch.addEventListener('click', launchClick);
     }
-    host.addEventListener('click', click); host.addEventListener('input', input); host.addEventListener('change', change);
+    host.addEventListener('click', click); host.addEventListener('input', input); host.addEventListener('change', change); guideHost?.addEventListener('click', click);
     document.addEventListener('visibilitychange', visibility); motionQuery.addEventListener('change', syncAnimation);
     map.on('moveend', onMapMove);
     return {
       update(nextSnapshot) {
         if (destroyed) return;
-        const previousView = snapshot.view; const wasPending = snapshot.gpsPending; snapshot = nextSnapshot;
+        const previousView = snapshot.view; const previousUrgency = snapshot.urgency; const wasPending = snapshot.gpsPending; snapshot = nextSnapshot;
         const nextKey = positionKey();
         if (lastPositionKey !== nextKey) {
           lastPositionKey = nextKey; lastBatteryKey = '';
-          if (selected) scheduleToiletRoute();
+          if (selected && !injectedRoute) scheduleToiletRoute();
         }
         else if (selected && wasPending && !snapshot.gpsPending && toiletStatus === 'waiting-location') scheduleToiletRoute();
         const key = `${currentPercent()}:${currentCharging()}:${nextKey}:${drain}`;
         if (key !== lastBatteryKey) { lastBatteryKey = key; if (mode === 'battery' && active()) drawBattery(); }
+        if (previousView === 'guide' && (snapshot.view !== 'guide' || previousUrgency !== snapshot.urgency)) pauseTimer();
+        const guideKey = `${snapshot.view}:${snapshot.urgency}:${snapshot.selectedStore?.id || ''}:${key}`;
+        if (guideKey !== lastGuideKey) { lastGuideKey = guideKey; drawGuide(); }
         if (mode) { render(); if (previousView !== snapshot.view) drawLayers(); }
-        syncAnimation();
+        renderGuide(); syncAnimation();
       },
       open,
+      openToilet,
       handleResource(store) { if (active() && (mode === 'toilet' || mode === 'gold') && store?.services.includes('toilet')) { selectToilet(store); return true; } return false; },
       destroy() {
         destroyed = true; routeGeneration += 1; routeClient?.cancel(); clearInterval(interval); panelObserver.disconnect();
-        map.off('moveend', onMapMove); clearLayers(); [circles, pulses, routeLayer, batteryLayer].forEach(layer => map.removeLayer(layer));
+        map.off('moveend', onMapMove); clearLayers(); guideLayer.clearLayers(); [circles, pulses, routeLayer, batteryLayer, guideLayer].forEach(layer => map.removeLayer(layer));
         battery?.removeEventListener('levelchange', batteryChanged); battery?.removeEventListener('chargingchange', batteryChanged);
         document.removeEventListener('visibilitychange', visibility); motionQuery.removeEventListener('change', syncAnimation);
-        host.removeEventListener('click', click); host.removeEventListener('input', input); host.removeEventListener('change', change); launch?.removeEventListener('click', launchClick);
+        host.removeEventListener('click', click); host.removeEventListener('input', input); host.removeEventListener('change', change); guideHost?.removeEventListener('click', click); launch?.removeEventListener('click', launchClick);
+        if (guideHost) { guideHost.innerHTML = ''; guideHost.hidden = true; lastGuideHtml = ''; }
         host.innerHTML = ''; host.hidden = true; document.body.classList.remove('hl-active', 'hl-animation-paused');
       },
     };

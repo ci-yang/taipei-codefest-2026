@@ -118,12 +118,41 @@ function makeLeaflet() {
   };
 }
 
+// Session history model: pushState/replaceState/go fire popstate asynchronously like a browser; going
+// below the first entry records that the user left the micro-service. go(0) would reload, so it throws.
+function makeHistory(listeners, initialState = null) {
+  const history = { entries: [initialState], index: 0, calls: [], exited: false };
+  Object.defineProperty(history, 'state', { get() { return history.entries[history.index] ?? null; } });
+  history.pushState = state => { history.calls.push(['push', state]); history.entries = history.entries.slice(0, history.index + 1); history.entries.push(structuredClone(state)); history.index += 1; };
+  history.replaceState = state => { history.calls.push(['replace', state]); history.entries[history.index] = structuredClone(state); };
+  history.go = delta => {
+    history.calls.push(['go', delta]); if (!delta) throw new Error('history.go(0) reloads the page');
+    const next = history.index + delta; if (next < 0) { history.exited = true; return; }
+    history.index = next; const state = history.state;
+    queueMicrotask(() => { for (const cb of listeners.get('popstate') || []) cb({ state }); });
+  };
+  history.back = () => history.go(-1);
+  return history;
+}
+
+// Records calls only; the real overlay is covered by friendly-speak-card.test.cjs and the browser script.
+function makeSpeakCard(calls) {
+  let current = null;
+  return {
+    getAvailableLangs: () => [{ code: 'zh-TW', label: '中文', reviewed: true }],
+    openSpeakCard(options) { calls.push({ method: 'open', ...options }); current = options; return { layout: 'single', fellBack: false }; },
+    closeSpeakCard({ silent = false } = {}) { calls.push({ method: 'close', silent }); if (!current) return false; const { onClose } = current; current = null; if (!silent) onClose?.(); return true; },
+    get isOpen() { return Boolean(current); },
+  };
+}
+
 function runtime(options = {}) {
-  const document = makeDocument(html); const leaflet = makeLeaflet(); const gpsRequests = []; const storageWrites = []; const bridgeCalls = []; const searchCalls = []; const copied = []; const listeners = new Map(); const cacheCalls = []; const routeRequests = []; const routeCancels = []; const observed = [];
+  const document = makeDocument(html); const leaflet = makeLeaflet(); const gpsRequests = []; const storageWrites = []; const speakCalls = []; const bridgeCalls = []; const searchCalls = []; const copied = []; const listeners = new Map(); const cacheCalls = []; const routeRequests = []; const routeCancels = []; const observed = [];
   class FixedDate extends Date { constructor(...args) { super(...(args.length ? args : [fixedTime])); } static now() { return fixedTime; } }
   const r = {
-    document, URL, AbortController, Date: FixedDate, console, innerWidth: 390,
-    FRIENDLY_DATA: actualBasemap, FRIENDLY_RESOURCES: actualData, L: leaflet.L,
+    document, URL, AbortController, Date: FixedDate, console, innerWidth: 390, structuredClone,
+    FRIENDLY_DATA: actualBasemap, FRIENDLY_RESOURCES: options.resources || actualData, L: leaflet.L,
+    history: makeHistory(listeners, options.historyState || null), FriendlySpeakCard: makeSpeakCard(speakCalls),
     location: new URL('https://example.test/friendly/index.html'),
     navigator: { onLine: options.offline !== true, clipboard: { async writeText(text) { copied.push(text); } } },
     FriendlyIcons: { icon: name => `<svg data-test-icon="${name}"></svg>` },
@@ -135,7 +164,7 @@ function runtime(options = {}) {
     FriendlySearch: { createClient: () => ({ async search(query, args) { searchCalls.push({ query, ...args }); return options.search ? options.search(query, args) : []; } }) },
     FriendlyRouteClient: options.noRouter ? undefined : { createClient: () => ({ route(input) { return new Promise((resolve, reject) => routeRequests.push({ input, resolve, reject })); }, cancel() { routeCancels.push(true); } }) },
     FriendlyOffline: { async initialize(callback) { cacheCalls.push(callback); const status = options.cacheStatus || { state: 'ready', savedAt: fixedTime, failures: [] }; callback(status); return status; } },
-    localStorage: { getItem: () => null, setItem: (key, value) => storageWrites.push([key, value]) },
+    localStorage: options.storageThrows ? { getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); } } : { getItem: key => options.storage?.[key] ?? null, setItem: (key, value) => storageWrites.push([key, value]) },
     requestAnimationFrame(callback) { queueMicrotask(() => callback(0)); return 1; }, cancelAnimationFrame() {},
     ResizeObserver: class { constructor(callback) { this.callback = callback; } observe(target) { observed.push({ target, callback: this.callback }); } disconnect() {} },
     setTimeout() { return 1; }, clearTimeout() {},
@@ -143,13 +172,14 @@ function runtime(options = {}) {
     DeviceOrientationEvent: options.orientation,
   };
   r.window = r; vm.createContext(r);
+  vm.runInContext(fs.readFileSync(path.join(base, 'urgency.js'), 'utf8'), r, { filename: 'urgency.js' });
   // Observe private state through an in-memory seam, leaving production files unchanged.
-  const seam = 'window.__test = { state, markers, requestPosition, visibleStores, selectResource, setDestination, showDetails, showDirection, externalAction, enableOrientation, orientation, renderAll, setView, startGuidance, endGuidance, toggleMode }; ';
+  const seam = 'window.__test = { state, markers, requestPosition, visibleStores, selectResource, setDestination, showDetails, showDirection, externalAction, enableOrientation, orientation, renderAll, setView, startGuidance, endGuidance, toggleMode, openUrgency, renderResult, nextResult, applyScreen, goBack, goHome, speakCategory, openMap }; ';
   const source = fs.readFileSync(path.join(base, 'app.js'), 'utf8'); assert.match(source, /\}\)\(\);\s*$/);
   vm.runInContext(source.replace(/\}\)\(\);\s*$/, `${seam}\n})();`), r, { filename: 'app.js' });
   const element = selector => { const el = document.querySelector(selector); assert(el, `Missing test element: ${selector}`); return el; };
   return {
-    r, state: r.__test.state, gpsRequests, storageWrites, bridgeCalls, searchCalls, copied, cacheCalls, routeRequests, routeCancels, observed, ...leaflet,
+    r, state: r.__test.state, history: r.history, speakCard: r.FriendlySpeakCard, speakCalls, gpsRequests, storageWrites, bridgeCalls, searchCalls, copied, cacheCalls, routeRequests, routeCancels, observed, ...leaflet,
     element, click: selector => element(selector).dispatch('click'),
     async input(selector, value) { const el = element(selector); el.value = value; await el.dispatch('input'); },
     async fix(index = gpsRequests.length - 1, values = {}) { gpsRequests[index].resolve({ lat: 25.034, lng: 121.561, accuracy: 15, capturedAt: fixedTime, source: 'browser', ...values }); await settle(); },
@@ -347,38 +377,42 @@ test('partial cache is not shown as complete and settings name the missing part'
   await app.click('#settings-button'); assert.match(app.element('#settings-cache').innerHTML, /全市資源點位/); assert.match(app.element('#settings-cache').innerHTML, /未完成/);
 });
 
-test('welcome can enter immediately while GPS and cache initialize, and home preserves location', async () => {
+test('home is the first screen with three urgencies; the map is a second layer and home preserves location', async () => {
   const app = runtime(); await settle();
-  assert.equal(app.state.view, 'welcome'); assert.equal(app.element('#app').dataset.view, 'welcome');
+  assert.equal(app.state.view, 'home'); assert.equal(app.element('#app').dataset.view, 'home');
+  assert.equal(app.element('#home-screen').hidden, false); assert.equal(app.element('#explore-screen').hidden, true); assert.equal(app.element('#result-screen').hidden, true);
+  assert.deepEqual(app.r.document.querySelectorAll('[data-urgency]').map(el => el.dataset.urgency), ['toilet', 'charge', 'wifi']);
+  for (const removed of ['#enter-app', '#highlight-launch', '#welcome-screen', '#transport-status', '[data-transport]']) assert.equal(app.r.document.querySelector(removed), null, removed);
+  assert(app.element('#highlight-map-launch'), 'the radar entry stays on the map page');
   assert.equal(app.state.theme, 'light'); assert.equal(app.state.mode, 'free');
-  assert.equal(app.element('#welcome-resource-count').textContent, actualData.stores.length.toLocaleString('zh-TW'));
-  assert.match(app.element('#welcome-resource-count').title, new RegExp(actualData.stores.filter(hasCoordinates).length.toLocaleString('zh-TW')));
-  assert.match(app.element('#welcome-cache').textContent, /已快取/);
-  assert.equal(app.element('#enter-app').disabled, false); await app.click('#enter-app');
-  assert.equal(app.state.view, 'explore'); assert.equal(app.state.gpsPending, true); assert(app.invalidations.length > 0);
-  await app.fix(); const position = app.state.position;
-  await app.click('#home-button'); assert.equal(app.state.view, 'welcome'); assert.equal(app.state.position, position);
-  await app.click('#enter-app'); await app.click('#start-guidance');
-  assert.equal(app.state.view, 'guidance'); assert.equal(app.element('#guidance-title').textContent, '探索附近資源');
+  assert.match(app.element('#home-location').textContent, /正在定位/); assert.match(app.element('#home-cache').textContent, /已快取/);
+  assert.deepEqual(app.history.state, { view: 'home', depth: 0 });
+  await app.click('#home-map');
+  assert.equal(app.state.view, 'map'); assert.equal(app.element('#app').dataset.view, 'map'); assert.equal(app.state.gpsPending, true); assert(app.invalidations.length > 0);
+  await app.fix(); const position = app.state.position; assert.match(app.element('#home-location').textContent, /±15 m/);
+  await app.click('#home-button'); assert.equal(app.state.view, 'home'); assert.equal(app.state.position, position); assert.equal(app.history.index, 0);
+  await app.click('#home-map'); await app.click('#start-guidance');
+  assert.equal(app.state.view, 'guide'); assert.equal(app.element('#guidance-title').textContent, '探索附近資源');
   assert.equal(app.state.selectedId, null); assert.equal(app.gpsRequests.length, 1);
-  await app.click('#guidance-end'); assert.equal(app.state.view, 'explore'); assert.equal(app.state.position, position);
+  await app.click('#guidance-end'); assert.equal(app.state.view, 'map'); assert.equal(app.state.position, position);
+  await app.click('#map-back'); assert.equal(app.state.view, 'home'); assert(app.history.calls.every(([kind, value]) => kind !== 'go' || value !== 0));
 });
 
 test('resource guidance is a GPS straight line; destinations and filters survive exit and free-mode reset', async () => {
   const app = runtime(); const [resource, destination] = actualData.stores.filter(hasCoordinates);
-  await app.fix(0, { lat: resource.lat + .001, lng: resource.lng });
+  await app.fix(0, { lat: resource.lat + .001, lng: resource.lng }); await app.click('#home-map');
   app.r.__test.selectResource(resource.id); app.r.__test.setDestination(destination);
   await app.click('[data-service="wifi"]'); await app.click('#start-guidance');
-  assert.equal(app.state.view, 'guidance'); assert.equal(app.state.mode, 'resource');
-  assert.match(app.element('#guidance-distance').textContent, /111 公尺/);
-  assert.match(app.element('#guidance-bearing').textContent, /南方.*正北.*直線距離（非步行路線）/);
+  assert.equal(app.state.view, 'guide'); assert.equal(app.state.mode, 'resource');
+  assert.match(app.element('#guidance-distance').textContent, /^直線 111 公尺$/);
+  assert.match(app.element('#guidance-bearing').textContent, /南方.*正北/); assert.doesNotMatch(app.element('#guidance-bearing').textContent, /非步行路線/);
   const line = [...app.layers].find(layer => layer.kind === 'polyline'); assert(line); assert.equal(line.options.dashArray, '7 9');
   assert.equal(line.coordinates[0][0], resource.lat + .001); assert.equal(line.coordinates[1][0], resource.lat);
   assert.equal(line.coordinates[1][1], resource.lng); assert.equal(app.fittedBounds.length, 1);
   const another = actualData.stores.find(s => hasCoordinates(s) && s.id !== resource.id && s.id !== destination.id);
   app.r.__test.setDestination(another);
   assert.equal(app.state.selectedId, resource.id); assert.equal(app.state.mode, 'resource'); assert(app.layers.has(line));
-  await app.click('#exit-guidance'); assert.equal(app.state.view, 'explore');
+  await app.click('#exit-guidance'); assert.equal(app.state.view, 'map');
   assert.equal(app.state.destination.id, another.id); assert.equal(app.state.selectedId, resource.id); assert(app.state.filters.has('wifi'));
   await app.click('#mode-toggle'); assert.equal(app.state.mode, 'free'); assert.equal(app.state.selectedId, null);
   assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 0); assert.equal(app.state.destination.id, another.id);
@@ -386,31 +420,25 @@ test('resource guidance is a GPS straight line; destinations and filters survive
   assert.match(app.element('#toast').textContent, /先點選.*資源/);
 });
 
-test('transport choices are local preferences and never claim routes or travel times', async () => {
-  const app = runtime(); await app.fix(); app.r.__test.selectResource(actualData.stores.find(hasCoordinates).id);
-  const line = [...app.layers].find(layer => layer.kind === 'polyline');
-  for (const [mode, name] of [['walk', '步行'], ['transit', '捷運'], ['bike', '單車'], ['car', '開車']]) {
-    await app.click(`[data-transport="${mode}"]`); assert.equal(app.state.transport, mode);
-    assert.equal(app.element(`[data-transport="${mode}"]`).getAttribute('aria-pressed'), 'true');
-    assert.match(app.element('#transport-status').textContent, new RegExp(`偏好：${name}`));
-    assert.match(app.element('#transport-status').textContent, /直線距離，非步行／捷運／單車／開車路線/);
-    assert.doesNotMatch(app.element('#transport-status').textContent, /分鐘|最佳化|剩餘時間/);
-    assert(app.layers.has(line));
-  }
+test('the transport preference is removed; map cards keep the straight-line label without implying routes', async () => {
+  const app = runtime(); await app.fix(); await app.click('#home-map'); app.r.__test.selectResource(actualData.stores.find(hasCoordinates).id);
+  assert.doesNotMatch(html, /data-transport|transport-status|enter-app|出發/); assert.equal('transport' in app.state, false);
+  assert.match(app.element('#selected-card').innerHTML, /直線距離（非步行路線）/); assert.doesNotMatch(app.element('#selected-card').innerHTML, /捷運|單車|開車/);
+  assert(app.layers.has([...app.layers].find(layer => layer.kind === 'polyline')));
   assert.equal(app.searchCalls.length, 0); assert.equal(app.bridgeCalls.length, 0); assert.equal(app.storageWrites.length, 0);
 });
 
 test('guidance without GPS has no route or arrow and opens a source-attributed detail card', async () => {
-  const app = runtime(); await app.fail('GEO_DENIED'); const resource = actualData.stores.find(hasCoordinates);
+  const app = runtime(); await app.fail('GEO_DENIED'); const resource = actualData.stores.find(hasCoordinates); await app.click('#home-map');
   app.r.__test.selectResource(resource.id); await app.click('#start-guidance');
-  assert.equal(app.state.view, 'guidance'); assert.match(app.element('#guidance-distance').textContent, /需要定位/);
+  assert.equal(app.state.view, 'guide'); assert.match(app.element('#guidance-distance').textContent, /需要定位/);
   assert.match(app.element('#guidance-bearing').textContent, /需要定位/); assert.match(app.element('#guidance-location').textContent, /定位權限未開啟/);
   assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 0);
   await app.click('#guidance-detail'); assert.equal(app.element('#app-sheet').dataset.sheet, 'detail');
   const details = app.element('#sheet-body').innerHTML;
   assert(details.includes(resource.sourceName)); assert(details.includes(resource.updatedAt.slice(0, 10)));
   assert.match(details, /現場使用條件、營業狀態與免消費條件：待確認/); assert.match(details, /直線距離（非步行路線）/);
-  await app.click('#sheet-close'); await app.click('#guidance-end'); assert.equal(app.state.view, 'explore'); assert.equal(app.state.selectedId, resource.id);
+  await app.click('#sheet-close'); await app.click('#guidance-end'); assert.equal(app.state.view, 'map'); assert.equal(app.state.selectedId, resource.id);
 });
 
 test('map taps open details and an unlocated search record never replaces selected resource or destination', async () => {
@@ -424,10 +452,10 @@ test('map taps open details and an unlocated search record never replaces select
 });
 
 test('late GPS in resource guidance fits the actual position and resource together', async () => {
-  const app = runtime(); const resource = actualData.stores.find(hasCoordinates);
+  const app = runtime(); const resource = actualData.stores.find(hasCoordinates); await app.click('#home-map');
   app.r.__test.selectResource(resource.id); await app.click('#start-guidance'); assert.equal(app.fittedBounds.length, 0);
   await app.fix(0, { lat: resource.lat + .05, lng: resource.lng });
-  assert.equal(app.state.view, 'guidance'); assert.equal(app.state.selectedId, resource.id);
+  assert.equal(app.state.view, 'guide'); assert.equal(app.state.selectedId, resource.id);
   assert.equal(app.fittedBounds.length, 1); const bounds = app.fittedBounds[0].value;
   assert.equal(bounds[0][0], resource.lat + .05); assert.equal(bounds[1][0], resource.lat);
   assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 1);
@@ -463,7 +491,7 @@ test('detail overlay closes from the side backdrop and escaped source names stay
 });
 
 test('offline outside cached basemap coverage shows a map notice, clearing online or on return', async () => {
-  const app = runtime(); await app.click('#enter-app');
+  const app = runtime(); await app.click('#home-map');
   const [[south, west], [north, east]] = actualBasemap.bounds;
   const outside = { lat: north + .02, lng: east + .02 };
   const inside = { lat: (south + north) / 2, lng: (west + east) / 2 };
@@ -573,7 +601,7 @@ test('routing errors remain actionable and retry uses current real GPS', async (
 });
 
 test('map expansion and panel collapse are independent and preserve the map and route state', async () => {
-  const app = runtime(); await app.fix(); await app.click('#enter-app');
+  const app = runtime(); await app.fix(); await app.click('#home-map');
   const resource = actualData.stores.find(hasCoordinates); app.r.__test.setDestination(resource); app.routeRequests[0].resolve(routeResult([resource.id])); await settle();
   app.r.__test.selectResource(resource.id); await app.click('[data-service="wifi"]');
   const snapshot = { position: app.state.position, route: app.state.route, destination: app.state.destination, selectedId: app.state.selectedId };
@@ -591,12 +619,183 @@ test('map expansion and panel collapse are independent and preserve the map and 
 });
 
 test('pointer entry and sheet close do not focus search, keyboard entry restores a visible focus target', async () => {
-  const app = runtime(); await settle(); await app.element('#enter-app').dispatch('pointerdown'); await app.click('#enter-app');
+  const app = runtime(); await settle(); await app.element('#home-map').dispatch('pointerdown'); await app.click('#home-map');
   assert.notEqual(app.r.document.activeElement, app.element('#search-trigger'));
   await app.click('#search-trigger'); await app.element('#sheet-close').dispatch('pointerdown'); await app.click('#sheet-close');
   assert.notEqual(app.r.document.activeElement, app.element('#search-trigger'));
-  await app.click('#home-button'); await app.r.document.dispatch('keydown', { key: 'Tab' }); await app.click('#enter-app');
+  await app.click('#home-button'); await app.r.document.dispatch('keydown', { key: 'Tab' }); await app.click('#home-map');
   assert.equal(app.r.document.activeElement, app.element('#search-trigger'));
   await app.click('#search-trigger'); await app.element('#app-sheet').dispatch('cancel');
   assert.equal(app.r.document.activeElement, app.element('#search-trigger'));
+});
+
+// Independent ranking for the three urgencies: planar approximation, not the app's haversine.
+const planar = (a, b) => { const k = Math.PI / 180; const x = (b.lng - a.lng) * k * Math.cos((a.lat + b.lat) / 2 * k); const y = (b.lat - a.lat) * k; return Math.hypot(x, y) * 6371000; };
+const cityHall = { lat: 25.0375, lng: 121.5637 };
+const nearestIds = (category, from = cityHall, filter = () => true) => actualData.stores.filter(s => hasCoordinates(s) && s.services.includes(category) && filter(s)).sort((a, b) => planar(from, a) - planar(from, b)).map(s => String(s.id));
+const resultId = app => app.r.document.querySelector('[data-result-id]')?.attributes['data-result-id'] ?? null;
+
+test('each urgency button shows the straight-line nearest record and next walks to the second and third', async () => {
+  const app = runtime(); await app.fix(0, { ...cityHall, accuracy: 15 });
+  for (const category of ['toilet', 'charge', 'wifi']) {
+    await app.click(`[data-urgency="${category}"]`);
+    assert.equal(app.state.view, 'result'); assert.equal(app.element('#app').dataset.view, 'result'); assert.equal(app.element('#result-screen').hidden, false);
+    const expected = nearestIds(category);
+    assert.equal(resultId(app), expected[0], category);
+    const body = app.element('#result-body').innerHTML; const store = actualData.stores.find(s => String(s.id) === expected[0]);
+    assert(body.includes(store.sourceName) && body.includes(store.updatedAt.slice(0, 10)), category);
+    assert.match(body, /直線 \d/); assert.doesNotMatch(body, /約 \d/); assert.match(body, /在您的.+方 · 正北基準/); assert.match(body, /無障礙 · (有標示|未標示)/);
+    for (const action of ['go', 'speak', 'map', 'next']) assert.match(body, new RegExp(`data-action="${action}"`), `${category} ${action}`);
+    assert.equal(/data-action="phone"/.test(body), /^\+?\d{8,15}$/.test(store.normalizedPhone || ''), `${category} phone only with a number`);
+    assert.equal(/免費 Wi-Fi 熱點，不保證訊號/.test(body), category === 'wifi');
+    const pushes = app.history.calls.filter(([kind]) => kind === 'push').length;
+    await app.click('[data-action="next"]'); assert.equal(resultId(app), expected[1]);
+    await app.click('[data-action="next"]'); assert.equal(resultId(app), expected[2]);
+    assert.equal(app.element('[data-action="next"]').disabled, true); assert.match(app.element('#result-body').innerHTML, /已是最後一筆候選/);
+    assert.equal(app.history.calls.filter(([kind]) => kind === 'push').length, pushes, 'next replaces history instead of pushing');
+    assert.equal(app.history.state.index, 2);
+    await app.click('#result-back'); assert.equal(app.state.view, 'home');
+  }
+  assert.equal(app.routeRequests.length, 0, 'home and result never start routing');
+});
+
+test('accuracy above 100 m keeps the result but prefixes the straight-line distance with 約', async () => {
+  const app = runtime(); await app.fix(0, { ...cityHall, accuracy: 180 });
+  await app.click('[data-urgency="toilet"]');
+  assert.match(app.element('#result-distance').textContent, /^直線 約 \d/); assert.match(app.element('#result-body').innerHTML, /精度不足/);
+  assert.match(app.element('#home-location').textContent, /精度不足/);
+});
+
+test('without a valid location the result asks for location, offers the map, and never ranks from the map centre', async () => {
+  const app = runtime(); await settle();
+  await app.click('[data-urgency="charge"]');
+  assert.equal(resultId(app), null); assert.match(app.element('#result-body').innerHTML, /需要定位才能找最近/); assert.match(app.element('#result-body').innerHTML, /正在取得定位/);
+  await app.fail('GEO_DENIED');
+  assert.equal(resultId(app), null); assert.match(app.element('#result-body').innerHTML, /需要定位才能找最近/); assert.match(app.element('#result-body').innerHTML, /定位權限未開啟/);
+  assert.match(app.element('#home-location').textContent, /無法取得定位 · 定位權限未開啟/); assert.equal(app.element('#home-location').dataset.state, 'failed');
+  await app.click('[data-action="map"]');
+  assert.equal(app.state.view, 'map'); assert.deepEqual([...app.state.filters], ['charge']); assert.equal(app.state.selectedId, null);
+  await app.click('#map-back'); assert.equal(app.state.view, 'result');
+  const pushes = app.history.calls.filter(([kind]) => kind === 'push').length;
+  await app.click('#home-gps'); await app.fix(1, { ...cityHall });
+  assert.equal(resultId(app), nearestIds('charge')[0], 'a later fix fills the card in place');
+  assert.equal(app.history.calls.filter(([kind]) => kind === 'push').length, pushes, 'location updates replace history');
+});
+
+test('step-free preference picks accessible records and falls back with a visible note when none exist', async () => {
+  const app = runtime({ storage: { 'friendly-step-free-v1': '1' } }); await app.fix(0, { ...cityHall });
+  assert.equal(app.state.prefs.stepFree, true);
+  for (const category of ['toilet', 'charge', 'wifi']) {
+    await app.click(`[data-urgency="${category}"]`);
+    assert.equal(resultId(app), nearestIds(category, cityHall, s => s.services.includes('accessible'))[0], category);
+    assert.match(app.element('#result-body').innerHTML, /無障礙 · 有標示/); assert.doesNotMatch(app.element('#result-body').innerHTML, /無障礙資料不足/);
+    await app.click('#result-back');
+  }
+  const fixture = [
+    { ...actualData.stores.find(s => hasCoordinates(s) && s.services.includes('charge')), id: 'far', lat: 25.04, lng: 121.57, services: ['charge'] },
+    { ...actualData.stores.find(s => hasCoordinates(s) && s.services.includes('charge')), id: 'near', lat: 25.0376, lng: 121.5637, services: ['charge'] },
+  ];
+  const fallback = runtime({ storage: { 'friendly-step-free-v1': '1' }, resources: { ...actualData, stores: fixture } }); await fallback.fix(0, { ...cityHall });
+  await fallback.click('[data-urgency="charge"]');
+  assert.equal(resultId(fallback), 'near'); assert.match(fallback.element('#result-body').innerHTML, /無障礙資料不足/); assert.match(fallback.element('#result-body').innerHTML, /無障礙 · 未標示/);
+  const off = runtime({ resources: { ...actualData, stores: fixture } }); await off.fix(0, { ...cityHall }); await off.click('[data-urgency="charge"]');
+  assert.doesNotMatch(off.element('#result-body').innerHTML, /無障礙資料不足/);
+});
+
+test('nested back: home → result → map → speak card unwinds one screen per back and leaves on the fourth', async () => {
+  const app = runtime(); await app.fix(0, { ...cityHall });
+  await app.click('[data-urgency="toilet"]'); const id = resultId(app);
+  await app.click('[data-action="map"]');
+  assert.equal(app.state.view, 'map'); assert.deepEqual([...app.state.filters], ['toilet']); assert.equal(app.state.selectedId, id);
+  assert.equal(app.element('#selected-card').hidden, false); assert.match(app.element('#selected-card').innerHTML, /data-action="navigate"/);
+  await app.element('#selected-card').querySelector('[data-action="speak"]').dispatch('click');
+  assert.equal(app.state.view, 'card'); assert.equal(app.element('#app').dataset.view, 'map', 'the card overlays the map without a relayout');
+  const open = app.speakCalls.filter(call => call.method === 'open').at(-1);
+  assert.equal(open.category, 'toilet'); assert.equal(open.lang, 'zh-TW'); assert.equal(open.includeUnreviewed, undefined);
+  app.history.back(); await settle();
+  assert.equal(app.state.view, 'map'); assert.equal(app.state.selectedId, id); assert.equal(app.speakCard.isOpen, false);
+  assert(app.speakCalls.some(call => call.method === 'close' && call.silent), 'system back closes the card silently');
+  app.history.back(); await settle(); assert.equal(app.state.view, 'result'); assert.equal(resultId(app), id);
+  app.history.back(); await settle(); assert.equal(app.state.view, 'home');
+  app.history.back(); await settle(); assert.equal(app.history.exited, true);
+});
+
+test('closing the speak card returns to its source: result card from results, selected map card from the map', async () => {
+  const app = runtime(); await app.fix(0, { ...cityHall });
+  await app.click('[data-urgency="wifi"]'); await app.click('[data-action="next"]'); const id = resultId(app);
+  await app.element('#result-body').querySelector('[data-action="speak"]').dispatch('click');
+  assert.equal(app.state.view, 'card'); assert.equal(app.element('#app').dataset.view, 'result'); assert.equal(app.speakCalls.at(-1).category, 'wifi');
+  app.speakCard.closeSpeakCard(); await settle();
+  assert.equal(app.state.view, 'result'); assert.equal(resultId(app), id, 'the same next-ranked record is still shown');
+  await app.click('[data-action="map"]'); await app.element('#selected-card').querySelector('[data-action="speak"]').dispatch('click');
+  app.speakCard.closeSpeakCard(); await settle();
+  assert.equal(app.state.view, 'map'); assert.equal(app.state.selectedId, id); assert.equal(app.element('#selected-card').hidden, false);
+  assert.equal(app.storageWrites.length, 0);
+});
+
+test('map card offers navigate, phone and speak; the speak category follows the urgency or the store services', async () => {
+  const app = runtime(); await app.fix(); await app.click('#home-map');
+  const phoned = actualData.stores.find(s => hasCoordinates(s) && s.services.includes('charge') && /^\+?\d{8,15}$/.test(s.normalizedPhone || ''));
+  app.r.__test.selectResource(phoned.id); const card = app.element('#selected-card').innerHTML;
+  for (const action of ['navigate', 'phone', 'speak']) assert.match(card, new RegExp(`data-action="${action}"`), action);
+  assert.equal(app.r.__test.speakCategory(phoned), phoned.services.find(s => ['toilet', 'charge', 'wifi'].includes(s)));
+  const none = actualData.stores.find(s => hasCoordinates(s) && !s.services.some(v => ['toilet', 'charge', 'wifi'].includes(v)));
+  app.r.__test.selectResource(none.id); assert.doesNotMatch(app.element('#selected-card').innerHTML, /data-action="speak"/);
+  const both = actualData.stores.find(s => hasCoordinates(s) && s.services[0] === 'wifi' && s.services.includes('toilet'));
+  if (both) { app.state.urgency = 'toilet'; assert.equal(app.r.__test.speakCategory(both), 'toilet'); app.state.urgency = null; assert.equal(app.r.__test.speakCategory(both), 'wifi'); }
+});
+
+test('guide draws the arrow and straight distance at once, adds walking only after the local route, and never recomputes on moves', async () => {
+  const app = runtime(); await app.fix(0, { ...cityHall });
+  await app.click('#home-map'); const destination = actualData.stores.filter(hasCoordinates)[5]; app.r.__test.setDestination(destination);
+  const destinationRequest = app.routeRequests.at(-1); const destinationGeneration = app.state.routeGeneration;
+  await app.click('#map-back'); await app.click('[data-urgency="toilet"]'); const id = resultId(app);
+  await app.click('[data-action="go"]');
+  assert.equal(app.state.view, 'guide'); assert.equal(app.state.selectedId, id);
+  assert.match(app.element('#guide-arrow').style.transform, /^rotate\(-?\d/); assert.equal(app.element('#guide-arrow').dataset.ready, 'true');
+  assert.match(app.element('#guidance-distance').textContent, /^直線 \d/); assert.equal(app.element('#guide-walk').hidden, true);
+  assert.match(app.element('#guide-timer-status').textContent, /步行路線計算中/); assert.equal(app.element('#guide-timer').innerHTML, '', 'no countdown controls before the walking route');
+  const guideRequest = app.routeRequests.at(-1); assert.notEqual(guideRequest, destinationRequest);
+  assert.equal(guideRequest.input.stores.length, 0); assert.equal(String(guideRequest.input.points[1].lat), String(actualData.stores.find(s => String(s.id) === id).lat));
+  assert.equal(app.state.routeGeneration, destinationGeneration, 'entering guide does not cancel the destination route');
+  guideRequest.resolve(routeResult()); await settle();
+  assert.equal(app.element('#guide-walk').hidden, false); assert.match(app.element('#guide-walk').textContent, /^步行 310 公尺 · 約 5 分鐘/);
+  assert.match(app.element('#guidance-distance').textContent, /^直線 /, 'straight and walking numbers are labelled separately');
+  assert.equal(app.element('#guide-timer-status').hidden, true);
+  const guideRequests = () => app.routeRequests.filter(request => request.input.stores.length === 0).length; const before = guideRequests();
+  await app.click('#gps-button'); await app.fix(1, { lat: cityHall.lat + .0002, lng: cityHall.lng });
+  assert.equal(app.state.guideRoute.distanceM, 310); assert.equal(guideRequests(), before, 'no new guide route on a position update');
+  await app.click('#exit-guidance'); assert.equal(app.state.view, 'result'); assert.equal(app.state.guideRoute, null); assert.equal(app.state.guideStatus, 'idle');
+});
+
+test('a guide route that arrives after leaving guide is discarded; routing failure keeps arrow and straight distance', async () => {
+  const app = runtime(); await app.fix(0, { ...cityHall });
+  await app.click('[data-urgency="toilet"]'); await app.click('[data-action="go"]'); const late = app.routeRequests.at(-1);
+  await app.click('#guidance-end'); assert.equal(app.state.view, 'result');
+  late.resolve(routeResult()); await settle(); assert.equal(app.state.guideRoute, null);
+  await app.click('[data-action="go"]'); app.routeRequests.at(-1).reject(new Error('本機步行路網逾時')); await settle();
+  assert.equal(app.state.guideStatus, 'error'); assert.match(app.element('#guidance-distance').textContent, /^直線 /); assert.equal(app.element('#guide-walk').hidden, true);
+  assert.match(app.element('#guide-timer-status').textContent, /需要步行路線才能倒數/); assert.equal(app.element('#guide-retry').hidden, false);
+  await app.click('#guide-retry'); assert.equal(app.state.guideStatus, 'loading');
+});
+
+test('preferences are local only: invalid stored language falls back to Chinese with a notice; storage failures are tolerated', async () => {
+  const app = runtime({ storage: { 'friendly-native-language-v1': 'vi' } }); await settle();
+  assert.equal(app.state.prefs.lang, 'zh-TW'); assert.match(app.state.prefsNotice, /已改用中文單面/);
+  await app.click('#home-settings'); assert.equal(app.element('#app-sheet').open, true);
+  assert.match(app.element('#sheet-body').innerHTML, /已改用中文單面/); assert.match(app.element('#sheet-body').innerHTML, /data-lang-choice="zh-TW"/); assert.doesNotMatch(app.element('#sheet-body').innerHTML, /data-lang-choice="vi"/);
+  await app.click('[data-step-free-choice="1"]'); await app.click('[data-lang-choice="zh-TW"]');
+  assert.deepEqual(app.storageWrites, [['friendly-step-free-v1', '1'], ['friendly-native-language-v1', 'zh-TW']]);
+  assert.equal(app.state.prefs.stepFree, true);
+  const broken = runtime({ storageThrows: true }); await broken.fix(0, { ...cityHall });
+  assert.equal(broken.state.prefs.lang, 'zh-TW'); await broken.click('#home-settings'); await broken.click('[data-step-free-choice="1"]');
+  assert.equal(broken.state.prefs.stepFree, true); await broken.click('#sheet-close'); await broken.click('[data-urgency="toilet"]');
+  assert.equal(resultId(broken), nearestIds('toilet', cityHall, s => s.services.includes('accessible'))[0]);
+});
+
+test('reloading with a saved history entry restores that screen instead of stacking home on top', async () => {
+  const app = runtime({ historyState: { view: 'result', urgency: 'wifi', index: 0, depth: 1 } }); await settle();
+  assert.equal(app.state.view, 'result'); assert.equal(app.history.calls.filter(([kind]) => kind === 'replace' || kind === 'push').length, 0);
+  assert.match(app.element('#result-body').innerHTML, /需要定位才能找最近/);
+  await app.fix(0, { ...cityHall }); assert.equal(resultId(app), nearestIds('wifi')[0]);
 });

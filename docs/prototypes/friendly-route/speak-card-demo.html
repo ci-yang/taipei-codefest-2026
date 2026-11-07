@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>開口卡 demo｜友善同行</title>
+  <link rel="stylesheet" href="./app-ui.css">
+  <link rel="stylesheet" href="./speak-card.css">
+  <style>
+    .sc-demo { max-width: 480px; margin: 0 auto; padding: 24px var(--space-page); display: grid; gap: 18px; }
+    .sc-demo h1 { font-size: 22px; color: var(--accent); }
+    .sc-demo p { color: var(--muted); font-size: var(--font-body); line-height: 1.6; }
+    .sc-demo fieldset { min-width: 0; margin: 0; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); }
+    .sc-demo legend { padding: 0 6px; font-size: var(--font-label); font-weight: 750; color: var(--muted); }
+    .sc-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sc-options label { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 12px; border-radius: 12px; background: var(--surface-raised); font-size: var(--font-body); font-weight: 650; }
+    .sc-check { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: var(--font-body); }
+    .sc-open { min-height: 56px; border-radius: var(--radius-pill); color: var(--color-white); background: var(--color-action); box-shadow: var(--shadow-action); font-size: 17px; font-weight: 800; }
+    .sc-log { font-size: var(--font-label); color: var(--muted); min-height: 1.5em; }
+  </style>
+</head>
+<body>
+<main class="sc-demo">
+  <h1>開口卡 demo</h1>
+  <p>選類別與母語後開啟。未經母語者校對的語言預設不列出，勾選下方選項才會出現，僅供內部預覽，不得上 demo。</p>
+  <fieldset>
+    <legend>類別</legend>
+    <div class="sc-options" id="sc-categories"></div>
+  </fieldset>
+  <fieldset>
+    <legend>我的母語</legend>
+    <div class="sc-options" id="sc-langs"></div>
+    <label class="sc-check"><input type="checkbox" id="sc-unreviewed"> 顯示未校對語言（內部預覽）</label>
+  </fieldset>
+  <button class="sc-open" id="sc-open" type="button">開啟開口卡</button>
+  <p class="sc-log" id="sc-log" aria-live="polite"></p>
+</main>
+<script src="./speak-card-strings.js"></script>
+<script src="./speak-card.js"></script>
+<script>
+(() => {
+  const strings = window.FRIENDLY_SPEAK_CARD_STRINGS;
+  const card = window.FriendlySpeakCard;
+  const $ = id => document.getElementById(id);
+  const radio = (name, value, text, checked) => {
+    const label = document.createElement('label');
+    const input = document.createElement('input');
+    Object.assign(input, { type: 'radio', name, value, checked });
+    label.append(input, document.createTextNode(text));
+    return label;
+  };
+  Object.entries(strings.categories).forEach(([code, entry], i) => $('sc-categories').append(radio('category', code, entry.label, i === 0)));
+  const renderLangs = () => {
+    const selected = document.querySelector('input[name="lang"]:checked')?.value;
+    const langs = card.getAvailableLangs({ includeUnreviewed: $('sc-unreviewed').checked });
+    const keep = langs.some(l => l.code === selected) ? selected : langs[0].code;
+    $('sc-langs').replaceChildren(...langs.map(l => radio('lang', l.code, l.reviewed ? l.label : `${l.label}（未校對）`, l.code === keep)));
+  };
+  $('sc-unreviewed').addEventListener('change', renderLangs);
+  renderLangs();
+  $('sc-open').addEventListener('click', () => {
+    const category = document.querySelector('input[name="category"]:checked').value;
+    const lang = document.querySelector('input[name="lang"]:checked').value;
+    card.openSpeakCard({ category, lang, includeUnreviewed: $('sc-unreviewed').checked, onClose: () => { $('sc-log').textContent = '已關閉開口卡'; } });
+    $('sc-log').textContent = '';
+  });
+})();
+</script>
+</body>
+</html>

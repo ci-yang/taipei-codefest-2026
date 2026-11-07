@@ -1,0 +1,51 @@
+/* 開口卡：沿用 app-ui.css 變數；變數缺席時有後備值，可單獨載入。 */
+html.speak-card-open, html.speak-card-open body { overflow: hidden; }
+.speak-card {
+  position: fixed; inset: 0; z-index: 2000;
+  display: flex; flex-direction: column;
+  min-width: 0; height: 100%; height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  color: var(--text, #0f172a); background: var(--bg, #f6f8fc);
+  font-family: var(--font-family, -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Noto Sans TC', sans-serif);
+  overflow-wrap: anywhere; word-break: normal; line-break: strict;
+  animation: speak-card-in 180ms var(--ease-out, ease-out);
+}
+.speak-card-faces { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 10px; padding: 12px 12px 0; }
+.speak-card-face {
+  display: flex; flex-direction: column; justify-content: center; gap: 14px;
+  min-width: 0; min-height: 0; padding: 20px 18px;
+  border-radius: var(--radius-card, 16px); overflow-y: auto;
+}
+.speak-card-staff { flex: 3 1 0; background: var(--surface, #fff); border: 1px solid var(--line, #e7ecf4); box-shadow: var(--shadow, none); }
+.speak-card-user { flex: 2 1 0; background: var(--accent-soft, #eeebff); }
+.speak-card[data-layout='single'] .speak-card-staff { flex: 1 1 0; }
+/* 390px 寬約每行 10 字；橫向時改左右並排，靠高度限制字級。 */
+.speak-card-staff .speak-card-ask {
+  font-size: clamp(26px, min(8.6vw, 6.2vh), 52px); font-weight: 800; line-height: 1.35; letter-spacing: .02em;
+  color: var(--text, #0f172a);
+}
+.speak-card-staff .speak-card-thanks { font-size: clamp(20px, min(6vw, 4.2vh), 36px); font-weight: 700; line-height: 1.4; color: var(--color-primary, #3525cd); }
+.speak-card-hint { font-size: var(--font-body, 14px); color: var(--muted, #64748b); font-weight: 600; }
+.speak-card-user .speak-card-ask { font-size: clamp(18px, min(5.2vw, 3.6vh), 28px); font-weight: 700; line-height: 1.45; }
+.speak-card-user .speak-card-thanks { font-size: clamp(15px, min(4.4vw, 3vh), 22px); font-weight: 600; line-height: 1.45; color: var(--color-primary, #3525cd); }
+.speak-card-lang { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: var(--font-label, 12px); font-weight: 750; letter-spacing: .5px; color: var(--accent, #3525cd); }
+.speak-card-unreviewed { padding: 2px 8px; border-radius: var(--radius-pill, 999px); color: var(--color-action-ink, #591a0a); background: var(--color-action-soft, #fff0eb); font-weight: 700; }
+.speak-card-footer { padding: 12px; }
+.speak-card-close {
+  display: flex; align-items: center; justify-content: center; width: 100%; min-height: 64px;
+  border: 0; border-radius: var(--radius-pill, 999px);
+  color: var(--color-white, #fff); background: var(--color-action, #ff5e3a); box-shadow: var(--shadow-action, none);
+  font: inherit; font-size: 20px; font-weight: 800; cursor: pointer;
+}
+.speak-card-close:focus-visible { outline: 3px solid var(--accent, #3525cd); outline-offset: 3px; }
+@media (orientation: landscape) and (max-height: 600px) {
+  .speak-card-faces { flex-direction: row; }
+  .speak-card-staff .speak-card-ask { font-size: clamp(22px, min(4.6vw, 8.4vh), 48px); }
+  .speak-card-staff .speak-card-thanks { font-size: clamp(16px, min(3.2vw, 5.6vh), 30px); }
+  .speak-card-user .speak-card-ask { font-size: clamp(15px, min(2.6vw, 5vh), 24px); }
+  .speak-card-user .speak-card-thanks { font-size: clamp(13px, min(2.2vw, 4.2vh), 20px); }
+  .speak-card-face { padding: 14px 16px; gap: 10px; }
+  .speak-card-close { min-height: 52px; }
+}
+@keyframes speak-card-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .speak-card { animation: none; } }
