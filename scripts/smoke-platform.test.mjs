@@ -57,6 +57,9 @@ function fixtureFetch({
   badRedirect = false,
   htmlAsset = false,
   missingFallback = false,
+  runtimeBytes = appBytes,
+  runtimeManifest = appManifest,
+  contentTypes = {},
 } = {}) {
   return async (input) => {
     const url = new URL(input);
@@ -104,7 +107,7 @@ function fixtureFetch({
         headers: { 'content-type': 'application/json' },
       });
     if (app) {
-      if (url.pathname === '/app-manifest.json') return json(appManifest);
+      if (url.pathname === '/app-manifest.json') return json(runtimeManifest);
       if (
         ['/map', '/map/', '/about', '/about/', '/analysis.html', '/spec.html'].includes(
           url.pathname,
@@ -115,9 +118,9 @@ function fixtureFetch({
           headers: { location: badRedirect ? 'https://wrong.example/' : '/' },
         });
       const path = url.pathname === '/' ? '/index.html' : url.pathname;
-      const bytes = appBytes.get(path);
+      const bytes = runtimeBytes.get(path);
       if (!bytes)
-        return new Response(missingFallback ? appBytes.get('/index.html') : 'Not found', {
+        return new Response(missingFallback ? runtimeBytes.get('/index.html') : 'Not found', {
           status: missingFallback ? 200 : 404,
         });
       const type = path.endsWith('.js')
@@ -127,7 +130,9 @@ function fixtureFetch({
           : path.endsWith('.html')
             ? 'text/html'
             : 'text/plain';
-      const headers = { 'content-type': htmlAsset && path === '/app.js' ? 'text/html' : type };
+      const headers = {
+        'content-type': htmlAsset && path === '/app.js' ? 'text/html' : contentTypes[path] || type,
+      };
       if (path === '/sw.js')
         Object.assign(headers, { 'cache-control': 'no-cache', 'service-worker-allowed': '/' });
       return new Response(
@@ -242,6 +247,84 @@ test('wrong App entry, corrupt asset, HTML asset and off-origin redirects cannot
       }),
       undefined,
       failure,
+    );
+  }
+});
+
+test('historical App smoke follows its own inventory and version while new builds stay strict', async () => {
+  for (const version of [5, 7]) {
+    const historicalVersion = `friendly-resource-v${version}-0123456789abcdef`;
+    const runtimeBytes = new Map(appBytes);
+    // In this historical fixture search was bundled into app.js, not a separate file.
+    runtimeBytes.set(
+      '/app.js',
+      Buffer.concat([appBytes.get('/search.js'), appBytes.get('/app.js')]),
+    );
+    runtimeBytes.delete('/search.js');
+    runtimeBytes.set(
+      '/index.html',
+      Buffer.from(
+        appBytes.get('/index.html').toString().replace('<script src="./search.js"></script>', ''),
+      ),
+    );
+    runtimeBytes.set('/release-notes.txt', Buffer.from('Historical release fixture.'));
+    runtimeBytes.set(
+      '/icons/resource.svg',
+      Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"></svg>'),
+    );
+    runtimeBytes.set('/map.data', Buffer.from('Historical binary fixture.'));
+    const contentTypes = {
+      '/icons/resource.svg': 'image/svg+xml',
+      '/map.data': 'application/octet-stream',
+    };
+    for (const path of ['/sw.js', '/offline.js'])
+      runtimeBytes.set(
+        path,
+        Buffer.from(
+          appBytes
+            .get(path)
+            .toString()
+            .replaceAll(offlineVersion, historicalVersion)
+            .replaceAll("'./search.js',", ''),
+        ),
+      );
+    const historicalManifest = {
+      ...appManifest,
+      offlineVersion: historicalVersion,
+      files: [...runtimeBytes].map(([path, bytes]) => ({
+        path,
+        bytes: bytes.length,
+        sha256: sha256(bytes),
+      })),
+    };
+    const options = {
+      url: 'https://example.test',
+      expectedSha: sha,
+      manifest,
+      appManifest: historicalManifest,
+      fetchOptions: {
+        fetchImpl: fixtureFetch({
+          app: true,
+          runtimeBytes,
+          runtimeManifest: historicalManifest,
+          contentTypes,
+        }),
+        retries: 0,
+      },
+    };
+    const result = await smokePlatform({ ...options, appManifestMode: 'historical' });
+    assert.equal(result.offlineVersion, historicalVersion);
+    await assert.rejects(smokePlatform(options));
+    contentTypes['/map.data'] = 'text/html';
+    await assert.rejects(
+      smokePlatform({ ...options, appManifestMode: 'historical' }),
+      /Unexpected HTML asset/,
+    );
+    contentTypes['/map.data'] = 'application/octet-stream';
+    runtimeBytes.set('/release-notes.txt', Buffer.from('corrupted historical file'));
+    await assert.rejects(
+      smokePlatform({ ...options, appManifestMode: 'historical' }),
+      /App asset (size|hash) differs/,
     );
   }
 });

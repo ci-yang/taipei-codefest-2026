@@ -174,6 +174,7 @@ export async function releasePlatform(action, options, dependencies = {}) {
           expectedSha: receipt.previous.sourceSha,
           manifest: receipt.previous.manifest,
           appManifest: receipt.previous.appManifest,
+          appManifestMode: 'historical',
           allowLegacy: !receipt.previous.appManifest,
         });
         await assertVersion(run, config, receipt.previous.versionId);

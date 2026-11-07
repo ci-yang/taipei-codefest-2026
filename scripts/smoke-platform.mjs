@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import { setTimeout as delay } from 'node:timers/promises';
 import { resolve } from 'node:path';
 import { ROOT, isMain, parseFlags, readJson, sha256, validateOrigin } from './platform-tools.mjs';
-import { assertLegacyHtml, smokeAppShell, validateAppManifest } from './app-shell-smoke.mjs';
+import {
+  assertLegacyHtml,
+  smokeAppShell,
+  validateAppManifest,
+  validateCurrentAppManifest,
+} from './app-shell-smoke.mjs';
 
 /** Timeout covers headers AND body. A retry is bounded and does not log response data. */
 export async function fetchResource(
@@ -74,13 +79,19 @@ export async function smokePlatform({
   manifest,
   stores,
   appManifest,
+  appManifestMode = 'current',
   allowLegacy = false,
   fetchOptions = {},
 }) {
   const origin = validateOrigin(url, true);
   assert.ok(expectedSha, 'An expected source SHA is required; stale deployments cannot pass.');
   assert.ok(manifest.storeCount > 0, 'Smoke baseline must contain real stores.');
-  if (!allowLegacy || appManifest) validateAppManifest(appManifest, expectedSha);
+  assert.ok(['current', 'historical'].includes(appManifestMode), 'Unknown App manifest mode.');
+  if (!allowLegacy || appManifest)
+    (appManifestMode === 'historical' ? validateAppManifest : validateCurrentAppManifest)(
+      appManifest,
+      expectedSha,
+    );
   const get = (path, status) => fetchJson(origin + path, fetchOptions, status);
   const health = await get('/healthz');
   assert.deepEqual(health, {

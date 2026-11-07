@@ -3,7 +3,12 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ROOT, WRANGLER, currentVersion, readJson, validateOrigin } from './platform-tools.mjs';
 import { fetchJson, fetchResource } from './smoke-platform.mjs';
-import { assertAppHtml, assertLegacyHtml, validateAppManifest } from './app-shell-smoke.mjs';
+import {
+  assertAppHtml,
+  assertLegacyHtml,
+  validateAppManifest,
+  validateCurrentAppManifest,
+} from './app-shell-smoke.mjs';
 
 export async function loadReleaseConfig(path = resolve(ROOT, 'wrangler.jsonc')) {
   const config = await readJson(path);
@@ -62,7 +67,7 @@ export async function loadReleaseApp(sourceSha, dependencies = {}) {
   const manifest = Object.hasOwn(dependencies, 'appManifest')
     ? dependencies.appManifest
     : await readJson(resolve(ROOT, 'dist/app/app-manifest.json'));
-  return validateAppManifest(manifest, sourceSha);
+  return validateCurrentAppManifest(manifest, sourceSha);
 }
 
 export async function readVersion(run, config, allowMissing = false) {
@@ -130,6 +135,8 @@ export async function capturePrevious(url, versionId, fetchOptions = {}) {
 }
 
 export async function assertRollbackData(run, config, previous) {
+  if (previous.appManifest !== undefined && previous.appManifest !== null)
+    validateAppManifest(previous.appManifest, previous.sourceSha);
   const version = previous.manifest.version;
   if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/.test(version))
     throw new Error('Invalid rollback data version.');
@@ -206,6 +213,7 @@ export async function rollbackRelease({ run, config, receipt, deployed, smoke, s
     expectedSha: deployed.previous.sourceSha,
     manifest: deployed.previous.manifest,
     appManifest: deployed.previous.appManifest,
+    appManifestMode: 'historical',
     allowLegacy: !deployed.previous.appManifest,
   });
   await assertVersion(run, config, deployed.previous.versionId);

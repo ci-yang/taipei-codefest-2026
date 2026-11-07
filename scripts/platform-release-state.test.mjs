@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { ROOT } from './platform-tools.mjs';
-import { capturePrevious, loadReleaseConfig } from './platform-release-state.mjs';
+import { capturePrevious, loadReleaseApp, loadReleaseConfig } from './platform-release-state.mjs';
 import { APP_FILES } from './app-shell-smoke.mjs';
 
 test('release config pins the exact production origin to its Worker name', async () => {
@@ -56,7 +56,12 @@ const appHtml =
   '<main id="app" class="friendly-app"><div id="category-filters"></div><button id="search-trigger"></button></main>' +
   `<meta name="app-build-sha" content="${sourceSha}">`;
 const legacyHtml = '<div id="app"></div><script src="/assets/legacy.js"></script>';
-function previousFetch({ app = false, missing = false, broken = false } = {}) {
+function previousFetch({
+  app = false,
+  missing = false,
+  broken = false,
+  runtimeManifest = appManifest,
+} = {}) {
   return async (input) => {
     const path = new URL(input).pathname;
     const json = (value) =>
@@ -66,7 +71,7 @@ function previousFetch({ app = false, missing = false, broken = false } = {}) {
       return json({ ok: true, data: 'ready', version: sourceSha, dataVersion: 'fixture-v1' });
     if (path === '/api/v1/sources') return json({ version: 'fixture-v1' });
     if (path === '/app-manifest.json' && app && !missing)
-      return json(broken ? { ...appManifest, sourceSha: 'c'.repeat(40) } : appManifest);
+      return json(broken ? { ...runtimeManifest, sourceSha: 'c'.repeat(40) } : runtimeManifest);
     return new Response(app ? appHtml : legacyHtml, { headers: { 'content-type': 'text/html' } });
   };
 }
@@ -92,6 +97,70 @@ test('broken or missing App manifests cannot masquerade as legacy rollback targe
     await assert.rejects(
       capturePrevious('https://example.test', 'version-id', {
         fetchImpl: previousFetch(options),
+        retries: 0,
+      }),
+    );
+});
+
+test('historical capture accepts changed safe inventories and cache versions but current builds reject them', async () => {
+  for (const version of [5, 7]) {
+    const runtimeManifest = {
+      ...appManifest,
+      offlineVersion: `friendly-resource-v${version}-0123456789abcdef`,
+      files: [
+        ...appManifest.files.filter((file) => file.path !== '/search.js'),
+        { path: '/release-notes.txt', sha256: 'c'.repeat(64), bytes: 3 },
+      ],
+    };
+    const result = await capturePrevious('https://example.test', 'version-id', {
+      fetchImpl: previousFetch({ app: true, runtimeManifest }),
+      retries: 0,
+    });
+    assert.deepEqual(result.appManifest, runtimeManifest);
+    await assert.rejects(loadReleaseApp(sourceSha, { appManifest: runtimeManifest }));
+  }
+  await assert.rejects(
+    loadReleaseApp(sourceSha, {
+      appManifest: {
+        ...appManifest,
+        files: appManifest.files.filter((file) => file.path !== '/search.js'),
+      },
+    }),
+    /current runtime/,
+  );
+});
+
+test('historical capture rejects unsafe paths, duplicate entries, missing core files and malformed metadata', async () => {
+  const extra = { path: '/extra.txt', sha256: 'c'.repeat(64), bytes: 1 };
+  const unsafePaths = [
+    'https://elsewhere.example/app.js',
+    '//elsewhere.example/app.js',
+    '/a/../app.js',
+    '/a/./app.js',
+    '/a//app.js',
+    '/%2e%2e/app.js',
+    '/a\\app.js',
+    '/app.js?redirect=1',
+    '/app.js#fragment',
+    '/app.js\n',
+    '/app-manifest.json',
+  ];
+  const invalid = [
+    ...unsafePaths.map((path) => ({
+      ...appManifest,
+      files: [...appManifest.files, { ...extra, path }],
+    })),
+    { ...appManifest, files: [...appManifest.files, appManifest.files[0]] },
+    { ...appManifest, files: appManifest.files.filter((file) => file.path !== '/index.html') },
+    { ...appManifest, files: [...appManifest.files, { ...extra, sha256: 'invalid' }] },
+    { ...appManifest, files: [...appManifest.files, { ...extra, bytes: -1 }] },
+    { ...appManifest, schemaVersion: 2 },
+    { ...appManifest, offlineVersion: "friendly-resource-v7-invalid'" },
+  ];
+  for (const runtimeManifest of invalid)
+    await assert.rejects(
+      capturePrevious('https://example.test', 'version-id', {
+        fetchImpl: previousFetch({ app: true, runtimeManifest }),
         retries: 0,
       }),
     );

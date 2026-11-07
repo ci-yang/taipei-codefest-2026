@@ -354,13 +354,17 @@ test('receipt for a different origin cannot trigger rollback or a remote lookup'
   assert.equal(state.receipts.length, 0);
 });
 
-test('new deployments reject missing or stale App manifests before D1 writes', async (context) => {
-  for (const value of [null, { ...appManifest, sourceSha: 'b'.repeat(40) }]) {
+test('new deployments reject missing, stale or incomplete App manifests before D1 writes', async (context) => {
+  for (const value of [
+    null,
+    { ...appManifest, sourceSha: 'b'.repeat(40) },
+    { ...appManifest, files: appManifest.files.filter((file) => file.path !== '/search.js') },
+  ]) {
     const { state, dependencies } = await setup(context);
     dependencies.appManifest = value;
     await assert.rejects(
       releasePlatform('deploy', { url: config.origin }, dependencies),
-      /App manifest/,
+      /App (manifest|artifact)/,
     );
     assert.equal(
       state.calls.some((call) => ['d1', 'deploy'].includes(call.args[0])),
@@ -370,16 +374,23 @@ test('new deployments reject missing or stale App manifests before D1 writes', a
 });
 
 test('failed App release rollback verifies the captured previous App manifest', async (context) => {
-  const oldApp = { ...appManifest, sourceSha: 'b'.repeat(40) };
+  const oldApp = {
+    ...appManifest,
+    sourceSha: 'b'.repeat(40),
+    offlineVersion: 'friendly-resource-v5-0123456789abcdef',
+    files: appManifest.files.filter((file) => file.path !== '/search.js'),
+  };
   const { state, dependencies } = await setup(context, {
     smoke: (state, args) => {
       if (state.smokeCalls === 1) {
         assert.deepEqual(args.appManifest, appManifest);
         assert.notEqual(args.allowLegacy, true);
+        assert.notEqual(args.appManifestMode, 'historical');
         throw new Error('Bad new App asset');
       }
       assert.deepEqual(args.appManifest, oldApp);
       assert.equal(args.allowLegacy, false);
+      assert.equal(args.appManifestMode, 'historical');
       assert.equal(args.expectedSha, oldApp.sourceSha);
       return { passed: true };
     },
@@ -398,11 +409,17 @@ test('failed App release rollback verifies the captured previous App manifest', 
 });
 
 test('manual App rollback forwards its manifest without enabling legacy smoke', async (context) => {
-  const oldApp = { ...appManifest, sourceSha: 'b'.repeat(40) };
+  const oldApp = {
+    ...appManifest,
+    sourceSha: 'b'.repeat(40),
+    offlineVersion: 'friendly-resource-v7-0123456789abcdef',
+    files: [...appManifest.files, { path: '/release-notes.txt', sha256: 'd'.repeat(64), bytes: 1 }],
+  };
   const { state, dependencies } = await setup(context, {
     smoke: (_, args) => {
       assert.deepEqual(args.appManifest, oldApp);
       assert.equal(args.allowLegacy, false);
+      assert.equal(args.appManifestMode, 'historical');
       return { passed: true };
     },
   });
@@ -417,4 +434,30 @@ test('manual App rollback forwards its manifest without enabling legacy smoke', 
   };
   await releasePlatform('rollback', { receipt: 'ignored.json' }, dependencies);
   assert.equal(state.version, prior);
+});
+
+test('unsafe historical App receipts are rejected before rollback mutation', async (context) => {
+  const { state, dependencies } = await setup(context);
+  state.version = next;
+  const unsafeManifest = {
+    ...appManifest,
+    files: [...appManifest.files, { path: '/../external.js', sha256: 'c'.repeat(64), bytes: 1 }],
+  };
+  dependencies.receipt = {
+    action: 'deploy',
+    accountId: config.accountId,
+    workerName: config.name,
+    url: config.origin,
+    deployedVersion: next,
+    previous: { versionId: prior, sourceSha, manifest, appManifest: unsafeManifest },
+  };
+  await assert.rejects(
+    releasePlatform('rollback', { receipt: 'ignored.json' }, dependencies),
+    /Unsafe App asset path/,
+  );
+  assert.equal(
+    state.calls.some((call) => call.args[0] === 'rollback'),
+    false,
+  );
+  assert.equal(state.version, next);
 });

@@ -25,7 +25,9 @@ export const APP_FILES = [
   '/friendly/manifest.json',
 ];
 const configurationFiles = new Set(['/_headers', '/_redirects']);
+const requiredAppFiles = ['/index.html', '/app.js', '/offline.js', '/sw.js'];
 
+// Schema 1 is a historical receipt contract, independent of today's build inventory.
 export function validateAppManifest(value, expectedSha) {
   assert.ok(
     value && value.schemaVersion === 1 && value.app === 'friendly-resource',
@@ -33,20 +35,41 @@ export function validateAppManifest(value, expectedSha) {
   );
   assert.match(value.sourceSha || '', /^[a-f0-9]{40}$/);
   assert.equal(value.sourceSha, expectedSha, 'App manifest source SHA differs.');
-  assert.match(value.offlineVersion || '', /^friendly-resource-v6-[a-f0-9]{16}$/);
+  assert.match(value.offlineVersion || '', /^friendly-resource-v[1-9][0-9]*-[a-f0-9]{16}$/);
   assert.ok(Array.isArray(value.files), 'App manifest files are required.');
-  assert.deepEqual(
-    value.files.map((file) => file.path).sort(),
-    [...APP_FILES].sort(),
-    'App artifact must contain only its runtime and compatibility assets.',
-  );
+  const paths = new Set();
   for (const file of value.files) {
+    assert.ok(file && typeof file.path === 'string', 'App asset path is required.');
+    assert.ok(
+      /^\/[a-zA-Z0-9._/-]+$/.test(file.path) &&
+        file.path
+          .slice(1)
+          .split('/')
+          .every((segment) => segment && !['.', '..'].includes(segment)) &&
+        file.path !== '/app-manifest.json',
+      `Unsafe App asset path: ${file.path}`,
+    );
+    assert.ok(!paths.has(file.path), `Duplicate App asset path: ${file.path}`);
+    paths.add(file.path);
     assert.match(file.sha256 || '', /^[a-f0-9]{64}$/);
     assert.ok(
       Number.isSafeInteger(file.bytes) && file.bytes > 0,
       `Invalid asset size: ${file.path}`,
     );
   }
+  for (const path of requiredAppFiles)
+    assert.ok(paths.has(path), `Required App entry is missing: ${path}`);
+  return value;
+}
+
+export function validateCurrentAppManifest(value, expectedSha) {
+  validateAppManifest(value, expectedSha);
+  assert.match(value.offlineVersion, /^friendly-resource-v6-[a-f0-9]{16}$/);
+  assert.deepEqual(
+    value.files.map((file) => file.path).sort(),
+    [...APP_FILES].sort(),
+    'App artifact must contain only its current runtime and compatibility assets.',
+  );
   return value;
 }
 
@@ -75,17 +98,39 @@ export function assertLegacyHtml(html) {
   );
 }
 
+const assetContentTypes = new Map([
+  ['js', /javascript/],
+  ['mjs', /javascript/],
+  ['css', /text\/css/],
+  ['html', /text\/html/],
+  ['json', /application\/(?:geo\+)?json/],
+  ['geojson', /application\/(?:geo\+)?json/],
+  ['txt', /text\/plain/],
+  ['svg', /image\/svg\+xml/],
+  ['png', /image\/png/],
+  ['jpg', /image\/jpeg/],
+  ['jpeg', /image\/jpeg/],
+  ['gif', /image\/gif/],
+  ['webp', /image\/webp/],
+  ['avif', /image\/avif/],
+  ['ico', /image\/(?:x-icon|vnd\.microsoft\.icon)/],
+  ['woff', /(?:font\/woff|application\/font-woff)/],
+  ['woff2', /font\/woff2/],
+  ['wasm', /application\/wasm/],
+]);
+
 function assertContentType(path, value) {
-  const expected = path.endsWith('.js')
-    ? /javascript/
-    : path.endsWith('.css')
-      ? /text\/css/
-      : path.endsWith('.html')
-        ? /text\/html/
-        : path.endsWith('.json') || path.endsWith('.geojson')
-          ? /application\/(?:geo\+)?json/
-          : /text\/plain/;
-  assert.match(value || '', expected, `Wrong content type: ${path}`);
+  const expected = assetContentTypes.get(path.split('.').at(-1).toLowerCase());
+  if (expected) assert.match(value || '', expected, `Wrong content type: ${path}`);
+  else {
+    // A schema 1 historical manifest may contain asset types introduced after this verifier.
+    assert.ok(value, `Missing content type: ${path}`);
+    assert.doesNotMatch(
+      value,
+      /(?:text\/html|application\/xhtml\+xml)/i,
+      `Unexpected HTML asset: ${path}`,
+    );
+  }
 }
 
 export async function smokeAppShell({

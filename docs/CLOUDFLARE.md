@@ -17,7 +17,7 @@ pnpm install --frozen-lockfile
 pnpm test:platform
 ```
 
-整合測試自己建立暫存 D1、套 migration、匯入兩次、啟動本機 Worker，再檢查 SPA／API／資料 hash；結束清理它自己的程序及暫存目錄。它不需要 Cloudflare token，不觸碰正式 D1 或既有 PostGIS。
+整合測試自己建立暫存 D1、套 migration、匯入兩次、啟動本機 Worker，再檢查 App 根頁／redirect／404／API／資料 hash；結束清理它自己的程序及暫存目錄。它不需要 Cloudflare token，不觸碰正式 D1 或既有 PostGIS。
 
 互動開發使用本地持久 D1：
 
@@ -45,7 +45,7 @@ pnpm platform:dev
 
 店家型別為 `{id,name,address,phone,lat,lng,services,url}`。服務空白只表示未標示，實際可用時間、免費或免消費不能由名冊推定。無效查詢 400、未知 API 404、資料不可讀 503，皆為 JSON；不回 SPA 或假店家。
 
-契約單一來源為 `packages/shared/src/friendly.ts`、`platform.ts`。目前前端讀取整份地方名冊，在裝置依服務／路線計算；不自動把 GPS 送至 nearby API。應用 log 只記 pathname，不記 query。
+契約單一來源為 `packages/shared/src/friendly.ts`、`platform.ts`。保留的 Vue 前端讀取地方名冊，在裝置依服務／路線計算；目前發布的純 JS App 使用自己的全市資源快照，兩者都不自動把 GPS 送至 nearby API。應用 log 只記 pathname，不記 query。
 
 ## 資料與地圖
 
@@ -61,7 +61,7 @@ D1 使用單列 immutable snapshot，version 為主鍵。名冊、manifest 與�
 
 ## 部署與回退
 
-帳號、Worker、D1 ID 與相容日期在 `wrangler.jsonc`，都不是 secret。首次資源已由 Ci 授權建立；其他成員不需另建資料庫。登入用 `pnpm exec wrangler login`；自動化 token 只放環境或 GitHub Actions secrets。
+帳號、Worker、D1 ID 與相容日期在 `wrangler.jsonc`，都不是 secret。目前工具以嚴格 JSON 讀取此檔，請維持無註解、無 trailing comma。首次資源已由 Ci 授權建立；其他成員不需另建資料庫。登入用 `pnpm exec wrangler login`；自動化 token 只放環境或 GitHub Actions secrets。
 
 發布前先完成 `pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm test:prototype`、`pnpm test:tooling`、`pnpm build`、`pnpm test:platform`，再提交明確 commit。
 
@@ -74,6 +74,8 @@ pnpm platform:deploy --url https://taipei-friendly-platform.jason21131.workers.d
 ```bash
 pnpm platform:rollback --receipt .artifacts/releases/<部署收據>.json
 ```
+
+手動執行 `pnpm platform:smoke --url <入口> --sha <commit>` 前，應在該 commit 的乾淨 worktree 先執行 `pnpm platform:build`，讓本機 manifest 與要驗證的版本一致；不能拿新 build 去驗舊版。此命令只驗現行 App；歷史版本回退交給收據流程，不用遠端 manifest 自驗成功。
 
 回退使用收據的前版 Worker；先確認其資料快照仍可讀，再回退與 smoke。**D1 不隨 Worker 回退**，舊快照及 schema 必須保留。首次部署沒有前版可回退，驗證失敗就不交付新入口，GCP 保持可用。不要自行刪除仍有 owner 的 lock。
 
