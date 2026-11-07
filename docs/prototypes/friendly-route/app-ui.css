@@ -107,7 +107,7 @@
   --color-focus: var(--tp-primary-400);
   /* 深底上類別色各亮一階；primary-600 與 grayscale-500 上白字只有 3.8 與 3.7，-on 一律用深字。 */
   --cat-toilet: var(--tp-primary-400); --cat-toilet-on: var(--tp-primary-950); --cat-toilet-text: var(--tp-primary-300); --cat-toilet-soft: var(--tp-primary-800);
-  --cat-charge: var(--tp-secondary-400); --cat-charge-on: var(--tp-primary-950); --cat-charge-text: var(--tp-secondary-300); --cat-charge-soft: var(--tp-secondary-900);
+  --cat-charge: var(--tp-secondary-400); --cat-charge-on: var(--tp-secondary-950); --cat-charge-text: var(--tp-secondary-300); --cat-charge-soft: var(--tp-secondary-900);
   --cat-wifi: var(--tp-primary-600); --cat-wifi-on: var(--tp-primary-950); --cat-wifi-text: var(--tp-primary-300); --cat-wifi-soft: var(--tp-primary-800);
   --cat-accessible: var(--tp-grayscale-500); --cat-accessible-on: var(--tp-primary-950); --cat-accessible-text: var(--tp-grayscale-300); --cat-accessible-soft: var(--tp-grayscale-800);
   --plate-hi: var(--tp-primary-900); --plate-lo: var(--tp-primary-950); --plate-edge: var(--tp-primary-800); --plate-shine: color-mix(in srgb, #fff 6%, transparent);

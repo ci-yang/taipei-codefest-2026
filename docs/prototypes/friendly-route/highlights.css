@@ -43,7 +43,7 @@ body.hl-active #panel-content > :not(#highlight-host):not(.explore-footer) { dis
 .hl-metrics { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); margin: 18px 0 14px; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .hl-metrics > div { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
 .hl-metrics > div + div { border-left: 1px solid var(--line); }
-.hl-metrics strong { color: var(--hl-color); font-size: clamp(24px, 7vw, 31px); font-weight: 600; line-height: 1.3; letter-spacing: -.6px; font-variant-numeric: tabular-nums; }
+.hl-metrics strong { color: var(--hl-color); font-size: 24px; font-weight: 600; line-height: 1.3; letter-spacing: -.6px; font-variant-numeric: tabular-nums; }
 .hl-metrics strong small { margin-left: 2px; font-size: 14px; }
 .hl-metrics span { color: var(--muted); font-size: 12px; }
 .hl-legend { display: flex; flex-wrap: wrap; gap: 5px 15px; font-size: 12px; }

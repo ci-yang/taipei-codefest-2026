@@ -33,10 +33,14 @@
   const geoLayers = [];
   function isInBasemap(point) { const b = basemap.bounds; return valid(point) && point.lat >= b[0][0] && point.lat <= b[1][0] && point.lng >= b[0][1] && point.lng <= b[1][1]; }
   // 地圖畫在 canvas 上吃不到 CSS 變數，每次取用時讀 app-ui.css 的 token；換主題後下一次呼叫就是新色。
-  const PALETTE_TOKENS = { bg: '--color-map', building: '--color-building', road: '--color-road', park: '--map-park', line: '--map-line', accent: '--color-primary', route: '--map-route', connector: '--map-connector', muted: '--color-muted', surface: '--color-surface', toilet: '--cat-toilet', charge: '--cat-charge', wifi: '--cat-wifi', accessible: '--cat-accessible' };
+  const PALETTE_TOKENS = { bg: '--color-map', building: '--color-building', road: '--color-road', park: '--map-park', line: '--map-line', accent: '--color-primary', route: '--map-route', connector: '--map-connector', muted: '--color-muted', surface: '--color-surface', toilet: '--cat-toilet', charge: '--cat-charge', wifi: '--cat-wifi', accessible: '--cat-accessible', toiletText: '--cat-toilet-text', chargeText: '--cat-charge-text', wifiText: '--cat-wifi-text', accessibleText: '--cat-accessible-text' };
+  // CSS 變數讀不到時 Leaflet 會吃到空字串而不畫，退回 grayscale-500。
+  const PALETTE_FALLBACK = '#738995';
   function palette() {
     const style = window.getComputedStyle?.(document.documentElement);
-    return Object.fromEntries(Object.entries(PALETTE_TOKENS).map(([key, token]) => [key, style?.getPropertyValue(token).trim() || '']));
+    const read = token => style?.getPropertyValue(token).trim() || '';
+    const muted = read(PALETTE_TOKENS.muted) || PALETTE_FALLBACK;
+    return Object.fromEntries(Object.entries(PALETTE_TOKENS).map(([key, token]) => [key, read(token) || muted]));
   }
   function drawBasemap() {
     geoLayers.forEach(layer => map.removeLayer(layer)); geoLayers.length = 0;
@@ -207,10 +211,11 @@
     const colors = palette();
     for (const store of stores) {
       if (!valid(store)) continue;
-      const match = matches(store) && matchesRoute(store); const color = match ? colors[hitCategory(store)] : colors.muted;
+      const match = matches(store) && matchesRoute(store); const key = hitCategory(store);
+      const fill = match ? colors[key] || colors.muted : colors.muted; const stroke = match ? colors[`${key}Text`] || fill : fill;
       let marker = markers.get(store.id);
       if (!marker) { marker = L.circleMarker([store.lat, store.lng], { renderer: canvas }).on('click', () => openResource(store.id)).addTo(resourceLayer); markers.set(store.id, marker); }
-      marker.setStyle({ radius: match ? 7 : 4, color, weight: match ? 2 : 1, opacity: match ? .9 : .2, fillColor: color, fillOpacity: match ? .72 : .15 });
+      marker.setStyle({ radius: match ? 7 : 4, color: stroke, weight: match ? 2 : 1, opacity: match ? .9 : .2, fillColor: fill, fillOpacity: match ? .72 : .15 });
     }
     iconLayer.clearLayers();
     if (map.getZoom() >= 14.5) {
