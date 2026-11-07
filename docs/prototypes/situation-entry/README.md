@@ -91,3 +91,11 @@ TownPass 分支 `feat/situation-entry` 有獨立服務「我遇到了」，網�
 | `main-checklist.png` | 急難救助「要準備的東西」勾了 3 項（勾選後只變色、不加刪除線） |
 
 三個設計方向的比較截圖在 `variants/` 子資料夾，保留不動。
+
+2026-11-08 改用城市通色票後重拍的是：首頁（白天／晚上）、`main-sos-bar`、搜尋「被騙」（白天／晚上）、搜不到（白天／晚上）、食援選區、走失（白天／晚上）、勾選清單。表裡其他截圖還是舊配色，版面一樣。
+
+## 色票與字級
+
+- 顏色全部來自 TownPass `lib/util/tp_colors.dart`（TPColors），在 `styles.css` 開頭照抄成 `--tp-primary-500` 這類變數；其他規則只引用變數。`tests/situation-tokens.test.mjs` 讀 Dart 檔比對（找不到 TownPass checkout 時跳過這一條，可用 `TP_COLORS_DART` 指定路徑），並擋下色票外的色值、規範外的字級與字重，以及白天／晚上的 AA 對比。
+- 字級只用 TPTextStyles：36／24／18／16／14／12，字重 400／600。主要閱讀字用 h3 16 而不是 body 14（390px 上給長輩讀，14 太小），次要說明 14，註解 12。大號電話 36、緊急列號碼 24、「接通後照著說」24。
+- 字體：`"Roboto", "PingFang TC", …`，Roboto 從 Google Fonts 載入（Apache-2.0），中文用系統的蘋方。
