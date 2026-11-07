@@ -83,6 +83,7 @@ pnpm install
 | [公眾免費 Wi-Fi](https://data.taipei/dataset/detail?id=6aa6532d-652f-4c1b-814a-4646b75407af) | 臺北市政府 | 3,305 | 否 |
 | [捷運無障礙設施](https://data.taipei/dataset/detail?id=3c799405-4e44-40dd-b747-daed09e88cdb) | 臺北捷運公司 | 119 | 否 |
 | [捷運車站資料](https://data.taipei/dataset/detail?id=1eefa68d-7c8d-491b-8e75-66a161947426) | 臺北市政府 | 座標對應來源 | 否 |
+| [不動產買賣實價登錄批次資料](https://data.gov.tw/dataset/25119) | 內政部 | 亮點原型：476筆原始交易篩成44筆住宅、12區最高樣本（[重建與範圍](docs/prototypes/taipei-price-sample.md)） | 交易非模擬；房貸條件為示範 |
 | [OpenStreetMap](https://www.openstreetmap.org/copyright) | OpenStreetMap contributors | 地方底圖與臺北市本機步行路網（[重建方式](docs/prototypes/taipei-routing.md)） | 否；現場通行未驗 |
 
 成員於 `21bc1f3` 完成三類官方資源全市匯入、來源註記與 Wi-Fi 同址彙整（3,305 AP → 2,036 組）。原始 commit 與 `docs/prototypes/build-friendly-data.py` 保留作歷史建置紀錄；其品牌服務推定不列入現行 App 的正式四類篩選。`data.js` 在 App 僅提供地方底圖。平台固定快照另見 [manifest](data/friendly/manifest.json)。

@@ -8,6 +8,7 @@
   <title>友善同行 · 身邊的城市資源</title>
   <link rel="stylesheet" href="./vendor/leaflet.css">
   <link rel="stylesheet" href="./app-ui.css">
+  <link rel="stylesheet" href="./highlights.css">
 </head>
 <body>
 <main id="app" class="friendly-app" data-view="welcome" aria-label="友善同行資源地圖">
@@ -53,6 +54,7 @@
           <div><strong id="welcome-cache" aria-live="polite">準備中</strong><p>隨身帶著友善</p></div>
         </article>
       </div>
+      <section id="highlight-launch" class="highlight-launch" aria-label="城市生存雷達"></section>
       <button id="enter-app" class="welcome-start" type="button"><span><strong>出發</strong><small>找尋身邊友善資源</small></span><span class="welcome-start-arrow" data-icon="chevron"></span></button>
     </div>
   </section>
@@ -89,8 +91,9 @@
     </div>
 
     <section id="bottom-panel" class="map-panel" aria-label="附近資源">
-      <div class="panel-toolbar"><span id="panel-summary">附近資源</span><button id="panel-toggle" class="text-button" type="button" aria-expanded="true" aria-controls="panel-content"><span id="panel-toggle-label">收合面板</span><span data-icon="chevron"></span></button></div>
+      <div class="panel-toolbar"><span id="panel-summary">附近資源</span><button id="highlight-map-launch" class="text-button" type="button">城市雷達</button><button id="panel-toggle" class="text-button" type="button" aria-expanded="true" aria-controls="panel-content"><span id="panel-toggle-label">收合面板</span><span data-icon="chevron"></span></button></div>
       <div id="panel-content">
+      <section id="highlight-host" aria-label="城市生存雷達"></section>
       <section id="destination-route" class="destination-route" aria-label="目的地步行路線" hidden>
         <div class="destination-route-heading"><span data-icon="route"></span><strong>目的地步行路線</strong><button id="route-retry" class="text-button" type="button" hidden>重新計算</button></div>
         <p id="destination-route-message" class="destination-route-message" role="status"></p>
@@ -140,6 +143,9 @@
 <script src="./bridge.js"></script>
 <script src="./offline.js"></script>
 <script src="./route-client.js"></script>
+<script src="./highlight-math.js"></script>
+<script src="./price-data.js"></script>
+<script src="./highlights.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>

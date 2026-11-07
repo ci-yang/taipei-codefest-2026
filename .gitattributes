@@ -1,0 +1,2 @@
+# Preserve the official CSV snapshot bytes, including its original CRLF line endings.
+docs/prototypes/data/taipei-price-20261107/a_lvr_land_a.csv -text whitespace=cr-at-eol

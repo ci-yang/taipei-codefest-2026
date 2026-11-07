@@ -17,7 +17,7 @@
   const byId = new Map(stores.map(s => [s.id, s]));
   const center = { lat: 25.0375, lng: 121.5637 };
   const state = { view: 'welcome', mode: 'free', transport: 'walk', detailId: null, position: null, gpsPending: false, gpsMessage: '', gpsGeneration: 0, filters: new Set(), selectedId: null, destination: null, route: null, routeIds: new Set(), routeStatus: 'idle', routeMessage: '', routeGeneration: 0, mapExpanded: false, panelCollapsed: false, online: navigator.onLine, searchGeneration: 0, searchController: null, searchQuery: '', searchResults: [], theme: 'light', heading: null, orientationEnabled: false, orientationMessage: '未使用方位感測，以正北為基準', activeSheet: null, cache: null, externalGeneration: 0 };
-  let toastTimer; let beforeSheet; let searchClient; let routeClient; let renderedRoute; let selectedLine; let selectedLineKey; let selectedMarker; let gpsMarker; let referenceMarker; let tileLayer; let viewportFrame;
+  let highlights; let toastTimer; let beforeSheet; let searchClient; let routeClient; let renderedRoute; let selectedLine; let selectedLineKey; let selectedMarker; let gpsMarker; let referenceMarker; let tileLayer; let viewportFrame;
   const map = L.map('map', { zoomControl: false, attributionControl: false, preferCanvas: true }).setView([center.lat, center.lng], 17);
   const attribution = L.control.attribution({ position: 'bottomright', prefix: false }).addTo(map);
   attribution.addAttribution('© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> (ODbL)');
@@ -179,10 +179,10 @@
     $('#panel-toggle-label').textContent = state.panelCollapsed ? '展開面板' : '收合面板';
   }
   function refreshMapLayout() {
-    renderMapLayout();
+    renderMapLayout(); syncHighlights();
     requestAnimationFrame(() => { map.invalidateSize({ animate: false }); if (state.route) fitDestinationRoute(); });
   }
-  function openResource(id) { if (!byId.has(String(id))) return; selectResource(id); showDetails(byId.get(state.selectedId)); }
+  function openResource(id) { if (!byId.has(String(id))) return; selectResource(id); const store = byId.get(state.selectedId); if (!highlights?.handleResource(store)) showDetails(store); }
   function renderMarkers() {
     renderResourceLine();
     const colors = palette();
@@ -204,7 +204,20 @@
     }
     if (selectedMarker) map.removeLayer(selectedMarker);
     const selected = byId.get(state.selectedId);
-    if (valid(selected)) selectedMarker = L.marker([selected.lat, selected.lng], { icon: L.divIcon({ className: 'resource-map-pin is-selected', iconSize: [48, 48], iconAnchor: [24, 24], html: `<button aria-label="${esc(selected.name)}，已選取">${icon(selected.services.find(s => state.filters.has(s)) || selected.services[0] || 'info', 24)}</button>` }), keyboard: false, zIndexOffset: 1000 }).on('click', () => showDetails(selected)).addTo(map);
+    if (valid(selected)) selectedMarker = L.marker([selected.lat, selected.lng], { icon: L.divIcon({ className: 'resource-map-pin is-selected', iconSize: [48, 48], iconAnchor: [24, 24], html: `<button aria-label="${esc(selected.name)}，已選取">${icon(selected.services.find(s => state.filters.has(s)) || selected.services[0] || 'info', 24)}</button>` }), keyboard: false, zIndexOffset: 1000 }).on('click', () => openResource(selected.id)).addTo(map);
+    syncHighlights();
+  }
+  function syncHighlights() {
+    highlights?.update({ view: state.view, theme: state.theme, position: state.position, gpsPending: state.gpsPending,
+      selectedStore: byId.get(state.selectedId) || null, filters: [...state.filters], destination: state.destination,
+      route: state.route, routeStatus: state.routeStatus, routeIds: [...state.routeIds], visibleStores: visibleStores() });
+  }
+  function useDemoPosition(point) {
+    if (!valid(point)) return;
+    state.gpsGeneration += 1; state.gpsPending = false;
+    state.position = { lat: point.lat, lng: point.lng, accuracy: 0, capturedAt: Date.now(), source: 'demo' };
+    state.gpsMessage = '展示位置，非您的 GPS；可按定位返回實際位置。';
+    focusPoint(point); if (state.destination) scheduleRoute(); else renderAll();
   }
   function renderFilters() {
     $('#category-filters').innerHTML = Object.entries(SERVICES).map(([key, label]) => `<button class="filter-chip ${state.filters.has(key) ? 'selected' : ''}" aria-pressed="${state.filters.has(key)}" data-service="${key}">${icon(key, 21)}<span>${label}</span></button>`).join('');
@@ -212,8 +225,8 @@
   function renderPosition() {
     const p = state.position;
     $('#gps-button').disabled = state.gpsPending;
-    $('#location-status').textContent = state.gpsPending ? '正在定位…' : p ? `${p.accuracy > 100 ? '精度不足 · ' : ''}定位${p.accuracy !== null ? ` ±${Math.round(p.accuracy)} m` : '精度未知'} · ${timeText(p.capturedAt)}` : '目前非您的位置';
-    $('#location-kicker').textContent = p ? '依目前位置計算距離' : '依地圖中心估算 · 非目前位置';
+    $('#location-status').textContent = state.gpsPending ? '正在定位…' : p?.source === 'demo' ? '展示位置 · 非您的 GPS' : p ? `${p.accuracy > 100 ? '精度不足 · ' : ''}定位${p.accuracy !== null ? ` ±${Math.round(p.accuracy)} m` : '精度未知'} · ${timeText(p.capturedAt)}` : '目前非您的位置';
+    $('#location-kicker').textContent = p?.source === 'demo' ? '依展示位置計算 · 非目前位置' : p ? '依目前位置計算距離' : '依地圖中心估算 · 非目前位置';
     $('#location-notice').hidden = Boolean(p && !state.gpsMessage);
     $('#location-notice').innerHTML = p ? esc(state.gpsMessage) : `${esc(state.gpsMessage || '尚未取得位置；距離依地圖中心估算。')} <button class="text-button" data-action="gps">重新定位</button>`;
     if (gpsMarker) { map.removeLayer(gpsMarker); gpsMarker = null; }
@@ -250,7 +263,7 @@
     setText('#guidance-title', store ? store.name : '探索附近資源');
     setText('#guidance-distance', store ? !valid(store) ? '未提供座標' : position ? distanceLabel(distance(position, store)) : '需要定位' : `視窗內 ${visibleStores().length} 筆`);
     setText('#guidance-bearing', store ? !valid(store) ? '無法計算方向，請選擇有座標的資源' : position ? `${directionName(bearing(position, store))}方 · 正北基準 · 直線距離（非步行路線）` : '需要定位才能顯示方向' : '點選資源查看資訊；未規劃行走路線');
-    setText('#guidance-location', position ? `${position.accuracy > 100 ? '精度不足 · ' : ''}定位${position.accuracy !== null ? ` ±${Math.round(position.accuracy)} m` : '精度未知'} · ${timeText(position.capturedAt)}` : state.gpsPending ? '正在定位…' : state.gpsMessage || '尚未取得位置，請使用定位按鈕重試');
+    setText('#guidance-location', position?.source === 'demo' ? '展示位置 · 非您的 GPS' : position ? `${position.accuracy > 100 ? '精度不足 · ' : ''}定位${position.accuracy !== null ? ` ±${Math.round(position.accuracy)} m` : '精度未知'} · ${timeText(position.capturedAt)}` : state.gpsPending ? '正在定位…' : state.gpsMessage || '尚未取得位置，請使用定位按鈕重試');
     if ($('#guidance-detail')) $('#guidance-detail').hidden = !store;
     if (!store && state.destination) {
       setText('#guidance-title', state.destination.name);
@@ -264,7 +277,7 @@
     if ($('#welcome-screen')) $('#welcome-screen').hidden = view !== 'welcome';
     if ($('#explore-screen')) $('#explore-screen').hidden = view === 'welcome';
     window.scrollTo?.(0, 0);
-    renderMode(); renderGuidance(); renderMapLayout();
+    renderMode(); renderGuidance(); renderMapLayout(); syncHighlights();
     requestAnimationFrame(() => { if (state.view !== view) return; map.invalidateSize({ animate: false }); if (state.route && view === 'explore') fitDestinationRoute(); if (!state.activeSheet && document.documentElement.dataset.input === 'keyboard') $(view === 'welcome' ? '#enter-app' : view === 'guidance' ? '#exit-guidance' : '#search-trigger')?.focus({ preventScroll: true }); });
   }
   function clearResource() { state.externalGeneration += 1; state.selectedId = null; state.mode = 'free'; closeSheet(); renderAll(); }
@@ -284,7 +297,7 @@
   function selectResource(id) { const store = byId.get(String(id)); if (!store) return; state.externalGeneration += 1; state.selectedId = store.id; state.mode = 'resource'; if (state.view === 'welcome') setView('explore'); closeSheet(); renderPanel(); renderMarkers(); renderMode(); renderGuidance(); if (state.view === 'guidance') focusGuidance(); else if (valid(store)) focusPoint(store); if (!state.online && state.position && !isInBasemap(state.position)) showDirection(); }
   function focusPoint(point) { map.setView([point.lat, point.lng], Math.max(map.getZoom(), 17), { animate: false }); }
   async function requestPosition() {
-    const generation = ++state.gpsGeneration; state.gpsPending = true; state.gpsMessage = ''; renderPosition(); renderGuidance();
+    const generation = ++state.gpsGeneration; state.gpsPending = true; state.gpsMessage = ''; renderPosition(); renderGuidance(); syncHighlights();
     if (state.destination) scheduleRoute();
     try {
       const position = await FriendlyBridge.getLocation(); if (generation !== state.gpsGeneration) return;
@@ -426,6 +439,10 @@
   window.addEventListener('deviceorientationabsolute', orientation); window.addEventListener('deviceorientation', orientation);
   document.addEventListener('keydown', () => { document.documentElement.dataset.input = 'keyboard'; }); document.addEventListener('pointerdown', () => { document.documentElement.dataset.input = 'pointer'; });
   try { if (localStorage.getItem('friendly-theme-v6') === 'dark') state.theme = 'dark'; } catch { /* Optional. */ }
+  highlights = window.FriendlyHighlights?.create({ map, stores, icon, escapeHtml: esc, distance,
+    onSelectResource: store => selectResource(store.id), onShowDetails: showDetails, onRequestPosition: requestPosition,
+    onUseDemoPosition: useDemoPosition, onOpenExplore: () => { state.panelCollapsed = false; setView('explore'); } });
+  $('#highlight-map-launch')?.addEventListener('click', () => highlights?.open('wifi'));
   document.documentElement.dataset.theme = state.theme; updateIcons(); drawBasemap(); syncOnlineTiles(); renderFilters(); renderAll(); setView('welcome');
   requestPosition(); cacheData();
 })();

@@ -1,0 +1,79 @@
+name: add-survival-highlights
+created_at: 2026-11-07T15:02:58.731Z
+status: story
+scale: standard
+description: 在現有友善同行App加入Wi-Fi風暴、廁所水球倒數、房價趣味指數與低電量縮圈的可操作原型
+quality_log:
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    baseline_revision: 1
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - Knowledge module-map與Feature
+        Specs尚空。本輪僅Story＋Design可操作原型，估算條件明示，正式化由Ci試玩後決定。
+  - skill: prospec-design
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - 完成現有App四項互動原型；獨立瀏覽器86項通過。保持story，Ci視覺回饋待收；實機電池、真離線及200%文字放大未驗，不宣稱正式implementation／review／verify完成。
+acceptance:
+  version: 1
+  current_revision: 1
+  revisions:
+    - revision: 1
+      digest: 467b048f962895fdc67510accc160b4e0423c7b6c8be75c92ef56f7293eec0ef
+      captured_at: 2026-11-07T15:04:01.301Z
+      captured_status: story
+      origin: story
+      reason: initial freeze
+      scenarios:
+        - id: US-1.1
+          story_id: US-1
+          text: WHEN 開啟 Wi-Fi 雷達，THEN 地圖繪製公開點位的同心圓與脈動，呈現附近點位密度和明示半徑的估算覆蓋率。
+          source: proposal.md:26
+        - id: US-1.2
+          story_id: US-1
+          text: WHEN 移動地圖或關閉模式，THEN 統計依畫面中心更新或圖層移除；明示這不是實測訊號，沒有定位時不稱為本人所在區域。
+          source: proposal.md:27
+        - id: US-2.1
+          story_id: US-2
+          text: WHEN 選取廁所且有有效位置與本機道路，THEN 呈現水球圖示、本機路程、估算步數及秒數；開始後水球與秒數同步變化。
+          source: proposal.md:33
+        - id: US-2.2
+          story_id: US-2
+          text: WHEN 暫停、重置或切換廁所，THEN 倒數正確停止或重建，不把倒數歸零當成實際抵達，也不修改原目的地路線。
+          source: proposal.md:34
+        - id: US-2.3
+          story_id: US-2
+          text: WHEN 定位或道路不可用，THEN 顯示原因與重試，試玩座標與加速倒數均清楚標記為展示。
+          source: proposal.md:35
+        - id: US-3.1
+          story_id: US-3
+          text: WHEN 選取有行政區及公開資料樣本的廁所，THEN 顯示該批篩選住宅最高總價、來源、樣本期間、貸款假設與每秒試算。
+          source: proposal.md:41
+        - id: US-3.2
+          story_id: US-3
+          text: WHEN 按下我已抵達開始體驗，THEN 金幣動畫與累計試算金額按時間增加，可停止或重置；文案不稱真實收費或真實收益。
+          source: proposal.md:42
+        - id: US-3.3
+          story_id: US-3
+          text: WHEN 行政區或樣本缺少，THEN 顯示待補，不編造價格、不以零元替代；完整公式可展開查看。
+          source: proposal.md:43
+        - id: US-4.1
+          story_id: US-4
+          text: WHEN 可取得電量且低於20%，THEN 啟動步行估算圈、圈外深灰，突出圈內充電資源；20%以上恢復一般地圖。
+          source: proposal.md:49
+        - id: US-4.2
+          story_id: US-4
+          text: WHEN 裝置讀不到電量，THEN 說明不支援並提供標示為試玩的電量滑桿，不假稱真實讀值。
+          source: proposal.md:50
+        - id: US-4.3
+          story_id: US-4
+          text: WHEN 改變試玩電量、耗電假設或位置，THEN 範圍與圈內資源同步重算；無位置或保留電量不足時不顯示錯誤可達承諾。
+          source: proposal.md:51
+premise_version: 1
+retry_of: []

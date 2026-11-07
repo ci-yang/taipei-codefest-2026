@@ -1,0 +1,1883 @@
+{
+  "baseURL": "http://127.0.0.1:8885/",
+  "startedAt": "2026-11-07T15:12:49.165Z",
+  "scope": "Desktop Chrome emulation only. Public fixed City Hall GPS. Real DOM controls and real local route Worker. Read-only closure observers injected into HTTP response; no production writes or route substitutions. External map tiles blocked. Unsupported battery simulated by removing API before page load, explicitly not hardware validation.",
+  "checks": [
+    {
+      "name": "320x568 wifi no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 320,
+        "doc": 320,
+        "body": 320,
+        "mode": "wifi",
+        "tabs": [
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "320x568 wifi four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "320x568 wifi concentric circles",
+      "pass": true,
+      "details": 241
+    },
+    {
+      "name": "320x568 toilet no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 320,
+        "doc": 320,
+        "body": 320,
+        "mode": "toilet",
+        "tabs": [
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "320x568 toilet four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "320x568 gold no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 320,
+        "doc": 320,
+        "body": 320,
+        "mode": "gold",
+        "tabs": [
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "320x568 gold four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "320x568 battery no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 320,
+        "doc": 320,
+        "body": 320,
+        "mode": "battery",
+        "tabs": [
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          },
+          {
+            "w": 65.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "320x568 battery four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        },
+        {
+          "w": 65.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "320x568 unsupported explicit",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "320x568 collapsed panel marked hidden",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "320x568 collapsed controls not visible",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "320x568 Tab does not enter collapsed",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "390x844 wifi no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 390,
+        "doc": 390,
+        "body": 390,
+        "mode": "wifi",
+        "tabs": [
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "390x844 wifi four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "390x844 wifi concentric circles",
+      "pass": true,
+      "details": 241
+    },
+    {
+      "name": "390x844 toilet no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 390,
+        "doc": 390,
+        "body": 390,
+        "mode": "toilet",
+        "tabs": [
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "390x844 toilet four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "390x844 gold no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 390,
+        "doc": 390,
+        "body": 390,
+        "mode": "gold",
+        "tabs": [
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "390x844 gold four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "390x844 battery no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 390,
+        "doc": 390,
+        "body": 390,
+        "mode": "battery",
+        "tabs": [
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          },
+          {
+            "w": 80.75,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "390x844 battery four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        },
+        {
+          "w": 80.75,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "390x844 unsupported explicit",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "390x844 collapsed panel marked hidden",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "390x844 collapsed controls not visible",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "390x844 Tab does not enter collapsed",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "768x1024 wifi no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 768,
+        "doc": 768,
+        "body": 768,
+        "mode": "wifi",
+        "tabs": [
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "768x1024 wifi four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "768x1024 wifi concentric circles",
+      "pass": true,
+      "details": 241
+    },
+    {
+      "name": "768x1024 toilet no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 768,
+        "doc": 768,
+        "body": 768,
+        "mode": "toilet",
+        "tabs": [
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "768x1024 toilet four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "768x1024 gold no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 768,
+        "doc": 768,
+        "body": 768,
+        "mode": "gold",
+        "tabs": [
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "768x1024 gold four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "768x1024 battery no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 768,
+        "doc": 768,
+        "body": 768,
+        "mode": "battery",
+        "tabs": [
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "768x1024 battery four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "768x1024 unsupported explicit",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "768x1024 collapsed panel marked hidden",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "768x1024 collapsed controls not visible",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "768x1024 Tab does not enter collapsed",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "844x390 wifi no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 844,
+        "doc": 844,
+        "body": 844,
+        "mode": "wifi",
+        "tabs": [
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "844x390 wifi four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "844x390 wifi concentric circles",
+      "pass": true,
+      "details": 241
+    },
+    {
+      "name": "844x390 toilet no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 844,
+        "doc": 844,
+        "body": 844,
+        "mode": "toilet",
+        "tabs": [
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "844x390 toilet four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "844x390 gold no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 844,
+        "doc": 844,
+        "body": 844,
+        "mode": "gold",
+        "tabs": [
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "844x390 gold four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "844x390 battery no horizontal overflow",
+      "pass": true,
+      "details": {
+        "viewport": 844,
+        "doc": 844,
+        "body": 844,
+        "mode": "battery",
+        "tabs": [
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          },
+          {
+            "w": 103.25,
+            "h": 62
+          }
+        ]
+      }
+    },
+    {
+      "name": "844x390 battery four accessible touch modes",
+      "pass": true,
+      "details": [
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        },
+        {
+          "w": 103.25,
+          "h": 62
+        }
+      ]
+    },
+    {
+      "name": "844x390 unsupported explicit",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "844x390 collapsed panel marked hidden",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "844x390 collapsed controls not visible",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "844x390 Tab does not enter collapsed",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "general destination genuine local road",
+      "pass": true,
+      "details": 398
+    },
+    {
+      "name": "wifi DOM statistics correspond to source estimate",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "real map drag recomputes WiFi density at current center",
+      "pass": true,
+      "details": {
+        "before": 162,
+        "after": 7
+      }
+    },
+    {
+      "name": "toilet route genuine local road",
+      "pass": true,
+      "details": 386
+    },
+    {
+      "name": "pause freezes countdown",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "reset restores initial duration",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "20x demo marked",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "20x countdown advances proportional wall time",
+      "pass": true,
+      "details": {
+        "before": 331,
+        "after": 317.65999999999997
+      }
+    },
+    {
+      "name": "changing toilet replaces old countdown",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "gold source link and full assumptions visible",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "gold official source linked",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "gold stop freezes accumulation",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "gold reset zero",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "unsupported does not invent percentage",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "battery 20 threshold and mask",
+      "pass": true,
+      "details": {
+        "mode": "battery",
+        "selected": {
+          "id": "toilets-1292",
+          "name": "市政大樓"
+        },
+        "toiletStatus": "ready",
+        "toiletError": "",
+        "toiletRoute": {
+          "id": "shortest",
+          "label": "最短路徑",
+          "coordinates": [
+            [
+              25.0375,
+              121.5637
+            ],
+            [
+              25.037522,
+              121.5635786
+            ],
+            [
+              25.037525,
+              121.563782
+            ]
+          ],
+          "distanceM": 33,
+          "connectorDistanceM": 33,
+          "connectors": [
+            [
+              [
+                25.0375,
+                121.5637
+              ],
+              [
+                25.037522,
+                121.5635786
+              ]
+            ],
+            [
+              [
+                25.037522,
+                121.5635786
+              ],
+              [
+                25.037525,
+                121.563782
+              ]
+            ]
+          ],
+          "roadSegments": [
+            [
+              [
+                25.037522,
+                121.5635786
+              ]
+            ]
+          ],
+          "resourceCount": 0,
+          "storeIds": [],
+          "estimateMinutes": 1,
+          "viaLabel": "",
+          "basis": "本地 OSM 候選路網；起終點與路網接線為估計，未驗證實際入口。"
+        },
+        "timer": {
+          "status": "ready",
+          "total": 29,
+          "remaining": 29,
+          "deadline": 0,
+          "speed": 20,
+          "liveRemaining": 29
+        },
+        "gold": {
+          "running": false,
+          "elapsed": 0,
+          "startedAt": 0,
+          "liveElapsed": 0
+        },
+        "wifiSummary": {
+          "points": {
+            "omittedArrayLength": 3479,
+            "sha256OfJson": "92b0486a65889ecd144de1d77aa7d8348cc9ed57e07f786a817581317649e926"
+          },
+          "count": 7,
+          "coveragePercent": 7.4,
+          "label": "Wi-Fi風暴"
+        },
+        "budget": {
+          "active": false,
+          "seconds": 0,
+          "radiusM": 0
+        },
+        "manualBattery": true,
+        "manualPercent": 20,
+        "batteryState": "unsupported",
+        "currentPercent": 20,
+        "candidateChargers": [],
+        "wifiLayers": [],
+        "batteryLayers": [],
+        "pulseCount": 0
+      }
+    },
+    {
+      "name": "battery 19 threshold and mask",
+      "pass": true,
+      "details": {
+        "mode": "battery",
+        "selected": {
+          "id": "toilets-1292",
+          "name": "市政大樓"
+        },
+        "toiletStatus": "ready",
+        "toiletError": "",
+        "toiletRoute": {
+          "id": "shortest",
+          "label": "最短路徑",
+          "coordinates": [
+            [
+              25.0375,
+              121.5637
+            ],
+            [
+              25.037522,
+              121.5635786
+            ],
+            [
+              25.037525,
+              121.563782
+            ]
+          ],
+          "distanceM": 33,
+          "connectorDistanceM": 33,
+          "connectors": [
+            [
+              [
+                25.0375,
+                121.5637
+              ],
+              [
+                25.037522,
+                121.5635786
+              ]
+            ],
+            [
+              [
+                25.037522,
+                121.5635786
+              ],
+              [
+                25.037525,
+                121.563782
+              ]
+            ]
+          ],
+          "roadSegments": [
+            [
+              [
+                25.037522,
+                121.5635786
+              ]
+            ]
+          ],
+          "resourceCount": 0,
+          "storeIds": [],
+          "estimateMinutes": 1,
+          "viaLabel": "",
+          "basis": "本地 OSM 候選路網；起終點與路網接線為估計，未驗證實際入口。"
+        },
+        "timer": {
+          "status": "ready",
+          "total": 29,
+          "remaining": 29,
+          "deadline": 0,
+          "speed": 20,
+          "liveRemaining": 29
+        },
+        "gold": {
+          "running": false,
+          "elapsed": 0,
+          "startedAt": 0,
+          "liveElapsed": 0
+        },
+        "wifiSummary": {
+          "points": {
+            "omittedArrayLength": 3479,
+            "sha256OfJson": "92b0486a65889ecd144de1d77aa7d8348cc9ed57e07f786a817581317649e926"
+          },
+          "count": 7,
+          "coveragePercent": 7.4,
+          "label": "Wi-Fi風暴"
+        },
+        "budget": {
+          "active": true,
+          "seconds": 2520,
+          "radiusM": 2800
+        },
+        "manualBattery": true,
+        "manualPercent": 19,
+        "batteryState": "unsupported",
+        "currentPercent": 19,
+        "candidateChargers": {
+          "omittedArrayLength": 102,
+          "sha256OfJson": "72faf8403e10cd808ebffa24649e03f19e5a1810d44d687a136ec1e8dff531a5"
+        },
+        "wifiLayers": [],
+        "batteryLayers": {
+          "omittedArrayLength": 82,
+          "sha256OfJson": "cafffc557528e3ba0458c586ae55f6e6c49322fa6e0b0a258bb530ccdfe24645"
+        },
+        "pulseCount": 0
+      }
+    },
+    {
+      "name": "battery 8 threshold and mask",
+      "pass": true,
+      "details": {
+        "mode": "battery",
+        "selected": {
+          "id": "toilets-1292",
+          "name": "市政大樓"
+        },
+        "toiletStatus": "ready",
+        "toiletError": "",
+        "toiletRoute": {
+          "id": "shortest",
+          "label": "最短路徑",
+          "coordinates": [
+            [
+              25.0375,
+              121.5637
+            ],
+            [
+              25.037522,
+              121.5635786
+            ],
+            [
+              25.037525,
+              121.563782
+            ]
+          ],
+          "distanceM": 33,
+          "connectorDistanceM": 33,
+          "connectors": [
+            [
+              [
+                25.0375,
+                121.5637
+              ],
+              [
+                25.037522,
+                121.5635786
+              ]
+            ],
+            [
+              [
+                25.037522,
+                121.5635786
+              ],
+              [
+                25.037525,
+                121.563782
+              ]
+            ]
+          ],
+          "roadSegments": [
+            [
+              [
+                25.037522,
+                121.5635786
+              ]
+            ]
+          ],
+          "resourceCount": 0,
+          "storeIds": [],
+          "estimateMinutes": 1,
+          "viaLabel": "",
+          "basis": "本地 OSM 候選路網；起終點與路網接線為估計，未驗證實際入口。"
+        },
+        "timer": {
+          "status": "ready",
+          "total": 29,
+          "remaining": 29,
+          "deadline": 0,
+          "speed": 20,
+          "liveRemaining": 29
+        },
+        "gold": {
+          "running": false,
+          "elapsed": 0,
+          "startedAt": 0,
+          "liveElapsed": 0
+        },
+        "wifiSummary": {
+          "points": {
+            "omittedArrayLength": 3479,
+            "sha256OfJson": "92b0486a65889ecd144de1d77aa7d8348cc9ed57e07f786a817581317649e926"
+          },
+          "count": 7,
+          "coveragePercent": 7.4,
+          "label": "Wi-Fi風暴"
+        },
+        "budget": {
+          "active": true,
+          "seconds": 540,
+          "radiusM": 600
+        },
+        "manualBattery": true,
+        "manualPercent": 8,
+        "batteryState": "unsupported",
+        "currentPercent": 8,
+        "candidateChargers": [
+          {
+            "id": "friendly-0007",
+            "lat": 25.034026,
+            "lng": 121.563903
+          },
+          {
+            "id": "friendly-0003",
+            "lat": 25.036072,
+            "lng": 121.56728
+          },
+          {
+            "id": "friendly-0867",
+            "lat": 25.036732,
+            "lng": 121.567967
+          },
+          {
+            "id": "friendly-0648",
+            "lat": 25.041995,
+            "lng": 121.564727
+          },
+          {
+            "id": "friendly-0937",
+            "lat": 25.042207,
+            "lng": 121.56338
+          },
+          {
+            "id": "friendly-0805",
+            "lat": 25.035962,
+            "lng": 121.568693
+          },
+          {
+            "id": "friendly-0650",
+            "lat": 25.032675,
+            "lng": 121.563633
+          },
+          {
+            "id": "friendly-0809",
+            "lat": 25.042126,
+            "lng": 121.56596
+          }
+        ],
+        "wifiLayers": [],
+        "batteryLayers": [
+          {
+            "radius": 600,
+            "fillColor": "#6ca928",
+            "fillOpacity": 0.05,
+            "type": "circle"
+          },
+          {
+            "fillColor": "#17202a",
+            "fillOpacity": 0.62,
+            "type": "polygon"
+          },
+          {
+            "type": "marker"
+          },
+          {
+            "type": "marker"
+          },
+          {
+            "type": "marker"
+          },
+          {
+            "type": "marker"
+          },
+          {
+            "type": "marker"
+          },
+          {
+            "type": "marker"
+          },
+          {
+            "type": "marker"
+          },
+          {
+            "type": "marker"
+          }
+        ],
+        "pulseCount": 0
+      }
+    },
+    {
+      "name": "battery 5 threshold and mask",
+      "pass": true,
+      "details": {
+        "mode": "battery",
+        "selected": {
+          "id": "toilets-1292",
+          "name": "市政大樓"
+        },
+        "toiletStatus": "ready",
+        "toiletError": "",
+        "toiletRoute": {
+          "id": "shortest",
+          "label": "最短路徑",
+          "coordinates": [
+            [
+              25.0375,
+              121.5637
+            ],
+            [
+              25.037522,
+              121.5635786
+            ],
+            [
+              25.037525,
+              121.563782
+            ]
+          ],
+          "distanceM": 33,
+          "connectorDistanceM": 33,
+          "connectors": [
+            [
+              [
+                25.0375,
+                121.5637
+              ],
+              [
+                25.037522,
+                121.5635786
+              ]
+            ],
+            [
+              [
+                25.037522,
+                121.5635786
+              ],
+              [
+                25.037525,
+                121.563782
+              ]
+            ]
+          ],
+          "roadSegments": [
+            [
+              [
+                25.037522,
+                121.5635786
+              ]
+            ]
+          ],
+          "resourceCount": 0,
+          "storeIds": [],
+          "estimateMinutes": 1,
+          "viaLabel": "",
+          "basis": "本地 OSM 候選路網；起終點與路網接線為估計，未驗證實際入口。"
+        },
+        "timer": {
+          "status": "ready",
+          "total": 29,
+          "remaining": 29,
+          "deadline": 0,
+          "speed": 20,
+          "liveRemaining": 29
+        },
+        "gold": {
+          "running": false,
+          "elapsed": 0,
+          "startedAt": 0,
+          "liveElapsed": 0
+        },
+        "wifiSummary": {
+          "points": {
+            "omittedArrayLength": 3479,
+            "sha256OfJson": "92b0486a65889ecd144de1d77aa7d8348cc9ed57e07f786a817581317649e926"
+          },
+          "count": 7,
+          "coveragePercent": 7.4,
+          "label": "Wi-Fi風暴"
+        },
+        "budget": {
+          "active": true,
+          "seconds": 0,
+          "radiusM": 0
+        },
+        "manualBattery": true,
+        "manualPercent": 5,
+        "batteryState": "unsupported",
+        "currentPercent": 5,
+        "candidateChargers": [],
+        "wifiLayers": [],
+        "batteryLayers": [
+          {
+            "fillColor": "#17202a",
+            "fillOpacity": 0.62,
+            "type": "polygon"
+          }
+        ],
+        "pulseCount": 0
+      }
+    },
+    {
+      "name": "low battery contains usable charger candidates",
+      "pass": true,
+      "details": 6
+    },
+    {
+      "name": "all radar flows preserve original destination and road",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "charger row opens existing resource detail",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "no GPS is explicit",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "reduced motion suppresses radar pulses",
+      "pass": true,
+      "details": {
+        "pref": true,
+        "radar": "none",
+        "pulses": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none",
+          "none",
+          "none",
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ]
+      }
+    },
+    {
+      "name": "no GPS disables start",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "public demo position marked",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "reduced motion suppresses water wave",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "no unhandled app exception",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "external requests only public basemap tiles",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "no non-blocked console errors",
+      "pass": true,
+      "details": []
+    }
+  ],
+  "screenshots": {
+    "omittedArrayLength": 32,
+    "sha256OfJson": "83c04ce384f9e78a8d535110042fba52ef90690907c61b9acdfe4ea20eab6000"
+  },
+  "workers": [
+    {
+      "label": "detailed",
+      "url": "http://127.0.0.1:8885/routing-worker.js"
+    },
+    {
+      "label": "detailed",
+      "url": "http://127.0.0.1:8885/routing-worker.js"
+    },
+    {
+      "label": "detailed",
+      "url": "http://127.0.0.1:8885/routing-worker.js"
+    },
+    {
+      "label": "reduced",
+      "url": "http://127.0.0.1:8885/routing-worker.js"
+    }
+  ],
+  "requests": {
+    "omittedArrayLength": 215,
+    "sha256OfJson": "79d93aac3457667cbe5501fee4632af21dbffecb90f1a1b04dfc1500d3e13bae"
+  },
+  "pageErrors": [],
+  "consoleErrors": {
+    "omittedArrayLength": 107,
+    "sha256OfJson": "d4615087761eb7a53a3025f347f67e80f247191c4a27f76d5b50396cf388efca"
+  },
+  "states": [
+    {
+      "label": "detailed",
+      "original": {
+        "position": {
+          "lat": 25.0375,
+          "lng": 121.5637,
+          "accuracy": 10,
+          "capturedAt": 1794064375796,
+          "source": "browser"
+        },
+        "destination": {
+          "id": "friendly-0007",
+          "name": "新東陽101專櫃",
+          "address": "臺北市信義區市府路45號B1",
+          "phone": "02-8101-8380/總公司02-2772-6222＃957(郭小姐)",
+          "normalizedPhone": "0281018380",
+          "lat": 25.034026,
+          "lng": 121.563903,
+          "services": [
+            "wifi",
+            "charge",
+            "toilet"
+          ],
+          "sourceId": "friendly",
+          "sourceName": "友善店家清冊（繁體中文）",
+          "sourceUrl": "https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1",
+          "updatedAt": "2026-07-20 11:38:58",
+          "url": "https://friendlystore.taipei/index.php/property/7795/tw/101",
+          "storeId": "friendly-0007",
+          "source": "catalog"
+        },
+        "selectedId": null,
+        "route": {
+          "id": "shortest",
+          "label": "最短路徑",
+          "coordinates": [
+            [
+              25.0375,
+              121.5637
+            ],
+            [
+              25.0372648,
+              121.5635734
+            ],
+            [
+              25.0360392,
+              121.5635613
+            ],
+            [
+              25.0358947,
+              121.5635646
+            ],
+            [
+              25.0357732,
+              121.5635978
+            ],
+            [
+              25.0346119,
+              121.5635679
+            ],
+            [
+              25.034026,
+              121.563903
+            ]
+          ],
+          "distanceM": 398,
+          "connectorDistanceM": 102,
+          "connectors": [
+            [
+              [
+                25.0375,
+                121.5637
+              ],
+              [
+                25.0372648,
+                121.5635734
+              ]
+            ],
+            [
+              [
+                25.0346119,
+                121.5635679
+              ],
+              [
+                25.034026,
+                121.563903
+              ]
+            ]
+          ],
+          "roadSegments": [
+            [
+              [
+                25.0372648,
+                121.5635734
+              ],
+              [
+                25.0360392,
+                121.5635613
+              ],
+              [
+                25.0358947,
+                121.5635646
+              ],
+              [
+                25.0357732,
+                121.5635978
+              ],
+              [
+                25.0346119,
+                121.5635679
+              ]
+            ]
+          ],
+          "resourceCount": 287,
+          "storeIds": {
+            "omittedArrayLength": 287,
+            "sha256OfJson": "de4bd425c1201938043646865bdaadbcfda2ee2efa3e48b4aec8b26c561e0e2d"
+          },
+          "estimateMinutes": 6,
+          "viaLabel": "",
+          "basis": "本地 OSM 候選路網；起終點與路網接線為估計，未驗證實際入口。"
+        },
+        "routeStatus": "ready",
+        "mapCenter": {
+          "lat": 25.03889306854703,
+          "lng": 121.56373214999999
+        },
+        "routeLayerCount": 3,
+        "mapSize": {
+          "x": 390,
+          "y": 360
+        },
+        "mapExpanded": false
+      },
+      "preserved": {
+        "position": {
+          "lat": 25.0375,
+          "lng": 121.5637,
+          "accuracy": 10,
+          "capturedAt": 1794064375796,
+          "source": "browser"
+        },
+        "destination": {
+          "id": "friendly-0007",
+          "name": "新東陽101專櫃",
+          "address": "臺北市信義區市府路45號B1",
+          "phone": "02-8101-8380/總公司02-2772-6222＃957(郭小姐)",
+          "normalizedPhone": "0281018380",
+          "lat": 25.034026,
+          "lng": 121.563903,
+          "services": [
+            "wifi",
+            "charge",
+            "toilet"
+          ],
+          "sourceId": "friendly",
+          "sourceName": "友善店家清冊（繁體中文）",
+          "sourceUrl": "https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1",
+          "updatedAt": "2026-07-20 11:38:58",
+          "url": "https://friendlystore.taipei/index.php/property/7795/tw/101",
+          "storeId": "friendly-0007",
+          "source": "catalog"
+        },
+        "selectedId": "toilets-1292",
+        "route": {
+          "id": "shortest",
+          "label": "最短路徑",
+          "coordinates": [
+            [
+              25.0375,
+              121.5637
+            ],
+            [
+              25.0372648,
+              121.5635734
+            ],
+            [
+              25.0360392,
+              121.5635613
+            ],
+            [
+              25.0358947,
+              121.5635646
+            ],
+            [
+              25.0357732,
+              121.5635978
+            ],
+            [
+              25.0346119,
+              121.5635679
+            ],
+            [
+              25.034026,
+              121.563903
+            ]
+          ],
+          "distanceM": 398,
+          "connectorDistanceM": 102,
+          "connectors": [
+            [
+              [
+                25.0375,
+                121.5637
+              ],
+              [
+                25.0372648,
+                121.5635734
+              ]
+            ],
+            [
+              [
+                25.0346119,
+                121.5635679
+              ],
+              [
+                25.034026,
+                121.563903
+              ]
+            ]
+          ],
+          "roadSegments": [
+            [
+              [
+                25.0372648,
+                121.5635734
+              ],
+              [
+                25.0360392,
+                121.5635613
+              ],
+              [
+                25.0358947,
+                121.5635646
+              ],
+              [
+                25.0357732,
+                121.5635978
+              ],
+              [
+                25.0346119,
+                121.5635679
+              ]
+            ]
+          ],
+          "resourceCount": 287,
+          "storeIds": {
+            "omittedArrayLength": 287,
+            "sha256OfJson": "de4bd425c1201938043646865bdaadbcfda2ee2efa3e48b4aec8b26c561e0e2d"
+          },
+          "estimateMinutes": 6,
+          "viaLabel": "",
+          "basis": "本地 OSM 候選路網；起終點與路網接線為估計，未驗證實際入口。"
+        },
+        "routeStatus": "ready",
+        "mapCenter": {
+          "lat": 25.037393872113785,
+          "lng": 121.563720703125
+        },
+        "routeLayerCount": 3,
+        "mapSize": {
+          "x": 390,
+          "y": 360
+        },
+        "mapExpanded": false
+      }
+    }
+  ],
+  "before": {
+    "app.js": "44de5e7943ce7dfda2cc876a346ea1b1f795e4bab32d12b9f3c1ab04ee5a30b7",
+    "highlights.js": "e37e982b959b77636bfc38980e7a14e97d8cf9b6673b015b641715fdc76235bd",
+    "highlights.css": "a7a9165613d4e48a21bf65c29e45033f56a24f0a33c4ff94c74ae3e349a471af",
+    "highlight-math.js": "fc20cefab29aff8e557aaff407b3eed10b8dbcd3b940b21a1368af93fa906af4",
+    "price-data.js": "3f5fc6d6f3d50fa9150ce52c0f2f6a46789fadef514fe28cc1bfc25aabc8e348",
+    "index.html": "123bf76c00460e9a03f4a87f518074ff80defd5d5a79bf8e0a445611ba5a7d08"
+  },
+  "browser": "157.0.8103.38",
+  "after": {
+    "app.js": "44de5e7943ce7dfda2cc876a346ea1b1f795e4bab32d12b9f3c1ab04ee5a30b7",
+    "highlights.js": "e37e982b959b77636bfc38980e7a14e97d8cf9b6673b015b641715fdc76235bd",
+    "highlights.css": "a7a9165613d4e48a21bf65c29e45033f56a24f0a33c4ff94c74ae3e349a471af",
+    "highlight-math.js": "fc20cefab29aff8e557aaff407b3eed10b8dbcd3b940b21a1368af93fa906af4",
+    "price-data.js": "3f5fc6d6f3d50fa9150ce52c0f2f6a46789fadef514fe28cc1bfc25aabc8e348",
+    "index.html": "123bf76c00460e9a03f4a87f518074ff80defd5d5a79bf8e0a445611ba5a7d08"
+  },
+  "sourceStable": true,
+  "passed": 81,
+  "failed": 0,
+  "finishedAt": "2026-11-07T15:13:06.306Z",
+  "receiptNote": "保留全部81項檢查名稱與結果；長陣列以筆數及摘要替代，未變更pass欄位。原始完整報告SHA-256如下。",
+  "fullReportSha256": "94c0a8647edde49176cfb4e8669e1a57b7eb167c86f15e16e44f13ad04e85827"
+}

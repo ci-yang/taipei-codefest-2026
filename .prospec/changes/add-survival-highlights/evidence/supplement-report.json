@@ -1,0 +1,148 @@
+{
+  "baseURL": "http://127.0.0.1:8885/",
+  "startedAt": "2026-11-07T15:13:28.473Z",
+  "scope": "Desktop Chrome emulation only. Public fixed City Hall GPS. Real DOM controls and real local route Worker. Read-only closure observers injected into HTTP response; no production writes or route substitutions. External map tiles blocked. Unsupported battery simulated by removing API before page load, explicitly not hardware validation.",
+  "checks": [
+    {
+      "name": "running gold has expected animation",
+      "pass": true
+    },
+    {
+      "name": "wall-clock countdown continues across new browser tab",
+      "pass": true,
+      "details": {
+        "visibility": "visible",
+        "before": 27.86,
+        "after": 14.66
+      }
+    },
+    {
+      "name": "countdown completion does not assert actual arrival",
+      "pass": true,
+      "details": "估計時間到 · 尚未確認抵達"
+    },
+    {
+      "name": "closing clears radar layers and returns Explore",
+      "pass": true
+    },
+    {
+      "name": "supplement has no browser errors",
+      "pass": true,
+      "details": []
+    }
+  ],
+  "screenshots": [
+    "/tmp/tcf-survival-qa/final/390x844-gold-running.png",
+    "/tmp/tcf-survival-qa/final/390x844-toilet-running.png",
+    "/tmp/tcf-survival-qa/final/390x844-toilet-finished.png"
+  ],
+  "workers": [
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/routing-worker.js"
+    }
+  ],
+  "requests": [
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/vendor/leaflet.css",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/app-ui.css",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/highlights.css",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/vendor/leaflet.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/data.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/resources-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/icons.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/search.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/bridge.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/offline.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/route-client.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/highlight-math.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/price-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/highlights.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/app.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/routing-worker.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/routing-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "supplement",
+      "url": "http://127.0.0.1:8885/routing.js",
+      "method": "GET"
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "states": [],
+  "visibilityCoverage": "Headless browser kept document visible; background throttling not covered.",
+  "passed": 5,
+  "failed": 0
+}
