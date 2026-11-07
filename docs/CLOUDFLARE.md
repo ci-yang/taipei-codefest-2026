@@ -2,7 +2,7 @@
 
 Ci 已指定 Cloudflare 網址直接呈現 App 本體。`platform:build` 從 `docs/prototypes/friendly-route` 的 allowlist 打包乾淨 `dist/app`，`platform:deploy` 發布此目錄，根頁直接顯示地圖、搜尋與四類資源。舊 `/map`、`/about`、分析／規格入口導回 `/`；不發布 Vue 首頁或說明頁。App 功能與離線邊界見 [`prototypes/friendly-route/README.md`](prototypes/friendly-route/README.md)。
 
-產物附 `app-manifest.json`，記錄來源 SHA、離線版本及每個檔案 SHA-256。部署 smoke 會驗根頁是 App、runtime 檔案與 manifest 一致、舊入口 redirect 與缺檔 404。回退至先前 App 依收據核對該版 manifest；舊 Vue 版只作明確標示的歷史回退目標，不可讓新部署因 manifest 缺失降級成 Vue 驗證。
+產物附 `app-manifest.json`，記錄來源 SHA、離線版本及每個檔案 SHA-256。部署 smoke 會驗根頁是 App、runtime 檔案與 manifest 一致、舊入口 redirect 與缺檔 404。回退至先前 App 依收據核對該版 manifest；舊 Vue 版只作明確標示的歷史回退目標，不可讓新部署因 manifest 缺失降級成 Vue 驗證。歷史 schema 1 的必要入口、SHA stamp 與 redirect 行為是固定發布契約；調整這些協議時應新增 schema 相容處理，不能修改歷史驗證器來套用新版 UI。
 
 # Cloudflare 友善平台
 

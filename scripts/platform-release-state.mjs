@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { ROOT, WRANGLER, currentVersion, readJson, validateOrigin } from './platform-tools.mjs';
 import { fetchJson, fetchResource } from './smoke-platform.mjs';
 import {
-  assertAppHtml,
+  assertHistoricalAppEntry,
   assertLegacyHtml,
   validateAppManifest,
   validateCurrentAppManifest,
@@ -120,7 +120,7 @@ export async function capturePrevious(url, versionId, fetchOptions = {}) {
   let appManifest = null;
   if (app.status === 200 && /application\/json/.test(app.headers.get('content-type') || '')) {
     appManifest = validateAppManifest(JSON.parse(app.bytes.toString()), config.version);
-    assertAppHtml(html, config.version);
+    assertHistoricalAppEntry(root.bytes, appManifest);
   } else {
     assertLegacyHtml(html);
     assert.ok(

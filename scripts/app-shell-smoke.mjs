@@ -73,15 +73,27 @@ export function validateCurrentAppManifest(value, expectedSha) {
   return value;
 }
 
-export function assertAppHtml(html, expectedSha) {
-  assert.match(html, /<main\b[^>]*\bid="app"[^>]*\bclass="friendly-app"/);
-  assert.match(html, /id="category-filters"/);
-  assert.match(html, /id="search-trigger"/);
+function assertAppBuildStamp(html, expectedSha) {
   assert.match(
     html,
     new RegExp(`<meta\\b(?=[^>]*name="app-build-sha")(?=[^>]*content="${expectedSha}")[^>]*>`),
   );
+}
+
+export function assertAppHtml(html, expectedSha) {
+  assert.match(html, /<main\b[^>]*\bid="app"[^>]*\bclass="friendly-app"/);
+  assert.match(html, /id="category-filters"/);
+  assert.match(html, /id="search-trigger"/);
+  assertAppBuildStamp(html, expectedSha);
   assert.doesNotMatch(html, /src="\/assets\//, 'Legacy Vue shell cannot pass App smoke.');
+}
+
+export function assertHistoricalAppEntry(bytes, appManifest) {
+  assertAppBuildStamp(bytes.toString(), appManifest.sourceSha);
+  const entry = appManifest.files.find((file) => file.path === '/index.html');
+  assert.ok(entry, 'Historical App entry is required.');
+  assert.equal(bytes.length, entry.bytes, 'Historical App entry size differs.');
+  assert.equal(sha256(bytes), entry.sha256, 'Historical App entry hash differs.');
 }
 
 export function assertLegacyHtml(html) {
@@ -137,18 +149,20 @@ export async function smokeAppShell({
   origin,
   expectedSha,
   appManifest,
+  appManifestMode = 'current',
   fetchResource,
   fetchJson,
   fetchOptions,
 }) {
   validateAppManifest(appManifest, expectedSha);
+  assert.ok(['current', 'historical'].includes(appManifestMode), 'Unknown App manifest mode.');
   const remote = await fetchJson(origin + '/app-manifest.json', fetchOptions);
   assert.deepEqual(remote, appManifest, 'Published App manifest differs from the built artifact.');
   const response = await fetchResource(origin + '/', fetchOptions);
   assert.equal(response.status, 200);
   assertContentType('/index.html', response.headers.get('content-type'));
-  const html = response.bytes.toString();
-  assertAppHtml(html, expectedSha);
+  if (appManifestMode === 'historical') assertHistoricalAppEntry(response.bytes, appManifest);
+  else assertAppHtml(response.bytes.toString(), expectedSha);
   for (const file of appManifest.files) {
     if (configurationFiles.has(file.path)) continue;
     const asset =
@@ -161,7 +175,13 @@ export async function smokeAppShell({
     assert.equal(sha256(asset.bytes), file.sha256, `App asset hash differs: ${file.path}`);
     if (['/sw.js', '/offline.js'].includes(file.path))
       assert.ok(
-        asset.bytes.toString().includes(`const VERSION = '${appManifest.offlineVersion}'`),
+        asset.bytes
+          .toString()
+          .includes(
+            appManifestMode === 'historical'
+              ? appManifest.offlineVersion
+              : `const VERSION = '${appManifest.offlineVersion}'`,
+          ),
         `Offline version differs: ${file.path}`,
       );
     if (file.path === '/sw.js') {

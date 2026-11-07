@@ -144,6 +144,7 @@ export async function smokePlatform({
       origin,
       expectedSha,
       appManifest,
+      appManifestMode,
       fetchResource,
       fetchJson,
       fetchOptions,

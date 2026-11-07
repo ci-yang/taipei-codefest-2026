@@ -328,3 +328,69 @@ test('historical App smoke follows its own inventory and version while new build
     );
   }
 });
+
+test('historical smoke accepts changed DOM and offline declaration syntax; current smoke rejects both', async () => {
+  for (const change of ['dom', 'syntax']) {
+    const runtimeBytes = new Map(appBytes);
+    if (change === 'dom')
+      runtimeBytes.set(
+        '/index.html',
+        Buffer.from(
+          appBytes
+            .get('/index.html')
+            .toString()
+            .replaceAll('<main', '<section')
+            .replaceAll('</main>', '</section>')
+            .replaceAll('category-filters', 'resource-categories')
+            .replaceAll('search-trigger', 'destination-search'),
+        ),
+      );
+    else
+      for (const path of ['/sw.js', '/offline.js'])
+        runtimeBytes.set(
+          path,
+          Buffer.from(
+            appBytes
+              .get(path)
+              .toString()
+              .replace(/\bVERSION\b/g, 'CACHE_VERSION')
+              .replace(
+                `const CACHE_VERSION = '${offlineVersion}'`,
+                `const CACHE_VERSION = "${offlineVersion}"`,
+              ),
+          ),
+        );
+    const runtimeManifest = {
+      ...appManifest,
+      files: [...runtimeBytes].map(([path, bytes]) => ({
+        path,
+        bytes: bytes.length,
+        sha256: sha256(bytes),
+      })),
+    };
+    const options = {
+      url: 'https://example.test',
+      expectedSha: sha,
+      manifest,
+      appManifest: runtimeManifest,
+      fetchOptions: {
+        fetchImpl: fixtureFetch({ app: true, runtimeBytes, runtimeManifest }),
+        retries: 0,
+      },
+    };
+    const result = await smokePlatform({ ...options, appManifestMode: 'historical' });
+    assert.equal(result.offlineVersion, offlineVersion);
+    await assert.rejects(
+      smokePlatform(options),
+      change === 'syntax' ? /Offline version differs/ : undefined,
+    );
+    runtimeBytes.set(
+      '/index.html',
+      Buffer.from(runtimeBytes.get('/index.html').toString().replace('description', 'descriptioX')),
+    );
+    await assert.rejects(
+      smokePlatform({ ...options, appManifestMode: 'historical' }),
+      /Historical App entry hash differs/,
+    );
+  }
+});
