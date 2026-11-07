@@ -4,9 +4,19 @@
 export const TP_SIZES = [12, 14, 16, 18, 24, 36]; // TPTextStyles: caption, body, h3, title, h2, h1
 export const TP_WEIGHTS = [400, 600];
 
+/** Undoes CSS escapes (`\62 old` and `\62old` → `bold`, `\o` → `o`) so an escaped name or value is checked as what it means. */
+export function unescapeCss(text) {
+  return text.replace(/\\([0-9a-f]{1,6})[ \t\n\r\f]?|\\([^\n\r\f0-9a-f])/gi,
+    (_, code, ch) => {
+      if (!code) return ch;
+      const n = Number.parseInt(code, 16);
+      return String.fromCodePoint(n > 0 && n <= 0x10ffff && (n < 0xd800 || n > 0xdfff) ? n : 0xfffd);
+    });
+}
+
 /** Every `prop: value` in the stylesheet, with the selector (or at-rule) it sits under. */
 export function declarations(cssText) {
-  const text = cssText.replace(/\/\*[\s\S]*?\*\//g, '');
+  const text = unescapeCss(cssText.replace(/\/\*[\s\S]*?\*\//g, ''));
   const found = [];
   const stack = [];
   let buf = '';
@@ -70,7 +80,9 @@ const hex = (r, g, b) => `#${[r, g, b].map((n) => Number(n).toString(16).padStar
  */
 export function audit(cssText, paletteHexes) {
   const decls = declarations(cssText).map((d) => ({ ...d, value: d.value.toLowerCase().replace(/\s*!\s*important$/, '') }));
-  const defined = new Set(decls.filter((d) => d.prop.startsWith('--')).map((d) => d.prop));
+  const defs = new Map();
+  for (const d of decls) if (d.prop.startsWith('--')) defs.set(d.prop, [...(defs.get(d.prop) || []), d.value]);
+  const defined = new Set(defs.keys());
   const problems = [];
   for (const { selector, prop, value } of decls) {
     const at = `${selector} { ${prop}: ${value} }`;
@@ -94,17 +106,42 @@ export function audit(cssText, paletteHexes) {
     } else if (/#[0-9a-f]{3,8}\b|\b(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix)\(|\bcurrentcolor\b/.test(value)) {
       problems.push(`colour literal in a non-colour property: ${at}`);
     }
-    if (prop === 'font-size') checkSize(value, at, problems);
-    if (prop === 'font-weight') checkWeight(value, at, problems);
+    if (prop === 'font-size') for (const v of expand(value, defs, at, problems)) checkSize(v, at, problems);
+    if (prop === 'font-weight') for (const v of expand(value, defs, at, problems)) checkWeight(v, at, problems);
     if (prop === 'font' && !['inherit', 'initial', 'unset'].includes(value)) {
-      const parts = words(value.split(',')[0]);
-      const sizeAt = parts.findIndex((p) => /^(\d+(\.\d+)?|\.\d+)[a-z%]/.test(p));
-      if (sizeAt < 0) { problems.push(`font shorthand without a TPTextStyles size: ${at}`); continue; }
-      checkSize(parts[sizeAt].split('/')[0], at, problems);
-      for (const p of parts.slice(0, sizeAt)) if (weightOf(p) !== null) checkWeight(p, at, problems);
+      for (const v of expand(value, defs, at, problems)) checkFontShorthand(v, at, problems);
     }
   }
   return problems;
+}
+
+/**
+ * Every value a declaration can take once its var()s are substituted, one per combination of the variable's
+ * definitions. A var() that is undefined, has a fallback, or nests too deep cannot be checked: it is reported and
+ * yields nothing, so the type check fails closed instead of skipping the value.
+ */
+function expand(value, defs, at, problems, depth = 0) {
+  const m = value.match(/var\(\s*(--[\w-]+)\s*(,[^)]*)?\)/);
+  if (!m) return [value];
+  if (m[2] || !defs.has(m[1]) || depth > 8) {
+    problems.push(`font value uses a var() that does not resolve to a plain value: ${at}`);
+    return [];
+  }
+  return defs.get(m[1]).flatMap((def) => expand(value.replace(m[0], def), defs, at, problems, depth + 1));
+}
+
+// Words allowed before the size in the font shorthand besides the weight: style, small-caps and stretch.
+const FONT_PREFIX = new Set(['normal', 'italic', 'oblique', 'small-caps', 'ultra-condensed', 'extra-condensed', 'condensed',
+  'semi-condensed', 'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded']);
+function checkFontShorthand(value, at, problems) {
+  const parts = words(value.split(',')[0]);
+  const sizeAt = parts.findIndex((p) => /^(\d+(\.\d+)?|\.\d+)[a-z%]/.test(p));
+  if (sizeAt < 0) { problems.push(`font shorthand without a TPTextStyles size: ${at}`); return; }
+  checkSize(parts[sizeAt].split('/')[0], at, problems);
+  for (const p of parts.slice(0, sizeAt)) {
+    if (weightOf(p) !== null) checkWeight(p, at, problems);
+    else if (!FONT_PREFIX.has(p)) problems.push(`font shorthand word "${p}" is not a known style or weight: ${at}`);
+  }
 }
 
 // CSS weight keywords as numbers. bolder/lighter are relative; from a 400 parent they give 700 and 100.
@@ -113,6 +150,7 @@ function weightOf(word) {
   if (word in WEIGHT_KEYWORD) return WEIGHT_KEYWORD[word];
   return /^\d+(\.\d+)?$/.test(word) ? Number(word) : null;
 }
+// Anything else — inherit, initial, unset, revert, var() leftovers — fails: the weight it gives cannot be checked here.
 function checkWeight(value, at, problems) {
   if (!TP_WEIGHTS.includes(weightOf(value))) problems.push(`font weight is not 400 or 600: ${at}`);
 }

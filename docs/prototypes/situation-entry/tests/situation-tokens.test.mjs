@@ -75,6 +75,24 @@ const MUTATIONS = {
   'color: currentColor': '.dial { color: currentColor; }',
   'background: currentColor': '.x { background: currentColor; }',
   'semantic token set to currentColor': ':root { --ink: currentColor; }',
+  // Review round 14: weights through var() or CSS escapes, and keywords whose weight the audit cannot see.
+  'font shorthand weight through a variable': ':root { --heavy: 900; } .dial { font: var(--heavy) 16px sans-serif; }',
+  'font-weight through a variable': ':root { --heavy: 900; } .dial { font-weight: var(--heavy); }',
+  'font-weight through a chain of variables': ':root { --a: var(--b); --b: 700; } .x { font-weight: var(--a); }',
+  'variable that is 600 in one rule and 900 in another': ':root { --w: 600; } .y { --w: 900; } .x { font-weight: var(--w); }',
+  'font-weight var() with a fallback': '.x { font-weight: var(--nope, 900); }',
+  'font shorthand whose size and weight come from one variable': ':root { --f: 900 16px; } .x { font: var(--f) sans-serif; }',
+  'escaped bold with a space in font-weight': '.x { font-weight: \\62 old; }',
+  'escaped bold without a space in the font shorthand': '.x { font: \\62old 16px sans-serif; }',
+  'escaped property name': '.x { font-w\\65 ight: 900; }',
+  'escaped named colour': '.x { color: r\\65 d; }',
+  'font-weight inherit': '.x { font-weight: inherit; }',
+  'font-weight unset': '.x { font-weight: unset; }',
+  'font-weight initial': '.x { font-weight: initial; }',
+  'font-weight revert (browser default, bold on headings)': '.x { font-weight: revert; }',
+  'font revert': '.x { font: revert; }',
+  'unknown word before the size in the font shorthand': '.x { font: heavy 16px sans-serif; }',
+  'font-variation-settings weight axis': '.x { font-variation-settings: "wght" 900; }',
 };
 for (const [name, rule] of Object.entries(MUTATIONS)) {
   test(`audit rejects ${name}`, () => {
@@ -89,6 +107,9 @@ const ACCEPTED = {
   'font-weight normal (400)': '.x { font-weight: normal; }',
   'upper-case 600 shorthand with !important': '.x { FONT: 600 16PX/1.4 SANS-SERIF !IMPORTANT; }',
   'token colour with !important': '.x { color: var(--ink) !important; }',
+  'font-weight through a variable set to 600': ':root { --strong: 600; } .x { font-weight: var(--strong); }',
+  'italic 600 font shorthand': '.x { font: italic 600 14px sans-serif; }',
+  'font: inherit (takes the audited parent font)': '.x { font: inherit; }',
 };
 for (const [name, rule] of Object.entries(ACCEPTED)) {
   test(`audit accepts ${name}`, () => {
