@@ -865,3 +865,46 @@ test('review small items: no speak card for public Wi-Fi hotspots, guide filters
   const stale = runtime({ storage: { 'friendly-native-language-v1': 'vi' } }); await settle();
   assert.equal(stale.state.prefs.lang, 'zh-TW'); assert(stale.storageWrites.some(([key, value]) => key === 'friendly-native-language-v1' && value === null), 'the unlisted value is removed');
 });
+
+test('review F-8: after switching guide targets twice, ending guidance returns to the result card in one press', async () => {
+  const app = runtime(); await app.fix(0, { ...cityHall });
+  await app.click('[data-urgency="toilet"]'); const first = resultId(app); await app.click('[data-action="go"]');
+  const others = actualData.stores.filter(s => hasCoordinates(s) && s.services.includes('toilet') && String(s.id) !== first).slice(0, 2);
+  for (const other of others) {
+    await app.click('#guidance-resources'); app.r.document.querySelector('#sheet-body').innerHTML = `<button class="resource-row" data-resource="${other.id}"></button>`;
+    await app.element(`[data-resource="${other.id}"]`).dispatch('click');
+  }
+  assert.equal(app.state.selectedId, String(others[1].id));
+  app.history.back(); await settle(); assert.equal(app.state.view, 'guide', 'system back still steps to the previous target');
+  assert.equal(app.state.selectedId, String(others[0].id));
+  await app.click('#guidance-end'); assert.equal(app.state.view, 'result'); assert.equal(resultId(app), first);
+  await app.click('[data-action="go"]');
+  for (const other of others) {
+    await app.click('#guidance-resources'); app.r.document.querySelector('#sheet-body').innerHTML = `<button class="resource-row" data-resource="${other.id}"></button>`;
+    await app.element(`[data-resource="${other.id}"]`).dispatch('click');
+  }
+  await app.click('#guidance-end'); assert.equal(app.state.view, 'result', 'one press of 結束導引 leaves guidance');
+  app.history.back(); await settle(); assert.equal(app.state.view, 'home');
+});
+
+test('review F-9: reloading on a result-card guide keeps the "nearest" heading once location returns', async () => {
+  const nearest = nearestIds('toilet')[0];
+  const app = runtime({ historyState: { view: 'guide', urgency: 'toilet', storeId: nearest, index: 0, depth: 2 } }); await settle();
+  assert.equal(app.state.view, 'guide'); await app.fix(0, { ...cityHall });
+  assert.equal(app.element('#guidance-heading').textContent, '最近的廁所');
+});
+
+test('review F-10: switching guide targets cleans up the old guide before the new one starts', async () => {
+  const calls = []; const app = runtime({ highlightCalls: calls }); await app.fix(0, { ...cityHall });
+  await app.click('[data-urgency="toilet"]'); const first = resultId(app); await app.click('[data-action="go"]');
+  const stale = app.routeRequests.at(-1);
+  const other = actualData.stores.find(s => hasCoordinates(s) && s.services.includes('toilet') && String(s.id) !== first);
+  const pausesBefore = calls.filter(call => call.method === 'pauseGuide').length;
+  await app.click('#guidance-resources'); app.r.document.querySelector('#sheet-body').innerHTML = `<button class="resource-row" data-resource="${other.id}"></button>`;
+  await app.element(`[data-resource="${other.id}"]`).dispatch('click');
+  assert.equal(calls.filter(call => call.method === 'pauseGuide').length, pausesBefore + 1, 'the old countdown is paused on switch');
+  stale.resolve(routeResult()); await settle();
+  assert.equal(app.state.guideRoute, null, 'the old target route is ignored'); assert.equal(calls.filter(call => call.method === 'openToilet').length, 0);
+  app.routeRequests.at(-1).resolve(routeResult()); await settle();
+  assert.equal(calls.filter(call => call.method === 'openToilet').at(-1).id, String(other.id));
+});

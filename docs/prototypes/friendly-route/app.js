@@ -310,8 +310,12 @@
     else if (!store && state.route) fitDestinationRoute();
     else if (state.position) focusPoint(state.position);
   }
-  function startGuidance() { pushScreen({ view: 'guide', urgency: state.urgency, storeId: state.mode === 'resource' ? state.selectedId : null }); }
-  function endGuidance() { goBack(); }
+  function startGuidance() { pushScreen({ view: 'guide', urgency: state.urgency, storeId: state.mode === 'resource' ? state.selectedId : null, exitDepth: currentDepth() }); }
+  // 「結束導引」回到進導引前那一筆；導引中換過目標也一次離開。返回鍵與系統返回仍一步一步退。
+  function endGuidance() {
+    const exitDepth = window.history?.state?.exitDepth; const depth = currentDepth();
+    if (Number.isInteger(exitDepth) && exitDepth >= 0 && exitDepth < depth) window.history.go(exitDepth - depth); else goBack();
+  }
   const guideStore = () => state.screen === 'guide' && state.mode === 'resource' ? byId.get(state.selectedId) || null : null;
   function arrowRotation(position, store) { const angle = bearing(position, store); return state.orientationEnabled && state.heading !== null ? angle - state.heading : angle; }
   const approx = () => state.position?.accuracy > 100 ? '約 ' : '';
@@ -368,6 +372,8 @@
       return;
     }
     if (next.view === 'guide') {
+      // 重新載入時記憶體沒有結果清單：依 entry 重建，標題才能判斷是不是結果卡那一筆。
+      if (state.urgency && state.result?.urgency !== state.urgency) { state.result = rankFor(state.urgency); state.resultIndex = Math.max(0, Number(next.index) || 0); }
       if (store) selectResource(store.id);
       setView('guide'); if (store) enterGuide(store);
       requestAnimationFrame(() => { if (state.screen === 'guide') focusGuidance(); });
@@ -418,9 +424,10 @@
   }
   function refreshUrgencyScreens() {
     if (state.view === 'result' && state.urgency) { state.result = rankFor(state.urgency); state.resultIndex = 0; replaceScreen({ index: 0 }); renderResult(); }
+    if (state.view === 'guide' && state.urgency && valid(state.position) && !state.result?.items.length) { state.result = rankFor(state.urgency); state.resultIndex = Math.max(0, Number(window.history?.state?.index) || 0); renderGuidance(); }
     const store = guideStore(); if (store && state.guideStatus === 'waiting-location' && state.position) scheduleGuideRoute(store);
   }
-  function startGuide(store) { if (!valid(store)) return; if (state.urgency) { state.filters = new Set([state.urgency]); renderFilters(); } selectResource(store.id); pushScreen({ view: 'guide', urgency: state.urgency, storeId: store.id }); }
+  function startGuide(store) { if (!valid(store)) return; if (state.urgency) { state.filters = new Set([state.urgency]); renderFilters(); } selectResource(store.id); const current = window.history?.state; const exitDepth = state.screen === 'guide' && Number.isInteger(current?.exitDepth) ? current.exitDepth : currentDepth(); pushScreen({ view: 'guide', urgency: state.urgency, storeId: store.id, index: state.resultIndex, exitDepth }); }
   function openMap() {
     if (state.screen === 'result' && state.urgency) {
       highlights?.close?.(); const store = resultStore(); state.filters = new Set([state.urgency]); renderFilters();
@@ -598,7 +605,7 @@
   window.addEventListener('popstate', event => applyScreen(event.state));
   $('#mode-toggle')?.addEventListener('click', toggleMode);
   $('#start-guidance')?.addEventListener('click', startGuidance);
-  $('#exit-guidance')?.addEventListener('click', endGuidance);
+  $('#exit-guidance')?.addEventListener('click', goBack);
   $('#guidance-end')?.addEventListener('click', endGuidance);
   $('#guidance-detail')?.addEventListener('click', () => showDetails(byId.get(state.selectedId)));
   $('#guidance-resources')?.addEventListener('click', () => { openSheet('視窗內的資源', '', 'list'); renderPanel(); });

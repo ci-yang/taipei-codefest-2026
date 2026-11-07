@@ -85,6 +85,9 @@ ok('guide switch heading is not "nearest"', switched.heading === '前往選取�
 await g.screenshot({ path: `${out}/15-guide-switched-target.png` });
 await g.goBack(); await g.waitForTimeout(500);
 ok('back returns to the first guide target', await g.evaluate(() => history.state.storeId) === firstStore);
+await g.goForward(); await g.waitForTimeout(500);
+await g.click('#guidance-end'); await g.waitForTimeout(500);
+ok('one press of 結束導引 after switching returns to the result card', await g.evaluate(() => document.querySelector('#app').dataset.view) === 'result');
 // 審查情境 2：雷達殘留不得蓋掉從結果卡帶去的卡片。
 const r = await ctx.newPage(); r.on('pageerror', e => errors.push(e.message));
 await r.goto(base); await r.waitForFunction(() => /±/.test(document.querySelector('#home-location').textContent));
