@@ -5,3 +5,5 @@
 export * from './places';
 export * from './opendata';
 export * from './health';
+export * from './friendly';
+export * from './platform';

@@ -22,6 +22,6 @@ import { RouterLink, RouterView } from 'vue-router';
   padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
   z-index: 10;
 }
-.tabbar a { text-decoration: none; color: var(--muted); padding: 6px 16px; }
+.tabbar a { display: inline-flex; align-items: center; min-height: 40px; text-decoration: none; color: var(--muted); padding: 6px 16px; }
 .tabbar a.router-link-exact-active { color: var(--brand); font-weight: 600; }
 </style>

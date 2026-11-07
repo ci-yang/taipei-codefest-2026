@@ -28,9 +28,23 @@ quality_log:
       - Knowledge：本輪仍無正式模組或 Feature Spec 可匹配；沿用既有候選路徑，未建立虛構 Knowledge。
       - INVEST：revision 2 的 US-2、US-4、US-6、US-7 共用路線及保存邊界，US-5
         的正式跨裝置身分與狀態契約仍待計畫站拆定；本輪獨立規格複核與結構驗證通過，不等同正式服務或現場通行驗收。
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    baseline_revision: 3
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - 已按 Ci 指定的凍結 blob 6da4a77f904db5877d10fe8a54adf90356a178dc 原樣同步
+        proposal，並由 CLI amendment 建立 acceptance revision 3；validation 被既有
+        abandoned history 同 identity 衝突阻擋，不宣稱完成正式計畫或實作站。
+      - Knowledge module-map 與 Feature Specs 仍空；主樹 plan/delta 為舊 scaffold
+        草稿，未匯入為已定計畫。INVEST 的 P0 依定位與離線契約共享，已以獨立故障案例測試；TownPass 實機驗證仍待補。
 acceptance:
   version: 1
-  current_revision: 2
+  current_revision: 3
   revisions:
     - revision: 1
       digest: 5f24e004331f71310636d8397d4408a4ab07168ed871cdb761bf966c9cdc7d50
@@ -235,5 +249,137 @@ acceptance:
           text: WHEN 我套用或刪除歷史行程，THEN
             套用會還原站序與方案偏好、保留這次已選日期並重新計算，舊起點標為歷史起點；刪除後該筆不再出現，不把歷史紀錄當作目前位置或即時路況。
           source: proposal.md:85
+    - revision: 3
+      digest: 7cb7b56b7e85ecadf1f8bc773f57627f3d45d2e050d740bf1f6476b08b62481d
+      previous_digest: f8ce0497a2c7f9a2348c78e88f6cbdea0a89c5560469579afd0e6ffe75c52a96
+      captured_at: 2026-11-07T09:54:44.558Z
+      captured_status: story
+      origin: story
+      reason: 依 Ci 交接的凍結 proposal 6da4a77f904db5877d10fe8a54adf90356a178dc 同步 D6 與
+        D7；移除互助回報並以離線資源入口為 P0
+      scenarios:
+        - id: US-1.1
+          story_id: US-1
+          text: WHEN 我開啟首頁並允許定位，THEN 定位、導航、撥號依 `docs/townpass-integration.md` 的協定，在原型內以純
+            JS 實作等價的 bridge 呼叫（`flutterObject.postMessage` 加 message 事件回覆；可移植
+            `apps/web/src/composables/useTownPassBridge.ts` 的邏輯，但不 import
+            Vue、不依賴 apps/web），地圖標示回傳的目前位置、定位精度與取得時間，不將示範座標標成 GPS。
+          source: proposal.md:32
+        - id: US-1.2
+          story_id: US-1
+          text: WHEN bridge 定位回傳空陣列 `[]` 或失敗，THEN 顯示統一狀態「無法取得定位」與重新定位入口；只有退到瀏覽器
+            `navigator.geolocation` 的降級路徑時，才細分拒絕、逾時、不支援。
+          source: proposal.md:33
+        - id: US-1.3
+          story_id: US-1
+          text: WHEN 定位精度 accuracy 大於 100 m，THEN 視為精度不足並標示；精度不足仍顯示該位置並標「精度不足」，算有效位置（100 m
+            為暫定門檻，計畫站可調）。
+          source: proposal.md:34
+        - id: US-1.4
+          story_id: US-1
+          text: WHEN 沒有有效位置，THEN 地圖改以預設市中心呈現並提示「目前非您的位置」；不顯示定位成功，距離與方位改以地圖中心估算並明示。
+          source: proposal.md:35
+        - id: US-1.5
+          story_id: US-1
+          text: WHEN 我在搜尋框輸入目的地，THEN 先比對本機已快取點位的名稱與地址，再視網路狀態使用線上地理編碼（Photon，開源、OSM
+            資料）；地圖移至該處並可從該處查看各類店家；查無結果時說明原因，不捏造地點。離線時隱藏線上來源並明示「僅搜尋已下載資料」。呼叫
+            Photon 不帶使用者座標；畫面常駐標示 © OpenStreetMap contributors（ODbL），Photon 列入
+            SC-007 的來源清單。
+          source: proposal.md:36
+        - id: US-1.6
+          story_id: US-1
+          text: WHEN 我按底部類別鈕（離線時亦可用；廁所、充電、Wi-Fi、無障礙，類別可擴充；Wi-Fi＝名冊 Wi-Fi
+            標記店家加公眾區免費無線上網熱點的聯集；熱點卡片顯示熱點名稱、地址、來源，無電話不顯示撥號），THEN 地圖 highlight
+            該類店家：初始顯示全部點位（一般樣式），選類別後符合者放大、加亮、加類別圖示，不符合者降低不透明度但不移除；再按一次取消；可同時選多類，明示多選為「任一符合」；「範圍」指目前地圖視窗，該範圍無符合者時顯示零筆。
+          source: proposal.md:37
+        - id: US-1.7
+          story_id: US-1
+          text: WHEN 我點選店家，THEN
+            顯示卡片：名稱、距離（一律為直線距離，畫面統一標「直線距離（非步行路線）」，線上離線同一規則）、類別、資料來源與更新日；空白標記顯示「未標示」，未確認條件顯示「待確認」，不宣稱免費免消費或目前可用。
+          source: proposal.md:38
+        - id: US-1.8
+          story_id: US-1
+          text: WHEN 卡片資料含電話，THEN 顯示「撥號」並透過 TownPass bridge `phone_call` 撥出；無電話欄位則不顯示該按鈕。
+          source: proposal.md:39
+        - id: US-1.9
+          story_id: US-1
+          text: WHEN 我按卡片上的「導航」，THEN 透過 TownPass bridge `launch_map` 傳入
+            `geo:<lat>,<lon>?q=<lat>,<lon>(<店名 URL encode>)` URI，交給裝置預設地圖
+            App；不得寫死 Google 或 Apple Maps 網址。geo URI 回 false 或逾時（5 秒）時，以
+            `launch_map` 再送一次 OSM 網址
+            `https://www.openstreetmap.org/?mlat=<lat>&mlon=<lon>#map=18/<lat>/<lon>`。
+          source: proposal.md:40
+        - id: US-1.10
+          story_id: US-1
+          text: WHEN OSM 網址也回 false 或逾時（5 秒，規格設定值；bridge 文件為一定回覆，逾時只是防呆），THEN
+            顯示「無法開啟外部地圖」並保留地址可複製，不顯示已開啟。`phone_call` 回 false
+            或逾時即顯示「無法撥號」並保留電話可複製。
+          source: proposal.md:41
+        - id: US-1.11
+          story_id: US-1
+          text: WHEN flutterObject 不存在（一般瀏覽器），THEN 導航與撥號按鈕仍顯示，按下後說明「需在台北通 App
+            內使用」，保留地址與電話可複製，不呼叫 postMessage。
+          source: proposal.md:42
+        - id: US-2.1
+          story_id: US-2
+          text: WHEN 我設定有效起點與依序經過的 1–5 個目的地並按下一步，THEN
+            進入獨立確認頁，顯示可用路線、各站順序、距離、符合需求的沿線店家數與類別。
+          source: proposal.md:49
+        - id: US-2.2
+          story_id: US-2
+          text: WHEN 系統提出「最短路徑」及「資源最多」方案，THEN
+            最短明示限定本次可用路網；資源最多明示限定本次產生的候選，按相同需求與距離範圍計算不重複店家數，並呈現兩者的距離與資源差異。
+          source: proposal.md:50
+        - id: US-2.3
+          story_id: US-2
+          text: WHEN 地點需要接至可用路網，THEN 只允許每段不超過 120 m（規格設定值，見 input-evidence.md
+            本輪修訂來源，非實測）的端點接線，另列接線距離並納入總距離，標示接線未驗證現場通行；超限即拒絕該地點並提供修改入口。
+          source: proposal.md:51
+        - id: US-2.4
+          story_id: US-2
+          text: WHEN 地點無法辨識、超出路網、路段不連通或沒有不同的替代方案，THEN
+            說明原因與可修改項目，不以直線跨越不連通路段、不捏造第二條路線；原型路線不保證現場通行或無障礙。
+          source: proposal.md:52
+        - id: US-4.1
+          story_id: US-4
+          text: WHEN 首次有網路開啟，THEN
+            自動快取全市店家點位與類別（不只某條路線範圍）；底圖快取以目前視窗附近為限，並明示底圖涵蓋範圍；快取進行中顯示進度。
+          source: proposal.md:58
+        - id: US-4.2
+          story_id: US-4
+          text: WHEN 全市點位、類別資料與頁面本身都快取成功，THEN
+            才顯示「已快取」及儲存時間與底圖涵蓋範圍；任何一項快取失敗都不得顯示「已快取」，並說明缺哪一項。
+          source: proposal.md:59
+        - id: US-4.3
+          story_id: US-4
+          text: WHEN 斷網並重開頁面，THEN 仍可定位、按類別鈕
+            highlight、點店家看卡片，並以直線計算距離與方位；底圖範圍外只顯示店家點位，不假裝有底圖。
+          source: proposal.md:60
+        - id: US-4.4
+          story_id: US-4
+          text: WHEN 斷網且目前位置沒有底圖，THEN 提供「方向與距離」導引畫面：文字寫成「店家在您的東北方（以正北為基準），約 120
+            公尺」（數字僅為示意），不需羅盤也能顯示；有方位感測時才轉動大箭頭指向所選店家，不需要路網；無方位感測時，畫面上方視為正北，靜態箭頭指向店家方位角，並標「以正北為基準」。沒有有效定位時不顯示箭頭，只顯示「需要定位才能指向」與重新定位入口；方位感測不可用或被拒時，保留方位文字與距離並說明。
+          source: proposal.md:61
+        - id: US-4.5
+          story_id: US-4
+          text: WHEN 斷網時按「導航」或「撥號」，THEN
+            說明依賴外部程式或通話功能、可能無法使用，保留方向與距離導引及電話號碼供手動撥打；距離須標示「直線距離（非步行路線）」。
+          source: proposal.md:62
+        - id: US-4.6
+          story_id: US-4
+          text: WHEN 沒有已快取內容或要求快取範圍外的資料，THEN 說明缺少離線資料，保留仍可讀的內容。
+          source: proposal.md:63
+        - id: US-7.1
+          story_id: US-7
+          text: WHEN 我進入行程設定頁，THEN 可選日期、歷史路線、起點及目的地；新行程預設裝置當日日期與可用的目前位置，畫面不依選定日期宣稱店家正在營業。
+          source: proposal.md:70
+        - id: US-7.2
+          story_id: US-7
+          text: WHEN 我確認路線並明確選擇保存為歷史，THEN 才將日期、起迄點及選定方案存入本機歷史；初始歷史為空，保存失敗不得顯示成功。
+          source: proposal.md:71
+        - id: US-7.3
+          story_id: US-7
+          text: WHEN 我套用或刪除歷史行程，THEN 套用會還原站序與方案偏好、保留這次已選日期並重新計算，舊起點標為歷史起點；刪除後該筆不再出現。
+          source: proposal.md:72
 premise_version: 1
 retry_of: []

@@ -1,0 +1,25 @@
+{
+  "verdict": "WARN",
+  "dimensions": {
+    "bidirectional_coverage": {
+      "result": "PASS",
+      "rationale": "REQ-FRIENDLY-PLATFORM-001 至 005 均有明確任務引用；T01–T28 全部標註並可回溯 plan 的 step 1–6。T06、T09 採最終單列 immutable D1 snapshot，未另建候選 batch writer；T12–T15 對應設計元件，未增加規格外功能。"
+    },
+    "dag_topological_order": {
+      "result": "PASS",
+      "rationale": "依 plan 的實際責任區核對：shared 契約與純路由先於資料、repository、HTTP／Worker 組裝，再接前端 adapter、頁面及部署入口。匯入 CLI 位於 schema／repository 之後；發布與 APK 交付位於相依項之後。module-map 為空，此結論來自 plan 呼叫鏈與任務順序，未宣稱已通過模組圖驗證。"
+    },
+    "tdd_module_closure": {
+      "result": "PASS",
+      "rationale": "Tests 區涵蓋全部責任區：T20 對 shared/data，T21 對 API，T22 對 D1、scripts、Wrangler／CI，T23 對 web，T24 對外部 TownPass，T25 對 docs 與整體 smoke。T20／T21／T23 指定 Vitest，T22 指定真實 local D1／Wrangler；外 repo 的 Python／Flutter 驗證獨立列出，未冒充本 repo 覆蓋。"
+    },
+    "task_sizing_schema": {
+      "result": "WARN",
+      "rationale": "共 28 項，Summary 計數一致且未超過 30 項上限；23 項程式／文件任務、T19／T26／T27 的 [M] 與 T24／T25 的 [V] 符合 tasks-format §4。28 項略高於 15–25 項建議範圍，屬提示；未提供行數估算不是缺陷，也未據此推斷任務超過 200 行。"
+    }
+  },
+  "evidence": "本次為獨立 fresh-context、ticketless tasks 驗證，只核對規劃產物與必要規則，沒有執行整包測試或修改程式。已讀 prospec/index.md、CONSTITUTION.md、_conventions.md、module-map.yaml、tasks-format.md、tasks-verifier-rubric.md、delegation-protocol.md，以及本 change 的 plan.md、delta-spec.md、design-spec.md、interaction-spec.md、tasks.md；CLI 版本為 2.6.0。需求對應：001 由 T01、T07、T08、T15、T16 實作並由 T21、T22、T25、T26 驗證；002 由 T01、T04–T10、T28 實作並由 T20–T22、T25 驗證；003 由 T02、T03、T10–T15 實作並由 T20、T23、T25 驗證；004 由 T19、T27 的外 repo／交付動作及 T28 文件承接，由 T24、T25 驗證；005 由 T16–T18、T28 實作並由 T22、T25、T26 驗證。反向追溯：T01–T04 對 step 1，T05–T09 對 step 2，T10–T15 對 step 3，T16–T18 對 step 4，T19、T27 對 step 5，T20–T23、T25、T28 對 step 6，T24 對 step 5／6，T26 對 step 4／6。D1 依最終 plan 的 version 主鍵單列快照、同 hash 可重跑、異 hash 拒絕與回讀驗證核對；未以候選歷史中的多列 batch 要求第二套實作。Tests 雖集中於後段，tasks 前言已規定先建立失敗案例再實作。Knowledge index 與 module-map 尚未登錄正式模組，因此分層及測試閉合以 plan 明列的實際責任區核對；沒有把空模組圖誤判為已驗證依賴。所有四個維度均未發現需退回修正的結構缺陷；唯一提示為任務數略高於理想範圍。此報告只驗任務契約，不宣稱部署、APK、實機或測試已通過。",
+  "warnings": [
+    "任務共 28 項，略高於建議的 15–25 項但低於 30 項上限；現有分割有明確責任邊界，屬非阻擋提示。"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "recommended_option": "option-a",
+  "evaluation_matrix": [
+    {"dimension": "blast_radius_complexity", "winner": "option-a", "score_rationale": "兩者 touched_modules 皆為 0；估計行數 A 3400 小於 B 4600，依規則選 A。"},
+    {"dimension": "constitution_layering", "winner": "tie", "score_rationale": "兩者 direction_violations 皆為 0；module-map 空白，unknown references 已揭露，不能將零視為已驗證分層。"},
+    {"dimension": "extensibility_simplicity", "winner": "option-a", "score_rationale": "本輪只需真實 friendly 名冊、裝置路由、部署與 App；A 共用窄 repository 與 route，保留健康的 Node API，符合當前範圍且較容易回退。B 的全量雙 DB 抽象沒有本輪需求支持。"}
+  ],
+  "rationale": "依機械表與候選自身取捨單向比較，A 獲兩項、分層平手。本比較與候選生成共享主工作脈絡，並非盲評；後續另有 fresh-context 架構驗證。",
+  "graded_by": "in-session"
+}

@@ -1,48 +1,78 @@
-# 友善同行 App Prototype v2
+# 友善同行：App 原型
 
-本資料夾是獨立、可發布的手機 App 討論原型，不變更 `apps/` 的正式服務。四頁流程為地圖首頁 → 行程設定 → 路線確認 → 行程地圖；保留四類資源、品質回報、離線及互助。評論與互助只在本機示範，未向真人發送；這不是原生 APK。
+直接開啟 `index.html` 對應的 HTTP／HTTPS 網址，就是資源地圖 App。手機全螢幕，桌面呈現最大 480px 的 App 視窗；沒有提案側欄或說明頁導覽。
 
-## 開啟
+本輪依 Ci 交接的 D6／D7 與凍結 proposal 實作。程式本體仍在這個目錄，使用純 JavaScript、Leaflet 1.9.4、OpenStreetMap 與 Phosphor 官方圖示；沒有 Vue 執行期依賴，沒有更動 `apps/web`／`apps/api`。
 
-在 repo 根目錄執行 `pnpm prototype`，開啟 `http://localhost:8766`。只需 Python 3；不需啟動 API、Docker 或資料庫，也不需 `.env`。不使用 pnpm 時可直接執行 `python3 -m http.server 8766 --bind 127.0.0.1 --directory docs/prototypes/friendly-route`。結束按 Ctrl+C；8766 已被占用時改用另一個本機 port，不停止別人的服務。
+## 主流程
 
-回歸測試：repo 根目錄執行 `pnpm test:prototype`（Node.js ≥ 22）。[協作交接](../../handoff/2026-11-07-friendly-prototype-collaboration.md) 列出檔案地盤與待討論項目。此輪先做前端；規格是討論基線，不代表後端契約定案。
+1. 開啟即要求定位；精度與取得時間顯示在地圖上。精度大於 100 公尺仍保留位置並提示。失敗時明示非目前位置，距離依地圖中心估算。
+2. 搜尋目的地，先搜尋已下載的名稱／地址，送出後才使用 Photon。離線只查已下載資料，GPS 不附在搜尋請求。
+3. 底部廁所／充電／Wi-Fi／無障礙可以多選，任一符合就高亮；再按取消，非符合點位保留淡色。
+4. 點資源看名稱、類別、來源、官方更新日與「直線距離（非步行路線）」。有有效電話才顯示撥號。
+5. 導航以 TownPass `launch_map` 送 geo URI，失敗或 5 秒逾時改送 OpenStreetMap URL。一般瀏覽器會說明「需在台北通 App 內使用」，保留地址／電話可複製。
 
-在本資料夾以 HTTP／HTTPS 提供檔案，再開啟 `index.html`。定位與 Service Worker 需要 HTTPS 或 localhost；定位另需使用者允許。`analysis.html` 是提案分析；`spec.html` 與 `proposal.md` 是第二版規格副本，正式來源位於 `.prospec/changes/enable-friendly-routes/`。
+本輪移除評論、品質回報、互助、協助者、求助；沒有安排／確認行程頁。多站與日期歷史是規格中的 P1，未在本輪主流程實作。
 
-## 資料來源
+## 本機預覽與可分享產物
 
-| 資料 | 來源與版本 | 是否模擬 |
-|---|---|---|
-| 店家、地址、座標、電話、四類服務標記 | [臺北市友善店家清冊](https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1)，繁中 CSV 更新 2026-07-20 | 否；載入全市 993 筆原始記錄 |
-| 列管公廁與無障礙廁座 | [臺北市公廁點位資訊](https://data.taipei/dataset/detail?id=ca205b54-a06f-4d84-894c-d6ab5079ce79)，CSV 更新 2026-11-05 | 否；載入全市 1,531 筆，包含 41 間麥當勞、51 間摩斯與 37 座名稱明確為中油加油站的點位 |
-| 免費無線上網熱點 | [臺北市公眾區免費無線上網熱點資料（新版）](https://data.taipei/dataset/detail?id=6aa6532d-652f-4c1b-814a-4646b75407af)，CSV 更新 2026-07-01 | 否；載入全市 3,305 個 AP，依類型與地址合併為 2,036 個點位，行政機關亦保留並提醒開放時間限制 |
-| 連鎖餐飲常識推定 | 對上述官方點位中的麥當勞、摩斯、星巴克、路易莎、肯德基及漢堡王，補上內用店常見的 Wi-Fi、充電與廁所線索 | **是，明確標「推定」**；139 個既有點位，非單店官方保證，可能需消費且分店有差異 |
-| 道路、建物、綠地 | [OpenStreetMap API](https://api.openstreetmap.org/api/0.6/map)，2026-11-07 擷取；© OpenStreetMap contributors，[ODbL-1.0](https://opendatacommons.org/licenses/odbl/1-0/) | 否；地方向量快照，非即時地圖 |
-| 路線建議 | 同一批 OSM 官方匯出的地方路網，配合起點與依序目的地計算 | 計算結果；未實地驗證，非正式／無障礙導航 |
-| 目前位置 | 裝置 Geolocation 回傳，附精度與取樣時間 | 否；示範起點另標示，不混稱 GPS |
-| 行程歷史 | 使用者明確保存的本機行程 | 不預填；展示時建立者僅供測試 |
-| 評論、品質狀態 | 使用者在此瀏覽器的試填 | 是；不預填，不是公開評價或官方認證 |
-| 附近協助 | 本機發布者／協助者角色切換 | 是；不通知真人、不代表救援服務 |
+```sh
+pnpm prototype
+# http://127.0.0.1:8766
 
-資源資料已擴為臺北市全市，共 4,560 個官方資源點：993 筆友善店家、1,531 筆列管公廁及 2,036 個 Taipei Free 合併點位。路網及本地向量底圖仍只覆蓋緯度 25.023–25.044、經度 121.546–121.574 的信義安和至台北 101 示範廊帶；全市點位可搜尋與查看，路網外不計算行程。
+# 對外分享前必須打包，依檔案內容產生新快取版本。
+python3 tools/package-friendly-prototype.py /tmp/friendly-app-package
+python3 -m http.server 8776 --bind 127.0.0.1 --directory /tmp/friendly-app-package
+```
 
-三種官方資料在畫面中分開標示來源與證據。友善店家清冊的空白欄位表示「未標示」；列管公廁只證明該點在官方公廁資料中；Taipei Free 只證明官方熱點點位。連鎖餐飲的 Wi-Fi、充電與廁所另以橘色「推定」標籤呈現，不與官方證據混同；加油站廁所仍只用列管公廁資料，不推定手機充電或 Wi-Fi。消費條件、營業、實際可用狀態與品質均需現場確認。Free WiFi 標記不等於非顧客可免消費使用。資料授權見[臺北市資料大平臺條款](https://data.taipei/rule)。
+`package-friendly-prototype.py` 只輸出執行用的 14 個檔案（含 SW），不包含舊提案頁、分析頁或歷史路由資產。快取清單含入口的兩種 URL，計 14 項。整合成員的 `data.js` 後，公開資料與頁面約 8.3 MB；最終大小以打包指令實測輸出為準。
 
-## 地圖與依賴
+`pnpm prototype` 直接使用原始碼的固定 Service Worker 版本。第一次快取後，修改 JS／資料可能仍看到舊內容；請先在瀏覽器開發工具清除該 localhost 網站的 Service Worker 與快取，再重開頁面。要驗證版本更新，先重新打包到預覽目錄再啟動 HTTP server；打包版本會依內容雜湊更新。設定頁的「重新檢查與下載」只補齊目前版本，不等於清除開發快取。
 
-Leaflet 1.9.4 採 BSD-2-Clause，授權附於 `vendor/LICENSE-leaflet.txt`。本頁直接讀取本地 GeoJSON，不向圖磚伺服器請求地圖，沒有預抓 OSM 圖磚。`map-data.geojson` 為可再利用的 ODbL 地方資料副本；店家資料與 OSM 資料分屬各自授權。原型程式依專案 AGPL-3.0-or-later，隨報告附上 [LICENSE](LICENSE.txt) 與 [NOTICE](NOTICE.txt)。
+部署／分享沿用 `publish-report`，先發布到私有主台，再由 `share.sh` 產生隔離連結。正式部署網址及 APK 本輪不變。
 
-資料建立工具在上一層 `build-friendly-data.py`：輸入友善店家 CSV，並可加入公廁 CSV、Taipei Free CSV 與既有 GeoJSON（或 OSM API XML 匯出），以 `--citywide` 產生全市 `data.js` 及地方 `map-data.geojson`。三份原始 CSV 的 SHA-256 保存在 `FRIENDLY_DATA.sources`；建立時間在 `fetchedAt`。Taipei Free 保留所有官方類型，並合併同類型同址 AP。常識推定規則隨快照保存在 `inferenceRules`，不以爬蟲取得資料。
+## 開放資料
 
-## 路線比較與位置
+資料快照與清洗證據在 [`../data/friendly-resources/README.md`](../data/friendly-resources/README.md)，產生資料由 `resources-data.js` 載入。以下皆為官方資料，非模擬。
 
-`routing-data.js` 是同一批 OSM 資料整理的本地步行候選圖，`routing.js` 在瀏覽器計算路線。最短只在這份可用路網、固定站序與連接方式下比較；資源最多只在本次產生的候選路線中比較，使用相同範圍及所選服務去重計數。沒有更有資源的可用候選時不製造第二條。端點短接線另揭露，不能代表現場可通行。
+| 資料集 | 官方資源更新日 | 來源紀錄 |
+|---|---|---:|
+| [友善店家清冊](https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1) | 2026-07-20 | 993 |
+| [臺北市公廁點位](https://data.taipei/dataset/detail?id=ca205b54-a06f-4d84-894c-d6ab5079ce79) | 2026-11-05 | 1,531 |
+| [臺北捷運車站無障礙設施](https://data.taipei/dataset/detail?id=3c799405-4e44-40dd-b747-daed09e88cdb) | 2026-08-31 | 119 |
+| [公眾免費無線上網熱點](https://data.taipei/dataset/detail?id=6aa6532d-652f-4c1b-814a-4646b75407af) | 2026-07-01 | 3,305 |
+| [臺北捷運車站資料服務](https://data.taipei/dataset/detail?id=1eefa68d-7c8d-491b-8e75-66a161947426) | 2026-09-04 | 座標補充來源 |
 
-GPS 超出快照範圍、精度不足或不能接上路網時，讓使用者重新定位、手動選起點或明確進入示範。沒有自動改成展示座標。歷史起點與目前位置分開標示；日期只代表行程日期，不推定店家營業。未選保存前定位只供當次操作；保存行程／離線包時須明示包含起點，所有資料留在此瀏覽器，不呼叫外部路由服務。
+合計 5,948 筆來源紀錄，其中 5,938 筆有座標；109 筆捷運資料以官方站碼或唯一站名對應座標，其餘 10 筆保留無座標，不補造位置。保留官方資料中的少量非北市紀錄；不同來源未當作同一場所去重，計數代表來源紀錄，不是不同店家的數量。
 
-## 離線與限制
+每筆保留 `sourceId/sourceName/sourceUrl/updatedAt`；捷運座標另有 `coordinateSource`。電話原文與 `normalizedPhone` 分開，避免把分機或多組電話串成錯誤號碼。服務標記不代表目前可用、免消費、營業中或路線無障礙。
 
-使用「下載」後才建立當前路線的離線保存狀態。成功應包含頁面、必要資產、本地底圖與店家資料；畫面需顯示保存時間與範圍。手動離線切換是 UI 情境示範，不能取代實際斷網重開測試。瀏覽器可能清除快取；TownPass Android WebView 的保存與重開仍須實機驗證。頁面無雲端 LLM、無真人通知服務。
+成員 `21bc1f3` 的 `build-friendly-data.py` 與 `data.js` 保留全市匯入及 Wi-Fi 同址彙整歷史；現行 App 只從 `data.js` 讀取地方底圖，點位／搜尋／四類篩選一律使用 `resources-data.js`。歷史品牌推定沒有進入現行分類。
 
-正式公開評論的身分、檢舉、維護責任及多人互助後端尚未實作。Prototype 不是正式服務完成度宣告。
+離線重建／重新下載：
+
+```sh
+python3 tools/build-friendly-resources.py
+python3 tools/build-friendly-resources.py --download
+```
+
+## 離線邊界
+
+首次連線會自動快取全市點位與 app shell，全部必要項目成功才顯示「已快取」、時間與底圖範圍。失敗會列缺項，保留既有完整資料；版本與 URL scope 隔離。
+
+離線快照底圖目前限信義區及大安東側（25.023–25.044 N、121.546–121.574 E），是已取得的 OSM 官方 GeoJSON。其他區域保留全市資源點位，缺底圖時使用方向與距離。線上 OSM raster tiles 僅用於當下互動視窗，不預抓、不收入離線包，遵伺服器 HTTP 快取設定。
+
+定位離線仍可重試；不把 GPS、目的地或搜尋紀錄持久儲存。方向以正北為基準，不依賴羅盤；只有主動啟用且收到有效方位訊號才轉動箭頭，沒有位置不顯示箭頭。直線方向不保證現場道路可通行。
+
+TownPass WebView 斷網重開、實際外部地圖／撥號與方位感測仍須 Android 實機驗證。沒有將瀏覽器與模擬 bridge 測試當成實機通過。
+
+## 驗證與規格
+
+```sh
+pnpm test:prototype
+pnpm typecheck && pnpm lint && pnpm test && pnpm build
+```
+
+`friendly-app-state` 是 Node VM 的明示 DOM／Leaflet 替身；bridge 與 SW 測試分開，另有資料清洗測試。瀏覽器實測與限制詳見 [`QA-v6.md`](QA-v6.md)。舊路由計算保留作 P1 歷史資產，不在本輪 UI 或分享套件執行。
+
+規格位於 `.prospec/changes/enable-friendly-routes/proposal.md`，blob `6da4a77f904db5877d10fe8a54adf90356a178dc`。已用 CLI 建立 acceptance revision 3；正式 Prospec validation 仍被既有 abandoned history 衝突阻擋，不宣稱計畫／驗證站完成，也不把主工作樹的 placeholder plan／delta 當成定案。

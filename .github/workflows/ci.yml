@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
 
 jobs:
   ci:
@@ -36,6 +37,19 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm lint
+      - run: pnpm test:prototype
       - run: pnpm db:push && pnpm db:seed
       - run: pnpm test
+      - run: pnpm test:tooling
       - run: pnpm build
+      - run: pnpm test:platform
+      - run: pnpm exec wrangler deploy --dry-run --outdir .artifacts/worker --var BUILD_SHA:${{ github.sha }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friendly-platform-${{ github.sha }}
+          path: |
+            apps/web/dist/
+            .artifacts/worker/
+            data/friendly/manifest.json
+          include-hidden-files: true
+          retention-days: 7

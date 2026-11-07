@@ -1,0 +1,10 @@
+{
+  "url": "https://codefest.ciyang.dev/healthz",
+  "httpStatus": 200,
+  "body": {
+    "ok": true,
+    "db": "up",
+    "postgis": "3.4 USE_GEOS=1 USE_PROJ=1 USE_STATS=1",
+    "time": "2026-11-07T08:22:11.247Z"
+  }
+}

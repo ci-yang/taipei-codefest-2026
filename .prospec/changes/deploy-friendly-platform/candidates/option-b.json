@@ -1,0 +1,54 @@
+{
+  "id": "option-b",
+  "title": "完整分層：純 Hono 應用、共用目錄契約與 PostgreSQL／D1 雙 adapter",
+  "overview": "將 apps/api 全面改為無 Node／資料庫載入副作用的 createApp(dependencies)。保留既有 Hono、Zod 與 shared 公開契約，HTTP route 只負責驗證及回應；應用服務依賴 SpatialDirectoryRepository、SourceCatalog、ReadinessProbe、SnapshotPublisher、Clock、FetchClient 與 PublicConfiguration 等具體職責介面，執行入口才綁定 adapter。legacy places 與 friendly 名冊共用查詢範圍、來源版本、可讀狀態與發佈抽象，但保留不同的 record／query 型別：既有 places 的數字 id 與五種 category 不得混入 friendly 的字串 id 與 wifi／charge／toilet／accessible。apps/api/src/index.ts 保留 Node 服務、pg pool 與關閉程序；新增 worker.ts 僅引入 D1 與 Assets adapter，不以 nodejs_compat 掩蓋頂層 fs／process／pg 耦合。Cloudflare Worker 同源承接 API 與 Vue Assets，先處理 /api/*、/healthz 及 JSON 404，只有前端導覽進 SPA fallback；先發隔離 workers.dev 網址，正式 hostname 仍待 Ci 指定，既有 GCP VM、DNS、PostGIS 與服務保持運行。\n落地分六步：（1）先建立現有 API 的行為基線與雙 adapter 契約測試，將 env、db/client、logger 及 opendata fetch 從 app 依賴圖移到 composition root；（2）定義共用來源／空間目錄介面，新增 pg 與 D1 實作及各自的追加式 migration，保持舊 API 路徑、回應型別、驗證、排序與 mock 標示行為；（3）從已確認 revision 的 prototype 快照建立正式 data/friendly 版本，既有 docs/prototypes/build-friendly-data.py 與 routing.js 是正規化／演算法的原作者位置，本輪不修改它們；正式匯入器只接受解析及驗證過的資料，保存快照本身 SHA-256、來源宣告的原始檔 hash、取得日期與 bounds，兩種 hash 不混稱已重算，驗完筆數、主鍵、服務與完整性才啟用版本；（4）將 routing.js 的已存在演算法移植為 packages/shared/src/routing 純函式，透過固定輸入對照原型結果，Vue 新增獨立 FriendlyMapPage 整合既有 MapLibre worker URL、API 驗證、TownPass bridge、清單 fallback、可注入定位及路由 adapter；（5）建立 immutable build manifest、CI 雙 adapter 測試與 Cloudflare 發佈／回退腳本，發佈只使用明確 commit 與已驗資產，不使用 deploy/release.sh 的全工作樹打包及無條件 db:push --force；（6）與獨立 TownPass repo 的 scripts/build-codefest.sh 交接確認 URL，建置 HTTPS APK、核對 coarse/fine、記錄該 repo SHA／APK hash，沒有 Android 裝置時只交建置證據與待實機清單。評論、真人求助、身分與治理不建立寫入 API；正式 Vue 未完成整包離線前明示需網路，不挪用原型的離線驗證。",
+  "trade_offs": {
+    "pros": [
+      "US-1：同一 createApp 組裝 Node 與 Worker，沒有 handler 內 process.env、Node fs 或預設 pg pool；依賴在入口注入，純 HTTP 測試不需啟動伺服器。既有 health 保留 ok／db／postgis／time，D1 的 postgis 明確為 null，再以相容的可選欄位公開 runtime、build SHA、資料版本與 readiness；名冊不可讀回 503，不假稱資料正常。",
+      "US-2：共用 SpatialQuery 與來源版本／啟用指標抽象，兩種目錄保留各自 schema；friendly 多選服務採任一符合，空值與未標示維持未知，查無回空集合。D1 先用 bounds 篩出候選再用可測的距離函式判斷；pg 使用資料庫空間索引。GPS query 僅存在請求記憶體，應用 logger 排除 query string／位置，無行程寫入或分析事件。",
+      "US-2／US-5：統一 SnapshotPublisher 狀態契約，不宣稱 SQLite 與 PostgreSQL 共用同一份 SQL。各 adapter 有自己的 migration 及交易策略；匯入以版本＋資料 id 為唯一鍵，分批 staging 可重試，驗證 hash、筆數與資料形狀後只做一次啟用指標切換。失敗版本不成為讀取預設，不刪除舊 snapshot；部署回退只回 Worker，不自動倒退資料或重設 DB。",
+      "US-3：純 routing engine 的輸入為通過 schema 驗證的 graph／store snapshot，裝置端計算候選與資源數，保持原型現有地方 bounds、最大候選與估計接線語意；不把 bounds 放大成全市，也不把候選資源最多宣稱全域最佳。API／地圖／位置／路線各有可注入 adapter，能獨立模擬 WebGL、資料資產、定位與不連通失敗。",
+      "US-3：沿用 useTownPassBridge.ts；新版位置狀態以 reason、accuracy、timestamp、source 及 request generation 區分拒絕、未知失敗、逾時、低精度、過期、出界與手動選點。現有 bridge 的 [] 不帶拒絕原因時顯示未知失敗，不臆測權限；晚到定位不覆蓋手動起點。定位的精度／時效門檻是明示的技術設定，加入設定與邊界測試，不冒充產品已拍板。",
+      "US-4／US-5：Node 舊站與 Worker 可分別進行部署、相容性 smoke 和回退；Cloudflare release manifest 包含來源 Git SHA、資產 hash、Worker version、schema 相容區間及 snapshot version，回退前檢查相容。TownPass repo 由獨立建置腳本要求 HTTPS，主 repo 只驗交付 manifest 與 APK hash，不把跨 repo 工作當成本 repo 模組。",
+      "長期收益：同一套應用服務及契約測試可驗 pg、D1 與測試替身，舊 places、來源查詢、健康狀態及新 friendly 功能不再各自創建環境／資料庫依賴；未來改資料儲存或部署平台時較少重新處理 HTTP 與前端契約。"
+    ],
+    "cons": [
+      "本輪必須重構既有 app.ts、routes/health.ts、routes/places.ts、routes/opendata.ts、env.ts、db/client.ts、index.ts 與既有測試，改動面包含目前健康的 Node API；sprint 內需額外安排舊端點全量回歸與獨立審查，不能只跑 friendly happy path。",
+      "D1 不等同 PostGIS。legacy places 目前以 geography 的 ST_DWithin／ST_Distance 篩選、排序並取整，簡單球面 Haversine 不能宣稱完全相容。D1 adapter 必須採經查證的開源 WGS84 geodesic 實作並以固定座標、半徑邊界、排序及整數距離與 pg 對照；未通過前不可宣稱 Worker 的舊 places 替代完成，也不得暗改舊回應語意。此成本與新 friendly 查詢分開估算。",
+      "兩種 migration 與兩套 integration environment 增加維護負擔；健康狀態、來源版本、交易、staging 清理、legacy snapshot 供應等抽象在此時都要有實際 adapter 才有價值。應限制在提案需要的介面，不引入通用 event bus、任意 CRUD repository 或評論／互助治理框架。",
+      "Node 與 Worker 是分開資料庫，這個方案沒有自動雙寫或即時跨平台同步。相同的 immutable 來源快照各自匯入，版本不同時 health／sources 必須如實顯示；現有 GCP 資料保留，不能拿遷移之名覆寫。舊 places 的 demo seed 只能保留於其原有明確標記契約，不得流入 friendly API 或冒充正式店家。",
+      "routing.js 現為 window 全域 IIFE，移植到 shared 必須處理圖資料注入、座標順序與等價測試；複製演算法後要固定 provenance／hash 並明示由正式 package 接管，不可從執行期讀組員持續修改的 docs/prototypes 資產。原型與正式版的後續合併仍需要明確交接。",
+      "可研究 Hyperdrive 延用 pg，但它仍需要 Cloudflare 能到達的 PostgreSQL。現況 GCP PostGIS 僅在 Docker 內，不能為降低重構成本而公開 5432；在未獲確認的私有連線方案前不列為可用交付路徑。本候選採 D1 作 Worker 儲存，pg 留給 Node，沒有把 Hyperdrive 當作無成本第三 adapter。",
+      "Cloudflare SDK、D1 交易與批次限制、版本部署／回退及 geodesic 套件的確切 API、授權與平台限制要在實作前讀現行官方文件確認；此候選只定介面與驗收，不捏造已測結果。Android 實機仍缺席；即使 APK 建置成功也不能宣稱 GPS、WebGL 或飛航模式冷啟動已通過。"
+    ],
+    "blast_radius": "估算約新增或修改 45–60 個本 repo 檔案、約 4,600 行手寫程式／測試／設定／交接文件，另有獨立 TownPass repo 約 7 個建置與權限相關檔案；這些是規劃估算，非 diff 實測。原始 snapshot、路網與建置生成檔不計入手寫行數。影響實際路徑為 apps/api、apps/web、packages/shared、data/friendly、deploy/scripts、.github/workflows、root workspace 設定及本輪交接文件。prospec/index.md 與 module-map.yaml 尚無登錄模組，故不填造假的 touched_modules；call_chain 中既有與計畫新增路徑均需由主流程機械驗證，unknown references 不得解讀成已確認零違規。TownPass 外 repo 的變更獨立核對；docs/prototypes/**、enable-friendly-routes 規格及現有 GCP/DNS 不在本候選修改面。"
+  },
+  "call_chain": [
+    "Node 啟動：apps/api/src/index.ts → apps/api/src/runtime/node.ts → apps/api/src/adapters/postgres/repositories.ts",
+    "Node HTTP 組裝：apps/api/src/index.ts → apps/api/src/app.ts → apps/api/src/routes/places.ts → apps/api/src/services/places.ts → apps/api/src/adapters/postgres/places-repository.ts",
+    "Worker HTTP 組裝：apps/api/src/worker.ts → apps/api/src/runtime/cloudflare.ts → apps/api/src/adapters/d1/repositories.ts",
+    "Worker 舊 places：apps/api/src/worker.ts → apps/api/src/app.ts → apps/api/src/routes/places.ts → apps/api/src/services/places.ts → apps/api/src/adapters/d1/places-repository.ts → apps/api/src/lib/geodesic.ts",
+    "Worker 靜態資產與前端導覽：apps/api/src/worker.ts → apps/api/src/adapters/cloudflare/assets.ts",
+    "Node 健康：apps/api/src/app.ts → apps/api/src/routes/health.ts → apps/api/src/services/health.ts → apps/api/src/adapters/postgres/readiness.ts",
+    "Worker 健康：apps/api/src/app.ts → apps/api/src/routes/health.ts → apps/api/src/services/health.ts → apps/api/src/adapters/d1/readiness.ts",
+    "friendly query 契約：apps/api/src/routes/friendly.ts → packages/shared/src/friendly.ts",
+    "Worker friendly 名冊：apps/api/src/app.ts → apps/api/src/routes/friendly.ts → apps/api/src/services/friendly-directory.ts → apps/api/src/adapters/d1/friendly-repository.ts",
+    "Node friendly 名冊：apps/api/src/app.ts → apps/api/src/routes/friendly.ts → apps/api/src/services/friendly-directory.ts → apps/api/src/adapters/postgres/friendly-repository.ts",
+    "目錄介面共用：apps/api/src/services/places.ts → apps/api/src/ports/spatial-directory.ts",
+    "目錄介面共用：apps/api/src/services/friendly-directory.ts → apps/api/src/ports/spatial-directory.ts",
+    "公開來源與設定：apps/api/src/app.ts → apps/api/src/routes/platform.ts → apps/api/src/services/platform.ts → apps/api/src/ports/source-catalog.ts",
+    "保留 opendata sample：apps/api/src/app.ts → apps/api/src/routes/opendata.ts → apps/api/src/services/opendata.ts → apps/api/src/adapters/http/open-data-client.ts",
+    "正式來源匯入：apps/api/scripts/import-friendly.ts → apps/api/src/services/publish-snapshot.ts → apps/api/src/ports/snapshot-publisher.ts",
+    "D1 snapshot 發佈：apps/api/scripts/import-friendly.ts → apps/api/src/adapters/d1/snapshot-publisher.ts",
+    "PostgreSQL snapshot 發佈：apps/api/scripts/import-friendly.ts → apps/api/src/adapters/postgres/snapshot-publisher.ts",
+    "Vue 名冊顯示：apps/web/src/router.ts → apps/web/src/pages/FriendlyMapPage.vue → apps/web/src/stores/friendly.ts → apps/web/src/adapters/friendly-directory.ts → apps/web/src/lib/api.ts → packages/shared/src/friendly.ts",
+    "Vue 定位：apps/web/src/pages/FriendlyMapPage.vue → apps/web/src/composables/useFriendlyLocation.ts → apps/web/src/adapters/location.ts → apps/web/src/composables/useTownPassBridge.ts",
+    "Vue 路線比較：apps/web/src/pages/FriendlyMapPage.vue → apps/web/src/adapters/local-routing.ts → packages/shared/src/routing/index.ts → packages/shared/src/routing/compare.ts",
+    "Vue 開源地圖：apps/web/src/pages/FriendlyMapPage.vue → apps/web/src/components/FriendlyMap.vue",
+    "不可變版本建置：deploy/scripts/build-platform-release.mjs → deploy/scripts/release-manifest.mjs",
+    "Cloudflare 部署與 smoke：deploy/scripts/deploy-cloudflare.mjs → deploy/scripts/verify-release.mjs",
+    "Cloudflare 回退：deploy/scripts/rollback-cloudflare.mjs → deploy/scripts/verify-release.mjs",
+    "TownPass 外 repo 產物交接驗證：deploy/scripts/verify-townpass-artifact.mjs"
+  ],
+  "estimated_lines": 4600
+}
