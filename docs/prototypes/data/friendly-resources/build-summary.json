@@ -1,0 +1,183 @@
+{
+  "version": "friendly-resources-v1-c0e1a7bd7d44",
+  "fetchedAt": "2026-11-07T09:44:13.266936+00:00",
+  "sources": [
+    {
+      "id": "friendly",
+      "name": "友善店家清冊（繁體中文）",
+      "datasetId": "d807396c-e41f-4005-be42-0160280783a1",
+      "resourceId": "5a5b36e0-f870-4b7f-8378-c91ac5f57941",
+      "updatedAt": "2026-07-20 11:38:58",
+      "provider": "臺北市商業處",
+      "url": "https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1",
+      "metadataVerifiedAt": "2026-11-07",
+      "updatedAtBasis": "官方資源檔案更新時間（Asia/Taipei），不是 API 匯入日或抓取日",
+      "fetchedAt": "2026-11-07T09:42:24.684532+00:00",
+      "snapshot": "friendly.csv",
+      "sha256": "301a3fe1b08dbcf2fc478eeaaa4a19886451df4a7b6f507ceca0ab09b67126c5",
+      "license": "政府資料開放授權條款－第1版",
+      "licenseUrl": "https://data.gov.tw/license",
+      "recordCount": 993,
+      "resourceCount": 993,
+      "locatedCount": 993
+    },
+    {
+      "id": "toilets",
+      "name": "臺北市公廁點位資訊",
+      "datasetId": "ca205b54-a06f-4d84-894c-d6ab5079ce79",
+      "resourceId": "9e0e6ad4-b9f9-4810-8551-0cffd1b915b3",
+      "updatedAt": "2026-11-05 17:28:37",
+      "provider": "臺北市環保局",
+      "url": "https://data.taipei/dataset/detail?id=ca205b54-a06f-4d84-894c-d6ab5079ce79",
+      "metadataVerifiedAt": "2026-11-07",
+      "updatedAtBasis": "官方資源檔案更新時間（Asia/Taipei），不是 API 匯入日或抓取日",
+      "fetchedAt": "2026-11-07T09:42:58.742947+00:00",
+      "snapshot": "toilets.json",
+      "sha256": "3b9ebb60abea098a5a992b047ee38cb2e5aa5dc4584f3bd71d66e7ff83b1f40e",
+      "license": "政府資料開放授權條款－第1版",
+      "licenseUrl": "https://data.gov.tw/license",
+      "recordCount": 1531,
+      "resourceCount": 1531,
+      "locatedCount": 1531
+    },
+    {
+      "id": "mrt",
+      "name": "臺北捷運車站無障礙設施資料",
+      "datasetId": "3c799405-4e44-40dd-b747-daed09e88cdb",
+      "resourceId": "5d45ef49-d60d-4354-b634-8dcf7d28da07",
+      "updatedAt": "2026-08-31 09:19:46",
+      "provider": "臺北捷運公司",
+      "url": "https://data.taipei/dataset/detail?id=3c799405-4e44-40dd-b747-daed09e88cdb",
+      "metadataVerifiedAt": "2026-11-07",
+      "updatedAtBasis": "官方資源檔案更新時間（Asia/Taipei），不是 API 匯入日或抓取日",
+      "fetchedAt": "2026-11-07T09:42:22.237717+00:00",
+      "snapshot": "mrt.json",
+      "sha256": "1513fcd5cfcfbfe5d7c8adedd5f70ead3a2f38e23069d9b7bcb1cdc7eb266b28",
+      "license": "政府資料開放授權條款－第1版",
+      "licenseUrl": "https://data.gov.tw/license",
+      "recordCount": 119,
+      "resourceCount": 119,
+      "locatedCount": 109
+    },
+    {
+      "id": "wifi",
+      "name": "臺北市公眾區免費無線上網熱點資料（新版）",
+      "datasetId": "6aa6532d-652f-4c1b-814a-4646b75407af",
+      "resourceId": "549b3a9b-eb6c-4cb1-848b-8c238735e2db",
+      "updatedAt": "2026-07-01 15:32:22",
+      "provider": "臺北市資訊局",
+      "url": "https://data.taipei/dataset/detail?id=6aa6532d-652f-4c1b-814a-4646b75407af",
+      "metadataVerifiedAt": "2026-11-07",
+      "updatedAtBasis": "官方資源檔案更新時間（Asia/Taipei），不是 API 匯入日或抓取日",
+      "fetchedAt": "2026-11-07T09:44:13.266936+00:00",
+      "snapshot": "wifi.json",
+      "sha256": "693a778e2e0dd8709096a714e07cecd98ed717d778c1fdd542c6b88edf699dd4",
+      "license": "政府資料開放授權條款－第1版",
+      "licenseUrl": "https://data.gov.tw/license",
+      "recordCount": 3305,
+      "resourceCount": 3305,
+      "locatedCount": 3305
+    },
+    {
+      "id": "mrt-stations",
+      "name": "臺北捷運車站資料服務",
+      "datasetId": "1eefa68d-7c8d-491b-8e75-66a161947426",
+      "resourceId": "c77e91bf-067c-475e-917b-545ff62b7d76",
+      "updatedAt": "2026-09-04 14:55:33",
+      "provider": "臺北捷運公司",
+      "role": "coordinate-join",
+      "url": "https://data.taipei/dataset/detail?id=1eefa68d-7c8d-491b-8e75-66a161947426",
+      "metadataVerifiedAt": "2026-11-07",
+      "updatedAtBasis": "官方資源檔案更新時間（Asia/Taipei），不是 API 匯入日或抓取日",
+      "fetchedAt": "2026-11-07T09:42:29.226839+00:00",
+      "snapshot": "mrt-stations.json",
+      "sha256": "b47a8251f37978425071b5e41bbb121128e7c25c108c22369f1b627b45eae076",
+      "license": "政府資料開放授權條款－第1版",
+      "licenseUrl": "https://data.gov.tw/license",
+      "recordCount": 110,
+      "resourceCount": 0,
+      "locatedCount": 0
+    }
+  ],
+  "stats": {
+    "total": 5948,
+    "located": 5938,
+    "unlocated": 10,
+    "withServices": 5769,
+    "serviceCounts": {
+      "wifi": 3936,
+      "toilet": 2109,
+      "charge": 406,
+      "accessible": 1021
+    },
+    "sourceCounts": {
+      "friendly": 993,
+      "toilets": 1531,
+      "mrt": 119,
+      "wifi": 3305
+    },
+    "unlocatedRecords": [
+      {
+        "id": "mrt-110",
+        "name": "十四張站",
+        "sourceId": "mrt"
+      },
+      {
+        "id": "mrt-111",
+        "name": "秀朗橋站",
+        "sourceId": "mrt"
+      },
+      {
+        "id": "mrt-112",
+        "name": "景平站",
+        "sourceId": "mrt"
+      },
+      {
+        "id": "mrt-113",
+        "name": "中和站",
+        "sourceId": "mrt"
+      },
+      {
+        "id": "mrt-114",
+        "name": "橋和站",
+        "sourceId": "mrt"
+      },
+      {
+        "id": "mrt-115",
+        "name": "中原站",
+        "sourceId": "mrt"
+      },
+      {
+        "id": "mrt-116",
+        "name": "板新站",
+        "sourceId": "mrt"
+      },
+      {
+        "id": "mrt-117",
+        "name": "新埔民生站",
+        "sourceId": "mrt"
+      },
+      {
+        "id": "mrt-118",
+        "name": "幸褔站",
+        "sourceId": "mrt"
+      },
+      {
+        "id": "mrt-119",
+        "name": "新北產業園區站",
+        "sourceId": "mrt"
+      }
+    ]
+  },
+  "bounds": [
+    [
+      24.9042389,
+      121.411757
+    ],
+    [
+      25.178631,
+      121.6642499
+    ]
+  ],
+  "outputBytes": 2768911
+}

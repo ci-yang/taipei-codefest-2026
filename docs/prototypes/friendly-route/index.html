@@ -1,45 +1,43 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-TW" data-theme="dark">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#101114"><meta name="robots" content="noindex,nofollow">
-  <title>友善同行｜App Prototype</title>
-  <link rel="stylesheet" href="./vendor/leaflet.css"><link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./inference.css">
-  <script defer src="./vendor/leaflet.js"></script><script defer src="./data.js"></script><script defer src="./routing-data.js"></script><script defer src="./routing.js"></script><script defer src="./app.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#171d19">
+  <meta name="description" content="友善同行，尋找身邊的廁所、充電、Wi-Fi 與無障礙資源，離線也能查看。">
+  <title>友善同行 · 身邊的城市資源</title>
+  <link rel="stylesheet" href="./vendor/leaflet.css">
+  <link rel="stylesheet" href="./app-ui.css">
 </head>
 <body>
-<noscript>這份原型需要 JavaScript。<a href="analysis.html">閱讀提案</a></noscript>
-<div class="desktop-note"><span class="note-symbol">↗</span><p>FRIENDLY, ALONG THE WAY</p><h1>需要的資源，<br>順路帶著走。</h1><p>GPS 定位 · 行程規劃 · 離線備援</p><a href="./analysis.html">提案與規格 ↗</a><small>手機 App 互動原型 v2<br>示範圖資：信義區及大安東側</small></div>
-<main class="phone-shell" id="app" data-screen="home">
-  <header class="app-header"><button id="back-button" class="icon-button" aria-label="返回上一頁" hidden>‹</button><a class="brand" href="./"><span class="brand-mark">↗</span><span>友善同行<small>FRIENDLY</small></span></a><span id="screen-step" class="step-label">APP / V2</span><button id="open-info" class="icon-button" aria-label="開啟資料與離線設定">⋯</button></header>
-  <div class="screen-stage">
-    <div class="map-view" id="map-view"><div id="map" role="region" aria-label="友善資源地圖，可縮放；資源清單可用鍵盤選擇"></div><div class="map-shade"></div><div class="map-top-status"><span id="map-area">信義生活圈・示範圖資</span><span id="network-status">裝置在線</span></div><button id="fit-map" class="icon-button map-recenter" aria-label="縮放至目前路線或位置">⌖</button><div id="no-cache-overlay" class="no-cache-overlay" hidden><strong>還沒有離線路線</strong><p>先連線並下載，再把路線帶著走。</p><button id="leave-offline" class="primary">結束離線示範</button></div></div>
-    <section class="app-screen home-screen" id="home-screen" aria-label="地圖首頁">
-      <div class="home-heading"><p class="eyebrow">EVERY STEP, WITH SUPPORT.</p><h2>把友善，<br>放進你的路線。</h2></div>
-      <div class="home-bottom"><div class="gps-card"><span class="gps-symbol">⌖</span><div><strong id="home-gps-title">從你的位置出發</strong><p id="home-gps-detail">取得定位後，起點自動帶入。</p></div><button id="home-gps" class="icon-button" aria-label="使用目前位置">↗</button></div><button id="home-start" class="primary start-button"><span>開始</span><span>↗</span></button><div class="home-links"><button id="demo-route" class="text-button">以示範區域試用</button><button id="home-resources" class="text-button">找友善資源</button></div><p class="micro">定位只留在裝置；不會傳送至伺服器。</p></div>
-    </section>
-    <section class="app-screen plan-screen" id="plan-screen" aria-label="行程設定" hidden>
-      <div class="screen-content"><p class="eyebrow">PLAN YOUR DAY</p><div class="title-row"><h2>今天，想去哪？</h2><button id="open-history" class="icon-button" aria-label="選擇歷史路線">↶</button></div>
-        <div class="date-heading"><strong id="date-heading"></strong><label class="date-picker">選日期<input id="trip-date" type="date" aria-label="行程日期"></label></div><div id="date-strip" class="date-strip" role="group" aria-label="近期日期"></div>
-        <button id="history-shortcut" class="history-tile"><span class="tile-icon">↶</span><span><strong>歷史路線</strong><small id="history-count">還沒有儲存的行程</small></span><span>›</span></button>
-        <form id="route-form" novalidate>
-          <div class="section-heading"><h3>安排路線</h3><span>步行探索</span></div>
-          <div class="origin-card"><label for="origin-source">起點</label><select id="origin-source"><option value="gps">目前位置（GPS）</option><option value="manual">手動選擇起點</option></select><div id="gps-origin"><p id="gps-status">尚未取得定位</p><div class="inline-actions"><button id="retry-gps" type="button" class="text-button">取得目前位置</button><button id="cancel-gps" type="button" class="text-button" hidden>取消定位</button></div><p id="gps-meta" class="micro"></p></div><div id="manual-origin" hidden><label class="sr-only" for="origin-store">手動起點店名</label><input id="origin-store" list="store-options" placeholder="選擇示範區內的店家" autocomplete="off"><p id="origin-note" class="micro"></p></div></div>
-          <div id="destination-inputs"></div><datalist id="store-options"></datalist><button id="add-stop" class="text-button" type="button">＋ 加入目的地 <small>最多 5 個</small></button>
-          <div class="section-heading"><h3>沿途需要</h3><span>任一符合</span></div><div id="filters" class="filter-grid"></div><p class="micro">店家標籤不代表免消費；使用條件仍需詢問。</p>
-          <p id="route-error" class="form-error" role="alert"></p><button id="build-route" class="primary wide" type="submit">下一步 · 確認路線 <span>→</span></button>
-        </form><p class="screen-footnote">本版以地方 OSM 路網比較路線。日期用於安排，不代表店家當天營業。</p>
-      </div>
-    </section>
-    <section class="app-screen confirm-screen" id="confirm-screen" aria-label="確認路線" hidden><div class="confirm-heading"><p class="eyebrow">CHOOSE YOUR WAY</p><h2>選一條，適合你的路。</h2><p id="confirm-date"></p></div><div class="confirm-bottom"><div id="route-options" class="route-options" role="group" aria-label="建議路線"></div><details class="route-explanation"><summary>路線比較依據</summary><p id="routing-note"></p></details><button id="start-trip" class="primary wide">開始行程 <span>↗</span></button><button id="save-history" class="text-button save-history">儲存行程到歷史（含本次起點）</button><p id="history-saved" class="micro" role="status"></p></div></section>
-    <section class="app-screen journey-screen" id="journey-screen" aria-label="行程地圖" hidden><div class="journey-top"><div class="journey-title"><span class="journey-dot"></span><div><strong id="journey-label">你的友善路線</strong><small id="journey-date"></small></div><button id="edit-trip" class="icon-button" aria-label="編輯行程">↶</button></div></div><div class="journey-bottom"><div class="journey-metrics"><div><small>路線長度</small><strong id="journey-distance"></strong></div><div><small>步行估算</small><strong id="journey-time"></strong></div><div><small>沿途資源</small><strong id="journey-resources"></strong></div></div><div class="journey-actions"><button id="open-resources" class="resource-button"><span>⌁</span><strong>沿途資源</strong><small>Wi-Fi・充電・廁所</small></button><button id="open-help" class="help-button"><span>♡</span><strong>附近協助</strong><small>本機示範</small></button></div><button id="journey-offline" class="secondary wide">↓ 下載路線，離線帶著走</button><p class="micro center">路網建議非即時導航；短接線與可達性仍需現場確認。</p></div></section>
-  </div>
-  <div class="home-indicator" aria-hidden="true"></div>
-  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<main id="app" class="friendly-app" aria-label="友善同行資源地圖">
+  <div id="map" aria-label="臺北友善資源地圖"></div>
+  <header class="app-header">
+    <div class="brand-row"><a href="#" class="brand" id="home-button" aria-label="友善同行，回到地圖"><span class="brand-symbol" data-icon="navigation"></span><span>友善同行</span></a><span id="network-label" class="connection-label" aria-live="polite"></span><button id="settings-button" class="icon-button settings-button" aria-label="地圖設定" data-icon="settings"></button></div>
+    <button id="search-trigger" class="search-trigger"><span data-icon="search"></span><span id="search-label">想去哪裡？</span><span data-icon="arrowUpRight" class="muted"></span></button>
+  </header>
+  <div class="map-status"><span id="location-status" class="map-status-pill" aria-live="polite">正在取得目前位置…</span><span id="cache-status" class="map-status-pill" aria-live="polite">準備離線資料</span><button id="destination-clear" class="destination-pill" hidden><span data-icon="flag"></span><span id="destination-name"></span><span data-icon="close"></span></button></div>
+  <div class="map-tools"><button id="overview-button" class="map-tool" aria-label="查看台北資源範圍" data-icon="compass"></button><button id="gps-button" class="map-tool location-tool" aria-label="重新取得目前位置" data-icon="location"></button></div>
+  <section id="bottom-panel" class="map-panel" aria-label="附近資源">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="nearby-heading"><div><p id="location-kicker" class="location-kicker">臺北資源地圖</p><h1 id="panel-heading">友善，就在身邊</h1></div><button id="list-button" class="text-button">清單 <span data-icon="chevron"></span></button></div>
+    <div id="category-filters" class="filters" aria-label="資源類別"></div>
+    <div class="category-selection-note"><span>可多選 · 任一符合</span><span id="visible-count" aria-live="polite"></span></div>
+    <div id="location-notice" class="location-notice" role="status"></div>
+    <div id="nearby-preview" class="preview-list"></div>
+    <article id="selected-card" hidden></article>
+  </section>
 </main>
-<dialog id="resources-dialog" class="sheet-dialog" aria-labelledby="resources-title"><div class="dialog-heading"><div><p class="eyebrow">A LITTLE SUPPORT, NEARBY.</p><h2 id="resources-title">友善資源</h2></div><button class="icon-button" data-close="resources-dialog" aria-label="關閉資源清單">×</button></div><div id="resource-filters" class="filter-grid"></div><label class="checkbox-field"><input id="route-only" type="checkbox"><span>只看路線附近</span></label><div id="range-options" class="segmented" role="group" aria-label="沿線搜尋範圍"><button data-radius="100">100 m</button><button data-radius="250" aria-pressed="true">250 m</button><button data-radius="500">500 m</button></div><p class="micro">直線搜尋範圍不是 Wi-Fi 訊號覆蓋，也不保證步行可達。</p><label class="sr-only" for="search-store">搜尋店名或地址</label><input id="search-store" type="search" placeholder="搜尋店名或地址"><div class="section-heading"><h3 id="results-title">0 個友善資源</h3><span class="micro">3 項官方開放資料</span></div><p id="result-context" class="micro"></p><div id="store-list"></div></dialog>
-<dialog id="store-drawer" class="sheet-dialog store-drawer" aria-label="資源詳細資訊"><button id="close-store" class="icon-button close-button" aria-label="關閉資源詳細資訊">×</button><div id="store-detail"></div></dialog>
-<dialog id="history-dialog" class="sheet-dialog" aria-labelledby="history-title"><div class="dialog-heading"><div><p class="eyebrow">YOUR SAVED ROUTES</p><h2 id="history-title">歷史路線</h2></div><button class="icon-button" data-close="history-dialog" aria-label="關閉歷史路線">×</button></div><p class="fine-print">只顯示你主動儲存在此裝置的行程。套用後保留本次選定日期；起點不會冒充新的 GPS 位置。</p><div id="history-list"></div></dialog>
-<dialog id="info-dialog" class="sheet-dialog" aria-labelledby="info-title"><div class="dialog-heading"><div><p class="eyebrow">KEEP IT WITH YOU</p><h2 id="info-title">離線與資料</h2></div><button class="icon-button" data-close="info-dialog" aria-label="關閉離線設定">×</button></div><div class="offline-card"><h3>把這段路帶著走</h3><p id="cache-summary">尚未下載離線資料</p><button id="save-offline" class="primary wide">下載路線與地圖</button><p class="micro">下載會將本次起點、路線與地圖保存於此裝置；不會傳送至伺服器。</p><label class="checkbox-field"><input id="simulate-offline" type="checkbox"><span>試試看：模擬沒有網路</span></label><p id="offline-detail" class="fine-print"></p><button id="restore-offline" class="text-button" hidden>開啟已下載行程</button></div><div class="source-section"><strong>開放資料，清楚標示</strong><p id="dataset-count"></p><div id="source-links"></div><p id="inference-summary" class="inference-note"></p><p id="data-version" class="micro"></p><p class="fine-print">全市官方資源均已載入；本地路網與向量底圖仍以信義安和至台北 101 示範廊帶為主。路網範圍外可查資源，不計算行程。</p><a href="./analysis.html">提案與規格 ↗</a><p class="micro">App Prototype v2 · 本機評論與互助示範，不會通知真人。</p></div></dialog>
-<dialog id="help-dialog" class="sheet-dialog help-dialog" aria-labelledby="help-title"><div class="dialog-heading"><div><p class="eyebrow">A LITTLE HELP, NEARBY.</p><h2 id="help-title">附近協助</h2></div><button id="close-help" class="icon-button" aria-label="關閉互助示範">×</button></div><div class="demo-notice">雙角色本機示範，不會通知真人，也不是緊急救援服務。</div><div class="side-tabs" role="tablist" aria-label="互助角色"><button id="sender-tab" role="tab" aria-selected="true" aria-controls="sender-panel">我需要幫忙</button><button id="helper-tab" role="tab" aria-selected="false" aria-controls="helper-panel">我是幫忙的人</button></div><section id="sender-panel" role="tabpanel" aria-labelledby="sender-tab"></section><section id="helper-panel" role="tabpanel" aria-labelledby="helper-tab" hidden></section></dialog>
-</body></html>
+<dialog id="app-sheet" class="app-sheet" aria-labelledby="sheet-title"><div class="sheet-handle" aria-hidden="true"></div><header class="sheet-header"><h2 id="sheet-title"></h2><button id="sheet-close" class="sheet-close" aria-label="關閉" data-icon="close"></button></header><div id="sheet-body" class="sheet-body"></div></dialog>
+<div id="toast" class="app-toast" role="status" hidden></div>
+<noscript>請開啟 JavaScript，才能使用資源地圖。</noscript>
+<script src="./vendor/leaflet.js"></script>
+<script src="./data.js"></script>
+<script src="./resources-data.js"></script>
+<script src="./icons.js"></script>
+<script src="./search.js"></script>
+<script src="./bridge.js"></script>
+<script src="./offline.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>

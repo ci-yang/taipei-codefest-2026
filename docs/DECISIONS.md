@@ -21,6 +21,18 @@
 - **理由**：本輪 readonly 名冊與裝置路由可用 Cloudflare 同源部署，不需要維護新的 VM 或公開現有 PostgreSQL。D1 沒有 PostGIS，使用版本化地方名冊與窄 repository，保留既有 Node/PostGIS API。Claude Code Opus 5.5 已參與架構比較；獨立架構與任務複核列出的逾時、log 與回退邊界納入計畫。
 - **影響／重議**：先發獨立 workers.dev；正式 hostname 未決前，既有 GCP／DNS／資料保持不變。D8 的「後端暫不實作」由本輪指示更新；評論、真人互助、身分與治理仍待組員定規格，不擅自設公開寫入政策。地方路網不等於全市導航；正式 Vue 尚未完成整包離線與 Android 實機驗收時如實標示。之後若需要全市路由、長任務或 PostGIS，再評估 GCP 容器服務。
 
+## 2026-11-07 ｜ Prototype v4 ｜ 目的地作參考，路線只到資源
+
+- **決定**：Ci 明確選 A：首頁呈現目前位置與資源，點資源直接畫「目前位置 → 資源」路線與距離；搜尋的目的地只作地圖標記。拿掉現行操作中的安排／確認／開始路線步驟。
+- **理由**：這次核心互動是即時找資源，目的地提供位置參考；兩者必須有獨立狀態，選目的地不能誤觸路由，換資源不能消除目的地標記。
+- **影響／重議**：取代 v3 的手動起點及多頁主流程。GPS 更新用於資源路線；示範或離線位置明確標示。規格與正式 `apps/` 留待確認 prototype 後調整。見 [v4 交接](handoff/2026-11-07-friendly-prototype-v4.md)。
+
+## 2026-11-07 ｜ Prototype v3 ｜ 先試地圖選點，GPS 與行程起點分開
+
+- **決定**：依 Ci 最新指示，先更新獨立 prototype 的地圖選資源、路線高亮與目的地搜尋；GPS 只顯示目前位置，明確帶入才作為行程起點。正式規格留待確認互動後修改。
+- **理由**：使用者需要直接查看資源資訊及輸入目的地；查看沿線店家不應改掉既有路線。搜尋暫用開源 Photon 公開示範端點，不需金鑰；輸入查本地名冊，提交才發出查詢，GPS 與行程不外送。
+- **影響／重議**：此為 prototype 的可逆選擇，不改正式服務 Stack 或部署。Photon 沒有 SLA，正式多人服務需再決定容量與自架方案；路由仍受本地快照範圍限制。見 [v3 交接](handoff/2026-11-07-friendly-prototype-v3.md)。
+
 ## 2026-11-07 ｜ D8 ｜ 先上前端 prototype，後端暫不實作
 
 - **決定**：Ci 說明規格尚未完全確定，本輪收斂為將目前手機前端 prototype、討論規格與協作說明放進既有 GitHub 專案。以獨立分支和 PR 交接，讓成員操作並認領前端工作。
@@ -51,6 +63,18 @@
 - **理由**：發表只能投影實機畫面，不能賭會場 Wi-Fi 的 client isolation 和筆電區網 IP；固定 HTTPS 網址讓手機用行動網路也能開，瀏覽器定位也只在 HTTPS 可用。灰雲是因為 Caddy 要直接向 Let's Encrypt 驗證網域（細節見 `deploy/README.md`）。Android 不需開發者帳號（iOS 實機要改簽章，見 `docs/TOWNPASS-BUILD.md`）。
 - **影響**：部署與 VM 由專人負責，`deploy/` 改動先問；APK 怎麼建見 `docs/TOWNPASS-BUILD.md`。demo 結束要停 VM 省錢（`deploy/README.md` 檢查清單）。凍結時 SHA 照 `docs/TEAM-PROTOCOL.md` §5 記。
 
+## 2026-11-07 ｜ D7 ｜ 程式本體＝原型分支（v4），由 Codex session 實作；規格由 lead session 維護
+
+- **決定**：作品本體以原型分支（worktree `tcf-prototype-map`，分支 `feat/prototype-resource-map`，目前 v4）為準，實作交 Codex session；lead（Claude）session 只維護 `docs/DECISIONS.md` 與 `.prospec/changes/enable-friendly-routes/` 規格，不動原型程式。Cloudflare 平台分支與 main 骨架不是本體，用途待定。（Ci 2026-11-07 約 17:20）
+- **理由**：原型已可操作且持續迭代，重做 Vue 版今晚來不及；規格與實作分 session 避免兩邊同時改同一份檔。
+- **影響**：部署目標、APK 內建網址（`https://codefest.ciyang.dev`）要跟原型的部署方式對齊，尚未決定，列待決。
+
+## 2026-11-07 ｜ D6 ｜ 題目方向「拿不到」：友善資源地圖，主流程單一、離線為主功能、不做任何互動功能
+
+- **決定**：作品「友善同行」主流程固定為：開啟即定位並顯示地圖 → 可搜尋目的地 → 底部幾個類別鈕（廁所、充電、Wi-Fi、無障礙等），按下直接在地圖上 highlight 該類店家。**離線可用是主功能**，規格缺的要補。**互助、品質回報、協助者模式、任何使用者之間或使用者對店家的互動一律不做**（Ci 2026-11-07 約 17:10 拍板）。
+- **理由**：決選配分落地 30、應用 25，創意只佔 10；主辦方明講主流程要單純、評審可能現場關網路。政府端對使用者產生內容與互助功能有安全疑慮（個資、濫用、維運責任），做了會變成問答箭靶。
+- **影響**：prospec change `enable-friendly-routes` 要改：US-3（回報）、US-5（互助）移除；US-4（離線）升為主功能並補全市點位快取與無網路導引；多站行程、日期與歷史降為次要。資料面可併入公廁、捷運無障礙等公家資料集以達全市覆蓋。原型與平台分支要收斂到一條（待 D7）。
+
 ## 2026-11-07 ｜ D3 ｜ 開發 harness 用 prospec，模式 sprint
 
 - **決定**：規格層用 prospec v2.6（`prospec/`、`.prospec/changes/`），團隊規則採 team-harness 的 sprint 模式＋四條核心規則（secret 隔離、不編造、不可逆先問、決策留痕）。只有跨人介面與 demo 主流程才開 change。
@@ -71,6 +95,8 @@
 
 ## 待決（決定後移到上面）
 
-- 題目與要解的需求（11/7 公布）
+- 題目官方原文尚未入檔（方向見 D6，只有 Ci 轉述）
 - demo 主機＋備用機各是哪一支（平台已定 Android，見 D4）
-- 成員 GitHub 帳號與分工確認（`docs/TEAM-PROTOCOL.md` §1）
+- 原型（v4）的部署目標與 APK 內建網址如何對齊（見 D7）
+- 多站行程、日期與歷史是完全移除還是留第二層（見 D6）
+- 分工確認（`docs/TEAM-PROTOCOL.md` §1）；GitHub 帳號已確認：bboyyan／shimo23333／hohshen／imthe71，邀請待接受
