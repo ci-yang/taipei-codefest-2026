@@ -3,6 +3,18 @@
 > 「之後還會再問一次」的結論寫在這裡，最新的放最上面。一條三段：決定、理由、影響／何時重議。
 > 聊天訊息會被洗掉，這裡不會。值以 `.env`／程式碼為準，這裡記的是「為什麼」。
 
+## 2026-11-08 ｜ D12 ｜ 三急版已發布：分享頁、APK、正式站三件套
+
+- **決定**：Ci 2026-11-08 凌晨授權「直接做完」，lead session 代 Codex 完成實作與發布。分支 `feat/three-urgencies-flow`（App 本體 `5da7250`）發布為分享頁 `https://ci-share.pages.dev/d537f3d9f5299fc6/`、TownPass APK Release `three-urgencies-demo-20261108`（內嵌該分享頁），並以本機 wrangler 手動部署到正式站 `https://taipei-friendly-platform.jason21131.workers.dev`（source `d50e0f4`，前版 Worker versionId `c0c9590b-07fe-419d-8427-b24963fd663a` 可 rollback）。舊分享 token `cc521b0047361278` 與舊 APK 不撤。
+- **理由**：Ci 醒來要能直接點到成果；正式站走 main 的 Actions 需 merge 與尚未設定的 `CLOUDFLARE_API_TOKEN`，手動部署可回滾且上一輪已用過。
+- **影響**：正式站現在與 main 不一致（main 仍是整合版 c0486bb）；PR 收進 main 時會再觸發自動部署。Android 實機、翻譯校對、prospec review 的 round-cap escalation 都待 Ci 處理，見 `docs/handoff/2026-11-08-three-urgencies.md`。
+
+## 2026-11-08 ｜ D11 ｜ 主流程改為「三急首頁 → 最近一家結果卡 → 開口卡」，地圖降為第二層，以 survival-highlights 為底
+
+- **決定**：副局長評 v6「很基本、沒必要做成 app、要有亮點」後，Ci 以分鏡「人有三急」（claude.ai artifact `PRJUafqt1tcodcbgtk4yCh`）定調：首頁只有三顆大按鈕（廁所、充電、網路），按下直接出直線最近一家的結果卡（帶我去／開口卡／看地圖）；開口卡為全螢幕雙語大字，給店員看中文、給自己看母語。現有地圖、目的地搜尋、多選、清單全部保留但降為第二層「看地圖」，不刪。實作底採 `design/survival-highlights`（e479b2e，PR #8；含 stitch 骨架、cicd 管線、本機步行路線與城市生存雷達四亮點），三顆按鈕分別接廁所倒數、電量生存圈、Wi-Fi 密度；房價含金量不進主流程（去留待 Ci）。規格在 `.prospec/changes/add-three-urgencies-flow/`，`enable-friendly-routes` 仍是基礎規格不重述。公眾 Wi-Fi 熱點不顯示開口卡（審查後補進規格）。
+- **理由**：技術完整度與穩定合計 50 分都在現有那層，刪掉等於丟分；改順序不改邏輯最安全。開口卡是面對面、零上傳、零配對，與撥號鍵同層級，不屬 D6 禁止的經平台互動（lead 判斷，待 Ci 或主辦確認）。
+- **影響**：D7 的「原型分支＝v4」更新為本分支；20 MB 路網不得阻擋首頁與結果卡；印尼文、越南文、英文句子須母語者校對後才上架；demo 一律 Android。
+
 ## 2026-11-07 ｜ 目的地道路、地圖展開與 TownPass 首頁
 
 - **決定**：依 Ci 本輪實機回饋，選目的地後顯示步行道路與沿線資源；保留既有 Stitch 介面，修正初始搜尋焦點、縮小 START，加入地圖展開／浮動面板收合。原生根頁恢復 TownPass 首頁，友善同行經入口進入，明確返回台北通與網頁上一頁分開。
