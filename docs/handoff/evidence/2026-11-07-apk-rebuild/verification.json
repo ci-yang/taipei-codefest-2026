@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-11-07T11:39:06.492559+00:00",
+  "status": "PASS_WITH_LIMITATIONS",
+  "artifactValidation": "PASS",
+  "receiptPath": "/Users/ciyang/Documents/repos/tcf-cicd-20261107/.artifacts/townpass/2026-11-07T11-36-48.814Z.json",
+  "serviceUrl": "https://taipei-friendly-platform.jason21131.workers.dev",
+  "expectedTownPassSha": "9701688709fa0faf5fd1c2257c968c5440ee6421",
+  "checks": {
+    "apkHashAndSizeMatchReceipt": true,
+    "apkMtimeWithinReceiptBuildWindow": true,
+    "apkStableDuringVerification": true,
+    "receiptRecordsCleanBeforeAndAfterTownPassBuild": true,
+    "observedCheckoutsCleanAndMatchReceipt": true,
+    "townpassShaMatchesExpected": true,
+    "sourceCheckoutsStableDuringVerification": true,
+    "requiredInternetAndLocationPermissions": true,
+    "signatureCryptographicallyValid": true,
+    "nonDebuggableManifest": true,
+    "expectedServiceUrlPresentInAllThreeAbis": true
+  },
+  "sourceStateBeforeVerification": {
+    "townpass": {
+      "sourceSha": "9701688709fa0faf5fd1c2257c968c5440ee6421",
+      "repoDirty": false
+    },
+    "platform": {
+      "sourceSha": "9d996f37104b50b024bb68d6780b2247cfd4249e",
+      "repoDirty": false
+    }
+  },
+  "sourceStateAfterVerification": {
+    "townpass": {
+      "sourceSha": "9701688709fa0faf5fd1c2257c968c5440ee6421",
+      "repoDirty": false
+    },
+    "platform": {
+      "sourceSha": "9d996f37104b50b024bb68d6780b2247cfd4249e",
+      "repoDirty": false
+    }
+  },
+  "buildReceiptWindow": {
+    "startedAt": "2026-11-07T11:36:48.814Z",
+    "completedAt": "2026-11-07T11:37:09.215Z"
+  },
+  "apk": {
+    "path": "/Users/ciyang/Documents/repos/TownPass-platform/build/app/outputs/flutter-apk/app-release.apk",
+    "sha256": "fb815e2f9d03f0402d5db3105c2a93fd4fda506391e6ebf2c9716d7db1cb7a68",
+    "bytes": 115790112,
+    "mtime": "2026-11-07T11:37:07.386379+00:00",
+    "mtimeNs": 1794051427386379065
+  },
+  "androidManifest": {
+    "package": "com.example.townpass",
+    "versionCode": "1",
+    "versionName": "0.0.12",
+    "permissions": [
+      "android.permission.ACCESS_COARSE_LOCATION",
+      "android.permission.ACCESS_FINE_LOCATION",
+      "android.permission.ACCESS_BACKGROUND_LOCATION",
+      "android.permission.INTERNET",
+      "android.permission.VIBRATE",
+      "android.permission.POST_NOTIFICATIONS",
+      "android.permission.CAMERA",
+      "com.example.townpass.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+      "android.permission.ACCESS_NETWORK_STATE"
+    ],
+    "debuggable": false,
+    "explicitDebuggableAttributes": [],
+    "minSdk": "24",
+    "targetSdk": "36"
+  },
+  "signature": {
+    "valid": true,
+    "schemeV2": true,
+    "signerDn": "C=US, O=Android, CN=Android Debug",
+    "certificateSha256": "3ea0832f68f142125f4d5a738f2516e0b889d8f08193715ed540d9b1c01b3c76",
+    "androidDebugCertificate": true,
+    "productionSigning": "NOT_READY_DEBUG_CERTIFICATE",
+    "apksignerOutput": "Verifies\nVerified using v1 scheme (JAR signing): false\nVerified using v2 scheme (APK Signature Scheme v2): true\nVerified using v3 scheme (APK Signature Scheme v3): false\nVerified using v3.1 scheme (APK Signature Scheme v3.1): false\nVerified using v4 scheme (APK Signature Scheme v4): false\nVerified for SourceStamp: false\nNumber of signers: 1\nSigner #1 certificate DN: C=US, O=Android, CN=Android Debug\nSigner #1 certificate SHA-256 digest: 3ea0832f68f142125f4d5a738f2516e0b889d8f08193715ed540d9b1c01b3c76\nSigner #1 certificate SHA-1 digest: c231b68ef007e62859ae35f79d7f3a9a31c5a46e\nSigner #1 certificate MD5 digest: 7c13b98f7b143a6e4fc0329465c97d84\nSigner #1 key algorithm: RSA\nSigner #1 key size (bits): 2048\nSigner #1 public key SHA-256 digest: 4b8dc8f4601b9b41d64cb02cf0bdeaeb50185848147a9576be3cf04f63d767e7\nSigner #1 public key SHA-1 digest: ecbc1f792109be913a4580f4c48111bea58bda6a\nSigner #1 public key MD5 digest: 2c2dbf960b6f2352eddfe6caadd08735"
+  },
+  "nativeLibs": {
+    "arm64-v8a": {
+      "entry": "lib/arm64-v8a/libapp.so",
+      "bytes": 6882184,
+      "sha256": "440fcfc52ade7f3c07645cb7a30b3a8c57f1ad9a8c25c962eee7d5640812edd3",
+      "expectedServiceUrlOccurrences": 1
+    },
+    "armeabi-v7a": {
+      "entry": "lib/armeabi-v7a/libapp.so",
+      "bytes": 7619144,
+      "sha256": "ffa63b1d7d57f8bf702e889600d7e47e4844794abc07eedd3f784fb33f77ae73",
+      "expectedServiceUrlOccurrences": 1
+    },
+    "x86_64": {
+      "entry": "lib/x86_64/libapp.so",
+      "bytes": 7078792,
+      "sha256": "c36b2bf4ee2bb421b8713b41c00a7f745610098e6417a7b951d2a1a1c3807434",
+      "expectedServiceUrlOccurrences": 1
+    }
+  },
+  "devices": {
+    "adbCommand": "adb devices -l",
+    "output": "List of devices attached",
+    "connectedCount": 0,
+    "installationAttempted": false,
+    "runtimeValidation": "NOT_RUN"
+  },
+  "limitations": [
+    "Release-mode APK has a valid Android Debug certificate; a dedicated production/release signer is not verified.",
+    "No connected Android device was reported; installation, GPS permissions, WebView, navigation, and offline runtime were not exercised.",
+    "Build-time clean before/after states are reported by the build receipt; this independent check confirms current clean checkouts and matching commits, not a reproducible rebuild.",
+    "libapp.so URL presence confirms embedded bytes, not live WebView behavior."
+  ],
+  "tools": {
+    "aapt2": "/Users/ciyang/Library/Android/sdk/build-tools/36.0.0/aapt2",
+    "apksigner": "/Users/ciyang/Library/Android/sdk/build-tools/36.0.0/apksigner"
+  },
+  "mutations": {
+    "codeChanges": false,
+    "deviceInstall": false,
+    "remoteActions": false,
+    "onlyWrittenFile": "/Users/ciyang/Documents/repos/tcf-cicd-20261107/.artifacts/townpass/2026-11-07-apk-rebuild-verification.json"
+  }
+}
