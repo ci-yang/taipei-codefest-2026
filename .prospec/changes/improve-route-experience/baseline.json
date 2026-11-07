@@ -1,0 +1,57 @@
+[
+  {
+    "width": 320,
+    "height": 568,
+    "overflow": 0,
+    "focus": "search-trigger",
+    "focusVisible": true,
+    "outline": "rgb(53, 37, 205) solid 3px",
+    "startWidth": 111.59375,
+    "descriptionLines": 2,
+    "mapHeight": 360
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "overflow": 0,
+    "focus": "search-trigger",
+    "focusVisible": true,
+    "outline": "rgb(53, 37, 205) solid 3px",
+    "startWidth": 130.09375,
+    "descriptionLines": 2,
+    "mapHeight": 360
+  },
+  {
+    "width": 430,
+    "height": 932,
+    "overflow": 0,
+    "focus": "search-trigger",
+    "focusVisible": true,
+    "outline": "rgb(53, 37, 205) solid 3px",
+    "startWidth": 130.09375,
+    "descriptionLines": 1,
+    "mapHeight": 360
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "overflow": 0,
+    "focus": "search-trigger",
+    "focusVisible": true,
+    "outline": "rgb(53, 37, 205) solid 3px",
+    "startWidth": 130.09375,
+    "descriptionLines": 1,
+    "mapHeight": 360
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "overflow": 0,
+    "focus": "search-trigger",
+    "focusVisible": true,
+    "outline": "rgb(53, 37, 205) solid 3px",
+    "startWidth": 130.09375,
+    "descriptionLines": 1,
+    "mapHeight": 360
+  }
+]

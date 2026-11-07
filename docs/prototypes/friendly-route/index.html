@@ -58,13 +58,14 @@
   </section>
 
   <section id="explore-screen" class="explore-screen" aria-label="探索友善資源">
-    <div class="map-stage">
+    <div id="map-stage" class="map-stage">
       <div id="map" aria-label="臺北友善資源地圖"></div>
       <header class="app-header">
         <button id="search-trigger" class="search-trigger" type="button"><span data-icon="search"></span><span id="search-label">搜尋地點或店家…</span></button>
       </header>
       <button id="gps-button" class="map-tool location-tool" type="button" aria-label="重新取得目前位置" data-icon="location"></button>
-      <div class="map-status">
+      <button id="map-expand" class="map-tool expand-tool" type="button" aria-expanded="false" aria-controls="map-stage" aria-label="展開地圖"><span data-icon="compass"></span><span id="map-expand-label">展開地圖</span></button>
+      <div id="map-status" class="map-status">
         <span id="location-status" class="map-status-pill" aria-live="polite">正在取得目前位置…</span>
         <button id="destination-clear" class="destination-pill" type="button" hidden><span data-icon="flag"></span><span id="destination-name"></span><span data-icon="close"></span></button>
       </div>
@@ -88,6 +89,13 @@
     </div>
 
     <section id="bottom-panel" class="map-panel" aria-label="附近資源">
+      <div class="panel-toolbar"><span id="panel-summary">附近資源</span><button id="panel-toggle" class="text-button" type="button" aria-expanded="true" aria-controls="panel-content"><span id="panel-toggle-label">收合面板</span><span data-icon="chevron"></span></button></div>
+      <div id="panel-content">
+      <section id="destination-route" class="destination-route" aria-label="目的地步行路線" hidden>
+        <div class="destination-route-heading"><span data-icon="route"></span><strong>目的地步行路線</strong><button id="route-retry" class="text-button" type="button" hidden>重新計算</button></div>
+        <p id="destination-route-message" class="destination-route-message" role="status"></p>
+        <p id="destination-route-note" class="field-note">本機路網限信義區與大安東側。</p>
+      </section>
       <div id="category-filters" class="filters" aria-label="資源類別"></div>
       <div class="nearby-heading">
         <div class="nearby-title"><span class="heading-symbol" data-icon="store"></span><h2 id="panel-heading">友善，就在身邊</h2></div>
@@ -100,7 +108,7 @@
       <article id="selected-card" hidden></article>
 
       <div class="explore-mode-card">
-        <button id="mode-toggle" class="mode-toggle" type="button" aria-label="切換探索模式"><span class="mode-icon" data-icon="navigation"></span><span class="mode-copy"><strong id="mode-title">自由探索模式</strong><span id="mode-description">隨心發現身邊的資源</span></span></button>
+        <button id="mode-toggle" class="mode-toggle" type="button" aria-label="切換探索模式"><span class="mode-icon" data-icon="navigation"></span><span class="mode-copy"><strong id="mode-title">自由探索模式</strong><span id="mode-description">隨心探索附近資源</span></span></button>
         <button id="start-guidance" class="start-guidance" type="button" aria-label="開始導引">START<span data-icon="arrowRight"></span></button>
       </div>
       <section class="transport-section" aria-labelledby="transport-heading">
@@ -117,6 +125,7 @@
         <div class="footer-actions"><button id="home-button" class="text-button secondary-text" type="button">回首頁</button><button id="overview-button" class="text-button secondary-text" type="button"><span data-icon="compass"></span>全市範圍</button><button id="settings-button" class="text-button secondary-text" type="button"><span data-icon="download"></span>離線資料</button></div>
         <div class="footer-status"><span id="network-label" class="connection-label" aria-live="polite"></span><span id="cache-status" aria-live="polite">準備離線資料</span></div>
       </footer>
+      </div>
     </section>
   </section>
 </main>
@@ -130,6 +139,7 @@
 <script src="./search.js"></script>
 <script src="./bridge.js"></script>
 <script src="./offline.js"></script>
+<script src="./route-client.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>

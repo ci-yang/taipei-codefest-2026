@@ -9,7 +9,9 @@ const base = path.resolve(__dirname, '../friendly-route');
 // Deliberately no network API in this runtime: the comparison must be local.
 const runtime = { window: {} };
 vm.createContext(runtime);
-for (const name of ['data.js', 'routing-data.js', 'routing.js']) {
+// Keep the resource-most comparison oracle bounded to the original public snapshot.
+runtime.window.FRIENDLY_ROUTING_DATA = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../data/friendly/routing-graph.json'), 'utf8'));
+for (const name of ['data.js', 'routing.js']) {
   vm.runInContext(fs.readFileSync(path.join(base, name), 'utf8'), runtime, { filename: name });
 }
 const data = runtime.window.FRIENDLY_DATA;

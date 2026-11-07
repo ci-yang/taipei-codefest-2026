@@ -14,6 +14,7 @@ TownPass 本身為 GPL-3.0（https://github.com/taipei-doit/TownPass），本 re
 - Leaflet 1.9.4，BSD-2-Clause，https://leafletjs.com 。
 - Phosphor Icons 2.2.1，MIT，完整授權與官方圖示幾何存於 icons.js；無 Vue 執行期依賴。
 - OpenStreetMap contributors，ODbL；本地 GeoJSON 匯出日期 2026-11-07，信義區及大安東側。https://www.openstreetmap.org/copyright
+- 本機步行路網 friendly-taipei-pedestrian-snapshot-2026-11-07-v2，官方 Overpass 匯出臺北市行政區道路及其完整引用節點；ODbL，來源與輸入雜湊見 routing-data.js、重建說明見 docs/prototypes/taipei-routing.md。於裝置端計算，不保證現場通行或無障礙。
 - 線上 OSM raster tiles 僅供目前視窗互動瀏覽，遵 HTTP cache headers，不加入離線套件。
 - Photon 搜尋，OpenStreetMap 地理資料，https://github.com/komoot/photon 。
 - 臺北市友善店家名冊、公廁點位、捷運無障礙設施、公眾免費 Wi-Fi 熱點與官方捷運車站座標；政府資料開放授權條款第 1 版。每筆來源與官方更新時間見 resources-data.js sources/stores 與設定內來源列表。

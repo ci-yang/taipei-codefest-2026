@@ -1,0 +1,255 @@
+name: improve-route-experience
+created_at: 2026-11-07T13:45:31.817Z
+status: verified
+scale: standard
+description: 目的地步行路線與沿途資源、探索地圖 RWD、TownPass 首頁入口與返回
+quality_log:
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    baseline_revision: 1
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - Knowledge module-map 空且 Feature Specs 不存在；依實際原型與 TownPass
+        界定兩個實作面，故事以固定輸入分開驗證。
+  - skill: prospec-design
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - 沿用 Ci 指定的既有 Stitch 原型與本輪修改，已擷取 token、產生 design/interaction 規格並通過結構驗證；目前
+        HTML 為量測基線，局部互動修改與視覺核對併後續實作驗證，不宣稱新版視覺已通過。
+  - skill: prospec-plan
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - Knowledge index／module-map／L2 尚未建置；此次依真實來源核對，後續 tasks 應使用明確檔案路徑並維持跨 repo
+        交接。
+      - routing.js 與 routing-data.js 目前使用 window 全域；新增 Worker 需處理
+        self／globalThis 或 adapter 相容，並以真實 Worker 驗證載圖與 shortest，不只用 Node VM 的
+        window double。
+      - CodefestView 既有 PopScope 依網頁歷史控制
+        canPop；明確返回台北通須確認可越過歷史攔截，將「有歷史直接返回」與系統返回分別納入回歸。
+      - "blast_radius: 已涵蓋地圖與狀態、Worker、離線資產、打包 smoke、TownPass
+        根路由／首頁／雙入口／返回。module-map 與 L2 尚空，改以實際來源核對；任務應保留 window-only router 的
+        Worker 相容及跨 repo 驗證。"
+    verifier_verdict: WARN
+    audited_plan_digest: fc55446761a41d42f1a5512f41fa6eabcf6003a6f9b744a22932cf336685e16e
+    attempt_id: prospec-plan:0a0e27820b9b049935c07f7072b4c98c209d84554aec5bf1c573dcaa46098092
+    accepted:
+      request_id: prospec-plan:0a0e27820b9b049935c07f7072b4c98c209d84554aec5bf1c573dcaa46098092
+  - skill: prospec-tasks
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - "Knowledge module-map 為 modules: []，conventions 仍含模板內容；此輪 DAG 判斷根據 plan
+        的明確呼叫鏈與任務依賴，不能視為完整知識庫依賴驗證。"
+      - "dag_topological_order: 本機 domain T1 → Worker/client T2～T3 →
+        controller/UI T6～T10 → 資產 T11 的順序成立；原生 T4→T5 是獨立呼叫鏈。module-map
+        為空，僅可依計畫明示依賴核對，不能宣稱已核對註冊模組圖。"
+    verifier_verdict: WARN
+    attempt_id: prospec-tasks:87efeb43d82173783c901d5baba3c1b426465b65f1b25b6ec6b7b970dc469cf1
+    accepted:
+      request_id: prospec-tasks:87efeb43d82173783c901d5baba3c1b426465b65f1b25b6ec6b7b970dc469cf1
+  - skill: prospec-implement
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - Ci回覆確認本機算路且GPS不外送，計畫步驟1補固定臺北市資料擴圖與builder測試T21/T22；驗收情境未變、proposal驗證PASS。新資料管線納入完整獨立review/verify。
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    baseline_revision: 2
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    criticals_found: 0
+    criticals_fixed: 0
+    majors: 0
+    round: 1
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    attempt_id: prospec-review:90cf7934459cb8de610686b4452e2522efb7d6fde833e638b2932ff009a940ba
+    accepted:
+      request_id: 86a20e232f44ecfc062629de8476176091bf6212b17017840f657f5cba49f4b2
+      artifact_digest: 24b13d2a4ab211c01264dd2a5cc4c149496bcb2a0e5f894bf71a8b4aea176ccc
+      base_digest: 12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+  - skill: prospec-verify
+    date: 2026-11-07
+    result: PASS
+    warnings:
+      - 原生實機已完成安裝與啟動；首頁→友善同行→返回的人工點按與視覺核對待確認。
+      - acceptance baseline was captured or amended after story stage
+        (late-capture)
+    grade: A
+    dimensions:
+      - name: task-completion
+        result: PASS
+        adjudicator: machine
+      - name: knowledge
+        result: PASS
+        adjudicator: machine
+      - name: tests
+        result: PASS
+        adjudicator: machine
+      - name: delta-spec-compliance
+        result: not-adjudicated
+        adjudicator: judgment
+        graded_by: fresh-subagent
+        executor: /root/route_verify_contract
+        context_id: c2bba6cd6e4ca5e41bb1016405c35d69a2486f2096019b1f7b9df110f69c2b92
+        baseline_revision: 2
+      - name: constitution
+        result: PASS
+        adjudicator: judgment
+        graded_by: fresh-subagent
+        executor: /root/route_verify_contract
+      - name: design
+        result: WARN
+        adjudicator: judgment
+        graded_by: fresh-subagent
+        executor: Codex /root/route_verify_design，獨立 snapshot 設計驗證
+    context_id: c2bba6cd6e4ca5e41bb1016405c35d69a2486f2096019b1f7b9df110f69c2b92
+    baseline_revision: 2
+    coverage_summary: 5/5
+    attempt_id: prospec-verify:8e2157ca7227d70b3dbcd062f8fd195f53ebed6de33cb637270644f26260fe50
+    accepted:
+      request_id: prospec-verify:8e2157ca7227d70b3dbcd062f8fd195f53ebed6de33cb637270644f26260fe50
+      artifact_digest: fb7c0f7d34e68d68b9f8a1b6ff34767cf37defc3ad46235a205ca506537a25d8
+review_provenance:
+  digest: 362d9d50cd394732e82d6fe8a0397b81d5805af0bcb10acff86452d8a2ce4f3c
+  date: 2026-11-07
+  fingerprint_version: snapshot-v2
+  scope: repository-inputs-v2
+  graded_by: fresh-subagent
+test_provenance:
+  command: pnpm test
+  exit_code: 0
+  digest: 362d9d50cd394732e82d6fe8a0397b81d5805af0bcb10acff86452d8a2ce4f3c
+  date: 2026-11-07
+  fingerprint_version: snapshot-v2
+  scope: repository-inputs-v2
+  attempt_id: 11a07794-f354-4f0d-89c1-0cbe92ddde9a
+test_attempt:
+  id: 11a07794-f354-4f0d-89c1-0cbe92ddde9a
+  date: 2026-11-07
+  outcome: passed
+  command: pnpm test
+  before_digest: 362d9d50cd394732e82d6fe8a0397b81d5805af0bcb10acff86452d8a2ce4f3c
+  after_digest: 362d9d50cd394732e82d6fe8a0397b81d5805af0bcb10acff86452d8a2ce4f3c
+  exit_code: 0
+delta_spec_provenance:
+  digest: bab9016912ce891e49ce0892e0eb2b9b8f4dbcd6e497b3d52ba889caa77c0d0a
+  date: 2026-11-07
+acceptance:
+  version: 1
+  current_revision: 2
+  revisions:
+    - revision: 1
+      digest: 756f117438672032da6b4c58590a4ec0af51c4962951411dcd85f7abbc226ee1
+      captured_at: 2026-11-07T13:47:37.569Z
+      captured_status: story
+      origin: story
+      reason: initial freeze
+      scenarios:
+        - id: US-1.1
+          story_id: US-1
+          text: WHEN 目前位置與目的地齊全，THEN 顯示步行道路路線與距離，起終點估計接線和道路段可區分。
+          source: proposal.md:26
+        - id: US-1.2
+          story_id: US-1
+          text: WHEN 切換類別或點沿線資源，THEN highlight、數量與清單使用同一沿線集合，詳情保留來源及更新日，目的地路線不消失。
+          source: proposal.md:27
+        - id: US-1.3
+          story_id: US-1
+          text: WHEN 快速更換或清除目的地，THEN 舊回應不覆蓋新狀態，清除後回到附近資源探索。
+          source: proposal.md:28
+        - id: US-1.4
+          story_id: US-1
+          text: WHEN 無定位、斷網或無可用路線，THEN 明確提示限制，不將直線或地圖中心偽裝成道路路線與本人位置。
+          source: proposal.md:29
+        - id: US-2.1
+          story_id: US-2
+          text: WHEN 以觸控或滑鼠進探索頁且未按搜尋，THEN 沒有非操作產生的搜尋藍框；鍵盤Tab仍保留可見焦點。
+          source: proposal.md:35
+        - id: US-2.2
+          story_id: US-2
+          text: WHEN 使用320、390、430、768像素寬度及手機橫向，THEN START與模式主文案不互擠或非必要換行，無整頁水平溢出且操作可觸及。
+          source: proposal.md:36
+        - id: US-2.3
+          story_id: US-2
+          text: WHEN 收合面板或展開地圖再復原，THEN 地圖使用App可用區域且保留復原鈕，目的地、路線、類別與已選資源不遺失。
+          source: proposal.md:37
+        - id: US-3.1
+          story_id: US-3
+          text: WHEN 新啟動原生App，THEN 顯示TownPass首頁與友善同行入口，不以友善WebView取代原生根頁。
+          source: proposal.md:43
+        - id: US-3.2
+          story_id: US-3
+          text: WHEN 點首頁或服務清單入口，THEN 進入同一友善服務容器，保留橋接、定位及載入失敗重試。
+          source: proposal.md:44
+        - id: US-3.3
+          story_id: US-3
+          text: WHEN 點返回台北通，THEN 即使WebView有文件歷史也直接回TownPass；系統返回先處理文件歷史，無歷史才回原生頁面。
+          source: proposal.md:45
+    - revision: 2
+      digest: 15c83c379441ad6ac0f4c75c14961481eb5fc509b3d81e8a8f09487a48f042e9
+      previous_digest: 756f117438672032da6b4c58590a4ec0af51c4962951411dcd85f7abbc226ee1
+      captured_at: 2026-11-07T14:06:03.284Z
+      captured_status: tasks
+      origin: late-capture
+      reason: 獨立Claude
+        review發現固定首頁會破壞既有起始頁設定。依Ci要保留TownPass宿主首頁的意圖，收斂為未自訂起始頁時預設首頁、尊重既有偏好；不以新增功能破壞設定。
+      scenarios:
+        - id: US-1.1
+          story_id: US-1
+          text: WHEN 目前位置與目的地齊全，THEN 顯示步行道路路線與距離，起終點估計接線和道路段可區分。
+          source: proposal.md:26
+        - id: US-1.2
+          story_id: US-1
+          text: WHEN 切換類別或點沿線資源，THEN highlight、數量與清單使用同一沿線集合，詳情保留來源及更新日，目的地路線不消失。
+          source: proposal.md:27
+        - id: US-1.3
+          story_id: US-1
+          text: WHEN 快速更換或清除目的地，THEN 舊回應不覆蓋新狀態，清除後回到附近資源探索。
+          source: proposal.md:28
+        - id: US-1.4
+          story_id: US-1
+          text: WHEN 無定位、斷網或無可用路線，THEN 明確提示限制，不將直線或地圖中心偽裝成道路路線與本人位置。
+          source: proposal.md:29
+        - id: US-2.1
+          story_id: US-2
+          text: WHEN 以觸控或滑鼠進探索頁且未按搜尋，THEN 沒有非操作產生的搜尋藍框；鍵盤Tab仍保留可見焦點。
+          source: proposal.md:35
+        - id: US-2.2
+          story_id: US-2
+          text: WHEN 使用320、390、430、768像素寬度及手機橫向，THEN START與模式主文案不互擠或非必要換行，無整頁水平溢出且操作可觸及。
+          source: proposal.md:36
+        - id: US-2.3
+          story_id: US-2
+          text: WHEN 收合面板或展開地圖再復原，THEN 地圖使用App可用區域且保留復原鈕，目的地、路線、類別與已選資源不遺失。
+          source: proposal.md:37
+        - id: US-3.1
+          story_id: US-3
+          text: WHEN 未自訂起始頁而啟動原生App，THEN 顯示TownPass首頁與友善同行入口，不以友善WebView取代原生根頁。
+          source: proposal.md:43
+        - id: US-3.2
+          story_id: US-3
+          text: WHEN 點首頁或服務清單入口，THEN 進入同一友善服務容器，保留橋接、定位及載入失敗重試。
+          source: proposal.md:44
+        - id: US-3.3
+          story_id: US-3
+          text: WHEN 點返回台北通，THEN 即使WebView有文件歷史也直接回TownPass；系統返回先處理文件歷史，無歷史才回原生頁面。
+          source: proposal.md:45
+premise_version: 1
+retry_of: []

@@ -16,8 +16,8 @@
   const stores = data.stores.map(s => ({ ...s, id: String(s.id) }));
   const byId = new Map(stores.map(s => [s.id, s]));
   const center = { lat: 25.0375, lng: 121.5637 };
-  const state = { view: 'welcome', mode: 'free', transport: 'walk', detailId: null, position: null, gpsPending: false, gpsMessage: '', gpsGeneration: 0, filters: new Set(), selectedId: null, destination: null, online: navigator.onLine, searchGeneration: 0, searchController: null, searchQuery: '', searchResults: [], theme: 'light', heading: null, orientationEnabled: false, orientationMessage: '未使用方位感測，以正北為基準', activeSheet: null, cache: null, externalGeneration: 0 };
-  let toastTimer; let beforeSheet; let searchClient; let selectedLine; let selectedMarker; let gpsMarker; let referenceMarker; let tileLayer; let viewportFrame;
+  const state = { view: 'welcome', mode: 'free', transport: 'walk', detailId: null, position: null, gpsPending: false, gpsMessage: '', gpsGeneration: 0, filters: new Set(), selectedId: null, destination: null, route: null, routeIds: new Set(), routeStatus: 'idle', routeMessage: '', routeGeneration: 0, mapExpanded: false, panelCollapsed: false, online: navigator.onLine, searchGeneration: 0, searchController: null, searchQuery: '', searchResults: [], theme: 'light', heading: null, orientationEnabled: false, orientationMessage: '未使用方位感測，以正北為基準', activeSheet: null, cache: null, externalGeneration: 0 };
+  let toastTimer; let beforeSheet; let searchClient; let routeClient; let renderedRoute; let selectedLine; let selectedLineKey; let selectedMarker; let gpsMarker; let referenceMarker; let tileLayer; let viewportFrame;
   const map = L.map('map', { zoomControl: false, attributionControl: false, preferCanvas: true }).setView([center.lat, center.lng], 17);
   const attribution = L.control.attribution({ position: 'bottomright', prefix: false }).addTo(map);
   attribution.addAttribution('© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> (ODbL)');
@@ -25,6 +25,7 @@
   const canvas = L.canvas({ padding: 0.5 });
   const resourceLayer = L.layerGroup().addTo(map);
   const iconLayer = L.layerGroup().addTo(map);
+  const destinationRouteLayer = L.layerGroup().addTo(map);
   const markers = new Map();
   const geoLayers = [];
   function isInBasemap(point) { const b = basemap.bounds; return valid(point) && point.lat >= b[0][0] && point.lat <= b[1][0] && point.lng >= b[0][1] && point.lng <= b[1][1]; }
@@ -76,11 +77,20 @@
   const pointForDistance = () => state.position || { lat: map.getCenter().lat, lng: map.getCenter().lng };
   const matches = store => !state.filters.size || store.services.some(service => state.filters.has(service));
   const isVisible = store => valid(store) && map.getBounds().contains([store.lat, store.lng]);
-  function visibleStores() { const from = pointForDistance(); return stores.filter(s => isVisible(s) && matches(s)).sort((a, b) => distance(from, a) - distance(from, b)); }
+  const matchesRoute = store => state.routeStatus !== 'ready' || state.routeIds.has(store.id);
+  function visibleStores() { const from = pointForDistance(); return stores.filter(s => valid(s) && matches(s) && (state.routeStatus === 'ready' ? state.routeIds.has(s.id) : isVisible(s))).sort((a, b) => distance(from, a) - distance(from, b)); }
+  const resourceScope = () => state.routeStatus === 'ready' ? '沿線' : '視窗內';
   function toast(message) { clearTimeout(toastTimer); $('#toast').textContent = message; $('#toast').hidden = false; toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 4500); }
   function updateIcons(root = document) { root.querySelectorAll('[data-icon]').forEach(el => { el.innerHTML = icon(el.dataset.icon); }); }
   function cancelSearch() { state.searchGeneration += 1; state.searchController?.abort(); state.searchController = null; if ($('#search-submit')) $('#search-submit').disabled = false; }
-  function closeSheet() { state.externalGeneration += 1; cancelSearch(); state.activeSheet = null; state.detailId = null; $('#app-sheet').close(); const restore = beforeSheet?.isConnected && !beforeSheet.closest('dialog') ? beforeSheet : $(state.view === 'welcome' ? '#enter-app' : state.view === 'guidance' ? '#exit-guidance' : '#search-trigger'); restore?.focus({ preventScroll: true }); }
+  function closeSheet() {
+    const wasOpen = $('#app-sheet').open;
+    state.externalGeneration += 1; cancelSearch(); state.activeSheet = null; state.detailId = null; $('#app-sheet').close();
+    if (!wasOpen) return;
+    const restore = beforeSheet?.isConnected && !beforeSheet.closest('dialog') ? beforeSheet : $(state.view === 'welcome' ? '#enter-app' : state.view === 'guidance' ? '#exit-guidance' : '#search-trigger');
+    if (document.documentElement.dataset.input === 'keyboard') restore?.focus({ preventScroll: true });
+    else document.activeElement?.blur?.();
+  }
   function openSheet(title, html, name) {
     state.externalGeneration += 1; beforeSheet = document.activeElement; state.activeSheet = name; $('#app-sheet').dataset.sheet = name === 'details' ? 'detail' : name; $('#sheet-title').textContent = title; $('#sheet-body').innerHTML = html;
     updateIcons($('#sheet-body')); if (!$('#app-sheet').open) $('#app-sheet').showModal();
@@ -95,10 +105,82 @@
     return `<button class="resource-row" data-resource="${esc(store.id)}"><span class="resource-symbol">${icon(store.services.find(s => state.filters.has(s)) || store.services[0] || 'info', 23)}</span><span class="resource-copy"><strong>${esc(store.name)}</strong><span class="resource-card-address">${esc(store.address || '地址待確認')}</span><span class="resource-card-services">${store.services.map(key => `<span>${icon(key, 15)}${SERVICES[key]}</span>`).join('') || '服務未標示'}</span><span class="resource-card-meta"><span class="resource-card-source">${esc(store.sourceName)}</span><span class="resource-card-updated">更新 ${esc(dateText(store.updatedAt))}</span></span></span><span class="resource-distance">直線 ${d}${icon('chevron', 15)}</span></button>`;
   }
   function renderResourceLine() {
-    if (selectedLine) { map.removeLayer(selectedLine); selectedLine = null; }
     const store = byId.get(state.selectedId);
-    if (state.mode !== 'resource' || !state.position || !valid(store)) return;
+    const key = state.mode === 'resource' && state.position && valid(store) ? `${state.position.lat},${state.position.lng}:${store.id}` : null;
+    if (selectedLineKey === key) return;
+    if (selectedLine) { map.removeLayer(selectedLine); selectedLine = null; }
+    selectedLineKey = key;
+    if (!key) return;
     selectedLine = L.polyline([[state.position.lat, state.position.lng], [store.lat, store.lng]], { color: '#ff5e3a', weight: 4, dashArray: '7 9', opacity: .8, interactive: false }).addTo(map);
+  }
+  function renderDestinationRoute() {
+    if (renderedRoute !== state.route) {
+      destinationRouteLayer.clearLayers(); renderedRoute = state.route;
+      if (state.route) {
+        for (const segment of state.route.roadSegments) L.polyline(segment, { color: '#ff5e3a', weight: 5, opacity: .95, interactive: false }).addTo(destinationRouteLayer);
+        for (const connector of state.route.connectors) L.polyline(connector, { color: '#ff5e3a', weight: 4, dashArray: '4 7', opacity: .8, interactive: false }).addTo(destinationRouteLayer);
+      }
+    }
+    $('#destination-route').hidden = !state.destination;
+    const route = state.route;
+    $('#destination-route-message').textContent = route ? `步行約 ${distanceLabel(route.distanceM)} · 估計 ${Math.ceil(route.estimateMinutes)} 分鐘 · 沿線 ${visibleStores().length} 筆` : state.routeMessage;
+    $('#destination-route-note').textContent = route ? `路線兩側250m，非可達保證。實線為 OSM 步行道路；虛線為估計接線（${distanceLabel(route.connectorDistanceM)}），未驗證入口或無障礙通行。` : '本機臺北市步行路網；定位僅供本機計算。';
+    $('#route-retry').hidden = !['waiting-location', 'error'].includes(state.routeStatus);
+    $('#route-retry').disabled = state.gpsPending;
+    $('#route-retry').textContent = state.routeStatus === 'waiting-location' ? '重新定位' : '重新計算';
+  }
+  function cancelDestinationRoute() {
+    state.routeGeneration += 1; routeClient?.cancel(); state.route = null; state.routeIds = new Set();
+    state.routeStatus = state.destination ? 'waiting-location' : 'idle'; state.routeMessage = '';
+    renderDestinationRoute();
+  }
+  async function scheduleRoute() {
+    cancelDestinationRoute();
+    const generation = state.routeGeneration;
+    if (!state.destination) { renderAll(); return; }
+    if (!state.position || state.gpsPending) {
+      state.routeMessage = state.gpsPending ? '正在取得定位，完成後計算目的地路線…' : '需要目前位置才能計算道路路線，請重新定位。'; renderAll(); return;
+    }
+    state.routeStatus = 'loading'; state.routeMessage = '正在本機計算步行路線…'; renderAll();
+    try {
+      if (!window.FriendlyRouteClient) throw new Error('本機路由程式未載入，請連線後重新開啟。');
+      routeClient ||= window.FriendlyRouteClient.createClient();
+      const route = await routeClient.route({ points: [state.position, state.destination].map(point => ({ lat: point.lat, lng: point.lng })), stores, radius: 250 });
+      if (generation !== state.routeGeneration) return;
+      state.route = route; state.routeIds = new Set(route.storeIds.map(String)); state.routeStatus = 'ready'; state.routeMessage = ''; renderAll();
+      requestAnimationFrame(() => { if (generation === state.routeGeneration && state.view !== 'welcome') fitDestinationRoute(); });
+    } catch (error) {
+      if (generation !== state.routeGeneration) return;
+      state.routeStatus = 'error'; state.routeMessage = error.name === 'AbortError' ? '路線計算已取消，可重新計算。' : error.message || '無法計算目的地路線，請重試。'; renderAll();
+    }
+  }
+  function fitDestinationRoute() {
+    if (!state.route) return;
+    const size = map.getSize(); const stage = $('#map-stage').getBoundingClientRect();
+    const status = $(state.view === 'guidance' ? '#guidance-hud' : '#map-status').getBoundingClientRect();
+    const top = Math.max(96, status.bottom - stage.top + 18);
+    let bottom = 32; let right = 32;
+    if (state.mapExpanded && state.view === 'explore') {
+      const panel = $('#bottom-panel').getBoundingClientRect();
+      if (panel.width < size.x * .65 && panel.left >= stage.left + size.x * .4) right = panel.width + 36;
+      else bottom = Math.min(size.y * .48, panel.height + 24);
+    }
+    if (state.view === 'guidance') bottom = 115;
+    map.fitBounds(state.route.coordinates, { paddingTopLeft: [32, top], paddingBottomRight: [right, bottom], maxZoom: 17, animate: false });
+  }
+  function renderMapLayout() {
+    $('#app').classList.toggle('map-expanded', state.mapExpanded && state.view === 'explore');
+    $('#map-expand').setAttribute('aria-expanded', String(state.mapExpanded));
+    $('#map-expand').setAttribute('aria-label', state.mapExpanded ? '還原地圖' : '展開地圖');
+    $('#map-expand-label').textContent = state.mapExpanded ? '還原地圖' : '展開地圖';
+    $('#panel-content').hidden = state.panelCollapsed;
+    $('#bottom-panel').classList.toggle('is-collapsed', state.panelCollapsed);
+    $('#panel-toggle').setAttribute('aria-expanded', String(!state.panelCollapsed));
+    $('#panel-toggle-label').textContent = state.panelCollapsed ? '展開面板' : '收合面板';
+  }
+  function refreshMapLayout() {
+    renderMapLayout();
+    requestAnimationFrame(() => { map.invalidateSize({ animate: false }); if (state.route) fitDestinationRoute(); });
   }
   function openResource(id) { if (!byId.has(String(id))) return; selectResource(id); showDetails(byId.get(state.selectedId)); }
   function renderMarkers() {
@@ -106,14 +188,14 @@
     const colors = palette();
     for (const store of stores) {
       if (!valid(store)) continue;
-      const match = matches(store); const active = state.filters.size > 0 && match;
+      const match = matches(store) && matchesRoute(store); const active = (state.filters.size > 0 || state.routeStatus === 'ready') && match;
       let marker = markers.get(store.id);
       if (!marker) { marker = L.circleMarker([store.lat, store.lng], { renderer: canvas }).on('click', () => openResource(store.id)).addTo(resourceLayer); markers.set(store.id, marker); }
       marker.setStyle({ radius: active ? 7 : 4, color: active ? colors.accent : colors.muted, weight: active ? 2 : 1, opacity: match ? .9 : .2, fillColor: active ? colors.accent : colors.muted, fillOpacity: match ? .72 : .15 });
     }
     iconLayer.clearLayers();
     if (map.getZoom() >= 14.5) {
-      const candidates = visibleStores().filter(s => s.id !== state.selectedId).slice(0, 60); const cells = new Set();
+      const candidates = visibleStores().filter(s => isVisible(s) && s.id !== state.selectedId).slice(0, 60); const cells = new Set();
       for (const store of candidates) {
         const p = map.latLngToContainerPoint([store.lat, store.lng]); const cell = `${Math.floor(p.x / 52)},${Math.floor(p.y / 52)}`; if (cells.has(cell)) continue; cells.add(cell);
         const key = store.services.find(s => state.filters.has(s)) || store.services[0] || 'info';
@@ -143,21 +225,25 @@
   }
   function renderPanel() {
     const visible = visibleStores(); const store = byId.get(state.selectedId);
-    $('#visible-count').textContent = `視窗內 ${visible.length} 筆`;
-    $('#panel-heading').textContent = store ? '找到身邊的資源' : '友善，就在身邊';
+    $('#visible-count').textContent = `${resourceScope()} ${visible.length} 筆`;
+    $('#panel-summary').textContent = state.routeStatus === 'ready' ? `沿線資源 · ${visible.length} 筆` : state.routeStatus === 'loading' ? '正在計算路線…' : state.destination ? '目的地與附近資源' : '附近資源';
+    $('#panel-heading').textContent = state.routeStatus === 'ready' ? '沿途的友善資源' : store ? '找到身邊的資源' : '友善，就在身邊';
     $('#bottom-panel').classList.toggle('has-selection', Boolean(store)); $('#selected-card').hidden = !store; $('#nearby-preview').hidden = Boolean(store);
     if (store) $('#selected-card').innerHTML = selectedCard(store);
-    else $('#nearby-preview').innerHTML = visible.length ? visible.slice(0, 6).map(row).join('') : '<p class="empty-copy">視窗內沒有符合的資源，試著縮放地圖或搜尋其他地點。</p>';
-    if (state.activeSheet === 'list') $('#sheet-body').innerHTML = `<p class="field-note">視窗內 ${visible.length} 筆 · 直線距離（非步行路線）${state.position ? '' : '，依地圖中心估算'}</p>${visible.map(row).join('') || '<p class="empty-copy">目前視窗沒有符合的資源。</p>'}`;
+    else $('#nearby-preview').innerHTML = visible.length ? visible.slice(0, 6).map(row).join('') : `<p class="empty-copy">${state.routeStatus === 'ready' ? '沿線沒有符合所選類別的資源，可試著調整類別。' : '視窗內沒有符合的資源，試著縮放地圖或搜尋其他地點。'}</p>`;
+    if (state.activeSheet === 'list') {
+      $('#sheet-title').textContent = state.routeStatus === 'ready' ? '沿線的資源' : '視窗內的資源';
+      $('#sheet-body').innerHTML = `<p class="field-note">${resourceScope()} ${visible.length} 筆 · 各資源距離為直線距離（非步行路線）${state.position ? '' : '，依地圖中心估算'}</p>${visible.map(row).join('') || `<p class="empty-copy">${resourceScope()}沒有符合的資源。</p>`}`;
+    }
   }
   function setText(selector, text) { const el = $(selector); if (el) el.textContent = text; }
   function renderMode() {
     const resource = state.mode === 'resource';
     setText('#mode-title', resource ? '資源引導模式' : '自由探索模式');
-    setText('#mode-description', resource ? '直線方向參考；依現場道路通行' : '點選地圖資源，查看資訊與方向');
+    setText('#mode-description', resource ? '查看資源方向' : '隨心探索附近資源');
     $('#mode-toggle')?.setAttribute('aria-pressed', String(resource));
     document.querySelectorAll('[data-transport]').forEach(button => { const selected = button.dataset.transport === state.transport; button.setAttribute('aria-pressed', String(selected)); button.classList.toggle('selected', selected); });
-    setText('#transport-status', `偏好：${TRANSPORTS[state.transport]} · 直線距離，非步行／捷運／單車／開車路線`);
+    setText('#transport-status', state.destination ? `偏好：${TRANSPORTS[state.transport]} · 目的地固定使用步行路網，未規劃捷運／單車／開車路線` : `偏好：${TRANSPORTS[state.transport]} · 直線距離，非步行／捷運／單車／開車路線`);
   }
   function renderGuidance() {
     const store = state.mode === 'resource' ? byId.get(state.selectedId) : null; const position = state.position;
@@ -166,20 +252,27 @@
     setText('#guidance-bearing', store ? !valid(store) ? '無法計算方向，請選擇有座標的資源' : position ? `${directionName(bearing(position, store))}方 · 正北基準 · 直線距離（非步行路線）` : '需要定位才能顯示方向' : '點選資源查看資訊；未規劃行走路線');
     setText('#guidance-location', position ? `${position.accuracy > 100 ? '精度不足 · ' : ''}定位${position.accuracy !== null ? ` ±${Math.round(position.accuracy)} m` : '精度未知'} · ${timeText(position.capturedAt)}` : state.gpsPending ? '正在定位…' : state.gpsMessage || '尚未取得位置，請使用定位按鈕重試');
     if ($('#guidance-detail')) $('#guidance-detail').hidden = !store;
+    if (!store && state.destination) {
+      setText('#guidance-title', state.destination.name);
+      setText('#guidance-distance', state.route ? `步行約 ${distanceLabel(state.route.distanceM)}` : state.routeMessage);
+      setText('#guidance-bearing', state.route ? `沿線 ${visibleStores().length} 筆 · 路線兩側250m，非可達保證；虛線為估計接線。` : '本機臺北市步行路網');
+    }
   }
   function setView(view) {
     if (!['welcome', 'explore', 'guidance'].includes(view)) return;
     state.externalGeneration += 1; closeSheet(); state.view = view; $('#app').dataset.view = view;
     if ($('#welcome-screen')) $('#welcome-screen').hidden = view !== 'welcome';
     if ($('#explore-screen')) $('#explore-screen').hidden = view === 'welcome';
-    renderMode(); renderGuidance();
-    requestAnimationFrame(() => { if (state.view !== view) return; map.invalidateSize({ animate: false }); if (!state.activeSheet) $(view === 'welcome' ? '#enter-app' : view === 'guidance' ? '#exit-guidance' : '#search-trigger')?.focus({ preventScroll: true }); });
+    window.scrollTo?.(0, 0);
+    renderMode(); renderGuidance(); renderMapLayout();
+    requestAnimationFrame(() => { if (state.view !== view) return; map.invalidateSize({ animate: false }); if (state.route && view === 'explore') fitDestinationRoute(); if (!state.activeSheet && document.documentElement.dataset.input === 'keyboard') $(view === 'welcome' ? '#enter-app' : view === 'guidance' ? '#exit-guidance' : '#search-trigger')?.focus({ preventScroll: true }); });
   }
   function clearResource() { state.externalGeneration += 1; state.selectedId = null; state.mode = 'free'; closeSheet(); renderAll(); }
   function toggleMode() { if (state.mode === 'resource') clearResource(); else toast('請先點選地圖或清單中的資源，即可切換資源引導。'); }
   function focusGuidance() {
     const store = byId.get(state.selectedId);
-    if (state.mode === 'resource' && state.position && valid(store)) map.fitBounds([[state.position.lat, state.position.lng], [store.lat, store.lng]], { padding: [48, 140], maxZoom: 17, animate: false });
+    if (state.route) fitDestinationRoute();
+    else if (state.mode === 'resource' && state.position && valid(store)) map.fitBounds([[state.position.lat, state.position.lng], [store.lat, store.lng]], { padding: [48, 140], maxZoom: 17, animate: false });
     else if (state.position) focusPoint(state.position);
   }
   function startGuidance() {
@@ -187,26 +280,28 @@
     requestAnimationFrame(() => { if (state.view === 'guidance') focusGuidance(); });
   }
   function endGuidance() { setView('explore'); }
-  function renderAll() { renderBasemapNotice(); renderPosition(); renderPanel(); renderMarkers(); renderCache(); renderMode(); renderGuidance(); renderDetailsDistance(); }
+  function renderAll() { renderBasemapNotice(); renderPosition(); renderPanel(); renderDestinationRoute(); renderMarkers(); renderCache(); renderMode(); renderGuidance(); renderDetailsDistance(); }
   function selectResource(id) { const store = byId.get(String(id)); if (!store) return; state.externalGeneration += 1; state.selectedId = store.id; state.mode = 'resource'; if (state.view === 'welcome') setView('explore'); closeSheet(); renderPanel(); renderMarkers(); renderMode(); renderGuidance(); if (state.view === 'guidance') focusGuidance(); else if (valid(store)) focusPoint(store); if (!state.online && state.position && !isInBasemap(state.position)) showDirection(); }
   function focusPoint(point) { map.setView([point.lat, point.lng], Math.max(map.getZoom(), 17), { animate: false }); }
   async function requestPosition() {
     const generation = ++state.gpsGeneration; state.gpsPending = true; state.gpsMessage = ''; renderPosition(); renderGuidance();
+    if (state.destination) scheduleRoute();
     try {
-      const position = await FriendlyBridge.getLocation(); if (generation !== state.gpsGeneration || !valid(position)) return;
+      const position = await FriendlyBridge.getLocation(); if (generation !== state.gpsGeneration) return;
+      if (!valid(position)) throw Object.assign(new Error('Invalid location'), { code: 'GEO_FAILED' });
       state.position = position; state.gpsMessage = position.accuracy > 100 ? '定位精度不足，距離與方向可能有偏差。' : ''; if (state.view === 'guidance') focusGuidance(); else focusPoint(position);
     } catch (error) {
       if (generation !== state.gpsGeneration) return;
       const messages = { BRIDGE_LOCATION_FAILED: '無法取得定位', GEO_DENIED: '定位權限未開啟', GEO_TIMEOUT: '定位逾時', GEO_UNSUPPORTED: '此瀏覽器不支援定位', GEO_FAILED: '無法取得定位' };
       state.position = null; state.gpsMessage = `${messages[error.code] || '無法取得定位'}；距離依地圖中心估算。`;
-    } finally { if (generation === state.gpsGeneration) { state.gpsPending = false; renderAll(); if (state.activeSheet === 'direction') renderDirection(); } }
+    } finally { if (generation === state.gpsGeneration) { state.gpsPending = false; if (state.destination) scheduleRoute(); else renderAll(); if (state.activeSheet === 'direction') renderDirection(); } }
   }
   function setDestination(place) {
     if (!valid(place)) { const record = byId.get(place.storeId || place.id); if (record) showDetails(record); toast('此資料未提供座標，無法在地圖標記。'); return; }
     state.destination = place; $('#search-label').textContent = place.name; $('#destination-clear').hidden = false; $('#destination-name').textContent = place.name;
     if (referenceMarker) map.removeLayer(referenceMarker);
     referenceMarker = L.marker([place.lat, place.lng], { icon: L.divIcon({ className: 'destination-map-pin', iconSize: [40, 40], iconAnchor: [20, 40], html: `<span title="${esc(place.name)}">${icon('flag', 24)}</span>` }) }).addTo(map);
-    closeSheet(); focusPoint(place); toast('已標記目的地');
+    closeSheet(); focusPoint(place); scheduleRoute();
   }
   function localSearch(query) {
     const q = query.trim().toLowerCase(); return q ? stores.filter(s => `${s.name} ${s.address}`.toLowerCase().includes(q)).slice(0, 20).map(s => ({ ...s, storeId: s.id, source: 'catalog' })) : [];
@@ -293,7 +388,7 @@
     const button = event.target.closest('button'); if (!button) return;
     if (button.dataset.resource) openResource(button.dataset.resource);
     if (button.dataset.transport && Object.hasOwn(TRANSPORTS, button.dataset.transport)) { state.transport = button.dataset.transport; renderMode(); }
-    if (button.dataset.service) { const service = button.dataset.service; state.filters.has(service) ? state.filters.delete(service) : state.filters.add(service); renderFilters(); renderPanel(); renderMarkers(); renderGuidance(); document.querySelector(`[data-service="${service}"]`)?.focus({ preventScroll: true }); }
+    if (button.dataset.service) { const service = button.dataset.service; state.filters.has(service) ? state.filters.delete(service) : state.filters.add(service); renderFilters(); renderPanel(); renderDestinationRoute(); renderMarkers(); renderGuidance(); if (document.documentElement.dataset.input === 'keyboard') document.querySelector(`[data-service="${service}"]`)?.focus({ preventScroll: true }); }
     if (button.dataset.searchResult !== undefined) setDestination(state.searchResults[Number(button.dataset.searchResult)]);
     if (button.dataset.themeChoice) setTheme(button.dataset.themeChoice);
     if (button.dataset.copy) copyValue(button.dataset.copy);
@@ -312,6 +407,9 @@
   $('#search-trigger').addEventListener('click', openSearch); $('#settings-button').addEventListener('click', openSettings);
   $('#list-button').addEventListener('click', () => { openSheet('視窗內的資源', '', 'list'); renderPanel(); });
   $('#gps-button').addEventListener('click', requestPosition); $('#overview-button').addEventListener('click', () => map.setView([25.06, 121.55], 12, { animate: false }));
+  $('#route-retry').addEventListener('click', () => { if (!state.position) requestPosition(); else scheduleRoute(); });
+  $('#map-expand').addEventListener('click', () => { state.mapExpanded = !state.mapExpanded; refreshMapLayout(); });
+  $('#panel-toggle').addEventListener('click', () => { state.panelCollapsed = !state.panelCollapsed; refreshMapLayout(); });
   $('#home-button').addEventListener('click', event => { event.preventDefault(); setView('welcome'); });
   $('#enter-app')?.addEventListener('click', () => setView('explore'));
   $('#mode-toggle')?.addEventListener('click', toggleMode);
@@ -320,9 +418,9 @@
   $('#guidance-end')?.addEventListener('click', endGuidance);
   $('#guidance-detail')?.addEventListener('click', () => showDetails(byId.get(state.selectedId)));
   $('#guidance-resources')?.addEventListener('click', () => { openSheet('視窗內的資源', '', 'list'); renderPanel(); });
-  $('#destination-clear').addEventListener('click', () => { state.destination = null; if (referenceMarker) map.removeLayer(referenceMarker); referenceMarker = null; $('#destination-clear').hidden = true; $('#search-label').textContent = '想去哪裡？'; });
+  $('#destination-clear').addEventListener('click', () => { state.destination = null; if (referenceMarker) map.removeLayer(referenceMarker); referenceMarker = null; $('#destination-clear').hidden = true; $('#search-label').textContent = '想去哪裡？'; cancelDestinationRoute(); renderAll(); });
   map.on('moveend zoomend', () => { cancelAnimationFrame(viewportFrame); viewportFrame = requestAnimationFrame(() => { syncOnlineTiles(); renderPanel(); renderMarkers(); renderGuidance(); renderDetailsDistance(); }); });
-  const resizeObserver = new ResizeObserver(() => { const height = $('#bottom-panel').getBoundingClientRect().height; document.documentElement.style.setProperty('--panel-inset', `${height + 18}px`); }); resizeObserver.observe($('#bottom-panel')); new ResizeObserver(() => map.invalidateSize({ animate: false })).observe($('#app'));
+  new ResizeObserver(() => map.invalidateSize({ animate: false })).observe($('#map-stage'));
   function connectivity() { state.online = navigator.onLine; cancelSearch(); syncOnlineTiles(); renderAll(); if (state.activeSheet === 'search') openSearch(); if (state.online) cacheData(); }
   window.addEventListener('online', connectivity); window.addEventListener('offline', connectivity);
   window.addEventListener('deviceorientationabsolute', orientation); window.addEventListener('deviceorientation', orientation);

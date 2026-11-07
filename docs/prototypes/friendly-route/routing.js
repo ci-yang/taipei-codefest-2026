@@ -22,10 +22,17 @@
       && point.lng <= graph.bounds[1][1]);
   }
   const adjacency = graph ? graph.nodes.map(() => []) : [];
-  const reverse = graph ? graph.nodes.map(() => []) : [];
+  let reverse = null;
   if (graph) graph.edges.forEach(([a, b, weight]) => {
-    adjacency[a].push([b, weight]); reverse[b].push([a, weight]);
+    adjacency[a].push([b, weight]);
   });
+  function reverseEdges() {
+    if (!reverse) {
+      reverse = graph ? graph.nodes.map(() => []) : [];
+      if (graph) graph.edges.forEach(([a, b, weight]) => reverse[b].push([a, weight]));
+    }
+    return reverse;
+  }
   class Heap {
     constructor() { this.items = []; }
     push(item) {
@@ -52,11 +59,14 @@
       return first;
     }
   }
-  function shortestTree(start, reversed = false) {
-    const edges = reversed ? reverse : adjacency;
-    const distances = new Float64Array(edges.length); distances.fill(Infinity); distances[start] = 0;
+  function shortestTree(start, reversed = false, seeds = null) {
+    const edges = reversed ? reverseEdges() : adjacency;
+    const distances = new Float64Array(edges.length); distances.fill(Infinity);
     const parents = new Int32Array(edges.length); parents.fill(-1);
-    const queue = new Heap(); queue.push([0, start]);
+    const queue = new Heap();
+    for (const seed of seeds || [{ node: start, distanceM: 0 }]) {
+      distances[seed.node] = seed.distanceM; queue.push([seed.distanceM, seed.node]);
+    }
     while (queue.items.length) {
       const [cost, node] = queue.pop(); if (cost !== distances[node]) continue;
       for (const [next, weight] of edges[node]) {
@@ -66,13 +76,14 @@
         }
       }
     }
-    return { distances, parents, start };
+    return { distances, parents, start: seeds ? null : start };
   }
   function treePath(tree, target, reversed = false) {
     if (!Number.isFinite(tree.distances[target])) return null;
     const path = [target]; let current = target;
     while (current !== tree.start) {
-      current = tree.parents[current]; if (current < 0) return null;
+      current = tree.parents[current];
+      if (current < 0) { if (tree.start === null) break; return null; }
       path.push(current);
     }
     return reversed ? path : path.reverse();
@@ -85,6 +96,15 @@
       if (gap < nearestDistance) { nearest = index; nearestDistance = gap; }
     });
     return nearestDistance <= SNAP_LIMIT_M ? { node: nearest, distanceM: nearestDistance } : null;
+  }
+  function snapCandidates(point) {
+    if (!contains(point)) return [];
+    const coordinates = pointArray(point); const candidates = [];
+    graph.nodes.forEach((node, index) => {
+      const gap = distance(coordinates, node);
+      if (gap <= SNAP_LIMIT_M) candidates.push({ node: index, distanceM: gap });
+    });
+    return candidates.sort((a, b) => a.distanceM - b.distanceM);
   }
   function segmentDistanceXY(point, a, b) {
     const dx = b[0] - a[0]; const dy = b[1] - a[1];
@@ -115,7 +135,7 @@
     const points = options.points;
     if (!Array.isArray(points) || points.length < 2 || points.length > 6 || points.some((point) => !finitePoint(point))) return fail('請設定有效起點與 1–5 個目的地。');
     const outside = points.findIndex((point) => !contains(point));
-    if (outside !== -1) return fail(`${outside === 0 ? '起點' : `目的地 ${outside}`}超出本版路網範圍。保留你的真實位置，請手動選取範圍內地點或明確載入示範。`);
+    if (outside !== -1) return fail(`${outside === 0 ? '目前位置' : '目的地'}超出本機路網範圍（${graph.coverageLabel || '信義區與大安東側'}）。仍可查看全市資源，這段路線尚無法計算。`);
     for (let a = 0; a < points.length; a += 1) {
       for (let b = a + 1; b < points.length; b += 1) {
         if (distance(pointArray(points[a]), pointArray(points[b])) < 1) return fail('起點與目的地有重複位置，請選擇不同地點。');
@@ -124,7 +144,9 @@
     const selected = new Set((Array.isArray(options.services) ? options.services : [...VALID_SERVICES]).filter((key) => VALID_SERVICES.has(key)));
     const radius = [100, 250, 500].includes(options.radius) ? options.radius : 250;
     const stores = (Array.isArray(options.stores) ? options.stores : []).filter((store) => finitePoint(store) && store.id != null && Array.isArray(store.services) && store.services.some((key) => selected.has(key)));
-    const snapped = points.map(snap); const missing = snapped.findIndex((point) => !point);
+    const candidateSets = options.shortestOnly ? points.map(snapCandidates) : null;
+    const snapped = candidateSets ? candidateSets.map(candidates => candidates[0]) : points.map(snap);
+    const missing = snapped.findIndex((point) => !point);
     if (missing !== -1) return fail(`${missing === 0 ? '起點' : `目的地 ${missing}`}距可用路網超過 ${SNAP_LIMIT_M} 公尺；本版無法建立可靠接線，請改選附近地點。`);
     const trees = new Map();
     const getTree = (node, reversed = false) => {
@@ -134,18 +156,27 @@
     };
     const baseLegs = [];
     for (let index = 1; index < points.length; index += 1) {
-      const from = snapped[index - 1]; const to = snapped[index];
-      const forward = getTree(from.node); const backward = getTree(to.node, true);
+      let from = snapped[index - 1]; let to = snapped[index];
+      // A closest node can belong to an isolated courtyard/platform component.
+      // Virtual source/target connectors consider every candidate within the same 120m limit.
+      const forward = candidateSets ? shortestTree(from.node, false, candidateSets[index - 1]) : getTree(from.node);
+      const backward = options.shortestOnly ? null : getTree(to.node, true);
+      if (candidateSets) to = candidateSets[index].reduce((best, candidate) =>
+        forward.distances[candidate.node] + candidate.distanceM < forward.distances[best.node] + best.distanceM ? candidate : best, to);
       const nodePath = treePath(forward, to.node);
       if (!nodePath) return fail('這些地點在目前路網快照中無法連通；請改選地點，不以直線冒充可行路線。');
-      baseLegs.push({ from: index - 1, to: index, nodePath, graphDistanceM: forward.distances[to.node], forward, backward });
+      if (candidateSets) from = candidateSets[index - 1].find(candidate => candidate.node === nodePath[0]);
+      baseLegs.push({ from: index - 1, to: index, nodePath,
+        graphDistanceM: forward.distances[to.node] - (candidateSets ? from.distanceM : 0),
+        startGap: from.distanceM, endGap: to.distanceM, forward, backward });
     }
     function assemble(legs, id, label, viaLabel = '') {
-      const coordinates = []; const connectors = []; let distanceM = 0; let connectorDistanceM = 0;
+      const coordinates = []; const connectors = []; const roadSegments = []; let distanceM = 0; let connectorDistanceM = 0;
       for (const leg of legs) {
         const start = pointArray(points[leg.from]); const end = pointArray(points[leg.to]);
         const path = leg.nodePath.map((node) => graph.nodes[node]);
-        const firstGap = snapped[leg.from].distanceM; const lastGap = snapped[leg.to].distanceM;
+        roadSegments.push(path);
+        const firstGap = leg.startGap ?? snapped[leg.from].distanceM; const lastGap = leg.endGap ?? snapped[leg.to].distanceM;
         const legCoordinates = [start, ...path, end];
         coordinates.push(...(coordinates.length ? legCoordinates.slice(1) : legCoordinates));
         connectorDistanceM += firstGap + lastGap;
@@ -155,10 +186,11 @@
       }
       const storeIds = resourceIds(coordinates, stores, radius);
       return { id, label, coordinates, distanceM: Math.round(distanceM), connectorDistanceM: Math.round(connectorDistanceM),
-        connectors, resourceCount: storeIds.length, storeIds, estimateMinutes: Math.ceil(distanceM / (4000 / 60)), viaLabel,
+        connectors, roadSegments, resourceCount: storeIds.length, storeIds, estimateMinutes: Math.ceil(distanceM / (4000 / 60)), viaLabel,
         basis: '本地 OSM 候選路網；起終點與路網接線為估計，未驗證實際入口。' };
     }
     const shortest = assemble(baseLegs, 'shortest', '最短路徑');
+    if (options.shortestOnly) return { routes: [shortest], candidateCount: 1, radius, bounds: graph.bounds, graphVersion: graph.version };
     const maxDistanceM = Math.min(shortest.distanceM * 1.6, shortest.distanceM + 1000);
     const covered = new Set(shortest.storeIds); const consideredNodes = new Set();
     const candidates = stores.filter((store) => !covered.has(String(store.id))).map((store) => {

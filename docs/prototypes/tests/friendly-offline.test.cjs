@@ -88,20 +88,22 @@ test('canonical entry handling does not accept response URLs outside the app sco
   assert.equal(state.savedAt, null);
 });
 
-test('initial download reports progress and ready only after all 14 same-scope files are present', async () => {
+test('initial download reports progress and ready only after all 18 same-scope files are present', async () => {
   const env = worker(); const messages = await env.message(); const state = result(messages);
-  assert.equal(state.state, 'ready'); assert.equal(state.completed, 14); assert.equal(state.total, 14); assert(state.savedAt > 0);
-  assert.equal(state.failures.length, 0); assert(messages.filter((message) => message.type === 'progress').length >= 14);
+  assert.equal(state.state, 'ready'); assert.equal(state.completed, 18); assert.equal(state.total, 18); assert(state.savedAt > 0);
+  assert.equal(state.failures.length, 0); assert(messages.filter((message) => message.type === 'progress').length >= 18);
   assert(messages.filter((message) => message.type === 'progress').every((message) => message.status.state === 'downloading' && message.status.savedAt === null));
-  assert.equal(env.requests.length, 14); assert(env.requests.every(({ url }) => url.startsWith(SCOPE)));
+  assert.equal(env.requests.length, 18); assert(env.requests.every(({ url }) => url.startsWith(SCOPE)));
   assert(env.requests.some(({ url }) => url.endsWith('resources-data.js')));
-  assert(!env.requests.some(({ url }) => /routing|tile.openstreetmap|latitude|longitude/.test(url)));
+  assert(!env.requests.some(({ url }) => /tile.openstreetmap|latitude|longitude|[?]/.test(url)));
+  const routeAssets = env.requests.filter(({ url }) => /routing|route-client/.test(url)).map(({ url }) => new URL(url).pathname);
+  assert.deepEqual(routeAssets.sort(), ['/app/route-client.js','/app/routing-worker.js','/app/routing.js','/app/routing-data.js'].sort());
   assert.deepEqual(JSON.parse(JSON.stringify(state.baseMapBounds)), [[25.023, 121.546], [25.044, 121.574]]);
   const verified = result(await env.message('VERIFY')); assert.equal(verified.state, 'ready'); assert.equal(verified.savedAt, state.savedAt);
 });
 test('one missing component stays partial; downloaded app shell remains readable offline', async () => {
   const env = worker({ fail: ['resources-data.js'] }); const state = result(await env.message());
-  assert.equal(state.state, 'partial'); assert.equal(state.savedAt, null); assert.equal(state.completed, 13);
+  assert.equal(state.state, 'partial'); assert.equal(state.savedAt, null); assert.equal(state.completed, 17);
   assert(state.failures.some((failure) => failure.asset === 'resources-data.js' && failure.label === '全市資源與類別'));
   env.setOffline(true);
   assert.equal((await env.fetch(`${SCOPE}index.html`, { mode: 'navigate' })).status, 200);
@@ -125,7 +127,7 @@ test('offline reopening uses cached shell and data without fetching or persistin
 test('worker never intercepts external OSM tiles, non-GET, sibling apps, or unlisted data', async () => {
   const env = worker();
   for (const [url, method] of [['https://tile.openstreetmap.org/10/1/2.png', 'GET'],
-    ['https://example.test/app-two/index.html', 'GET'], [`${SCOPE}private.json`, 'GET'], [`${SCOPE}index.html`, 'POST']]) {
+    ['https://example.test/app-two/index.html', 'GET'], [`${SCOPE}private.json`, 'GET'], [`${SCOPE}route?latitude=25&longitude=121`, 'GET'], [`${SCOPE}index.html`, 'POST']]) {
     assert.equal(await env.fetch(url, { method }), null);
   }
   assert.equal(env.requests.length, 0);
@@ -178,13 +180,13 @@ function manager({ supported = true, online = true, reply } = {}) {
   vm.runInNewContext(managerSource, { window, URL, Date, Map, Set, Promise, setTimeout, clearTimeout, Error });
   return { api: window.FriendlyOffline, posts, registrations };
 }
-const readyStatus = { state: 'ready', completed: 14, total: 14, savedAt: 1000, failures: [], version: VERSION, baseMapBounds: [[25.023, 121.546], [25.044, 121.574]] };
+const readyStatus = { state: 'ready', completed: 18, total: 18, savedAt: 1000, failures: [], version: VERSION, baseMapBounds: [[25.023, 121.546], [25.044, 121.574]] };
 test('manager rejects mismatched replies and inconsistent ready claims before accepting its result', async () => {
   const progress = [];
   const env = manager({ reply(message, port) {
     const response = { ...message, type: 'result', status: readyStatus };
     port.postMessage({ ...response, id: 'other-request' }); port.postMessage({ ...response, action: 'CLEAR' });
-    port.postMessage({ ...response, status: { ...readyStatus, completed: 13 } });
+    port.postMessage({ ...response, status: { ...readyStatus, completed: 17 } });
     port.postMessage({ ...response, type: 'progress', status: { ...readyStatus, state: 'downloading', completed: 4, savedAt: null } });
     port.postMessage(response);
   } });

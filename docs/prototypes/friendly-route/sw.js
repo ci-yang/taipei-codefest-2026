@@ -10,6 +10,8 @@ const ASSETS = [
   ['.', '首頁'], ['index.html', '頁面'], ['app.js', '操作功能'], ['app-ui.css', '介面樣式'],
   ['icons.js', '服務圖示'], ['data.js', '信義及大安東側底圖'], ['resources-data.js', '全市資源與類別'],
   ['search.js', '本機搜尋'], ['bridge.js', '台北通與定位'], ['offline.js', '離線管理'],
+  ['route-client.js', '路線操作'], ['routing-worker.js', '本機路線計算'],
+  ['routing.js', '步行路由'], ['routing-data.js', '臺北市步行路網'],
   ['vendor/leaflet.js', '地圖程式'], ['vendor/leaflet.css', '地圖樣式'], ['NOTICE.txt', '資料來源授權'], ['LICENSE.txt', '程式授權'],
 ].map(([path, label]) => ({ path, label, url: new URL(path, SCOPE).href }));
 const ASSET_PATHS = new Set(ASSETS.map((asset) => new URL(asset.url).pathname));
