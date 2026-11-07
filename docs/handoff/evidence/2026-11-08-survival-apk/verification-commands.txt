@@ -1,0 +1,27 @@
+Verification shell invocations (chronological):
+python3 /tmp/tcf-survival-apk-verification/verify.py --source-apk /Users/ciyang/Documents/repos/TownPass-route-experience-20261107/build/app/outputs/flutter-apk/app-release.apk --receipt /Users/ciyang/Documents/repos/tcf-survival-prototype-20261107/.artifacts/townpass/2026-11-07T15-58-35.144Z.json
+
+cat /tmp/tcf-survival-apk-verification/signature.stdout.txt /tmp/tcf-survival-apk-verification/previous-signature.stdout.txt && shasum -a 256 -c friendly-taipei-survival-20261107.apk.sha256
+
+python3 /tmp/tcf-survival-apk-verification/finalize.py
+
+python3 - <<'PY'
+import zipfile
+p='/Users/ciyang/Downloads/friendly-taipei-survival-20261107.apk'
+with zipfile.ZipFile(p) as z:
+    print('\n'.join(n for n in z.namelist() if any(v in n for v in ('Check', 'booking', 'district', 'ticket%'))))
+PY
+
+python3 /tmp/tcf-survival-apk-verification/finalize.py
+
+Executed subprocess commands (see evidence.json for cwd, exit code, stdout/stderr paths):
+git rev-parse HEAD
+git status --short
+/Users/ciyang/Library/Android/sdk/build-tools/36.0.0/aapt dump badging /Users/ciyang/Downloads/friendly-taipei-survival-20261107.apk
+/Users/ciyang/Library/Android/sdk/build-tools/36.0.0/aapt dump xmltree /Users/ciyang/Downloads/friendly-taipei-survival-20261107.apk AndroidManifest.xml
+/Users/ciyang/Library/Android/sdk/build-tools/36.0.0/aapt dump permissions /Users/ciyang/Downloads/friendly-taipei-survival-20261107.apk
+/Users/ciyang/Library/Android/sdk/build-tools/36.0.0/apksigner verify --verbose --print-certs /Users/ciyang/Downloads/friendly-taipei-survival-20261107.apk
+/Users/ciyang/Library/Android/sdk/build-tools/36.0.0/apksigner verify --verbose --print-certs /Users/ciyang/Downloads/friendly-taipei-routes-20261107.apk
+/Users/ciyang/Library/Android/sdk/platform-tools/adb devices -l
+shasum -a 256 -c friendly-taipei-survival-20261107.apk.sha256
+shasum -a 256 -c friendly-taipei-survival-20261107.apk.sha256

@@ -1,0 +1,30 @@
+{
+  "startedAt": "2026-11-07T15:58:35.144Z",
+  "completedAt": "2026-11-07T15:59:08.063Z",
+  "serviceUrl": "https://ci-share.pages.dev/cc521b0047361278/",
+  "platform": {
+    "sourceSha": "4fbb9a26d633964f76e258c32f794c87c49741bf",
+    "repoDirty": false
+  },
+  "townpass": {
+    "path": "/Users/ciyang/Documents/repos/TownPass-route-experience-20261107",
+    "before": {
+      "sourceSha": "8f106f6ba082bf8f66f266c87ca7a0c1f819a0c6",
+      "repoDirty": false
+    },
+    "after": {
+      "sourceSha": "8f106f6ba082bf8f66f266c87ca7a0c1f819a0c6",
+      "repoDirty": false
+    }
+  },
+  "sourceCommitRepresentsBuild": true,
+  "mode": "release",
+  "signing": "not-verified-by-wrapper",
+  "deviceValidation": "not-run",
+  "apk": {
+    "path": "/Users/ciyang/Documents/repos/TownPass-route-experience-20261107/build/app/outputs/flutter-apk/app-release.apk",
+    "bytes": 116052352,
+    "sha256": "e8332fede5fa878475ff75f6bc8b558c34ba6bbcc3bc1ca447737d518243ef5b"
+  },
+  "status": "apk-built"
+}

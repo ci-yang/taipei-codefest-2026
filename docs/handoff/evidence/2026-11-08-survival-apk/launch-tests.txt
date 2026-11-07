@@ -1,0 +1,14 @@
+00:00 +0: loading /Users/ciyang/Documents/repos/TownPass-route-experience-20261107/test/codefest_launch_test.dart
+00:00 +0: saved start-page preference remains effective
+unhandled element <style/>; Picture key: Svg loader
+00:00 +1: new launch restores TownPass home and both required bindings
+00:00 +2: home entry waits for the bridge then returns to native home
+00:01 +3: pinned service uses the same dedicated service route
+00:01 +4: only the exact service URL receives the dedicated container
+00:01 +5: explicit return bypasses WebView history without going back
+00:01 +6: system back uses web history then returns when history is empty
+00:01 +7: main-frame failure permits retry and native return
+00:01 +8: loadUrl failure permits retry
+00:01 +9: successful history navigation clears a previous load failure
+00:01 +10: browser geolocation is limited to the configured origin
+00:01 +11: All tests passed!

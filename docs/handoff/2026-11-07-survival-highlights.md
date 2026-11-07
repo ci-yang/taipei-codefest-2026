@@ -46,3 +46,6 @@ python3 -m http.server 8885 --bind 127.0.0.1 --directory /tmp/tcf-survival-previ
 數學測試12項、獨立數學41項、獨立原始CSV52項通過；離線資產新增後14項快取測試通過，App狀態／數學／離線組合70項通過。完整prototype 103項與Python 17項通過，tooling77項通過；workspace 113項、typecheck、lint與完整build均通過。獨立瀏覽器86項、NOTICE更新後8項、公開分享部署後22項通過；完整結果與限制見change內design-verification.md。
 
 原型不等於正式續航、實測Wi-Fi或抵達判斷。原生iOS離線快取限制沿用前版，沒有在本輪宣稱修復。
+
+## 後續APK
+Ci於本輪原型後要求Android試玩包，已另打包指向本原型的Town Pass；[下載、版本與驗證](2026-11-08-survival-apk.md)。原生source與正式Worker不變。
