@@ -1,0 +1,10 @@
+台北通通通懂台北 microservice — 2026 臺北秋季程式設計節「城市通微服務大黑客松」參賽作品，以台北通（TownPass）為基礎的城市通微服務。
+Copyright (C) 2026 台北通通通懂台北
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License along with this program. If not, see https://www.gnu.org/licenses/.
+
+---
+上方聲明依競賽須知「捌、智慧財產聲明」一、（二）載明（原文：https://codefest.taipei/2026-fall/rules）。
+授權全文見 LICENSE（GNU AGPL v3，取自 https://www.gnu.org/licenses/agpl-3.0.txt）。
+TownPass 本身為 GPL-3.0（https://github.com/taipei-doit/TownPass），本 repo 對其 fork 的修改依其授權處理。

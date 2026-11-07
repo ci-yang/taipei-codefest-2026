@@ -1,0 +1,27 @@
+# DEPLOY_DOMAIN 由 docker-compose.deploy.yml 從 deploy/.env.deploy 帶進容器。
+# 網域指向本機 IP、80/443 可從外部連入時，Caddy 會自動向 Let's Encrypt 申請並續期憑證。
+# 驗證：docker run --rm -e DEPLOY_DOMAIN=example.com -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+#         caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+
+{$DEPLOY_DOMAIN} {
+	encode zstd gzip
+
+	# 健康檢查直通 api-prod，不經過 nginx，也不壓縮
+	handle /healthz {
+		reverse_proxy api-prod:8787
+	}
+
+	# 其餘（SPA 靜態檔、/api/）交給 web-prod 的 nginx；nginx 再把 /api/ 反代到 api-prod
+	handle {
+		reverse_proxy web-prod:80
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+
+	log {
+		output stdout
+	}
+}

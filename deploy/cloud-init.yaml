@@ -1,0 +1,27 @@
+#cloud-config
+# 給「有內建 cloud-init 的 image」用（例如 GCE 的 Ubuntu 24.04：gcp-up.sh 設 BOOTSTRAP=cloud-init）。
+# GCE 官方 Debian 12 image 沒有 cloud-init，預設路徑改用 deploy/vm-bootstrap.sh（startup-script），
+# 兩份做的事相同：swap、Docker 官方 repo 的 docker + compose plugin、/opt/codefest。
+#
+# 防火牆只靠 GCP 防火牆規則，不開 ufw（Docker 發布的 port 會繞過 ufw，開了也擋不住）。
+
+package_update: true
+packages:
+  - ca-certificates
+  - curl
+
+swap:
+  filename: /swapfile
+  size: 2G
+
+runcmd:
+  - install -m 0755 -d /etc/apt/keyrings
+  - . /etc/os-release && curl -fsSL "https://download.docker.com/linux/${ID}/gpg" -o /etc/apt/keyrings/docker.asc
+  - chmod a+r /etc/apt/keyrings/docker.asc
+  - . /etc/os-release && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" > /etc/apt/sources.list.d/docker.list
+  - apt-get update -y
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  - systemctl enable --now docker
+  - install -d -m 0755 /opt/codefest /opt/codefest/releases
+  - install -d -m 0700 /opt/codefest/shared
+  - touch /var/lib/codefest-bootstrap.done

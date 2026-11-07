@@ -1,0 +1,17 @@
+{
+  "name": "@app/shared",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "description": "前後端共用的 zod schema 與 TS 型別（直接吃 TS 原始碼，不需 build）",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}

@@ -1,0 +1,22 @@
+version: 2.6.0
+project:
+  name: taipei-codefest-2026
+tech_stack:
+  language: typescript
+  package_manager: pnpm
+  source: manual (Hono + Vue 3 + PostGIS, pnpm workspace)
+paths:
+  base_dir: prospec
+artifact_language: Traditional Chinese
+trust_zone_language: Traditional Chinese
+exclude:
+  - "*.env*"
+  - "*credential*"
+  - "*secret*"
+  - node_modules
+  - .git
+agents:
+  - claude
+  - codex
+knowledge:
+  base_path: prospec/ai-knowledge

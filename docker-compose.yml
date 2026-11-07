@@ -1,0 +1,94 @@
+# 日常開發：docker compose up -d db，然後在本機 pnpm dev（最快）
+# 全部進容器：docker compose up（db + api + web，原始碼 bind mount、HMR）
+# production image：docker compose --profile prod up --build（web 在 http://localhost:8080）
+name: taipei-codefest
+
+x-dev-volumes: &dev-volumes
+  - .:/app
+  # node_modules 用容器內的 volume，不要吃到 macOS 版的原生套件
+  - node_modules_root:/app/node_modules
+  - node_modules_api:/app/apps/api/node_modules
+  - node_modules_web:/app/apps/web/node_modules
+  - node_modules_shared:/app/packages/shared/node_modules
+  # pnpm store 放 volume，不要寫進 repo 目錄（否則會多出 .pnpm-store/）
+  - pnpm_store:/pnpm-store
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    # 官方 image 只有 amd64，Apple Silicon 走模擬（能跑，第一次啟動較慢）
+    platform: linux/amd64
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    ports:
+      - '5433:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./apps/api/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U app -d app']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: { context: ., dockerfile: apps/api/Dockerfile, target: dev }
+    environment:
+      DATABASE_URL: postgres://app:app@db:5432/app
+      # 容器內固定 8787（ports、healthcheck、web 的 VITE_PROXY_TARGET 都綁這個值）；本機撞 port 改左邊的對外 port
+      API_PORT: 8787
+      # CORS 來源吃根目錄 .env（手機用 IP 直連容器版 API 時，把 http://<區網IP>:5173 加進 .env）
+      PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:-http://localhost:5173}
+      OPENDATA_SAMPLE_RID: ${OPENDATA_SAMPLE_RID:-a6e90031-7ec4-4089-afb5-361a4efe7202}
+    ports:
+      - '8787:8787'
+    volumes: *dev-volumes
+    depends_on:
+      db: { condition: service_healthy }
+    # pnpm install 由 api 容器負責；web 等 api 健康後才啟動，避免兩邊同時寫 node_modules
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8787/healthz || exit 1']
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 30s
+
+  web:
+    build: { context: ., dockerfile: apps/web/Dockerfile, target: dev }
+    environment:
+      VITE_PROXY_TARGET: http://api:8787
+      VITE_USE_POLLING: 'true'
+    ports:
+      - '5173:5173'
+    volumes: *dev-volumes
+    depends_on:
+      api: { condition: service_healthy }
+
+  api-prod:
+    profiles: [prod]
+    build: { context: ., dockerfile: apps/api/Dockerfile, target: prod }
+    environment:
+      DATABASE_URL: postgres://app:app@db:5432/app
+      API_PORT: 8787
+      PUBLIC_WEB_URL: http://localhost:8080
+      OPENDATA_SAMPLE_RID: ${OPENDATA_SAMPLE_RID:-a6e90031-7ec4-4089-afb5-361a4efe7202}
+    depends_on:
+      db: { condition: service_healthy }
+
+  web-prod:
+    profiles: [prod]
+    build: { context: ., dockerfile: apps/web/Dockerfile, target: prod }
+    ports:
+      - '8080:80'
+    depends_on:
+      - api-prod
+
+volumes:
+  db_data:
+  node_modules_root:
+  node_modules_api:
+  node_modules_web:
+  node_modules_shared:
+  pnpm_store:

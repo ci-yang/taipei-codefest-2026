@@ -1,0 +1,34 @@
+{
+  "name": "taipei-codefest-2026",
+  "private": true,
+  "version": "0.1.0",
+  "description": "城市通微服務大黑客松 2026 — 隊伍「台北通通通懂台北」",
+  "license": "AGPL-3.0-or-later",
+  "packageManager": "pnpm@11.13.1",
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,green \"pnpm --filter @app/api dev\" \"pnpm --filter @app/web dev\"",
+    "dev:api": "pnpm --filter @app/api dev",
+    "dev:web": "pnpm --filter @app/web dev",
+    "test": "pnpm -r --if-present test",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "build": "pnpm -r --if-present build",
+    "db:push": "pnpm --filter @app/api exec drizzle-kit push",
+    "db:push:force": "pnpm --filter @app/api exec drizzle-kit push --force",
+    "db:seed": "pnpm --filter @app/api db:seed"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "concurrently": "^10.0.6",
+    "eslint": "^10.14.0",
+    "eslint-plugin-vue": "^10.12.0",
+    "globals": "^17.0.0",
+    "prettier": "^3.9.10",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.72.1"
+  }
+}

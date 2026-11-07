@@ -1,0 +1,3 @@
+# 根目錄 .gitignore 的 `.env.*` 會連範本一起排除，這裡把範本放回來
+!.env.deploy.example
+.env.deploy

@@ -1,0 +1,73 @@
+# 雲端 VM 部署用的疊加檔。一律從 repo 根目錄執行：
+#   docker compose --env-file deploy/.env.deploy \
+#     -f docker-compose.yml -f deploy/docker-compose.deploy.yml --profile prod up -d
+# 注意：疊加檔裡的相對路徑以「第一個 -f 檔（repo 根目錄）」為基準，所以寫 ./deploy/...
+#
+# 與 docker-compose.yml 的差異：
+# - 加 caddy（80/443，自動 Let's Encrypt），對外只有 caddy
+# - db、web-prod 不對外開 port（!reset 清掉基底檔的 ports）
+# - DB 密碼改吃 DB_PASSWORD；api 的 CORS 來源改成 https://$DEPLOY_DOMAIN
+# - dev 的 api／web 移到 dev profile，--profile prod 時不會被一起帶起來
+# - db-migrate：一次性容器，跑 drizzle push（＋可選 seed），prod image 沒有 drizzle-kit
+#
+# web-prod 的 nginx（apps/web/nginx.conf）已經把 /api/ 與 /healthz 反代到 api-prod:8787，
+# 所以 caddy 只需要反代到 web-prod（/healthz 另外直通 api-prod，見 deploy/Caddyfile）。
+
+services:
+  db:
+    ports: !reset []
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?在 deploy/.env.deploy 設 DB_PASSWORD}
+    restart: unless-stopped
+
+  api-prod:
+    environment:
+      DATABASE_URL: postgres://app:${DB_PASSWORD:?}@db:5432/app
+      PUBLIC_WEB_URL: https://${DEPLOY_DOMAIN:?在 deploy/.env.deploy 設 DEPLOY_DOMAIN}
+    restart: unless-stopped
+
+  web-prod:
+    ports: !reset []
+    restart: unless-stopped
+
+  # 開發用服務，雲端不跑
+  api:
+    profiles: [dev]
+  web:
+    profiles: [dev]
+
+  db-migrate:
+    profiles: [migrate]
+    # 用 api Dockerfile 的 build stage：有完整原始碼、drizzle.config.ts 與 devDependencies
+    build: { context: ., dockerfile: apps/api/Dockerfile, target: build }
+    environment:
+      DATABASE_URL: postgres://app:${DB_PASSWORD:?}@db:5432/app
+      SEED: ${SEED:-0}
+    command:
+      - sh
+      - -c
+      - pnpm --filter @app/api db:push && if [ "$$SEED" = "1" ]; then pnpm --filter @app/api db:seed; fi
+    depends_on:
+      db: { condition: service_healthy }
+
+  caddy:
+    profiles: [prod]
+    image: caddy:2-alpine
+    environment:
+      DEPLOY_DOMAIN: ${DEPLOY_DOMAIN:?}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp' # HTTP/3
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data # 憑證與 ACME 帳號，刪掉會重新申請（Let's Encrypt 有速率限制）
+      - caddy_config:/config
+    depends_on:
+      - web-prod
+      - api-prod
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

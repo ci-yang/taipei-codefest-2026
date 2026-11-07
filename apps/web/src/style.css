@@ -1,0 +1,21 @@
+/* 手機優先：TownPass WebView 內顯示，寬度約 360–430px */
+:root {
+  --brand: #0b6e4f;
+  --brand-weak: #e3f2ec;
+  --text: #1d2321;
+  --muted: #5d6763;
+  --border: #d9dfdc;
+  font-family: system-ui, -apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  color: var(--text);
+  background: #fff;
+  -webkit-text-size-adjust: 100%;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+a { color: var(--brand); }
+button { font: inherit; }
+.page { padding: 16px; padding-bottom: calc(72px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--border); background: #fff; border-radius: 999px; padding: 8px 14px; min-height: 40px; cursor: pointer; }
+.chip.active, .chip:active { background: var(--brand-weak); border-color: var(--brand); color: var(--brand); }
+.muted { color: var(--muted); font-size: 14px; }
