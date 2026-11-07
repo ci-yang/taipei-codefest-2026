@@ -37,3 +37,9 @@
 - 七個線上 runtime 檔案與 manifest／build artifact hash 一致；index.html 的 build stamp 與 raw source 差異符合預期。
 - 證據：`evidence/browser-production.json`、`evidence/production-source.json`。路線使用正式站真 Worker，僅注入唯讀狀態觀察器，沒有替換路由實作。
 - 仍為桌面 Chromium 模擬；外部圖磚被測試腳本阻擋，Service Worker 停用，不代表實機 GPS、離線快取或手機效能通過。腳本內 timingScope 仍是既有 localhost 文字，這次實際執行網址以 report 的 baseURL 為準，不拿此數字宣稱本機效能。
+
+## Ci 實機操作回覆
+
+Ci 在安裝兩支 iPhone 後，回覆實機驗收問題「可以進入並返回首頁」，確認 TownPass 首頁→友善同行→返回台北通的操作通過。問題包含兩支裝置，但回覆未逐支標記結果，因此僅記為使用者實機操作確認，不宣稱已分別取得兩支裝置的畫面證據。T20 已完成。
+
+此為先前獨立驗證後補上的人工驗收證據；既有 verify.md 的 design WARN 保留當時紀錄，不改寫成測試者已親自操作或取得原生截圖。iOS 離線限制仍未處理。

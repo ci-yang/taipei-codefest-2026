@@ -32,7 +32,7 @@
 ## 交接與發布
 - [x] T18 更新DECISIONS、設計對照與跨repo交接，標明路網範圍／實測結果／已知限制（步驟6；全部REQ）。
 - [x] T19 [M] 獨立review及verify後部署既有Worker並產新版原生App（步驟6；全部REQ）。
-- [ ] T20 [V] 可用實機驗證TownPass首頁→友善→返回，保留可回復artifact（步驟6；REQ-NATIVE-001）。
+- [x] T20 [V] 可用實機驗證TownPass首頁→友善→返回，保留可回復artifact（步驟6；REQ-NATIVE-001）。
 
 ## Summary
 **Total Tasks:** 22
