@@ -416,6 +416,28 @@ test('nhi: insured people in arrears are told plainly that care is not affected;
   assert.ok(pending.length && pending.every((e) => /還沒有健保/.test(e.text)), 'only the uninsured, non-urgent case stays 待確認');
 });
 
+test('nhi: no absolute claim that NHI never texts; the official 111 short-code wording is quoted instead', () => {
+  const s = find('nhi');
+  const texts = [s.title, s.subtitle, ...allEntries(s).map((e) => e.text), ...s.call.map((c) => `${c.note} ${c.brief}`)];
+  const sourceNotes = Object.values(data.sources).filter((src) => /nhi\.gov\.tw/.test(src.url)).map((src) => src.note);
+  for (const text of [...texts, ...sourceNotes]) {
+    assert.ok(!/(不會|絕不|不曾|從不)[^。]*簡訊/.test(text), `contradicts the 2026-02-07 NHI notice: ${text}`);
+  }
+  const all = texts.join('\n');
+  assert.match(all, /「正式蓋有印信之公文或111政府專屬短碼簡訊通知」/);
+  assert.match(all, /不點連結、不回撥訊息上的號碼/);
+});
+
+test('nhi: online / App simple installment lists the official conditions', () => {
+  const entry = find('nhi').window.find((e) => /簡易分期/.test(e.text));
+  assert.match(entry.text, /欠費皆非移送行政執行中/);
+  assert.match(entry.text, /近2年無健保分期違約紀錄或違約紀錄在1次\(含\)以下者/);
+});
+
+test('nhi: 先知道 has three items', () => {
+  assert.equal(find('nhi').cautions.length, 3);
+});
+
 // Rendered call section for a situation at a given clock (weekday by default).
 function closedHint(id, date) {
   const { app, core } = loadApp();
