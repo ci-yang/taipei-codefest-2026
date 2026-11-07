@@ -22,3 +22,18 @@
 發布檢查器回歸：`node --test --test-name-pattern='App asset limits' scripts/smoke-platform.test.mjs` 修正前7 pass／13 fail，修後20/20通過；完整 `pnpm test:tooling` 為77/77。API與manifest預設8 MB、timeout、hash保持；新增合法邊界、超宣告、超25 MiB、caller更低界線及historical測試。
 
 獨立審查收據：`evidence/release-review.json`。真實本機 Worker／D1 整合完整通過（25 個 App 資產、20,758,759 bytes 路網與逐檔 hash）；沒有 remote writes。累計差異第二輪 review 為 0 critical／0 major，更新後驗證等級 A；保留 acceptance late-capture 與原生實機點按待確認兩項限制。
+
+## 修正後正式發布
+
+- 部署來源：`2016b035c315d4df51b0ecd1bb9831a74e8e4d0b`；Worker version：`c0c9590b-07fe-419d-8427-b24963fd663a`。
+- 發布完成：`2026-11-07T14:35:01.261Z`；wrapper exit 0、status `deployed`。
+- 正式入口：https://taipei-friendly-platform.jason21131.workers.dev。
+- 正式 smoke 核對 25 個 App 資產、來源 SHA、各檔大小／hash、API 與資料快照通過；資料庫未回退。
+- 精簡收據：`evidence/cloudflare-release.json`。初次發布失敗後的修正與成功皆保留，不覆蓋回退紀錄。
+
+## 正式站瀏覽器操作
+
+- 獨立執行者直接對正式 HTTPS 網址執行原 `scripts/check-friendly-route-browser.mjs`：82/82 通過，pageErrors 為空。
+- 七個線上 runtime 檔案與 manifest／build artifact hash 一致；index.html 的 build stamp 與 raw source 差異符合預期。
+- 證據：`evidence/browser-production.json`、`evidence/production-source.json`。路線使用正式站真 Worker，僅注入唯讀狀態觀察器，沒有替換路由實作。
+- 仍為桌面 Chromium 模擬；外部圖磚被測試腳本阻擋，Service Worker 停用，不代表實機 GPS、離線快取或手機效能通過。腳本內 timingScope 仍是既有 localhost 文字，這次實際執行網址以 report 的 baseURL 為準，不拿此數字宣稱本機效能。
