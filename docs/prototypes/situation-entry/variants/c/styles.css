@@ -1,0 +1,141 @@
+/* Variant C「城市通原生」: mirrors TownPass widgets.
+ * TPAppBar: white, 56px, centered h3SemiBold, grayscale700. TPCard: white, radius 3, shadow 0 0 12 #0000000A.
+ * TPButton.primary: primary500 fill, radius 10; .secondary: white, primary500 border.
+ * Deviation: the dial button uses primary600 so white text clears 3:1 at this size for older readers. */
+:root {
+  --p50: #edf8fa; --p100: #dbf1f5; --p500: #5ab4c5; --p600: #468d9b; --p700: #356c77;
+  --g50: #f1f3f4; --g100: #e3e7e9; --g200: #cad1d5; --g500: #738995; --g600: #5e6d76; --g700: #475259; --g900: #171b1d;
+  --s100: #fcf2df; --s700: #ad7b2b;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--g50);
+  color: var(--g900);
+  font-family: "PingFang TC", "Noto Sans TC", Roboto, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+button { font: inherit; }
+a { color: var(--p600); }
+:focus-visible { outline: 2px solid var(--p500); outline-offset: 2px; }
+
+/* TPAppBar */
+.bar {
+  position: sticky; top: 0; z-index: 2; display: flex; align-items: center; height: 56px;
+  background: #fff; color: var(--g700); border-bottom: 1px solid var(--g100);
+}
+.bar-back { display: grid; place-items: center; flex: none; width: 56px; height: 56px; color: var(--g700); }
+.bar-title { flex: 1; margin: 0; overflow: hidden; text-align: center; white-space: nowrap; text-overflow: ellipsis; font-size: 17px; font-weight: 600; }
+
+.page { max-width: 480px; margin: 0 auto; padding: 12px 16px 40px; }
+
+/* TPCard */
+.card {
+  margin-bottom: 12px; padding: 16px; border-radius: 3px; background: #fff;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.04);
+}
+.card-head h2 { margin: 0 0 8px; font-size: 16px; font-weight: 600; color: var(--g600); }
+.hello h1 { margin: 0 0 6px; font-size: 24px; line-height: 1.4; font-weight: 600; }
+.hello p { margin: 0; color: var(--g600); }
+.hello .hint { margin-top: 8px; font-size: 14px; color: var(--g500); }
+.muted { margin: 0; color: var(--g600); font-size: 15px; }
+.fine { margin: 12px 0 0; font-size: 14px; color: var(--g500); }
+
+/* segmented period switch */
+.seg { display: grid; grid-template-columns: 1fr 1fr; margin-top: 16px; padding: 3px; border-radius: 10px; background: var(--g50); }
+.seg-opt {
+  min-height: 44px; border: 0; border-radius: 8px; background: none; color: var(--g600); font-weight: 600; cursor: pointer;
+}
+.seg-opt.is-on { background: #fff; color: var(--p700); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); cursor: default; }
+
+/* home tiles: TownPass service-grid style */
+.group-title { margin: 20px 0 10px; font-size: 16px; font-weight: 600; color: var(--g700); }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.tile {
+  display: grid; justify-items: center; align-content: start; gap: 10px; min-height: 140px; padding: 16px 8px;
+  border-radius: 3px; background: #fff; box-shadow: 0 0 12px rgba(0, 0, 0, 0.04);
+  color: var(--g900); text-align: center; text-decoration: none;
+}
+.tile:active { background: var(--p50); }
+.tile-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--p50); color: var(--p600); }
+.tile-title { font-size: 16px; font-weight: 600; line-height: 1.4; }
+
+.note { margin: 20px 4px 0; font-size: 14px; color: var(--g500); }
+
+/* detail */
+.status { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.chip { padding: 4px 10px; border-radius: 999px; background: var(--p100); color: var(--p700); font-size: 14px; font-weight: 600; }
+.text-btn {
+  min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--p600); font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.kv { display: flex; align-items: center; gap: 8px; margin: -4px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--g100); font-size: 15px; }
+.kv span { color: var(--g600); }
+.kv .text-btn { margin-left: auto; }
+
+.who { margin: 0; font-size: 18px; font-weight: 600; }
+.who:focus { outline: none; }
+.number { margin: 0 0 4px; font-size: 36px; line-height: 1.25; font-weight: 600; color: var(--g900); font-variant-numeric: tabular-nums; }
+
+/* TPButton */
+.btn-primary {
+  display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; margin-top: 14px;
+  border-radius: 10px; background: var(--p600); color: #fff; font-size: 18px; font-weight: 600; text-decoration: none;
+}
+.btn-primary:active { background: var(--p700); }
+.btn-secondary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 10px;
+  border: 1px solid var(--p500); border-radius: 10px; background: #fff; color: var(--p600);
+  font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; font-variant-numeric: tabular-nums;
+}
+.btn-secondary:active { background: var(--p50); }
+.btn-secondary.wide { display: flex; width: 100%; margin-top: 8px; }
+.btn-secondary svg { width: 18px; height: 18px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+.grid4 .btn-secondary { min-height: 48px; padding: 0; font-size: 17px; }
+
+.script { margin: 0; padding: 12px 14px; border-radius: 3px; background: var(--g50); font-size: 19px; line-height: 1.9; }
+.blank { display: inline-block; min-width: 3em; margin: 0 2px; border-bottom: 2px solid var(--p500); line-height: 1.3; }
+.blank.is-filled { min-width: 0; padding: 0 2px; font-weight: 600; color: var(--p700); }
+
+/* list group (TownPass settings style) */
+.list { margin-top: 4px; border-radius: 3px; background: #fff; box-shadow: 0 0 12px rgba(0, 0, 0, 0.04); }
+.row + .row { border-top: 1px solid var(--g100); }
+.row summary { display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 16px; cursor: pointer; list-style: none; }
+.row summary::-webkit-details-marker { display: none; }
+.row summary::after {
+  content: ""; width: 8px; height: 8px; margin-left: 4px; border: solid var(--g500); border-width: 0 2px 2px 0;
+  transform: rotate(-45deg); transition: transform 0.15s;
+}
+.row[open] summary::after { transform: rotate(45deg); }
+.row-title { flex: 1; font-size: 16px; font-weight: 600; }
+.row-n { font-size: 14px; color: var(--g500); }
+.row-body { padding: 0 16px 16px; }
+.bul { margin: 0; padding-left: 1.2em; display: grid; gap: 10px; font-size: 15px; }
+.bul li::marker { color: var(--p500); }
+.bul li.is-pending { color: var(--g600); }
+.bul li.is-pending::marker { color: var(--s700); }
+.stack { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; font-size: 15px; }
+.stack li { display: grid; gap: 2px; }
+
+.ref {
+  display: inline-grid; place-items: center; min-width: 18px; height: 18px; margin-left: 3px; padding: 0 3px;
+  border: 0; border-radius: 9px; background: var(--g100); color: var(--g600);
+  font-size: 11px; line-height: 1; vertical-align: 2px; cursor: pointer; position: relative;
+}
+.ref::before { content: ""; position: absolute; inset: -13px -8px; }
+.src-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.src-list li { display: flex; gap: 10px; font-size: 14px; scroll-margin: 80px; }
+.src-n { flex: none; width: 20px; color: var(--g500); }
+.src-body { display: grid; }
+.src-meta { color: var(--g500); }
+.is-flash { animation: flash 1.2s ease-out; }
+@keyframes flash { from { background: var(--s100); } to { background: transparent; } }
+
+.call-status {
+  position: fixed; left: 16px; right: 16px; bottom: 16px; margin: 0 auto; max-width: 448px;
+  padding: 12px 16px; border-radius: 10px; background: var(--g700); color: #fff; font-size: 15px;
+}
+@media (prefers-reduced-motion: reduce) { .is-flash { animation: none; } .row summary::after { transition: none; } }
