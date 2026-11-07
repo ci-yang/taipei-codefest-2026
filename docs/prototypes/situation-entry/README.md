@@ -1,0 +1,38 @@
+# 情境入口「我遇到了……」（BRA-592 MVP）
+
+選一個遇到的困難，畫面給四件事：去哪個窗口、要帶什麼、打哪支電話、開口怎麼說。對象是有手機但不知道找誰的人，或幫忙查的親友、里長、社工。
+
+- 純靜態網頁：固定內容，不用 AI、不用後端、不用登入，不讀 userinfo。
+- 不記錄、不上傳使用者選了什麼：不用 localStorage／cookie／fetch，路由只用網址 hash。
+- 每條資訊都有來源網址與查核日期；官方頁面沒寫清楚的標「待確認」。
+
+## 啟動與測試
+
+```sh
+pnpm prototype:situation   # http://127.0.0.1:8767
+pnpm test:situation        # 檢查 situations-data.js 與 data/situation/ 同步，再跑 node --test
+```
+
+改內容：只改 `data/situation/`，再跑 `node docs/prototypes/situation-entry/build-data.mjs` 重新產生 `situations-data.js`（不要手改）。
+
+## 三個情境
+
+| 情境 | 主要窗口 | 官方來源 |
+|---|---|---|
+| 今天沒飯吃 | 住處的社福中心（上班時間）；夜間假日 1999 留資料、上班時間轉介 | 社會局希望好食堂常見問答、社福中心名冊（開放資料） |
+| 薪水被拖欠、突然被解僱 | 免費勞工法令律師諮詢；勞資爭議調解（免費） | 免費勞工律師諮詢時段（開放資料）、勞動局調解頁與調解申請書 |
+| 突然沒錢，繳不出房租或水電 | 戶籍區公所社會課或社福中心：急難救助、急難紓困 | 社會局急難救助頁、急難紓困方案頁、臺北市急難救助金核發作業要點 |
+
+## 撥電話
+
+- 在城市通 App 內：1999 走 `1999agree`（App 的同意條款與撥號對話框），其他號碼走 `phone_call`。App 回 `false` 或逾時，畫面提示手動撥打。
+- 一般瀏覽器：沒有 `flutterObject`，按鈕就是 `tel:` 連結。
+- 分機號碼不自動撥，按鈕下方寫「接通後轉分機」。
+
+## 在城市通裡開
+
+TownPass 分支 `feat/situation-entry` 有獨立服務「我遇到了」，網址用 `--dart-define=SITUATION_SERVICE_URL=...`（預設 `http://10.0.2.2:8767`，給 Android 模擬器）。
+
+## 截圖
+
+`docs/screenshots/situation-entry/`。`browser-390-*.png` 是桌面 Chrome 以 390px 寬 iframe 截的，**不是** iOS 模擬器截圖。

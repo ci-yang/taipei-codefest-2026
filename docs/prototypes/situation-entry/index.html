@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#5AB4C5">
+  <meta name="description" content="選一個遇到的困難，看去哪個窗口、要帶什麼、打哪支電話、開口怎麼說。資料來自臺北市官方頁面與開放資料。">
+  <title>我遇到了……</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main id="app" class="app" aria-live="polite"></main>
+  <p id="call-status" class="call-status" role="status" hidden></p>
+  <noscript><p class="app">這個頁面需要開啟 JavaScript。</p></noscript>
+  <script src="./situations-data.js" defer></script>
+  <script src="./bridge.js" defer></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>
