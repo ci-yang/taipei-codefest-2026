@@ -177,13 +177,15 @@ function runtime(options = {}) {
   r.window = r; vm.createContext(r);
   vm.runInContext(fs.readFileSync(path.join(base, 'urgency.js'), 'utf8'), r, { filename: 'urgency.js' });
   // Observe private state through an in-memory seam, leaving production files unchanged.
-  const seam = 'window.__test = { state, markers, requestPosition, visibleStores, selectResource, setDestination, showDetails, showDirection, externalAction, enableOrientation, orientation, renderAll, setView, startGuidance, endGuidance, toggleMode, openUrgency, renderResult, nextResult, applyScreen, goBack, goHome, speakCategory, openMap }; ';
+  const seam = 'window.__test = { state, markers, requestPosition, visibleStores, selectResource, setDestination, showDetails, showDirection, externalAction, enableOrientation, orientation, renderAll, setView, endGuidance, openUrgency, renderResult, nextResult, applyScreen, goBack, goHome, speakCategory, openMap }; ';
   const source = fs.readFileSync(path.join(base, 'app.js'), 'utf8'); assert.match(source, /\}\)\(\);\s*$/);
   vm.runInContext(source.replace(/\}\)\(\);\s*$/, `${seam}\n})();`), r, { filename: 'app.js' });
   const element = selector => { const el = document.querySelector(selector); assert(el, `Missing test element: ${selector}`); return el; };
   return {
     r, state: r.__test.state, history: r.history, speakCard: r.FriendlySpeakCard, speakCalls, gpsRequests, storageWrites, bridgeCalls, searchCalls, copied, cacheCalls, routeRequests, routeCancels, observed, ...leaflet,
     element, click: selector => element(selector).dispatch('click'),
+    // 選取卡的「帶我去」取代了舊的 START 鈕。
+    goSelected: () => element('#selected-card').querySelector('[data-action="go"]').dispatch('click'),
     async input(selector, value) { const el = element(selector); el.value = value; await el.dispatch('input'); },
     async fix(index = gpsRequests.length - 1, values = {}) { gpsRequests[index].resolve({ lat: 25.034, lng: 121.561, accuracy: 15, capturedAt: fixedTime, source: 'browser', ...values }); await settle(); },
     async fail(code, index = gpsRequests.length - 1) { gpsRequests[index].reject(Object.assign(new Error('Explicit test error'), { code })); await settle(); },
@@ -311,14 +313,16 @@ test('cards show source/update date, straight-line distance and truthful missing
   assert.match(card, /直線距離（非步行路線）/); assert.match(card, /服務未標示/);
   await app.click('[data-action="detail"]'); assert.match(app.element('#sheet-body').innerHTML, /待確認/); assert.match(app.element('#sheet-body').innerHTML, /未標示/);
   const noCoordinate = actualData.stores.find(s => !hasCoordinates(s)); app.r.__test.selectResource(noCoordinate.id);
-  assert.match(app.element('#selected-card').innerHTML, /未提供座標/); assert.equal(app.element('[data-action="navigate"]').disabled, true);
+  assert.match(app.element('#selected-card').innerHTML, /未提供座標/); assert.equal(app.element('#selected-card').querySelector('[data-action="go"]').disabled, true);
 });
 
 test('phone buttons require a normalized number, including Wi-Fi resources with no phone', async () => {
   const app = runtime(); const withPhone = actualData.stores.find(s => s.normalizedPhone); app.r.__test.selectResource(withPhone.id);
-  await app.click('[data-action="phone"]'); assert.equal(app.bridgeCalls.at(-1).method, 'phone'); assert.equal(app.bridgeCalls.at(-1).value, withPhone.normalizedPhone);
+  assert.equal(app.element('#selected-card').querySelector('[data-action="phone"]'), null, 'dialing lives in the detail sheet');
+  await app.click('[data-action="detail"]'); await app.element('#sheet-body').querySelector('[data-action="phone"]').dispatch('click');
+  assert.equal(app.bridgeCalls.at(-1).method, 'phone'); assert.equal(app.bridgeCalls.at(-1).value, withPhone.normalizedPhone);
   const noPhone = actualData.stores.find(s => s.sourceId === 'wifi' && !s.normalizedPhone); app.r.__test.selectResource(noPhone.id);
-  assert.equal(app.r.document.querySelector('[data-action="phone"]'), null); assert.match(app.element('#selected-card').innerHTML, /來源：/);
+  await app.click('[data-action="detail"]'); assert.equal(app.element('#sheet-body').querySelector('[data-action="phone"]'), null); assert.match(app.element('#selected-card').innerHTML, /來源：/);
 });
 
 test('straight-line distance and north-based bearing agree with a known geometric offset', async () => {
@@ -343,7 +347,7 @@ test('a delayed navigation failure cannot reopen stale resource details or mix c
 test('offline external actions retain the external-program warning after the result arrives', async () => {
   const app = runtime({ offline: true, externalResult: 'unsupported' });
   app.r.__test.selectResource(actualData.stores.find(s => hasCoordinates(s) && s.normalizedPhone).id);
-  await app.click('[data-action="navigate"]');
+  await app.click('[data-action="detail"]'); await app.element('#sheet-body').querySelector('[data-action="navigate"]').dispatch('click');
   const visibleStatus = `${app.element('#toast').textContent} ${app.element('#external-message').textContent} ${app.element('#sheet-body').innerHTML}`;
   assert.match(visibleStatus, /離線.*可能無法使用|依賴外部程式|通話功能/);
   assert.equal(app.r.document.querySelector('[data-copy="address"]').hidden, false);
@@ -353,7 +357,7 @@ test('bridge failures and browser fallback preserve copyable details without ann
   for (const result of ['failed', 'unsupported']) for (const kind of ['navigate', 'phone']) {
     await t.test(`${kind}:${result}`, async () => {
       const app = runtime({ externalResult: result }); const store = actualData.stores.find(s => s.normalizedPhone && hasCoordinates(s)); app.r.__test.selectResource(store.id);
-      await app.click(`[data-action="${kind}"]`); assert.equal(app.bridgeCalls.at(-1).method, kind);
+      await app.click('[data-action="detail"]'); await app.element('#sheet-body').querySelector(`[data-action="${kind}"]`).dispatch('click'); assert.equal(app.bridgeCalls.at(-1).method, kind);
       const expected = result === 'unsupported' ? /需在台北通 App 內使用/ : kind === 'navigate' ? /無法開啟外部地圖/ : /無法撥號/;
       assert.match(app.element('#external-message').textContent, expected); assert.doesNotMatch(app.element('#toast').textContent, /已交由/);
       await app.click('[data-copy="address"]'); await app.click('[data-copy="phone"]'); assert.deepEqual(app.copied, [store.address, store.phone]);
@@ -406,10 +410,8 @@ test('home is the first screen with three urgencies; the map is a second layer a
   assert.equal(app.state.view, 'map'); assert.equal(app.element('#app').dataset.view, 'map'); assert.equal(app.state.gpsPending, true); assert(app.invalidations.length > 0);
   await app.fix(); const position = app.state.position; assert.match(app.element('#home-location').textContent, /±15 m/);
   await app.click('#home-button'); assert.equal(app.state.view, 'home'); assert.equal(app.state.position, position); assert.equal(app.history.index, 0);
-  await app.click('#home-map'); await app.click('#start-guidance');
-  assert.equal(app.state.view, 'guide'); assert.equal(app.element('#guidance-title').textContent, '探索附近資源');
-  assert.equal(app.state.selectedId, null); assert.equal(app.gpsRequests.length, 1);
-  await app.click('#guidance-end'); assert.equal(app.state.view, 'map'); assert.equal(app.state.position, position);
+  await app.click('#home-map'); assert.equal(app.element('#visible-count').textContent, '尚未選類別');
+  assert.equal(app.state.selectedId, null); assert.equal(app.gpsRequests.length, 1); assert.equal(app.state.position, position);
   await app.click('#map-back'); assert.equal(app.state.view, 'home'); assert(app.history.calls.every(([kind, value]) => kind !== 'go' || value !== 0));
 });
 
@@ -417,7 +419,7 @@ test('resource guidance is a GPS straight line; destinations and filters survive
   const app = runtime(); const [resource, destination] = actualData.stores.filter(hasCoordinates);
   await app.fix(0, { lat: resource.lat + .001, lng: resource.lng }); await app.click('#home-map');
   app.r.__test.selectResource(resource.id); app.r.__test.setDestination(destination);
-  await app.click('[data-service="wifi"]'); await app.click('#start-guidance');
+  await app.click('[data-service="wifi"]'); await app.goSelected();
   assert.equal(app.state.view, 'guide'); assert.equal(app.state.mode, 'resource');
   assert.match(app.element('#guidance-distance').textContent, /^直線 111 公尺$/);
   assert.match(app.element('#guidance-bearing').textContent, /南方.*正北/); assert.doesNotMatch(app.element('#guidance-bearing').textContent, /非步行路線/);
@@ -429,10 +431,9 @@ test('resource guidance is a GPS straight line; destinations and filters survive
   assert.equal(app.state.selectedId, resource.id); assert.equal(app.state.mode, 'resource'); assert(app.layers.has(line));
   await app.click('#exit-guidance'); assert.equal(app.state.view, 'map');
   assert.equal(app.state.destination.id, another.id); assert.equal(app.state.selectedId, resource.id); assert(app.state.filters.has('wifi'));
-  await app.click('#mode-toggle'); assert.equal(app.state.mode, 'free'); assert.equal(app.state.selectedId, null);
+  await app.click('[data-action="clear"]'); assert.equal(app.state.mode, 'free'); assert.equal(app.state.selectedId, null);
   assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 0); assert.equal(app.state.destination.id, another.id);
-  assert(app.state.filters.has('wifi')); await app.click('#mode-toggle'); assert.equal(app.state.mode, 'free');
-  assert.match(app.element('#toast').textContent, /先點選.*資源/);
+  assert(app.state.filters.has('wifi'));
 });
 
 test('the transport preference is removed; map cards keep the straight-line label without implying routes', async () => {
@@ -445,7 +446,7 @@ test('the transport preference is removed; map cards keep the straight-line labe
 
 test('guidance without GPS has no route or arrow and opens a source-attributed detail card', async () => {
   const app = runtime(); await app.fail('GEO_DENIED'); const resource = actualData.stores.find(hasCoordinates); await app.click('#home-map');
-  app.r.__test.selectResource(resource.id); await app.click('#start-guidance');
+  app.r.__test.selectResource(resource.id); await app.goSelected();
   assert.equal(app.state.view, 'guide'); assert.match(app.element('#guidance-distance').textContent, /需要定位/);
   assert.match(app.element('#guidance-bearing').textContent, /需要定位/); assert.match(app.element('#guidance-location').textContent, /定位權限未開啟/);
   assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 0);
@@ -476,7 +477,7 @@ test('map taps only select; details open from the card button; an unlocated sear
 
 test('late GPS in resource guidance fits the actual position and resource together', async () => {
   const app = runtime(); const resource = actualData.stores.find(hasCoordinates); await app.click('#home-map');
-  app.r.__test.selectResource(resource.id); await app.click('#start-guidance'); assert.equal(app.fittedBounds.length, 0);
+  app.r.__test.selectResource(resource.id); await app.goSelected(); assert.equal(app.fittedBounds.length, 0);
   await app.fix(0, { lat: resource.lat + .05, lng: resource.lng });
   assert.equal(app.state.view, 'guide'); assert.equal(app.state.selectedId, resource.id);
   assert.equal(app.fittedBounds.length, 1); const bounds = app.fittedBounds[0].value;
@@ -524,7 +525,7 @@ test('offline outside cached basemap coverage shows a map notice, clearing onlin
   assert.equal(app.element('#basemap-notice').hidden, false);
   assert.match(app.element('#basemap-notice').textContent, /此區尚無離線底圖.*資源與直線距離/);
   assert.doesNotMatch(app.element('#basemap-notice').textContent, /25\.\d|121\.\d/);
-  await app.click('#start-guidance'); assert.equal(app.element('#basemap-notice').hidden, false);
+  app.r.__test.setView('guide'); assert.equal(app.element('#basemap-notice').hidden, false);
   await app.connectivity(true); assert.equal(app.element('#basemap-notice').hidden, true);
   await app.connectivity(false); assert.equal(app.element('#basemap-notice').hidden, false);
   assert.equal(app.storageWrites.length, 0);
@@ -608,7 +609,7 @@ test('resource selection and repeated renders preserve destination layers withou
   destinationLines.forEach(layer => assert(app.layers.has(layer)));
   assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 4);
   assert.equal(app.state.route, route); assert.equal(app.routeRequests.length, 1);
-  await app.click('#mode-toggle'); destinationLines.forEach(layer => assert(app.layers.has(layer)));
+  await app.click('[data-action="clear"]'); destinationLines.forEach(layer => assert(app.layers.has(layer)));
   assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 3);
 });
 
@@ -731,7 +732,7 @@ test('nested back: home → result → map → speak card unwinds one screen per
   await app.click('[data-urgency="toilet"]'); const id = resultId(app);
   await app.click('[data-action="map"]');
   assert.equal(app.state.view, 'map'); assert.deepEqual([...app.state.filters], ['toilet']); assert.equal(app.state.selectedId, id);
-  assert.equal(app.element('#selected-card').hidden, false); assert.match(app.element('#selected-card').innerHTML, /data-action="navigate"/);
+  assert.equal(app.element('#selected-card').hidden, false); assert.match(app.element('#selected-card').innerHTML, /data-action="go"/); assert.doesNotMatch(app.element('#selected-card').innerHTML, /data-action="navigate"/);
   await app.element('#selected-card').querySelector('[data-action="speak"]').dispatch('click');
   assert.equal(app.state.view, 'card'); assert.equal(app.element('#app').dataset.view, 'map', 'the card overlays the map without a relayout');
   const open = app.speakCalls.filter(call => call.method === 'open').at(-1);
@@ -757,11 +758,16 @@ test('closing the speak card returns to its source: result card from results, se
   assert.equal(app.storageWrites.length, 0);
 });
 
-test('map card offers navigate, phone and speak; the speak category follows the urgency or the store services', async () => {
+test('map card offers go, speak and details; navigate and phone live in the detail sheet; speak follows urgency or services', async () => {
   const app = runtime(); await app.fix(); await app.click('#home-map');
   const phoned = actualData.stores.find(s => hasCoordinates(s) && s.services.includes('charge') && /^\+?\d{8,15}$/.test(s.normalizedPhone || ''));
   app.r.__test.selectResource(phoned.id); const card = app.element('#selected-card').innerHTML;
-  for (const action of ['navigate', 'phone', 'speak']) assert.match(card, new RegExp(`data-action="${action}"`), action);
+  for (const action of ['go', 'speak', 'detail']) assert.match(card, new RegExp(`data-action="${action}"`), action);
+  for (const action of ['navigate', 'phone', 'direction']) assert.doesNotMatch(card, new RegExp(`data-action="${action}"`), action);
+  assert.match(card, new RegExp(`data-action="go" data-cat="${phoned.services[0]}"`), 'without a filter the button takes the first listed service colour');
+  await app.click('[data-service="charge"]'); assert.match(app.element('#selected-card').innerHTML, /data-action="go" data-cat="charge"/);
+  await app.click('[data-action="detail"]'); for (const action of ['navigate', 'phone', 'direction']) assert.match(app.element('#sheet-body').innerHTML, new RegExp(`data-action="${action}"`), action);
+  await app.click('#sheet-close');
   assert.equal(app.r.__test.speakCategory(phoned), phoned.services.find(s => ['toilet', 'charge', 'wifi'].includes(s)));
   const none = actualData.stores.find(s => hasCoordinates(s) && !s.services.some(v => ['toilet', 'charge', 'wifi'].includes(v)));
   app.r.__test.selectResource(none.id); assert.doesNotMatch(app.element('#selected-card').innerHTML, /data-action="speak"/);
@@ -873,7 +879,7 @@ test('review #3: guide says "nearest" only for the result-card record, otherwise
   assert.equal(app.element('#guidance-heading').textContent, '最近的廁所');
   await app.click('#exit-guidance'); await app.click('[data-action="map"]');
   const other = actualData.stores.find(s => hasCoordinates(s) && s.services.includes('toilet') && String(s.id) !== app.state.selectedId);
-  app.r.__test.selectResource(other.id); await app.click('#start-guidance');
+  app.r.__test.selectResource(other.id); await app.goSelected();
   assert.equal(app.state.view, 'guide'); assert.equal(app.element('#guidance-heading').textContent, '前往選取的資源');
 });
 

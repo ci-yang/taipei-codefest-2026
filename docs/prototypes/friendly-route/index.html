@@ -72,7 +72,7 @@
     </div>
 
     <section id="bottom-panel" class="map-panel" aria-label="附近資源">
-      <div class="panel-toolbar"><span id="panel-summary">附近資源</span><button id="highlight-map-launch" class="text-button" type="button">城市雷達</button><button id="panel-toggle" class="text-button" type="button" aria-expanded="true" aria-controls="panel-content"><span id="panel-toggle-label">收合面板</span><span data-icon="chevron"></span></button></div>
+      <div class="panel-toolbar"><span id="panel-summary">附近資源</span><button id="panel-toggle" class="icon-button panel-toggle" type="button" aria-expanded="true" aria-controls="panel-content"><span id="panel-toggle-label" class="sr-only">收合面板</span><span data-icon="chevron"></span></button></div>
       <div id="panel-content">
       <section id="highlight-host" aria-label="城市生存雷達"></section>
       <section id="destination-route" class="destination-route" aria-label="目的地步行路線" hidden>
@@ -80,23 +80,13 @@
         <p id="destination-route-message" class="destination-route-message" role="status"></p>
         <p id="destination-route-note" class="field-note">本機路網限信義區與大安東側。</p>
       </section>
-      <div id="category-filters" class="filters" aria-label="資源類別"></div>
-      <div class="nearby-heading">
-        <div class="nearby-title"><span class="heading-symbol" data-icon="store"></span><h2 id="panel-heading">友善，就在身邊</h2></div>
-        <button id="list-button" class="text-button" type="button">全部<span data-icon="chevron"></span></button>
-      </div>
-      <p class="filter-help">可多選 · 任一符合</p>
-      <div class="category-selection-note"><p id="location-kicker" class="location-kicker">臺北資源地圖</p><span id="visible-count" aria-live="polite"></span></div>
-      <div id="location-notice" class="location-notice" role="status"></div>
+      <div id="category-filters" class="filters" role="group" aria-label="資源類別，可多選"></div>
+      <h2 id="panel-heading" class="sr-only">附近資源</h2>
+      <div class="panel-meta"><p id="location-notice" class="location-notice" role="status"></p><span id="visible-count" aria-live="polite"></span><button id="list-button" class="text-button" type="button" hidden><span id="list-button-label">全部</span><span data-icon="chevron"></span></button></div>
       <div id="nearby-preview" class="preview-list"></div>
       <article id="selected-card" hidden></article>
-
-      <div class="explore-mode-card">
-        <button id="mode-toggle" class="mode-toggle" type="button" aria-label="切換探索模式"><span class="mode-icon" data-icon="navigation"></span><span class="mode-copy"><strong id="mode-title">自由探索模式</strong><span id="mode-description">隨心探索附近資源</span></span></button>
-        <button id="start-guidance" class="start-guidance" type="button" aria-label="開始導引">START<span data-icon="arrowRight"></span></button>
-      </div>
       <footer class="explore-footer">
-        <div class="footer-actions"><button id="home-button" class="text-button secondary-text" type="button">回首頁</button><button id="overview-button" class="text-button secondary-text" type="button"><span data-icon="compass"></span>全市範圍</button><button id="settings-button" class="text-button secondary-text" type="button"><span data-icon="settings"></span>設定</button></div>
+        <div class="footer-actions"><button id="home-button" class="text-button footer-action" type="button"><span data-icon="arrowLeft"></span>回首頁</button><button id="overview-button" class="text-button footer-action" type="button"><span data-icon="compass"></span>全市範圍</button><button id="highlight-map-launch" class="text-button footer-action" type="button"><span data-icon="location"></span>城市雷達</button><button id="settings-button" class="text-button footer-action" type="button"><span data-icon="settings"></span>設定</button></div>
         <div class="footer-status"><span id="network-label" class="connection-label" aria-live="polite"></span><span id="cache-status" aria-live="polite">準備離線資料</span></div>
       </footer>
       </div>
