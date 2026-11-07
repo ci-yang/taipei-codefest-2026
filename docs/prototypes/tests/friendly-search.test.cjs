@@ -37,14 +37,16 @@ test('local search folds 台/臺, full-width letters, case and address; it never
   assert.deepEqual(searchLocal('測試', [{ name: '測試', lat: NaN, lng: 121.5 }]), []);
 });
 
-test('checked-in catalog is searchable by name without altering its 103 stores', () => {
+test('active city resource catalog is searchable without altering source records', () => {
   const context = { window: {} };
-  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../friendly-route/data.js'), 'utf8'), context);
-  const stores = context.window.FRIENDLY_DATA.stores;
-  assert.equal(stores.length, 103);
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../friendly-route/resources-data.js'), 'utf8'), context);
+  const stores = context.window.FRIENDLY_RESOURCES.stores;
+  assert.equal(stores.length, 5948);
+  assert.deepEqual(new Set(stores.map((store) => store.sourceId)), new Set(['friendly', 'toilets', 'mrt', 'wifi']));
   const before = JSON.stringify(stores);
   const found = searchLocal('新東陽101', stores);
   assert(found.some((place) => place.name === '新東陽101專櫃'));
+  assert(searchLocal('北投', stores).length > 0, 'Search must include resources beyond the old local snapshot.');
   assert.equal(JSON.stringify(stores), before);
 });
 

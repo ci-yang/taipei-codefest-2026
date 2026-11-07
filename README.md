@@ -2,13 +2,27 @@
 
 2026 臺北秋季程式設計節「城市通微服務大黑客松」參賽作品（2026-11-07～08，臺北市立大學天母校區）。
 
-## 專案說明
+## 目前作品：友善同行 App
 
-目前主題是「友善同行」：協助網路或電力受限的市民，查詢沿途的 WiFi、充電、友善廁所與無障礙友善店家。Ci 負責正式平台、開源地圖與部署；組員持續調整 App prototype 與產品規格。
+協助網路或電力受限的市民尋找附近廁所、充電、Wi-Fi 與無障礙資源。依 Ci 的 D6／D7 與凍結規格，作品本體是 `docs/prototypes/friendly-route/` 的純 JavaScript／Leaflet App。
 
-## 正式平台
+- [操作手機 App v6](https://ci-share.pages.dev/57c6867d600ab5e6/)
+- [原型程式、資料來源與離線邊界](docs/prototypes/friendly-route/README.md)
+- [凍結規格](.prospec/changes/enable-friendly-routes/proposal.md)
 
-Cloudflare Workers + Static Assets + D1 提供同源 Vue 前端與真實友善名冊 API；MapLibre 顯示 OSM 地方快照，路線在裝置計算。原有 Node/PostGIS 與 GCP 保留。平台交接與部署方式見 [Cloudflare 操作手冊](docs/CLOUDFLARE.md)。
+```bash
+pnpm prototype
+# http://localhost:8766
+pnpm test:prototype
+```
+
+需要 Python 3；原型不依賴 API、資料庫或 `.env`。主流程是定位與地圖 → 搜尋目的地 → 四類多選 highlight → 查看來源、更新日與直線距離。首次連線快取全市點位與 app shell；離線底圖限信義／大安東側，範圍外使用點位、方向與距離。導航與撥號需 TownPass bridge；一般瀏覽器會說明限制。
+
+評論、回報、互助及協助者已移除。日期、歷史、多站與路線比較是歷史原型／P1 資產，沒有放入現行主流程。分享頁是 v6 發布快照，後續 main 的變更須另行打包發布。
+
+## 獨立平台與部署基礎
+
+`apps/web` 的 Vue／MapLibre、`apps/api` 的 Hono 與 Cloudflare Workers + Static Assets + D1 一併保留，供 API、資料版本、部署與回退工作使用。這個平台仍使用 103 筆地方名冊及舊路線頁，**不是上方 App 原型的發布產物**。`platform:deploy` 與既有 APK 指向平台網址，不會因本次合併自動變成 v6。
 
 ```bash
 pnpm install --frozen-lockfile
@@ -16,28 +30,7 @@ pnpm platform:assets
 pnpm test:platform
 ```
 
-`test:platform` 在獨立本機 D1 驗證匯入、API 與 SPA，不寫正式資料庫。這是可接線的平台版本；公開評論、真人互助、完整離線包與全市導航仍待後續產品實作。
-
-## 先看 App Prototype
-
-- [直接操作手機版原型](https://ci-share.pages.dev/32d2b105d2eb968a/)
-- [原始碼與資料說明](docs/prototypes/friendly-route/README.md)
-- [協作方式、待認領工作與待定規格](docs/handoff/2026-11-07-friendly-prototype-collaboration.md)
-
-在 repo 根目錄執行（需 Python 3，不需要 API、資料庫或 `.env`）：
-
-```bash
-pnpm prototype
-# 開啟 http://localhost:8766
-```
-
-無 pnpm 時也可直接執行：
-
-```bash
-python3 -m http.server 8766 --bind 127.0.0.1 --directory docs/prototypes/friendly-route
-```
-
-流程：地圖首頁 → 日期／歷史與起迄設定 → 路線比較 → 開始行程。店家與路網來自開放資料；評論與互助是明示的本機示範。定位、離線需要 localhost 或 HTTPS，手機可直接使用上方 HTTPS 原型連結。
+`test:platform` 使用獨立本機 D1；一般 CI 僅做 Worker dry-run，Cloudflare 發布由手動 workflow 觸發。操作方式與限制見 [Cloudflare 手冊](docs/CLOUDFLARE.md)。原型打包使用 `python3 tools/package-friendly-prototype.py /tmp/friendly-app-package`，分享依 `publish-report` 流程。
 
 ## 既有 Node／GCP 基線
 
@@ -77,16 +70,18 @@ pnpm install
 
 ## 資料來源
 
-| 資料集 | 提供單位 | 連結 | 是否模擬 |
-|---|---|---|---|
-| [臺北市友善店家清冊](https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1) | 臺北市政府 | 原型載入全市 993 筆快照，詳見原型 README | 否 |
-| [臺北市公廁點位資訊](https://data.taipei/dataset/detail?id=ca205b54-a06f-4d84-894c-d6ab5079ce79) | 臺北市政府 | 原型載入全市 1,531 筆列管公廁快照，詳見原型 README | 否 |
-| [臺北市公眾區免費無線上網熱點資料（新版）](https://data.taipei/dataset/detail?id=6aa6532d-652f-4c1b-814a-4646b75407af) | 臺北市政府 | 原型載全市 3,305 個 AP，合併同類型同址後為 2,036 點，詳見原型 README | 否 |
-| 連鎖餐飲服務推定 | 原型內建規則 | 對既有官方點位補上常見 Wi-Fi、充電與廁所線索，畫面明確標示「推定」 | 是；非單店官方保證 |
-| OpenStreetMap 地方路網與向量底圖 | OpenStreetMap contributors | [來源與授權](docs/prototypes/friendly-route/README.md) | 否；未驗證現場通行 |
+現行 App 使用 `resources-data.js` 的 5,948 筆官方來源紀錄，5,938 筆有座標；缺座標保持空白。不同來源不當成同一場所去重，亦不表示目前可用或免消費。
 
-| [臺北市友善店家清冊](https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1) | 臺北市政府 | 正式平台採地方 103 筆；[來源、日期與 hash](data/friendly/manifest.json) | 否 |
-| OpenStreetMap 地方路網與向量底圖 | OpenStreetMap contributors | [ODbL 與來源](https://www.openstreetmap.org/copyright)、[快照 manifest](data/friendly/manifest.json) | 否；未驗證現場通行 |
+| 資料集 | 提供單位 | 現行 App 紀錄 | 是否模擬 |
+|---|---|---:|---|
+| [友善店家清冊](https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1) | 臺北市政府 | 993 | 否 |
+| [公廁點位](https://data.taipei/dataset/detail?id=ca205b54-a06f-4d84-894c-d6ab5079ce79) | 臺北市政府 | 1,531 | 否 |
+| [公眾免費 Wi-Fi](https://data.taipei/dataset/detail?id=6aa6532d-652f-4c1b-814a-4646b75407af) | 臺北市政府 | 3,305 | 否 |
+| [捷運無障礙設施](https://data.taipei/dataset/detail?id=3c799405-4e44-40dd-b747-daed09e88cdb) | 臺北捷運公司 | 119 | 否 |
+| [捷運車站資料](https://data.taipei/dataset/detail?id=1eefa68d-7c8d-491b-8e75-66a161947426) | 臺北市政府 | 座標對應來源 | 否 |
+| [OpenStreetMap](https://www.openstreetmap.org/copyright) | OpenStreetMap contributors | 地方底圖與歷史路網 | 否；現場通行未驗 |
+
+成員於 `21bc1f3` 完成三類官方資源全市匯入、來源註記與 Wi-Fi 同址彙整（3,305 AP → 2,036 組）。原始 commit 與 `docs/prototypes/build-friendly-data.py` 保留作歷史建置紀錄；其品牌服務推定不列入現行 App 的正式四類篩選。`data.js` 在 App 僅提供地方底圖。平台固定快照另見 [manifest](data/friendly/manifest.json)。
 
 ## 第三方套件與 AI 揭露
 

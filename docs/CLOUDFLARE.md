@@ -1,3 +1,7 @@
+# 整合後入口說明
+
+本文件描述獨立的 Vue／Hono／D1 平台；`platform:deploy` 發布 `apps/web/dist`，不是目前 D6／D7 的純 JS App 原型。App 本體與打包入口見 [`prototypes/friendly-route/README.md`](prototypes/friendly-route/README.md)。合併 main 只觸發 CI，不會自動部署、遷移遠端 D1 或更新 APK。
+
 # Cloudflare 友善平台
 
 正式程式採 Workers + Static Assets + D1；Vue、API 與地方圖資同源。既有 GCP 及 Node/PostGIS 留作基線，不執行舊 `deploy/release.sh`。這份手冊描述本輪 readonly 名冊與裝置端路由，產品 prototype 的評論／互助仍由組員另行定規格。

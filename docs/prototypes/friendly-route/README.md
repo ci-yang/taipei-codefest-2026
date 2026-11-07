@@ -25,7 +25,7 @@ python3 tools/package-friendly-prototype.py /tmp/friendly-app-package
 python3 -m http.server 8776 --bind 127.0.0.1 --directory /tmp/friendly-app-package
 ```
 
-`package-friendly-prototype.py` 只輸出執行用的 14 個檔案（含 SW），不包含舊提案頁、分析頁或歷史路由資產。快取清單含入口的兩種 URL，計 14 項；公開資料與頁面約 5.8 MB。最終大小以打包指令實測輸出為準。
+`package-friendly-prototype.py` 只輸出執行用的 14 個檔案（含 SW），不包含舊提案頁、分析頁或歷史路由資產。快取清單含入口的兩種 URL，計 14 項。整合成員的 `data.js` 後，公開資料與頁面約 8.3 MB；最終大小以打包指令實測輸出為準。
 
 部署／分享沿用 `publish-report`，先發布到私有主台，再由 `share.sh` 產生隔離連結。正式部署網址及 APK 本輪不變。
 
@@ -44,6 +44,8 @@ python3 -m http.server 8776 --bind 127.0.0.1 --directory /tmp/friendly-app-packa
 合計 5,948 筆來源紀錄，其中 5,938 筆有座標；109 筆捷運資料以官方站碼或唯一站名對應座標，其餘 10 筆保留無座標，不補造位置。保留官方資料中的少量非北市紀錄；不同來源未當作同一場所去重，計數代表來源紀錄，不是不同店家的數量。
 
 每筆保留 `sourceId/sourceName/sourceUrl/updatedAt`；捷運座標另有 `coordinateSource`。電話原文與 `normalizedPhone` 分開，避免把分機或多組電話串成錯誤號碼。服務標記不代表目前可用、免消費、營業中或路線無障礙。
+
+成員 `21bc1f3` 的 `build-friendly-data.py` 與 `data.js` 保留全市匯入及 Wi-Fi 同址彙整歷史；現行 App 只從 `data.js` 讀取地方底圖，點位／搜尋／四類篩選一律使用 `resources-data.js`。歷史品牌推定沒有進入現行分類。
 
 離線重建／重新下載：
 

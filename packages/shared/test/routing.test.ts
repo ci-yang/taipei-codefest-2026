@@ -1,17 +1,17 @@
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import vm from 'node:vm';
 import { describe, expect, it } from 'vitest';
 import { createRouter, RoutingGraphSchema, type RouteComparison, type RoutePoint, type RouteResource } from '../src/routing';
 
 const root = new URL('../../../', import.meta.url);
-const runtime = vm.createContext({ window: {} });
-for (const name of ['data.js', 'routing-data.js']) {
-  vm.runInContext(readFileSync(new URL(`docs/prototypes/friendly-route/${name}`, root), 'utf8'), runtime);
-}
-vm.runInContext(readFileSync(new URL('./routing-prototype.fixture.cjs', import.meta.url), 'utf8'), runtime);
-const data = runtime.window.FRIENDLY_DATA as { stores: RouteResource[]; demoRoute: string[] };
 const graph = JSON.parse(readFileSync(new URL('data/friendly/routing-graph.json', root), 'utf8'));
 const snapshot = JSON.parse(readFileSync(new URL('data/friendly/snapshot.json', root), 'utf8')) as { stores: RouteResource[] };
+// These stops belong to the platform's v1 snapshot (5aabb36), not the evolving App catalogue.
+const demoRoute = ['tpe-0360', 'tpe-0538', 'tpe-0007'];
+const data = { stores: snapshot.stores, demoRoute };
+const runtime = vm.createContext({ window: { FRIENDLY_ROUTING_DATA: graph } });
+vm.runInContext(readFileSync(new URL('./routing-prototype.fixture.cjs', import.meta.url), 'utf8'), runtime);
 const baseline = runtime.window.FriendlyRouter as { compare: (options: unknown) => RouteComparison };
 const points = data.demoRoute.map((id) => data.stores.find((store) => store.id === id)!);
 
@@ -21,7 +21,13 @@ function summary(result: RouteComparison): unknown {
 
 describe('device router — frozen prototype differential', () => {
   it('uses the exact published snapshot and original graph inputs for both solvers', () => {
-    expect(snapshot.stores).toEqual(JSON.parse(JSON.stringify(data.stores)));
+    const manifest = JSON.parse(readFileSync(new URL('data/friendly/manifest.json', root), 'utf8'));
+    for (const [file, key] of [['snapshot.json', 'snapshot'], ['routing-graph.json', 'routingGraph']] as const) {
+      const bytes = readFileSync(new URL(`data/friendly/${file}`, root));
+      expect(createHash('sha256').update(bytes).digest('hex')).toBe(manifest.files[key].sha256);
+    }
+    expect(points.every(Boolean)).toBe(true);
+    expect(new Set(demoRoute).size).toBe(demoRoute.length);
     expect(graph).toEqual(JSON.parse(JSON.stringify(runtime.window.FRIENDLY_ROUTING_DATA)));
   });
   it.each([100, 250, 500])('preserves ordered stops, distance, connectors and OR resource IDs at %s m', (radius) => {

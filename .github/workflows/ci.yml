@@ -37,6 +37,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm lint
+      - run: pnpm test:prototype
       - run: pnpm db:push && pnpm db:seed
       - run: pnpm test
       - run: pnpm test:tooling
