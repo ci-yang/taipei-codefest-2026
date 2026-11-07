@@ -153,6 +153,7 @@ function runtime(options = {}) {
     document, URL, AbortController, Date: FixedDate, console, innerWidth: 390, structuredClone,
     FRIENDLY_DATA: actualBasemap, FRIENDLY_RESOURCES: options.resources || actualData, L: leaflet.L,
     history: makeHistory(listeners, options.historyState || null), FriendlySpeakCard: makeSpeakCard(speakCalls),
+    FriendlyHighlights: options.highlightCalls ? { create: () => ({ update() {}, open() {}, handleResource: () => false, openToilet: (store, route) => options.highlightCalls.push({ method: 'openToilet', id: String(store.id), route }), pauseGuide: () => options.highlightCalls.push({ method: 'pauseGuide' }) }) } : undefined,
     location: new URL('https://example.test/friendly/index.html'),
     navigator: { onLine: options.offline !== true, clipboard: { async writeText(text) { copied.push(text); } } },
     FriendlyIcons: { icon: name => `<svg data-test-icon="${name}"></svg>` },
@@ -798,4 +799,20 @@ test('reloading with a saved history entry restores that screen instead of stack
   assert.equal(app.state.view, 'result'); assert.equal(app.history.calls.filter(([kind]) => kind === 'replace' || kind === 'push').length, 0);
   assert.match(app.element('#result-body').innerHTML, /需要定位才能找最近/);
   await app.fix(0, { ...cityHall }); assert.equal(resultId(app), nearestIds('wifi')[0]);
+});
+
+test('toilet guide hands the countdown its walking route only after success and pauses it when guide is left', async () => {
+  const calls = []; const app = runtime({ highlightCalls: calls }); await app.fix(0, { ...cityHall });
+  await app.click('[data-urgency="toilet"]'); await app.click('[data-action="go"]');
+  assert.equal(calls.filter(call => call.method === 'openToilet').length, 0, 'no countdown before the route exists');
+  app.routeRequests.at(-1).resolve(routeResult()); await settle();
+  const opened = calls.filter(call => call.method === 'openToilet');
+  assert.equal(opened.length, 1); assert.equal(opened[0].id, app.state.selectedId); assert.equal(opened[0].route.distanceM, 310);
+  await app.click('#exit-guidance'); assert.equal(calls.at(-1).method, 'pauseGuide');
+  await app.click('[data-action="go"]'); const late = app.routeRequests.at(-1); await app.click('#guidance-end');
+  late.resolve(routeResult()); await settle();
+  assert.equal(calls.filter(call => call.method === 'openToilet').length, 1, 'a route arriving after leaving guide never opens the countdown');
+  await app.click('#result-back'); await app.click('[data-urgency="charge"]'); await app.click('[data-action="go"]');
+  app.routeRequests.at(-1).resolve(routeResult()); await settle();
+  assert.equal(calls.filter(call => call.method === 'openToilet').length, 1, 'charge guidance has no toilet countdown');
 });

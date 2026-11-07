@@ -54,7 +54,20 @@ await back(); ok('back3 -> home', await view() === 'home'); await shot('10-back3
 await page.click('[data-urgency="charge"]'); await page.waitForSelector('[data-result-id]'); await shot('11-result-charge');
 await page.click('[data-action="go"]'); await page.waitForTimeout(800);
 await page.locator('#guide-timer [data-hl-action="manual-battery"]').click().catch(() => {}); await page.waitForTimeout(600); await shot('12-guide-charge-circle');
-await page.click('#exit-guidance'); await page.waitForTimeout(300); await page.click('#result-back'); await page.waitForTimeout(300);
+// 生存圈遮罩畫在 highlight-mask pane 的 canvas；以非透明像素數判斷有沒有遮罩。
+const maskPixels = () => page.evaluate(() => [...document.querySelectorAll('.leaflet-highlight-mask-pane canvas')].reduce((sum, canvas) => {
+  const { data } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height); let n = 0;
+  for (let i = 3; i < data.length; i += 4) if (data[i] > 0) n += 1; return sum + n; }, 0));
+const box = await page.locator('#map').boundingBox();
+await page.mouse.move(box.x + box.width / 2, box.y + box.height * .6);
+for (let i = 0; i < 6; i += 1) { await page.mouse.wheel(0, 400); await page.waitForTimeout(250); }
+await page.waitForTimeout(600); const guideMask = await maskPixels();
+ok('charge guide draws survival mask (manual 18%)', guideMask > 0, `${guideMask} px`); await shot('12b-guide-charge-mask-zoomed-out');
+await page.click('#exit-guidance'); await page.waitForTimeout(300);
+await page.click('#result-body [data-action="map"]'); await page.waitForFunction(() => document.querySelector('#app').dataset.view === 'map'); await page.waitForTimeout(600);
+const mapMask = await maskPixels(); ok('no survival mask after leaving guide', mapMask === 0, `${mapMask} px`); await shot('12c-map-after-guide-no-mask');
+await back();
+await page.click('#result-back'); await page.waitForTimeout(300);
 await page.click('[data-urgency="wifi"]'); await page.waitForSelector('[data-result-id]'); await shot('13-result-wifi');
 ok('wifi note', /不保證訊號/.test(await page.locator('#result-body').textContent()));
 await page.click('#result-back'); await page.waitForTimeout(300);

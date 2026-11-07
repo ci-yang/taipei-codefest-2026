@@ -13,7 +13,7 @@
     const host = document.querySelector('#highlight-host');
     const launch = document.querySelector('#highlight-launch');
     const guideHost = guideHostOption || document.querySelector('#guide-timer');
-    if (!host || !window.FriendlyHighlightMath) return { update() {}, open() {}, openToilet() {}, handleResource() { return false; }, destroy() {} };
+    if (!host || !window.FriendlyHighlightMath) return { update() {}, open() {}, openToilet() {}, pauseGuide() {}, handleResource() { return false; }, destroy() {} };
     const math = window.FriendlyHighlightMath;
     const byId = new Map(stores.map(store => [String(store.id), store]));
     const toilets = stores.filter(store => valid(store) && store.services.includes('toilet'));
@@ -146,6 +146,8 @@
       routeKey = `${store.id}:${positionKey()}`; resetTimer();
       render(); renderGuide();
     }
+    // app 離開 guide 時呼叫：暫停倒數、清 guide 生存圈與 guideHost，不動地圖雷達本身。
+    function pauseGuide() { if (destroyed) return; pauseTimer(); guideLayer.clearLayers(); lastGuideKey = ''; renderGuide(); }
     function clearLayers() { circles.clearLayers(); pulses.clearLayers(); routeLayer.clearLayers(); batteryLayer.clearLayers(); }
     function drawWifi() {
       circles.clearLayers(); pulses.clearLayers();
@@ -346,6 +348,7 @@
       },
       open,
       openToilet,
+      pauseGuide,
       handleResource(store) { if (active() && (mode === 'toilet' || mode === 'gold') && store?.services.includes('toilet')) { selectToilet(store); return true; } return false; },
       destroy() {
         destroyed = true; routeGeneration += 1; routeClient?.cancel(); clearInterval(interval); panelObserver.disconnect();

@@ -343,6 +343,7 @@
   function leaveGuide() {
     state.guideGeneration += 1; guideRouteClient?.cancel(); state.guideRoute = null; state.guideStatus = 'idle'; state.guideMessage = ''; guideRouteLayer.clearLayers();
     if (!map.hasLayer(destinationRouteLayer)) destinationRouteLayer.addTo(map);
+    highlights?.pauseGuide?.();
   }
   // 返回堆疊只存在 history.state：每筆 { view, base, urgency, storeId, category, index, depth }。
   const hasHistory = () => typeof window.history?.pushState === 'function';
