@@ -28,7 +28,7 @@
       <radialGradient id="hHi"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
       <radialGradient id="hAO"><stop offset="0" stop-color="#d98a74" stop-opacity=".3"/><stop offset="1" stop-color="#c8664f" stop-opacity="0"/></radialGradient>
       <linearGradient id="hRim" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#c8e3e0" stop-opacity="0"/><stop offset=".78" stop-color="#c8e3e0" stop-opacity="0"/><stop offset="1" stop-color="#c8e3e0" stop-opacity=".8"/>
+        <stop offset="0" stop-color="#DBF1F5" stop-opacity="0"/><stop offset=".78" stop-color="#DBF1F5" stop-opacity="0"/><stop offset="1" stop-color="#DBF1F5" stop-opacity=".8"/>
       </linearGradient>
     </defs>
     <!-- 拇指（在手掌後面長出） -->
