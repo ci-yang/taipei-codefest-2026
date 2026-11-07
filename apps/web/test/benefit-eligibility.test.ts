@@ -21,10 +21,13 @@ const baseProfile: EligibilityProfile = {
 const program = (id: string) => BENEFIT_PROGRAMS.find((item) => item.id === id)!;
 
 describe('benefit eligibility rules', () => {
-  it('25 項規則都有唯一識別碼與官方 HTTPS 連結', () => {
+  it('25 項規則都有唯一識別碼、實際補助內容與官方 HTTPS 連結', () => {
     expect(BENEFIT_PROGRAMS).toHaveLength(BENEFIT_SOURCE.count);
     expect(new Set(BENEFIT_PROGRAMS.map((item) => item.id)).size).toBe(BENEFIT_SOURCE.count);
+    expect(BENEFIT_PROGRAMS.every((item) => item.benefitContent.trim().length > 0)).toBe(true);
     expect(BENEFIT_PROGRAMS.every((item) => item.officialUrl.startsWith('https://'))).toBe(true);
+    expect(program('9').benefitContent).toContain('補助 80%');
+    expect(program('12').benefitContent).toContain('每名子女 1,000 元');
   });
 
   it('依生日正確計算週歲，無效日期不猜測', () => {
@@ -109,6 +112,30 @@ describe('benefit eligibility rules', () => {
     expect(ordinary.conflicts.join(' ')).toContain('61,137');
     expect(newlywed.status).toBe('possible');
     expect(newlywed.matched.join(' ')).toContain('71,327');
+  });
+
+  it('都市原住民家庭租屋補貼使用 115 年度所得門檻 72,604 元', () => {
+    const atLimit = evaluateBenefit(
+      program('15'),
+      {
+        ...baseProfile,
+        monthlyIncomePerPerson: 72_604,
+        traits: ['indigenous', 'renter', 'noOwnedHome', 'taipeiResidentFourMonths'],
+      },
+      today,
+    );
+    const overLimit = evaluateBenefit(
+      program('15'),
+      {
+        ...baseProfile,
+        monthlyIncomePerPerson: 72_605,
+        traits: ['indigenous', 'renter', 'noOwnedHome', 'taipeiResidentFourMonths'],
+      },
+      today,
+    );
+
+    expect(atLimit.status).toBe('possible');
+    expect(overLimit.status).toBe('unlikely');
   });
 
   it('臺北幸福租接受未滿 40 歲單身青年，也接受育有 12 歲以下子女家庭', () => {

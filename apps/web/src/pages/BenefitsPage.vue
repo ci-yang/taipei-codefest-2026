@@ -251,7 +251,11 @@ function catalogSummary(value: string): string {
           </div>
           <span class="number">#{{ result.program.id }}</span>
         </div>
-        <p>{{ result.program.audience }}</p>
+        <p class="audience"><strong>適用對象：</strong>{{ result.program.audience }}</p>
+        <div class="benefit-content">
+          <span>實際補助</span>
+          <p>{{ result.program.benefitContent }}</p>
+        </div>
         <ul v-if="result.conflicts.length" class="reason-list conflict-list">
           <li v-for="reason in result.conflicts" :key="reason">{{ reason }}</li>
         </ul>
@@ -392,7 +396,10 @@ legend { margin-bottom: 11px; font-size: 14px; font-weight: 750; }
 .result-title { display: flex; justify-content: space-between; gap: 12px; }
 .result-title h3 { margin: 0; font-size: 18px; }
 .number { color: #8a9591; font-size: 12px; }
-.result-card > p { color: #45564f; line-height: 1.55; }
+.audience { color: #45564f; line-height: 1.55; }
+.benefit-content { margin: 12px 0; padding: 12px 13px; border: 1px solid #bfe5d3; border-radius: 10px; background: #effaf5; }
+.benefit-content span { display: block; margin-bottom: 4px; color: #0b6e4f; font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+.benefit-content p { margin: 0; color: #183f32; font-size: 14px; font-weight: 650; line-height: 1.6; }
 .reason-list { margin: 10px 0; padding-left: 20px; font-size: 14px; line-height: 1.55; }
 .conflict-list { color: #7c3c39; }
 .missing-list { color: #705400; }
