@@ -107,6 +107,39 @@ test('a new call stops listening for an earlier 1999 reply', async () => {
   assert.equal(env.listeners.size, 0);
 });
 
+test('redialing 1999 while the earlier 1999 has no reply is not sent and never takes the late false', async () => {
+  const env = setup();
+  const first = env.api.call('1999');
+  await tick();
+  env.fireTimeout();
+  assert.equal(await first, 'unconfirmed');
+  const second = env.api.call('1999');
+  await tick();
+  env.reply('1999agree', false);
+  assert.equal(await second, 'pending');
+  assert.equal(env.sent.length, 1);
+  assert.equal(env.listeners.size, 0);
+});
+
+test('1999 stays blocked after a regular call until the earlier 1999 reply arrives', async () => {
+  const env = setup();
+  const first = env.api.call('1999');
+  await tick();
+  env.fireTimeout();
+  await first;
+  const regular = env.api.call('0227208889');
+  await tick();
+  env.reply('phone_call', true);
+  assert.equal(await regular, 'opened');
+  assert.equal(await env.api.call('1999'), 'pending');
+  env.reply('1999agree', false);
+  const retry = env.api.call('1999');
+  await tick();
+  assert.equal(env.sent.length, 3);
+  env.reply('1999agree', false);
+  assert.equal(await retry, 'failed');
+});
+
 test('replies for other handlers are ignored', async () => {
   const env = setup();
   const pending = env.api.call('0227208889');

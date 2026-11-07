@@ -3,7 +3,9 @@
  * whose data is a JSON string { name, data }. Replies carry no request id, so one call runs at a time.
  * - 1999 uses the shell's '1999agree' handler (terms page + dial dialog). It replies only `false`, and only on
  *   failure — possibly long after the tap, once the user leaves the terms page. Silence never proves a dial,
- *   so 1999 resolves 'unconfirmed' and keeps listening for a late `false` until the next call starts.
+ *   so 1999 resolves 'unconfirmed' and keeps listening for a late `false`. Only the latest tap's onLate hears it.
+ *   Because that late `false` could arrive at any time, no new 1999agree is sent while one is unanswered:
+ *   a reply could not be told apart from the earlier one. Such a tap resolves 'pending' (dial 1999 by hand).
  * - Other numbers use 'phone_call', which always replies a boolean (canLaunchUrl result).
  * Outside the app there is no flutterObject: callers fall back to a plain tel: link. */
 (function (root) {
@@ -11,7 +13,7 @@
   const PHONE_TIMEOUT = 5000;
   const AGREE_WAIT = 1500;
   let busy = false;
-  let stopLateListener = () => {};
+  let open1999 = null; // { notify } while a 1999agree request has had no reply
 
   function bridgeObject() {
     const value = root.flutterObject;
@@ -48,34 +50,38 @@
     });
   }
 
-  // Resolves 'failed' on an explicit false within AGREE_WAIT, else 'unconfirmed'. A later false goes to onLate.
+  // Resolves 'failed' on an explicit false within AGREE_WAIT, else 'unconfirmed'. A later false goes to
+  // open1999.notify (onLate, until another tap replaces it) and re-allows 1999.
   function request1999(target, onLate) {
     return new Promise((resolve) => {
       let settled = false;
+      const pending = { notify: onLate };
+      const close = () => { stop(); if (open1999 === pending) open1999 = null; };
       const stop = listen(target, '1999agree', (value) => {
         if (value !== false) return;
-        stop();
-        stopLateListener = () => {};
-        if (settled) { onLate('failed'); return; }
+        close();
+        if (settled) { pending.notify('failed'); return; }
         settled = true;
         clearTimeout(timer);
         resolve('failed');
       });
-      stopLateListener = stop;
+      open1999 = pending;
       const timer = setTimeout(() => { settled = true; resolve('unconfirmed'); }, AGREE_WAIT);
-      if (!post(target, '1999agree', true)) { stop(); clearTimeout(timer); settled = true; resolve('failed'); }
+      if (!post(target, '1999agree', true)) { close(); clearTimeout(timer); settled = true; resolve('failed'); }
     });
   }
 
-  // Resolves 'opened' | 'unconfirmed' (1999 only) | 'failed' | 'unsupported' | 'busy'.
+  // Resolves 'opened' | 'unconfirmed' | 'pending' (1999 only) | 'failed' | 'unsupported' | 'busy'.
   async function call(number, onLate = () => {}) {
     const target = bridgeObject();
     if (!target) return 'unsupported';
     if (!dialable(number)) return 'failed';
     if (busy) return 'busy';
+    if (open1999) {
+      open1999.notify = () => {};
+      if (number === '1999') return 'pending';
+    }
     busy = true;
-    stopLateListener();
-    stopLateListener = () => {};
     try {
       if (number === '1999') return await request1999(target, onLate);
       return (await request(target, 'phone_call', number, PHONE_TIMEOUT)) === true ? 'opened' : 'failed';
