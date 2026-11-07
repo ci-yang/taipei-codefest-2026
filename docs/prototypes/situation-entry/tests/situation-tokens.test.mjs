@@ -54,10 +54,45 @@ const MUTATIONS = {
   'keyword font-size': '.x { font-size: large; }',
   'off-scale font-weight': '.x { font-weight: 700; }',
   'colour literal hidden in another property': '.x { mask: linear-gradient(#000, transparent); }',
+  // Review round 13: vendor-prefixed and rarely-used colour properties.
+  '-webkit-text-fill-color with !important': '.x { -webkit-text-fill-color: rebeccapurple !important; }',
+  '-webkit-text-stroke colour': '.x { -webkit-text-stroke: 1px rebeccapurple; }',
+  '-webkit-tap-highlight-color': '.x { -webkit-tap-highlight-color: red; }',
+  'caret-color': '.x { caret-color: red; }',
+  'accent-color': '.x { accent-color: red; }',
+  'text-decoration-color': '.x { text-decoration-color: red; }',
+  'column-rule colour': '.x { column-rule: 1px solid red; }',
+  'scrollbar-color': '.x { scrollbar-color: red blue; }',
+  'gradient background': '.x { background: linear-gradient(var(--go), red); }',
+  // Review round 13: upper case must not hide a value.
+  'upper-case BOLD in the font shorthand': '.x { font: BOLD 16px sans-serif !important; }',
+  'upper-case property and value': '.x { FONT-WEIGHT: BOLD; }',
+  'upper-case named colour': '.x { COLOR: RED; }',
+  'font-weight bolder': '.x { font-weight: bolder; }',
+  'font-weight lighter in the shorthand': '.x { font: lighter 16px sans-serif; }',
+  'upper-case off-scale font size': '.x { font-size: 15PX; }',
+  // Review round 13: currentColor on text or surfaces can erase contrast.
+  'color: currentColor': '.dial { color: currentColor; }',
+  'background: currentColor': '.x { background: currentColor; }',
+  'semantic token set to currentColor': ':root { --ink: currentColor; }',
 };
 for (const [name, rule] of Object.entries(MUTATIONS)) {
   test(`audit rejects ${name}`, () => {
     assert.notDeepEqual(audit(`${css}\n${rule}\n`, paletteHexes), [], `${rule} slipped through`);
+  });
+}
+
+// The audit must not be so strict that legitimate values fail.
+const ACCEPTED = {
+  'currentColor on a border': '.x { border: 1px solid currentColor; }',
+  'currentColor on an svg stroke': '.x { stroke: currentColor; fill: currentColor; }',
+  'font-weight normal (400)': '.x { font-weight: normal; }',
+  'upper-case 600 shorthand with !important': '.x { FONT: 600 16PX/1.4 SANS-SERIF !IMPORTANT; }',
+  'token colour with !important': '.x { color: var(--ink) !important; }',
+};
+for (const [name, rule] of Object.entries(ACCEPTED)) {
+  test(`audit accepts ${name}`, () => {
+    assert.deepEqual(audit(`${css}\n${rule}\n`, paletteHexes), []);
   });
 }
 

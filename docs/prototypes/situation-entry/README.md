@@ -81,9 +81,9 @@ TownPass 分支 `feat/situation-entry` 有獨立服務「我遇到了」，網�
 | `main-food-day-pick-district.png` | 食援白天，先選區 |
 | `main-food-day.png`、`main-food-night.png` | 食援，白天（選萬華區）／晚上（1999） |
 | `main-emergency-day.png`、`main-emergency-night.png` | 急難救助，白天（選北投區）／晚上（1999 登錄轉辦） |
-| `main-rental-day.png` | 租屋糾紛，白天（法扶律師電話） |
+| `main-rental-day.png`、`main-rental-night.png` | 租屋糾紛，白天（法扶律師電話）／晚上 |
 | `main-labor-day.png`、`main-labor-day-0915.png`、`main-labor-night.png` | 勞權，14:30（律師電話）／09:15（律師電話未開，改 1999）／晚上 |
-| `main-discharge-day.png` | 出院長照，白天（1966） |
+| `main-discharge-day.png`、`main-discharge-night.png` | 出院長照，白天（1966）／晚上 |
 | `main-discharge-lunch-1245.png`、`main-rental-lunch-1245.png` | 平日 12:45 午休：只寫「今天 13:30 起」 |
 | `main-missing-day.png`、`main-missing-night.png` | 家人走失，白天／晚上（110） |
 | `main-fraud-day.png`、`main-fraud-night.png` | 詐騙，白天／晚上（165） |
@@ -92,12 +92,12 @@ TownPass 分支 `feat/situation-entry` 有獨立服務「我遇到了」，網�
 
 三個設計方向的比較截圖在 `variants/` 子資料夾，保留不動。
 
-2026-11-08 城市通化（白底藍綠、細框）後重拍的是：首頁（白天／晚上）、`main-sos-bar`、搜尋「被騙」（白天／晚上）、搜不到（白天／晚上）、食援選區、走失（白天／晚上）、勾選清單。表裡其他截圖還是上一版配色（黃卡頭、黑粗框），版面一樣。`main-home-day-vs-townpass.png` 左邊是城市通服務頁（`docs/screenshots/e2e-ios-02-service-tab.png`），右邊是本頁首頁第一屏，方便比對。
+表裡所有截圖都是 2026-11-08 城市通化（白底藍綠、細框）後的配色：首頁、`main-sos-bar`、搜尋、搜不到、食援選區、走失、勾選清單先拍；食援、急難、租屋、勞權、出院、詐騙、健保（白天／晚上）、人身安全分類、09:15 與 12:45 三張隨後補拍。`main-home-day-vs-townpass.png` 左邊是城市通服務頁（`docs/screenshots/e2e-ios-02-service-tab.png`），右邊是本頁首頁第一屏，方便比對。
 
 ## 色票與字級
 
 - 顏色全部來自 TownPass `lib/util/tp_colors.dart`（TPColors），在 `styles.css` 開頭照抄成 `--tp-primary-500` 這類變數；其他規則只引用變數。色票快照固定在 `tests/fixtures/tp_colors.json`（記來源檔、commit、抓取日期），`styles.css` 必須跟它一致；有 TownPass checkout 時另外比對 Dart 檔，找不到就明示跳過（可用 `TP_COLORS_DART` 指定路徑）。
-- `tests/css-audit.mjs` 把 CSS 拆成宣告逐條檢查：color、background、border、outline、box-shadow、fill 等顏色屬性和自訂變數只能是 `var(--…)`（且變數有定義）或底色在色票裡的 `rgba()`；其他屬性出現色值也擋；`font`、`font-size` 只能是 TPTextStyles 字級，字重只能 400／600。測試另外把具名色、`color()`、`font: 900 23px` 等寫法注入，確認會失敗。
+- `tests/css-audit.mjs` 把 CSS 拆成宣告逐條檢查，屬性名和值先轉小寫、去掉 `!important`。只有白名單裡確定不帶顏色的屬性（margin、display、font-size…，vendor prefix 去掉後比對）可以略過顏色檢查；其他屬性（含 `-webkit-text-fill-color`、`caret-color`、`scrollbar-color` 和自訂變數）值裡每個字都只能是 `var(--…)`（且變數有定義）、底色在色票裡的 `rgba()`、長度或線型關鍵字，白名單屬性出現色值也擋。`currentColor` 只准用在 border、outline、fill、stroke、text-decoration，不能用在 `color`、背景或 token。`font`、`font-size` 只能是 TPTextStyles 字級；字重 `normal`／`bold`／`bolder`／`lighter` 換算成數字後只能 400／600。測試另外把具名色、`color()`、`font: 900 23px`、`-webkit-text-fill-color: rebeccapurple !important`、`font: BOLD 16px`、`color: currentColor` 等寫法注入，確認會失敗；也驗證 border 用 currentColor、`font-weight: normal` 這類合法寫法不會被誤擋。
 - 主要 token：白天 `--desk`/`--paper` white、`--band` primary-50 配 `--band-ink` primary-800、`--go` primary-700 配 white、`--line` grayscale-200；晚上 `--desk` primary-950、`--paper` primary-900、`--band` primary-800 配 primary-50、`--go` primary-300 配 primary-950、`--line` grayscale-700。
 - 字級只用 TPTextStyles：36／24／18／16／14／12，字重 400／600。主要閱讀字用 h3 16 而不是 body 14（390px 上給長輩讀，14 太小），次要說明 14，註解 12。大號電話 36、緊急列號碼 24、「接通後照著說」24。
 - 字體：系統字 `system-ui, -apple-system, "PingFang TC", "Noto Sans TC", Roboto, …`，不載網路字型，頁面零外部請求（測試會擋 index.html 的外部資源與 CSS 的外部 `url()`）。城市通 App 本身用蘋方（TPTextStyles 指定 PingFangTC），iOS 系統字就是蘋方；Android 系統字是 Roboto＋Noto Sans TC，跟 App 的拉丁字 Roboto 一致。自帶 Roboto woff2 只影響數字和英文，還要多帶授權檔和約 70 KB，換不到差別。
