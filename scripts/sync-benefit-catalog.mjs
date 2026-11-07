@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SOURCE_URL = 'https://service.taipei/TGC_TPOB_API/api/Search/Search';
+const DETAIL_URL = 'https://service.taipei/TGC_TPOB_API/api/CaseInfo/SearchDetailData';
 const CATALOG_URL = 'https://service.taipei/search-item';
 const TERMS = ['補助', '津貼', '減免', '扶助', '救助', '獎勵金', '慰問金'];
 
@@ -28,7 +29,7 @@ const keywordMatches = all.filter((item) => {
   return TERMS.some((term) => text.includes(term));
 });
 
-const programs = keywordMatches
+const basePrograms = keywordMatches
   .filter((item) => typeof item.caseSetName === 'string' && !EXCLUDED_NAME.test(item.caseSetName))
   .map((item) => ({
     id: String(item.caseSetId),
@@ -42,6 +43,46 @@ const programs = keywordMatches
   }))
   .sort((left, right) => left.id.localeCompare(right.id, 'en'));
 
+async function enrichAcceptance(program) {
+  try {
+    const detailResponse = await fetch(DETAIL_URL, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ condition: { caseSetId: program.id } }),
+    });
+    if (!detailResponse.ok) throw new Error(`HTTP ${detailResponse.status}`);
+    const detailPayload = await detailResponse.json();
+    const detail = detailPayload?.data?.viewData;
+    if (!detail) throw new Error('missing viewData');
+    return {
+      ...program,
+      online: Boolean(detail.isOnline),
+      counter: Boolean(detail.isCounter),
+      onlineAcceptStatus: String(detail.acceptStatus ?? 'Unknown'),
+      acceptPeriod: String(detail.acceptPeriod ?? '').trim(),
+      acceptStopReason: String(detail.onlineApply?.acceptStopReason ?? '').trim(),
+    };
+  } catch (error) {
+    console.warn(`Unable to read acceptance for ${program.id}: ${error instanceof Error ? error.message : error}`);
+    return { ...program, onlineAcceptStatus: 'Unknown', acceptPeriod: '', acceptStopReason: '' };
+  }
+}
+
+async function mapWithConcurrency(items, concurrency, mapper) {
+  const results = new Array(items.length);
+  let nextIndex = 0;
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+    while (nextIndex < items.length) {
+      const index = nextIndex++;
+      results[index] = await mapper(items[index]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+const programs = await mapWithConcurrency(basePrograms, 8, enrichAcceptance);
+
 if (all.length < 1_000 || keywordMatches.length < 150 || programs.length < 100) {
   throw new Error(`來源筆數異常：all=${all.length}, keyword=${keywordMatches.length}, candidates=${programs.length}`);
 }
@@ -53,9 +94,10 @@ const snapshot = {
     name: '台北服務通申辦服務目錄',
     provider: '臺北市政府',
     endpoint: SOURCE_URL,
+    detailEndpoint: DETAIL_URL,
     catalogUrl: CATALOG_URL,
     fetchedAt: new Date().toISOString(),
-    filterVersion: 1,
+    filterVersion: 2,
     terms: TERMS,
     totalServiceCount: all.length,
     keywordMatchCount: keywordMatches.length,

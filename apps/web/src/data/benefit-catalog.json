@@ -3,9 +3,10 @@
     "name": "台北服務通申辦服務目錄",
     "provider": "臺北市政府",
     "endpoint": "https://service.taipei/TGC_TPOB_API/api/Search/Search",
+    "detailEndpoint": "https://service.taipei/TGC_TPOB_API/api/CaseInfo/SearchDetailData",
     "catalogUrl": "https://service.taipei/search-item",
-    "fetchedAt": "2026-11-07T16:27:09.185Z",
-    "filterVersion": 1,
+    "fetchedAt": "2026-11-07T23:18:57.840Z",
+    "filterVersion": 2,
     "terms": [
       "補助",
       "津貼",
@@ -29,7 +30,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AC042"
+      "officialUrl": "https://service.taipei/case-detail/AC042",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AE001",
@@ -39,7 +43,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AE001"
+      "officialUrl": "https://service.taipei/case-detail/AE001",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AE002",
@@ -49,7 +56,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AE002"
+      "officialUrl": "https://service.taipei/case-detail/AE002",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間115/09/01 00:00至115/10/16 00:00",
+      "acceptStopReason": "申請時間自9月1日起至10月15日止，逾期不受理。"
     },
     {
       "id": "AE026",
@@ -59,7 +69,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦 / 公文申辦",
-      "officialUrl": "https://service.taipei/case-detail/AE026"
+      "officialUrl": "https://service.taipei/case-detail/AE026",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間114/02/26 00:00至114/03/31 18:00",
+      "acceptStopReason": "現在非受理時間"
     },
     {
       "id": "AF014",
@@ -69,7 +82,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AF014"
+      "officialUrl": "https://service.taipei/case-detail/AF014",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AF127",
@@ -79,7 +95,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AF127"
+      "officialUrl": "https://service.taipei/case-detail/AF127",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AH012",
@@ -89,7 +108,10 @@
       "online": false,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/AH012"
+      "officialUrl": "https://service.taipei/case-detail/AH012",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI001",
@@ -108,7 +130,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI001"
+      "officialUrl": "https://service.taipei/case-detail/AI001",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI004",
@@ -118,7 +143,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI004"
+      "officialUrl": "https://service.taipei/case-detail/AI004",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI005",
@@ -134,7 +162,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI005"
+      "officialUrl": "https://service.taipei/case-detail/AI005",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI007",
@@ -144,7 +175,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI007"
+      "officialUrl": "https://service.taipei/case-detail/AI007",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI010",
@@ -158,7 +192,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI010"
+      "officialUrl": "https://service.taipei/case-detail/AI010",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI011",
@@ -168,7 +205,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI011"
+      "officialUrl": "https://service.taipei/case-detail/AI011",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI013",
@@ -185,7 +225,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI013"
+      "officialUrl": "https://service.taipei/case-detail/AI013",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI015",
@@ -197,7 +240,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI015"
+      "officialUrl": "https://service.taipei/case-detail/AI015",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI016",
@@ -207,7 +253,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI016"
+      "officialUrl": "https://service.taipei/case-detail/AI016",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI020",
@@ -217,7 +266,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI020"
+      "officialUrl": "https://service.taipei/case-detail/AI020",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI021",
@@ -233,7 +285,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI021"
+      "officialUrl": "https://service.taipei/case-detail/AI021",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI022",
@@ -249,7 +304,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI022"
+      "officialUrl": "https://service.taipei/case-detail/AI022",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI024",
@@ -259,7 +317,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI024"
+      "officialUrl": "https://service.taipei/case-detail/AI024",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI025",
@@ -269,7 +330,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI025"
+      "officialUrl": "https://service.taipei/case-detail/AI025",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI026",
@@ -281,7 +345,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI026"
+      "officialUrl": "https://service.taipei/case-detail/AI026",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI027",
@@ -293,7 +360,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI027"
+      "officialUrl": "https://service.taipei/case-detail/AI027",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI028",
@@ -305,7 +375,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI028"
+      "officialUrl": "https://service.taipei/case-detail/AI028",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI029",
@@ -315,7 +388,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI029"
+      "officialUrl": "https://service.taipei/case-detail/AI029",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI030",
@@ -330,7 +406,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI030"
+      "officialUrl": "https://service.taipei/case-detail/AI030",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI031",
@@ -340,7 +419,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI031"
+      "officialUrl": "https://service.taipei/case-detail/AI031",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI032",
@@ -356,7 +438,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI032"
+      "officialUrl": "https://service.taipei/case-detail/AI032",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI033",
@@ -368,7 +453,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI033"
+      "officialUrl": "https://service.taipei/case-detail/AI033",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI040",
@@ -384,7 +472,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI040"
+      "officialUrl": "https://service.taipei/case-detail/AI040",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI041",
@@ -399,7 +490,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI041"
+      "officialUrl": "https://service.taipei/case-detail/AI041",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI043",
@@ -409,7 +503,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI043"
+      "officialUrl": "https://service.taipei/case-detail/AI043",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI053",
@@ -419,7 +516,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI053"
+      "officialUrl": "https://service.taipei/case-detail/AI053",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI054",
@@ -432,7 +532,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI054"
+      "officialUrl": "https://service.taipei/case-detail/AI054",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI060",
@@ -442,7 +545,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI060"
+      "officialUrl": "https://service.taipei/case-detail/AI060",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI063",
@@ -454,7 +560,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI063"
+      "officialUrl": "https://service.taipei/case-detail/AI063",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI067",
@@ -466,7 +575,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI067"
+      "officialUrl": "https://service.taipei/case-detail/AI067",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI075",
@@ -476,7 +588,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI075"
+      "officialUrl": "https://service.taipei/case-detail/AI075",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI076",
@@ -486,7 +601,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI076"
+      "officialUrl": "https://service.taipei/case-detail/AI076",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI085",
@@ -496,7 +614,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/AI085"
+      "officialUrl": "https://service.taipei/case-detail/AI085",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI094",
@@ -511,7 +632,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AI094"
+      "officialUrl": "https://service.taipei/case-detail/AI094",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AI102",
@@ -521,7 +645,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/AI102"
+      "officialUrl": "https://service.taipei/case-detail/AI102",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AJ004",
@@ -531,7 +658,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AJ004"
+      "officialUrl": "https://service.taipei/case-detail/AJ004",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間115/08/03 10:00至115/09/30 23:59",
+      "acceptStopReason": "非受理時間"
     },
     {
       "id": "AJ018",
@@ -541,7 +671,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AJ018"
+      "officialUrl": "https://service.taipei/case-detail/AJ018",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AJ019",
@@ -551,7 +684,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AJ019"
+      "officialUrl": "https://service.taipei/case-detail/AJ019",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AJ047",
@@ -561,7 +697,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AJ047"
+      "officialUrl": "https://service.taipei/case-detail/AJ047",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間115/09/08 16:00至115/09/22 23:59",
+      "acceptStopReason": "非公告受理申請期間，停止受理"
     },
     {
       "id": "AJ048",
@@ -571,7 +710,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AJ048"
+      "officialUrl": "https://service.taipei/case-detail/AJ048",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AJ054",
@@ -581,7 +723,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AJ054"
+      "officialUrl": "https://service.taipei/case-detail/AJ054",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AJ062",
@@ -591,7 +736,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AJ062"
+      "officialUrl": "https://service.taipei/case-detail/AJ062",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AJ063",
@@ -601,7 +749,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AJ063"
+      "officialUrl": "https://service.taipei/case-detail/AJ063",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AL039",
@@ -611,7 +762,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 傳真申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AL039"
+      "officialUrl": "https://service.taipei/case-detail/AL039",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AL045",
@@ -621,7 +775,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AL045"
+      "officialUrl": "https://service.taipei/case-detail/AL045",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AL062",
@@ -631,7 +788,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AL062"
+      "officialUrl": "https://service.taipei/case-detail/AL062",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AL073",
@@ -644,7 +804,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AL073"
+      "officialUrl": "https://service.taipei/case-detail/AL073",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AL074",
@@ -656,7 +819,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AL074"
+      "officialUrl": "https://service.taipei/case-detail/AL074",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AL087",
@@ -666,7 +832,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AL087"
+      "officialUrl": "https://service.taipei/case-detail/AL087",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AL088",
@@ -676,7 +845,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AL088"
+      "officialUrl": "https://service.taipei/case-detail/AL088",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AM050",
@@ -686,7 +858,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AM050"
+      "officialUrl": "https://service.taipei/case-detail/AM050",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間115/03/17 08:30至115/08/17 08:30",
+      "acceptStopReason": "114年補助名額額滿"
     },
     {
       "id": "AM058",
@@ -696,7 +871,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/AM058"
+      "officialUrl": "https://service.taipei/case-detail/AM058",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AM067",
@@ -706,7 +884,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AM067"
+      "officialUrl": "https://service.taipei/case-detail/AM067",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AM068",
@@ -716,7 +897,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AM068"
+      "officialUrl": "https://service.taipei/case-detail/AM068",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AM076",
@@ -726,7 +910,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/AM076"
+      "officialUrl": "https://service.taipei/case-detail/AM076",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AO034",
@@ -738,7 +925,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AO034"
+      "officialUrl": "https://service.taipei/case-detail/AO034",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間114/11/10 00:00至114/12/10 23:59",
+      "acceptStopReason": ""
     },
     {
       "id": "AO038",
@@ -748,7 +938,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/AO038"
+      "officialUrl": "https://service.taipei/case-detail/AO038",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間115/02/23 00:01至115/10/31 23:59",
+      "acceptStopReason": "(春節期間暫停受理)"
     },
     {
       "id": "AO049",
@@ -758,7 +951,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/AO049"
+      "officialUrl": "https://service.taipei/case-detail/AO049",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": "非受理期間。"
     },
     {
       "id": "AT084",
@@ -773,7 +969,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/AT084"
+      "officialUrl": "https://service.taipei/case-detail/AT084",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AU008",
@@ -783,7 +982,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/AU008"
+      "officialUrl": "https://service.taipei/case-detail/AU008",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AU009",
@@ -793,7 +995,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/AU009"
+      "officialUrl": "https://service.taipei/case-detail/AU009",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AU010",
@@ -803,7 +1008,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/AU010"
+      "officialUrl": "https://service.taipei/case-detail/AU010",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AU017",
@@ -813,7 +1021,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/AU017"
+      "officialUrl": "https://service.taipei/case-detail/AU017",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AV006",
@@ -823,7 +1034,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AV006"
+      "officialUrl": "https://service.taipei/case-detail/AV006",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AV008",
@@ -833,7 +1047,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/AV008"
+      "officialUrl": "https://service.taipei/case-detail/AV008",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "AX001",
@@ -843,7 +1060,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/AX001"
+      "officialUrl": "https://service.taipei/case-detail/AX001",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE005",
@@ -853,7 +1073,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/BE005"
+      "officialUrl": "https://service.taipei/case-detail/BE005",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE006",
@@ -866,7 +1089,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/BE006"
+      "officialUrl": "https://service.taipei/case-detail/BE006",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間114/01/01 08:00至114/04/30 17:30",
+      "acceptStopReason": "非受理期間"
     },
     {
       "id": "BE007",
@@ -880,7 +1106,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/BE007"
+      "officialUrl": "https://service.taipei/case-detail/BE007",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間114/04/17 08:30至114/05/16 17:30",
+      "acceptStopReason": "依計畫規定"
     },
     {
       "id": "BE010",
@@ -896,7 +1125,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE010"
+      "officialUrl": "https://service.taipei/case-detail/BE010",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE014",
@@ -906,7 +1138,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE014"
+      "officialUrl": "https://service.taipei/case-detail/BE014",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE015",
@@ -919,7 +1154,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE015"
+      "officialUrl": "https://service.taipei/case-detail/BE015",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE016",
@@ -929,7 +1167,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE016"
+      "officialUrl": "https://service.taipei/case-detail/BE016",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE017",
@@ -942,7 +1183,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE017"
+      "officialUrl": "https://service.taipei/case-detail/BE017",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE018",
@@ -952,7 +1196,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE018"
+      "officialUrl": "https://service.taipei/case-detail/BE018",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE019",
@@ -966,7 +1213,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE019"
+      "officialUrl": "https://service.taipei/case-detail/BE019",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE020",
@@ -976,7 +1226,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE020"
+      "officialUrl": "https://service.taipei/case-detail/BE020",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE022",
@@ -986,7 +1239,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE022"
+      "officialUrl": "https://service.taipei/case-detail/BE022",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE023",
@@ -1003,7 +1259,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE023"
+      "officialUrl": "https://service.taipei/case-detail/BE023",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE024",
@@ -1018,7 +1277,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE024"
+      "officialUrl": "https://service.taipei/case-detail/BE024",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間114/02/14 14:22至114/11/30 14:23",
+      "acceptStopReason": ""
     },
     {
       "id": "BE026",
@@ -1028,7 +1290,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE026"
+      "officialUrl": "https://service.taipei/case-detail/BE026",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE027",
@@ -1044,7 +1309,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE027"
+      "officialUrl": "https://service.taipei/case-detail/BE027",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE028",
@@ -1064,7 +1332,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE028"
+      "officialUrl": "https://service.taipei/case-detail/BE028",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE029",
@@ -1074,7 +1345,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE029"
+      "officialUrl": "https://service.taipei/case-detail/BE029",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間115/09/01 00:00至115/09/30 23:59",
+      "acceptStopReason": "申請時間:上學期9月初；下學期3月初。"
     },
     {
       "id": "BE030",
@@ -1084,7 +1358,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE030"
+      "officialUrl": "https://service.taipei/case-detail/BE030",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間115/09/01 00:00至115/10/13 23:59",
+      "acceptStopReason": "申請時間:上學期9月初；下學期3月初。"
     },
     {
       "id": "BE034",
@@ -1094,7 +1371,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE034"
+      "officialUrl": "https://service.taipei/case-detail/BE034",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE036",
@@ -1107,7 +1387,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE036"
+      "officialUrl": "https://service.taipei/case-detail/BE036",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE037",
@@ -1117,7 +1400,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/BE037"
+      "officialUrl": "https://service.taipei/case-detail/BE037",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE039",
@@ -1127,7 +1413,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/BE039"
+      "officialUrl": "https://service.taipei/case-detail/BE039",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BE040",
@@ -1137,7 +1426,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/BE040"
+      "officialUrl": "https://service.taipei/case-detail/BE040",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BF007",
@@ -1151,7 +1443,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BF007"
+      "officialUrl": "https://service.taipei/case-detail/BF007",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間115/06/01 00:00至115/09/30 23:59",
+      "acceptStopReason": ""
     },
     {
       "id": "BU003",
@@ -1164,7 +1459,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BU003"
+      "officialUrl": "https://service.taipei/case-detail/BU003",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BU007",
@@ -1177,7 +1475,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BU007"
+      "officialUrl": "https://service.taipei/case-detail/BU007",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BU008",
@@ -1191,7 +1492,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BU008"
+      "officialUrl": "https://service.taipei/case-detail/BU008",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BU011",
@@ -1203,7 +1507,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BU011"
+      "officialUrl": "https://service.taipei/case-detail/BU011",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BU048",
@@ -1216,7 +1523,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BU048"
+      "officialUrl": "https://service.taipei/case-detail/BU048",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BX004",
@@ -1226,7 +1536,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦 / 傳真申辦",
-      "officialUrl": "https://service.taipei/case-detail/BX004"
+      "officialUrl": "https://service.taipei/case-detail/BX004",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BX022",
@@ -1236,7 +1549,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/BX022"
+      "officialUrl": "https://service.taipei/case-detail/BX022",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "BX058",
@@ -1246,7 +1562,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/BX058"
+      "officialUrl": "https://service.taipei/case-detail/BX058",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CD003",
@@ -1256,7 +1575,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/CD003"
+      "officialUrl": "https://service.taipei/case-detail/CD003",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CD014",
@@ -1266,7 +1588,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/CD014"
+      "officialUrl": "https://service.taipei/case-detail/CD014",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CD021",
@@ -1276,7 +1601,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/CD021"
+      "officialUrl": "https://service.taipei/case-detail/CD021",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CD022",
@@ -1286,7 +1614,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/CD022"
+      "officialUrl": "https://service.taipei/case-detail/CD022",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CH056",
@@ -1296,7 +1627,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/CH056"
+      "officialUrl": "https://service.taipei/case-detail/CH056",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CH069",
@@ -1306,7 +1640,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/CH069"
+      "officialUrl": "https://service.taipei/case-detail/CH069",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CH074",
@@ -1316,7 +1653,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/CH074"
+      "officialUrl": "https://service.taipei/case-detail/CH074",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CJ009",
@@ -1329,7 +1669,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/CJ009"
+      "officialUrl": "https://service.taipei/case-detail/CJ009",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CN012",
@@ -1344,7 +1687,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/CN012"
+      "officialUrl": "https://service.taipei/case-detail/CN012",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CN014",
@@ -1359,7 +1705,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/CN014"
+      "officialUrl": "https://service.taipei/case-detail/CN014",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CV001",
@@ -1369,7 +1718,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/CV001"
+      "officialUrl": "https://service.taipei/case-detail/CV001",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CV002",
@@ -1379,7 +1731,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/CV002"
+      "officialUrl": "https://service.taipei/case-detail/CV002",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "CV003",
@@ -1389,7 +1744,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/CV003"
+      "officialUrl": "https://service.taipei/case-detail/CV003",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "DW002",
@@ -1399,7 +1757,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/DW002"
+      "officialUrl": "https://service.taipei/case-detail/DW002",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": "交通部目前未開放受理補助登記，暫停受理。"
     },
     {
       "id": "EA003",
@@ -1409,7 +1770,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/EA003"
+      "officialUrl": "https://service.taipei/case-detail/EA003",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EA012",
@@ -1419,7 +1783,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EA012"
+      "officialUrl": "https://service.taipei/case-detail/EA012",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EA014",
@@ -1429,7 +1796,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EA014"
+      "officialUrl": "https://service.taipei/case-detail/EA014",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EA016",
@@ -1439,7 +1809,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/EA016"
+      "officialUrl": "https://service.taipei/case-detail/EA016",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EA017",
@@ -1449,7 +1822,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/EA017"
+      "officialUrl": "https://service.taipei/case-detail/EA017",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EA018",
@@ -1459,7 +1835,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EA018"
+      "officialUrl": "https://service.taipei/case-detail/EA018",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EA019",
@@ -1469,7 +1848,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EA019"
+      "officialUrl": "https://service.taipei/case-detail/EA019",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EA020",
@@ -1479,7 +1861,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EA020"
+      "officialUrl": "https://service.taipei/case-detail/EA020",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EA025",
@@ -1489,7 +1874,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/EA025"
+      "officialUrl": "https://service.taipei/case-detail/EA025",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EA026",
@@ -1499,7 +1887,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "",
-      "officialUrl": "https://service.taipei/case-detail/EA026"
+      "officialUrl": "https://service.taipei/case-detail/EA026",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB002",
@@ -1509,7 +1900,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB002"
+      "officialUrl": "https://service.taipei/case-detail/EB002",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB003",
@@ -1519,7 +1913,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB003"
+      "officialUrl": "https://service.taipei/case-detail/EB003",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB004",
@@ -1529,7 +1926,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB004"
+      "officialUrl": "https://service.taipei/case-detail/EB004",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB005",
@@ -1539,7 +1939,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB005"
+      "officialUrl": "https://service.taipei/case-detail/EB005",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB006",
@@ -1549,7 +1952,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB006"
+      "officialUrl": "https://service.taipei/case-detail/EB006",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB007",
@@ -1559,7 +1965,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB007"
+      "officialUrl": "https://service.taipei/case-detail/EB007",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB008",
@@ -1569,7 +1978,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB008"
+      "officialUrl": "https://service.taipei/case-detail/EB008",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB009",
@@ -1579,7 +1991,10 @@
       "online": true,
       "counter": false,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB009"
+      "officialUrl": "https://service.taipei/case-detail/EB009",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB011",
@@ -1589,7 +2004,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB011"
+      "officialUrl": "https://service.taipei/case-detail/EB011",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB012",
@@ -1599,7 +2017,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB012"
+      "officialUrl": "https://service.taipei/case-detail/EB012",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB017",
@@ -1609,7 +2030,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB017"
+      "officialUrl": "https://service.taipei/case-detail/EB017",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EB021",
@@ -1619,7 +2043,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EB021"
+      "officialUrl": "https://service.taipei/case-detail/EB021",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EC002",
@@ -1629,7 +2056,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EC002"
+      "officialUrl": "https://service.taipei/case-detail/EC002",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EF001",
@@ -1639,7 +2069,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦 / 跨區申辦",
-      "officialUrl": "https://service.taipei/case-detail/EF001"
+      "officialUrl": "https://service.taipei/case-detail/EF001",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EF002",
@@ -1649,7 +2082,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦 / 跨區申辦",
-      "officialUrl": "https://service.taipei/case-detail/EF002"
+      "officialUrl": "https://service.taipei/case-detail/EF002",
+      "onlineAcceptStatus": "NotPeriodAccepting",
+      "acceptPeriod": "受理時間115/09/01 00:00至115/09/30 23:59",
+      "acceptStopReason": "申請時間：上學期9月初；下學期3月初"
     },
     {
       "id": "EG001",
@@ -1659,7 +2095,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/EG001"
+      "officialUrl": "https://service.taipei/case-detail/EG001",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EG002",
@@ -1669,7 +2108,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EG002"
+      "officialUrl": "https://service.taipei/case-detail/EG002",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EG003",
@@ -1679,7 +2121,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EG003"
+      "officialUrl": "https://service.taipei/case-detail/EG003",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EL003",
@@ -1691,7 +2136,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 跨區申辦",
-      "officialUrl": "https://service.taipei/case-detail/EL003"
+      "officialUrl": "https://service.taipei/case-detail/EL003",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EN001",
@@ -1701,7 +2149,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EN001"
+      "officialUrl": "https://service.taipei/case-detail/EN001",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EN003",
@@ -1711,7 +2162,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/EN003"
+      "officialUrl": "https://service.taipei/case-detail/EN003",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EO003",
@@ -1721,7 +2175,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦 / 跨區申辦",
-      "officialUrl": "https://service.taipei/case-detail/EO003"
+      "officialUrl": "https://service.taipei/case-detail/EO003",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EO006",
@@ -1731,7 +2188,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 跨區申辦",
-      "officialUrl": "https://service.taipei/case-detail/EO006"
+      "officialUrl": "https://service.taipei/case-detail/EO006",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EO007",
@@ -1741,7 +2201,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦",
-      "officialUrl": "https://service.taipei/case-detail/EO007"
+      "officialUrl": "https://service.taipei/case-detail/EO007",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EP003",
@@ -1751,7 +2214,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EP003"
+      "officialUrl": "https://service.taipei/case-detail/EP003",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EP004",
@@ -1761,7 +2227,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 委託申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/EP004"
+      "officialUrl": "https://service.taipei/case-detail/EP004",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EQ001",
@@ -1771,7 +2240,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/EQ001"
+      "officialUrl": "https://service.taipei/case-detail/EQ001",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "EQ003",
@@ -1781,7 +2253,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/EQ003"
+      "officialUrl": "https://service.taipei/case-detail/EQ003",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "PO002",
@@ -1791,7 +2266,10 @@
       "online": false,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/PO002"
+      "officialUrl": "https://service.taipei/case-detail/PO002",
+      "onlineAcceptStatus": "Accepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "PO003",
@@ -1801,7 +2279,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/PO003"
+      "officialUrl": "https://service.taipei/case-detail/PO003",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "PO004",
@@ -1811,7 +2292,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/PO004"
+      "officialUrl": "https://service.taipei/case-detail/PO004",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "PO006",
@@ -1821,7 +2305,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/PO006"
+      "officialUrl": "https://service.taipei/case-detail/PO006",
+      "onlineAcceptStatus": "StopAccepting",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "PO007",
@@ -1831,7 +2318,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/PO007"
+      "officialUrl": "https://service.taipei/case-detail/PO007",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "PO008",
@@ -1841,7 +2331,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "郵寄申辦 / 臨櫃申辦",
-      "officialUrl": "https://service.taipei/case-detail/PO008"
+      "officialUrl": "https://service.taipei/case-detail/PO008",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     },
     {
       "id": "PO010",
@@ -1851,7 +2344,10 @@
       "online": true,
       "counter": true,
       "applicationMethods": "臨櫃申辦 / 郵寄申辦",
-      "officialUrl": "https://service.taipei/case-detail/PO010"
+      "officialUrl": "https://service.taipei/case-detail/PO010",
+      "onlineAcceptStatus": "NeedLoginAccount",
+      "acceptPeriod": "",
+      "acceptStopReason": ""
     }
   ]
 }

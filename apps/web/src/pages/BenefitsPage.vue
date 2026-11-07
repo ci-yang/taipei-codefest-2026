@@ -10,6 +10,7 @@ import {
 import {
   CATALOG_SOURCE,
   CATEGORY_LABELS,
+  catalogOfficialSearchUrl,
   rankCatalogPrograms,
   type RankedCatalogProgram,
 } from '@/lib/benefit-catalog';
@@ -21,6 +22,12 @@ import {
   type EligibilityResult,
   type EligibilityStatus,
 } from '@/lib/benefit-eligibility';
+import {
+  benefitAcceptance,
+  estimateMissedOpportunity,
+  formatOpportunityAmount,
+  type OpportunityEstimate,
+} from '@/lib/benefit-opportunity';
 
 const bridge = useTownPassBridge();
 const catalogSnapshotDate = new Intl.DateTimeFormat('zh-TW', {
@@ -36,7 +43,9 @@ const realEstateHousehold = ref<number | null>(null);
 const traits = ref<BenefitTrait[]>([]);
 const results = ref<EligibilityResult[]>([]);
 const catalogResults = ref<RankedCatalogProgram[]>([]);
+const opportunity = ref<OpportunityEstimate | null>(null);
 const searched = ref(false);
+const showOpportunity = ref(false);
 const showAllCatalog = ref(false);
 const loadingTownPass = ref(false);
 const townPassMessage = ref('');
@@ -63,17 +72,41 @@ const traitGroups: { title: string; traits: BenefitTrait[] }[] = [
     traits: ['unemployed', 'involuntaryUnemployed', 'employmentInsuranceOneYear', 'willingToWork', 'jobRegistered14Days'],
   },
 ];
+const CATALOG_RELEVANCE_THRESHOLD = 6;
 const age = computed(() => ageFromBirthday(birthday.value));
-const personalizedCatalogCount = computed(() => catalogResults.value.filter((item) => item.score >= 4).length);
+const matchedCatalogResults = computed(() =>
+  catalogResults.value.filter(
+    (item) =>
+      !item.excluded &&
+      item.acceptance.status !== 'closed' &&
+      item.score >= CATALOG_RELEVANCE_THRESHOLD,
+  ),
+);
+const closedCatalogCount = computed(() => catalogResults.value.filter((item) => item.acceptance.status === 'closed').length);
+const unrelatedCatalogCount = computed(
+  () =>
+    catalogResults.value.filter(
+      (item) =>
+        item.acceptance.status !== 'closed' &&
+        (item.excluded || item.score < CATALOG_RELEVANCE_THRESHOLD),
+    ).length,
+);
+const concreteCatalogBenefitCount = computed(() => matchedCatalogResults.value.filter((item) => item.benefit.isConcrete).length);
 const visibleCatalogResults = computed(() =>
-  showAllCatalog.value ? catalogResults.value : catalogResults.value.slice(0, 24),
+  showAllCatalog.value ? matchedCatalogResults.value : matchedCatalogResults.value.slice(0, 24),
+);
+const actionableResults = computed(() =>
+  results.value.filter(
+    (result) => result.status !== 'unlikely' && benefitAcceptance(result.program.id).status !== 'closed',
+  ),
 );
 const resultCounts = computed(() =>
-  results.value.reduce(
+  actionableResults.value.reduce(
     (counts, result) => ({ ...counts, [result.status]: counts[result.status] + 1 }),
     { possible: 0, review: 0, unlikely: 0 } as Record<EligibilityStatus, number>,
   ),
 );
+const hiddenDeepResultCount = computed(() => results.value.length - actionableResults.value.length);
 const statusText: Record<EligibilityStatus, string> = {
   possible: '值得進一步申請',
   review: '補資料後再確認',
@@ -130,8 +163,14 @@ function search(): void {
   };
   results.value = evaluateBenefits(profile);
   catalogResults.value = rankCatalogPrograms(profile);
+  opportunity.value = estimateMissedOpportunity(results.value, profile);
   showAllCatalog.value = false;
   searched.value = true;
+  showOpportunity.value = true;
+}
+
+function closeOpportunityAndShowResults(): void {
+  showOpportunity.value = false;
   requestAnimationFrame(() => document.querySelector('#benefit-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
 }
 
@@ -227,11 +266,46 @@ function catalogSummary(value: string): string {
       <button class="primary search-button" type="submit">查看我可能符合的項目</button>
     </form>
 
+    <div v-if="showOpportunity" class="modal-backdrop" @click.self="showOpportunity = false">
+      <section
+        class="opportunity-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="opportunity-title"
+      >
+        <button class="modal-close" type="button" aria-label="關閉" @click="showOpportunity = false">×</button>
+        <p class="eyebrow">你的福利缺口</p>
+        <h2 id="opportunity-title">沒申請，你可能錯過</h2>
+        <template v-if="opportunity?.lines.length">
+          <p class="opportunity-amount">
+            {{ formatOpportunityAmount(opportunity.totalMinimum, opportunity.totalMaximum) }}
+          </p>
+          <p class="opportunity-period">依目前「可能符合」項目，以一年或一次申請週期估算</p>
+          <ul class="opportunity-list">
+            <li v-for="line in opportunity.lines" :key="line.programId">
+              <div><strong>{{ line.name }}</strong><span>{{ formatOpportunityAmount(line.minimum, line.maximum) }}</span></div>
+              <small>{{ line.basis }}</small>
+            </li>
+          </ul>
+        </template>
+        <p v-else class="opportunity-empty">
+          目前沒有同時符合「可能申請」且能可靠換算金額的項目；這不代表一定沒有福利，可繼續查看待補資料項目。
+        </p>
+        <p v-if="opportunity?.unquantifiedCount" class="opportunity-note">
+          另有 {{ opportunity.unquantifiedCount }} 項可能符合，但會依實際支出、薪資或個別核定，未灌入總額。
+        </p>
+        <p class="opportunity-disclaimer">這是依官方給付上限與你填寫資料的初估，不是核定金額，也不重複計入待補資料或官方候選服務。</p>
+        <button class="primary opportunity-action" type="button" @click="closeOpportunityAndShowResults">
+          查看我可以申請的項目
+        </button>
+      </section>
+    </div>
+
     <section v-if="searched" id="benefit-results" class="results" aria-live="polite">
       <div class="results-heading">
         <div>
           <p class="eyebrow">有結構化門檻</p>
-          <h2>{{ results.length }} 項深度比對</h2>
+          <h2>{{ actionableResults.length }} 項可能可申請</h2>
         </div>
         <div class="score" :aria-label="`${resultCounts.possible} 項值得申請`">
           <strong>{{ resultCounts.possible }}</strong><span>值得申請</span>
@@ -240,10 +314,12 @@ function catalogSummary(value: string): string {
       <div class="summary-chips">
         <span class="possible">{{ resultCounts.possible }} 項值得申請</span>
         <span class="review">{{ resultCounts.review }} 項待補資料</span>
-        <span class="unlikely">{{ resultCounts.unlikely }} 項可能不符</span>
+        <span class="hidden">已隱藏 {{ hiddenDeepResultCount }} 項不符或未開放</span>
       </div>
+      <button class="opportunity-reopen" type="button" @click="showOpportunity = true">我沒申請可能錯過多少？</button>
 
-      <article v-for="result in results" :key="result.program.id" class="result-card" :class="result.status">
+      <p v-if="!actionableResults.length" class="empty-results">目前沒有符合已填條件的項目；可回上方補充不確定的家戶資料後再查一次。</p>
+      <article v-for="result in actionableResults" :key="result.program.id" class="result-card" :class="result.status">
         <div class="result-title">
           <div>
             <span class="status">{{ statusText[result.status] }}</span>
@@ -281,42 +357,64 @@ function catalogSummary(value: string): string {
       <div class="catalog-heading">
         <div>
           <p class="eyebrow">台北服務通目錄</p>
-          <h2 id="catalog-title">另外 {{ CATALOG_SOURCE.candidateCount }} 項官方服務候選</h2>
+          <h2 id="catalog-title">另外 {{ matchedCatalogResults.length }} 項符合已填身分的官方候選</h2>
         </div>
         <div class="score catalog-score">
-          <strong>{{ personalizedCatalogCount }}</strong><span>依資料優先</span>
+          <strong>{{ matchedCatalogResults.length }}</strong><span>符合已填身分</span>
         </div>
       </div>
       <p class="catalog-explainer">
         由全站 {{ CATALOG_SOURCE.totalServiceCount.toLocaleString() }} 個服務中，以「{{ CATALOG_SOURCE.terms.join('、') }}」找到
-        {{ CATALOG_SOURCE.keywordMatchCount }} 筆，再排除核銷、請款及明顯機構型案件。官方目錄沒有一致的所得與資格欄位，因此這裡只排序、不判定符合。
+        {{ CATALOG_SOURCE.keywordMatchCount }} 筆，再排除核銷、請款及明顯機構型案件。依已知申請期間隱藏
+        {{ closedCatalogCount }} 項未受理案件，另隱藏 {{ unrelatedCatalogCount }} 項未符合你已填身分或相關度不足的案件。
+        剩下項目因官方目錄沒有一致的所得與資格欄位，仍只是候選，不代表已通過完整資格審查。
+        其中 {{ concreteCatalogBenefitCount }} 項可直接說明給付內容，其餘項目會標明官方目錄缺少的資訊。
       </p>
-      <p class="muted">部分項目可能與上方 {{ BENEFIT_SOURCE.count }} 項重複；保留是為了提供目前有效的官方申辦入口。</p>
+      <p class="muted">部分項目可能與上方深度比對重複；未能由官方資料確認即時受理狀態者，會帶你到台北服務通再次搜尋確認。</p>
 
       <div class="catalog-list">
+        <p v-if="!matchedCatalogResults.length" class="empty-results">目前沒有其他符合已填身分的官方候選。</p>
         <article v-for="item in visibleCatalogResults" :key="item.program.id" class="catalog-card">
           <div class="catalog-card-top">
             <span class="category">{{ CATEGORY_LABELS[item.category] }}</span>
-            <span v-if="item.score >= 4" class="relevant">依你的資料優先</span>
+            <span class="relevant">符合已填身分</span>
           </div>
           <h3>{{ item.program.name }}</h3>
           <p class="match-reason">{{ item.reasons.join('；') }}</p>
-          <p v-if="item.program.summary" class="catalog-summary">{{ catalogSummary(item.program.summary) }}</p>
-          <div class="method-row">
-            <span v-if="item.program.online">可網路申辦</span>
-            <span v-if="item.program.counter">可臨櫃申辦</span>
-            <span v-if="!item.program.online && !item.program.counter">{{ item.program.applicationMethods || '方式見官方頁面' }}</span>
+          <div class="catalog-benefit" :class="{ 'catalog-benefit--pending': !item.benefit.isConcrete }">
+            <span>{{ item.benefit.isConcrete ? '實際補助' : '可能取得' }}</span>
+            <p>{{ item.benefit.content }}</p>
+            <small>{{ item.benefit.note }}</small>
           </div>
-          <a class="official-link" :href="item.program.officialUrl" target="_blank" rel="noopener">查看申請資格 →</a>
+          <details v-if="item.program.summary" class="catalog-details">
+            <summary>查看官方目錄備註</summary>
+            <p class="catalog-summary">{{ catalogSummary(item.program.summary) }}</p>
+          </details>
+          <p
+            v-if="item.acceptance.onlineStatus === 'closed' && item.acceptance.counterStatus === 'open'"
+            class="acceptance-note"
+          >
+            {{ item.acceptance.note }}
+          </p>
+          <div class="method-row">
+            <span v-if="item.acceptance.onlineStatus === 'open'">可網路申辦</span>
+            <span v-else-if="item.acceptance.onlineStatus === 'closed'" class="method-unavailable">線上暫停</span>
+            <span v-else-if="item.program.online">線上狀態待確認</span>
+            <span v-if="item.acceptance.counterStatus === 'open'">可臨櫃申辦</span>
+            <span v-if="item.acceptance.onlineStatus === 'unknown' && item.acceptance.counterStatus === 'closed'">
+              {{ item.program.applicationMethods || '方式見官方頁面' }}
+            </span>
+          </div>
+          <a class="official-link" :href="catalogOfficialSearchUrl(item.program)" target="_blank" rel="noopener">在台北服務通搜尋 →</a>
         </article>
       </div>
       <button
-        v-if="catalogResults.length > 24"
+        v-if="matchedCatalogResults.length > 24"
         class="catalog-toggle"
         type="button"
         @click="showAllCatalog = !showAllCatalog"
       >
-        {{ showAllCatalog ? '收合，只看前 24 項' : `顯示全部 ${catalogResults.length} 項` }}
+        {{ showAllCatalog ? '收合，只看前 24 項' : `顯示全部 ${matchedCatalogResults.length} 項` }}
       </button>
     </section>
 
@@ -373,7 +471,23 @@ legend { margin-bottom: 11px; font-size: 14px; font-weight: 750; }
 .trait-option { display: flex; align-items: flex-start; gap: 9px; padding: 10px; border: 1px solid #dbe4df; border-radius: 9px; font-weight: 500; line-height: 1.4; cursor: pointer; }
 .trait-option:has(input:checked) { border-color: var(--brand); background: var(--brand-weak); }
 .trait-option input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--brand); flex: 0 0 auto; }
-.search-button { width: 100%; min-height: 50px; margin-top: 22px; border: 0; font-weight: 800; cursor: pointer; }
+.search-button { width: 100%; min-height: 50px; margin-top: 22px; border: 0; border-radius: 10px; color: white; background: var(--brand); font-weight: 800; cursor: pointer; }
+.modal-backdrop { position: fixed; z-index: 1000; inset: 0; display: grid; padding: 20px; place-items: center; background: rgba(3, 28, 23, .68); }
+.opportunity-modal { position: relative; width: min(100%, 520px); max-height: calc(100vh - 40px); overflow-y: auto; padding: 24px 20px 20px; border-radius: 20px; background: white; box-shadow: 0 24px 70px rgba(0, 0, 0, .28); }
+.opportunity-modal .eyebrow { color: var(--brand); }
+.opportunity-modal h2 { margin: 0; color: #183f32; font-size: 24px; }
+.modal-close { position: absolute; top: 10px; right: 12px; width: 38px; height: 38px; border: 0; border-radius: 50%; color: #496059; background: #eef3f1; font-size: 26px; line-height: 1; cursor: pointer; }
+.opportunity-amount { margin: 14px 0 2px; color: #08734f; font-size: clamp(30px, 9vw, 44px); font-weight: 900; line-height: 1.1; letter-spacing: -.035em; }
+.opportunity-period, .opportunity-note, .opportunity-disclaimer, .opportunity-empty { color: #52645d; font-size: 13px; line-height: 1.55; }
+.opportunity-list { display: grid; gap: 9px; margin: 16px 0; padding: 0; list-style: none; }
+.opportunity-list li { padding: 11px 12px; border: 1px solid #d6e7df; border-radius: 10px; background: #f4faf7; }
+.opportunity-list div { display: flex; justify-content: space-between; gap: 12px; color: #183f32; font-size: 14px; }
+.opportunity-list div span { flex: 0 0 auto; color: #08734f; font-weight: 850; }
+.opportunity-list small { display: block; margin-top: 5px; line-height: 1.45; }
+.opportunity-empty { margin: 18px 0; padding: 14px; border-radius: 10px; background: #f3f6f5; }
+.opportunity-note { padding: 10px 12px; border-radius: 8px; color: #705400; background: #fff5cf; }
+.opportunity-disclaimer { padding-top: 11px; border-top: 1px solid #dfe8e4; }
+.opportunity-action { width: 100%; min-height: 48px; border: 0; border-radius: 10px; color: white; background: var(--brand); font-weight: 800; cursor: pointer; }
 .results { scroll-margin-top: 10px; margin-top: 28px; }
 .results-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
 .results-heading .eyebrow { color: var(--brand); }
@@ -385,6 +499,9 @@ legend { margin-bottom: 11px; font-size: 14px; font-weight: 750; }
 .possible { color: #0b6143; background: #dff7eb; }
 .review { color: #7a5700; background: #fff0bd; }
 .unlikely { color: #7c3c39; background: #f7e6e4; }
+.hidden { color: #52605b; background: #e9eeec; }
+.opportunity-reopen { width: 100%; min-height: 44px; margin: 0 0 14px; border: 1px solid #0b6e4f; border-radius: 10px; color: #0b6e4f; background: white; font-weight: 750; cursor: pointer; }
+.empty-results { padding: 14px; border-radius: 10px; color: #52605b; background: #eef3f1; font-size: 14px; line-height: 1.55; }
 .result-card { margin-bottom: 12px; padding: 16px; border-left-width: 5px; }
 .result-card.possible { border-left-color: #20a66a; }
 .result-card.review { border-left-color: #e0a000; }
@@ -424,8 +541,18 @@ dd { margin: 0; line-height: 1.45; }
 .relevant { color: #734f00; background: #ffefb8; }
 .catalog-card h3 { margin: 9px 0 6px; font-size: 17px; line-height: 1.45; }
 .match-reason { margin: 5px 0; color: #315e4e; font-size: 13px; font-weight: 650; }
-.catalog-summary { margin: 8px 0; color: #52605b; font-size: 13px; line-height: 1.55; }
+.catalog-benefit { margin: 10px 0; padding: 11px 12px; border: 1px solid #b9d9ce; border-radius: 10px; background: #edf8f3; }
+.catalog-benefit > span { color: #14624e; font-size: 12px; font-weight: 800; }
+.catalog-benefit p { margin: 5px 0; color: #183f34; font-size: 14px; font-weight: 650; line-height: 1.6; }
+.catalog-benefit small { color: #527066; font-size: 12px; line-height: 1.45; }
+.catalog-benefit--pending { border-color: #d7dce0; background: #f4f6f7; }
+.catalog-benefit--pending > span, .catalog-benefit--pending p { color: #4d5c64; }
+.catalog-details { margin: 8px 0; color: #52605b; font-size: 13px; }
+.catalog-details summary { cursor: pointer; font-weight: 700; }
+.catalog-summary { margin: 8px 0 0; color: #52605b; font-size: 13px; line-height: 1.55; }
+.acceptance-note { margin: 9px 0; padding: 9px 10px; border-radius: 8px; color: #765200; background: #fff2c6; font-size: 13px; font-weight: 650; line-height: 1.5; }
 .method-row span { color: #4a5b54; background: #f0f3f2; }
+.method-row .method-unavailable { color: #8a3d38; background: #f8e6e3; }
 .catalog-toggle { width: 100%; min-height: 46px; margin-top: 14px; border: 1px solid var(--brand); border-radius: 10px; color: var(--brand); background: white; font-weight: 750; cursor: pointer; }
 .data-note { margin-top: 24px; padding: 16px; }
 .data-note p { line-height: 1.6; }
