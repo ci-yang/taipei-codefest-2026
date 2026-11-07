@@ -68,21 +68,71 @@ a { color: var(--go); }
 .period svg { flex: none; }
 .period-swap { padding: 3px 10px; border-radius: 999px; background: var(--on-desk); color: var(--desk); font-size: 14px; font-weight: 700; }
 
-.intro { margin: 2px 0 14px; color: var(--on-desk-muted); font-size: 17px; }
+.intro { margin: 0 0 16px; color: var(--on-desk-muted); font-size: 17px; }
 
-/* home: jump to a category — wraps so every category stays in view (no sideways scroll) */
-.jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; padding: 2px 0 4px; }
-.jump-chip {
+/* home: the search slip finishes the title's sentence 「我遇到了……」. It is cut from the same card stock
+ * as the deck (white, ink edge, hard shadow), so it reads as part of the stack, not as browser chrome. */
+.search { position: relative; margin: 4px 0 14px; }
+.search-field {
+  display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 0 58px 0 14px;
+  border: 2px solid var(--edge); border-radius: 14px; background: var(--paper); color: var(--ink);
+  box-shadow: 0 4px 0 var(--edge); cursor: text;
+}
+.search-field svg { flex: none; color: var(--muted); }
+.search-field:focus-within { outline: 3px solid #5ab4c5; outline-offset: 2px; }
+.search-field:focus-within svg { color: var(--ink); }
+.search input {
+  flex: 1; min-width: 0; height: 54px; padding: 0; border: 0; background: transparent; color: var(--ink);
+  font: inherit; font-size: 19px; font-weight: 700; outline: none; -webkit-appearance: none; appearance: none;
+}
+.search input::placeholder { color: var(--muted); font-weight: 500; font-size: 16px; opacity: 1; }
+.search input::-webkit-search-cancel-button, .search input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+.search-clear {
+  position: absolute; top: 7px; right: 7px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0;
+  border: 0; border-radius: 10px; background: var(--tint); color: var(--ink); cursor: pointer;
+}
+.search-clear[hidden] { display: none; }
+.search-clear:active { background: var(--rule); }
+
+/* home: category filter — wraps so every category stays in view (no sideways scroll).
+ * Off: outlined on the desk. On: filled like the period toggle's 「切換」, so it reads as pressed. */
+.cats { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.cat {
   flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 7px 0 13px; white-space: nowrap;
   border: 2px solid var(--on-desk); border-radius: 999px; background: transparent; color: var(--on-desk);
   font-size: 15px; font-weight: 700; cursor: pointer;
 }
-.jump-count {
+.cat-count {
   display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 999px;
   background: var(--on-desk); color: var(--desk); font-size: 14px; font-variant-numeric: tabular-nums;
 }
-.group-title { scroll-margin-top: 12px; }
-.group-title:focus { outline: none; }
+.cat.is-on { background: var(--on-desk); color: var(--desk); }
+.cat.is-on .cat-count { background: var(--band); color: var(--band-ink); }
+.cat.is-empty:not(.is-on) { border-style: dashed; color: var(--on-desk-muted); border-color: var(--on-desk-muted); }
+.cat.is-empty:not(.is-on) .cat-count { background: transparent; color: var(--on-desk-muted); }
+
+/* home: nothing matched — a next step, not a dead end */
+.nomatch {
+  padding: 16px 18px 6px; border: 2px solid var(--edge); border-radius: 14px; background: var(--paper);
+  color: var(--ink); box-shadow: 0 5px 0 var(--edge);
+}
+.nomatch-q { margin: 0; color: var(--muted); font-size: 16px; }
+.nomatch-title { margin: 6px 0 0; font-size: 22px; font-weight: 800; line-height: 1.4; }
+.nomatch-body { margin: 6px 0 0; font-size: 17px; }
+.nomatch .dial { margin-top: 14px; }
+.nomatch-sos {
+  margin: 16px 0 0; padding: 10px 12px; border-left: 4px solid var(--urgent); border-radius: 0 8px 8px 0;
+  background: var(--urgent-soft); font-size: 16px; font-weight: 700;
+}
+.nomatch-more { margin: 14px 0 0; font-size: 16px; color: var(--muted); }
+.nomatch-alt {
+  display: flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; margin-top: 10px; padding: 0 12px;
+  border: 2px solid var(--go); border-radius: 12px; background: none; color: var(--go); cursor: pointer;
+  font-size: 16px; font-weight: 700;
+}
+.nomatch-alt:active { background: var(--tint); }
+.nomatch-src { margin: 12px 0 0; padding: 10px 0; border-top: 2px dashed var(--rule); font-size: 14px; color: var(--muted); }
+.nomatch-src a { display: inline-block; min-height: 32px; line-height: 32px; }
 
 /* home: grouped deck */
 .groups { display: grid; gap: 26px; }

@@ -85,20 +85,109 @@
     ].filter((g) => g.situations.length);
   }
 
-  function renderHome(data, state) {
-    const night = state.period === 'night';
-    const list = groups(data);
-    const jump = list.map((g) => `<button type="button" class="jump-chip" data-jump="group-${esc(g.id)}">`
-      + `${esc(g.title)}<span class="jump-count">${g.situations.length}</span></button>`).join('');
+  /* Home search and category filter. The query lives in page memory only: never stored, never put in
+   * the URL, never sent anywhere. Plain substring match on title + subtitle + keywords (no tokenizer);
+   * several words separated by spaces must all match. 臺 and 台 count as the same character. */
+  const ALL = 'all';
+  const NO_FILTER = Object.freeze({ query: '', category: ALL });
+
+  function words(query) {
+    return String(query || '').replace(/臺/g, '台').toLowerCase().split(/\s+/).filter(Boolean);
+  }
+
+  function matches(situation, query) {
+    const terms = words(query);
+    if (!terms.length) return true;
+    const hay = [situation.title, situation.subtitle, ...(situation.keywords || [])].join('\n').replace(/臺/g, '台').toLowerCase();
+    return terms.every((term) => hay.includes(term));
+  }
+
+  function inCategory(situation, category) {
+    return !category || category === ALL || situation.category === category;
+  }
+
+  // 「全部」 keeps the grouped deck; a picked category shows only its own group. Search narrows both.
+  function filteredGroups(data, filter = NO_FILTER) {
+    return groups(data)
+      .map((g) => ({ ...g, situations: g.situations.filter((s) => inCategory(s, filter.category) && matches(s, filter.query)) }))
+      .filter((g) => g.situations.length);
+  }
+
+  const SEARCH_ICON = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>';
+  const CLEAR_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>';
+
+  // No <form> and no name attribute: pressing Enter can never turn the query into a URL.
+  function searchBox(filter) {
+    return `<div class="search" role="search">`
+      + `<label class="search-field">${SEARCH_ICON}`
+      + `<input type="search" data-search value="${esc(filter.query)}" placeholder="例如：被騙、房東、沒錢吃飯"`
+      + ` aria-label="找卡片：打你遇到的事" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></label>`
+      + `<button type="button" class="search-clear" data-clear-search aria-label="清除搜尋"${filter.query ? '' : ' hidden'}>${CLEAR_ICON}</button>`
+      + `</div>`;
+  }
+
+  // Category chips: 「全部」 + one per category, one picked at a time; counts follow the current query.
+  function categoryChips(data, filter) {
+    const pool = data.situations.filter((s) => matches(s, filter.query));
+    const chip = (id, title, count) => {
+      const on = (filter.category || ALL) === id;
+      return `<button type="button" class="cat${on ? ' is-on' : ''}${count ? '' : ' is-empty'}" data-category="${esc(id)}" aria-pressed="${on}">`
+        + `${esc(title)}<span class="cat-count">${count}</span></button>`;
+    };
+    return chip(ALL, '全部', pool.length)
+      + data.categories.map((c) => chip(c.id, c.title, pool.filter((s) => s.category === c.id).length)).join('');
+  }
+
+  function filterStatus(data, filter, shown) {
+    if (!words(filter.query).length && inCategory({}, filter.category)) {
+      return '挑最接近你現在狀況的那張卡。每張都寫好現在打給誰、開口怎麼說、要準備什麼。';
+    }
+    if (!shown) return '';
+    const where = filter.category && filter.category !== ALL
+      ? `「${data.categories.find((c) => c.id === filter.category).title}」裡` : '';
+    return words(filter.query).length ? `${where}有 ${shown} 張卡符合「${filter.query.trim()}」。` : `${where}有 ${shown} 張卡。`;
+  }
+
+  /* Nothing matched: point to a next step instead of a dead end. 1999 is the city's 24-hour hotline
+   * (rdec-1999); the emergency strip stays on screen below. No promise of what the call will lead to. */
+  function noMatch(data, filter) {
+    const src = data.sources['rdec-1999'];
+    const elsewhere = filter.category && filter.category !== ALL
+      ? data.situations.filter((s) => matches(s, filter.query)).length : 0;
+    const widen = elsewhere
+      ? `<button type="button" class="nomatch-alt" data-category="${ALL}">改在全部分類找（${elsewhere} 張符合）</button>` : '';
+    return `<section class="nomatch" aria-labelledby="nomatch-title">`
+      + `<p class="nomatch-q">沒有卡片寫到「${esc(filter.query.trim())}」。</p>`
+      + `<h2 class="nomatch-title" id="nomatch-title">不確定找誰，<span class="nw">先打 1999 市民熱線</span></h2>`
+      + `<p class="nomatch-body">1999 是臺北市的市民熱線，24 小時有人接。說出你遇到的事，問該找哪個單位。</p>`
+      + `<a class="dial" href="tel:1999" data-dial="1999">${PHONE}撥 1999</a>`
+      + `<p class="nomatch-sos">有危險別等：畫面最底下的緊急電話 110、119、113、1925 一直都在。</p>`
+      + `<p class="nomatch-more">也可以換個說法，像「沒錢」「房東」「找不到人」。</p>`
+      + widen
+      + `<button type="button" class="nomatch-alt" data-reset-filter>清除搜尋，看全部卡片</button>`
+      + `<p class="nomatch-src">出處：<a href="${esc(src.url)}" rel="noopener">${esc(src.short)}</a></p>`
+      + `</section>`;
+  }
+
+  // The part of the home page that changes while typing; the search box itself is never redrawn.
+  function renderResults(data, state, filter = NO_FILTER) {
+    const list = filteredGroups(data, filter);
+    const shown = list.reduce((n, g) => n + g.situations.length, 0);
     const deck = list.map((g) => `<section class="group${g.urgent ? ' is-urgent' : ''}" aria-labelledby="group-${esc(g.id)}">`
-      + `<h2 class="group-title" id="group-${esc(g.id)}" tabindex="-1">${esc(g.title)}</h2>`
+      + `<h2 class="group-title" id="group-${esc(g.id)}">${esc(g.title)}</h2>`
       + `<div class="deck">${g.situations.map((s) => homeCard(data, s, state)).join('')}</div></section>`).join('');
+    return `<p class="intro" role="status">${esc(filterStatus(data, filter, shown))}</p>`
+      + (shown ? `<nav class="groups" aria-label="選擇情境">${deck}</nav>` : noMatch(data, filter));
+  }
+
+  function renderHome(data, state, filter = NO_FILTER) {
+    const night = state.period === 'night';
     const lineSources = [...new Set(data.emergencyLines.flatMap((line) => line.sources))]
       .map((id) => `<a href="${esc(data.sources[id].url)}" rel="noopener">${esc(data.sources[id].short)}</a>`).join('、');
     return `<header class="top"><h1>我遇到了……</h1>${periodTag(state)}</header>`
-      + `<p class="intro">挑最接近你現在狀況的那張卡。每張都寫好現在打給誰、開口怎麼說、要準備什麼。</p>`
-      + `<div class="jump" role="group" aria-label="跳到分類">${jump}</div>`
-      + `<nav class="groups" aria-label="選擇情境">${deck}</nav>`
+      + searchBox(filter)
+      + `<div class="cats" role="group" aria-label="依分類篩選" data-cats>${categoryChips(data, filter)}</div>`
+      + `<div class="results" data-results aria-live="off">${renderResults(data, state, filter)}</div>`
       + `<section class="trust" aria-label="這頁怎麼做的">`
       + `<p class="trust-title">${night ? '現在是晚上或假日' : '現在是平日上班時間'}</p>`
       + `<p class="trust-lead">${night
@@ -202,9 +291,9 @@
       + `</div><p class="foot">整理自臺北市官方頁面與開放資料，查核日 ${esc(data.checkedOn)}，以官方最新公告為準。</p>`;
   }
 
-  function render(data, state, checked) {
+  function render(data, state, checked, filter = NO_FILTER) {
     const situation = state.id && C.findSituation(data, state.id);
-    return (situation ? renderCard(data, situation, state, checked) : renderHome(data, state)) + emergencyBar(data);
+    return (situation ? renderCard(data, situation, state, checked) : renderHome(data, state, filter)) + emergencyBar(data);
   }
 
   function titleOf(data, state) {
@@ -212,20 +301,57 @@
     return s ? `${s.title}｜我遇到了……` : '我遇到了……';
   }
 
-  root.SituationApp = Object.freeze({ renderHome, renderCard, render, nowCall, groups, titleOf, emergencyBar });
+  root.SituationApp = Object.freeze({ renderHome, renderResults, renderCard, render, nowCall, groups, filteredGroups, matches, titleOf, emergencyBar });
 
   if (root.document) {
     root.document.addEventListener('DOMContentLoaded', () => {
       const checked = new Set(); // page memory only; gone on reload
+      const filter = { query: '', category: ALL }; // page memory only; never in storage or the URL
+      let shownState = null;
       const app = root.document.getElementById('app');
-      C.start((data, state) => render(data, state, checked), titleOf);
+      C.start((data, state) => { shownState = state; return render(data, state, checked, filter); }, titleOf);
+
+      // Redraw the chips and the cards only, so the search box keeps focus and caret while typing.
+      function refilter(focusSelector) {
+        const data = root.SITUATION_DATA;
+        const results = app.querySelector('[data-results]');
+        const cats = app.querySelector('[data-cats]');
+        if (!results || !cats) return;
+        cats.innerHTML = categoryChips(data, filter);
+        results.innerHTML = renderResults(data, shownState, filter);
+        const clear = app.querySelector('[data-clear-search]');
+        if (clear) clear.hidden = !filter.query;
+        const focus = focusSelector && app.querySelector(focusSelector);
+        if (focus) focus.focus();
+      }
+      function clearSearch() {
+        const input = app.querySelector('[data-search]');
+        filter.query = '';
+        if (input) input.value = '';
+        refilter('[data-search]');
+      }
+
+      app.addEventListener('input', (event) => {
+        if (!event.target.matches('[data-search]')) return;
+        filter.query = event.target.value;
+        refilter();
+      });
+      app.addEventListener('keydown', (event) => {
+        if (!event.target.matches('[data-search]')) return;
+        if (event.key === 'Escape' && filter.query) { event.preventDefault(); clearSearch(); }
+        if (event.key === 'Enter') { event.preventDefault(); event.target.blur(); } // closes the phone keyboard
+      });
       app.addEventListener('click', (event) => {
-        const chip = event.target.closest('[data-jump]');
-        if (!chip) return;
-        const heading = root.document.getElementById(chip.dataset.jump);
-        if (!heading) return;
-        heading.scrollIntoView({ block: 'start', behavior: 'smooth' });
-        heading.focus({ preventScroll: true });
+        if (event.target.closest('[data-clear-search]')) { clearSearch(); return; }
+        if (event.target.closest('[data-reset-filter]')) {
+          filter.category = ALL;
+          clearSearch();
+          return;
+        }
+        const cat = event.target.closest('[data-category]');
+        if (!cat) return;
+        filter.category = cat.dataset.category;
+        refilter(`.cats [data-category="${filter.category}"]`);
       });
       app.addEventListener('change', (event) => {
         const key = event.target.dataset && event.target.dataset.check;
