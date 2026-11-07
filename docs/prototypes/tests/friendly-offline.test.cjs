@@ -35,16 +35,17 @@ function assetResponse(url, options = {}) {
   Object.defineProperty(response, 'url', { value: options.url || url });
   return response;
 }
-function worker({ scope = SCOPE, caches = memoryCaches(), fail = [], version = VERSION } = {}) {
+function worker({ scope = SCOPE, caches = memoryCaches(), fail = [], version = VERSION, canonicalIndex = false, responseUrl } = {}) {
   const listeners = new Map(); const requests = []; let sequence = 0; let offline = false;
   const self = { registration: { scope }, location: { origin: new URL(scope).origin },
     addEventListener(name, fn) { listeners.set(name, fn); }, skipWaiting: async () => {},
     clients: { claim: async () => {}, async get(id) { return { id, url: id === 'outside' ? 'https://example.test/other/' : `${scope}index.html` }; } } };
   const fetch = async (request, options) => {
     const url = typeof request === 'string' ? request : request.url; requests.push({ url, options });
+    if (canonicalIndex && url.endsWith('index.html')) throw new TypeError('Fixture Pages 308 rejected by redirect:error');
     if (offline || fail.some((asset) => url.endsWith(asset))) throw new Error('Fixture network failure');
     if (fail.includes('html-instead-of-js') && url.endsWith('app.js')) return assetResponse(url, { type: 'text/html' });
-    return assetResponse(url);
+    return assetResponse(url, { url: responseUrl });
   };
   vm.runInNewContext(workerSource.replaceAll(VERSION, version), { self, caches, fetch, URL, Response, AbortController, setTimeout, clearTimeout, console });
   return { caches, requests, setOffline(value) { offline = value; }, listeners,
@@ -63,6 +64,29 @@ function worker({ scope = SCOPE, caches = memoryCaches(), fail = [], version = V
   };
 }
 const result = (messages) => messages.findLast((message) => message.type === 'result')?.status;
+
+test('Pages canonical index redirect still caches both navigation entry points without following redirects', async () => {
+  const env = worker({ canonicalIndex: true });
+  assert.equal(result(await env.message()).state, 'ready');
+  assert.equal(env.requests.filter(({ url }) => url === SCOPE).length, 2);
+  assert(!env.requests.some(({ url }) => url.endsWith('index.html')));
+  assert(env.requests.every(({ options }) => options.redirect === 'error'));
+  env.setOffline(true);
+  const count = env.requests.length;
+  for (const url of [SCOPE, `${SCOPE}index.html`]) {
+    const response = await env.fetch(url, { mode: 'navigate' });
+    assert.equal(response.status, 200);
+    assert.match(await response.text(), /test fixture: \/app\//);
+  }
+  assert.equal(env.requests.length, count);
+});
+test('canonical entry handling does not accept response URLs outside the app scope', async () => {
+  const env = worker({ responseUrl: 'https://example.test/another-app/' });
+  const state = result(await env.message());
+  assert.equal(state.state, 'partial');
+  assert.equal(state.completed, 0);
+  assert.equal(state.savedAt, null);
+});
 
 test('initial download reports progress and ready only after all 14 same-scope files are present', async () => {
   const env = worker(); const messages = await env.message(); const state = result(messages);

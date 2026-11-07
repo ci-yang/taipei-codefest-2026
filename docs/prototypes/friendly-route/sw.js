@@ -83,7 +83,10 @@ async function download() {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 15000);
       try {
-        const response = await fetch(asset.url, { cache: 'reload', credentials: 'same-origin', redirect: 'error', signal: controller.signal });
+        // Pages canonicalizes index.html to the directory URL. Fetch that same-scope
+        // entry directly, while retaining both cache keys and refusing redirects.
+        const downloadUrl = asset.path === 'index.html' ? SCOPE.href : asset.url;
+        const response = await fetch(downloadUrl, { cache: 'reload', credentials: 'same-origin', redirect: 'error', signal: controller.signal });
         if (!validResponse(response, asset)) throw new Error('檔案下載失敗或內容格式不符');
         await cache.put(asset.url, response); successful.push(asset.url);
       } catch (error) {
