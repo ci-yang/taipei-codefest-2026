@@ -201,3 +201,72 @@
   .place-preview { padding: 15px 13px 10px; max-height: 43dvh; }
   .place-preview h2, .place-preview h3 { font-size: 16px; }
 }
+
+/* v4: destination is a reference pin; green routing belongs to resources. */
+#destination-reference {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 7px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px 5px 4px 12px;
+  border: 1px solid #697fa0;
+  border-radius: 18px;
+  background: #202b3af5;
+  box-shadow: 0 3px 12px #0003;
+}
+#destination-chip {
+  min-height: 36px;
+  max-width: calc(100% - 52px);
+  padding: 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  font-size: 12px;
+  color: #d5e5ff;
+}
+#clear-destination {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  background: #34435a;
+  color: #e2ebff;
+  font-size: 20px;
+}
+#destination-reference small { flex-basis: 100%; padding-bottom: 3px; color: #a8bdd9; font-size: 10px; }
+.destination-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50% 50% 50% 5px;
+  border: 2px solid #dfebff;
+  background: #698bc7;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 0 0 5px #87a7ec20, 0 4px 12px #0006;
+}
+#home-location-label { display: block; margin: 2px 0 8px; color: #c2cfb6; font-size: 11px; line-height: 1.6; }
+#home-resources { min-height: 44px; }
+.home-links { flex-wrap: wrap; gap: 6px; }
+#demo-location, #home-help { min-height: 44px; padding: 9px 7px; font-size: 11px; }
+#demo-location { color: #b7c6a9; }
+#preview-location-note { color: #9bb88a; font-size: 10px; margin: 5px 0; line-height: 1.6; }
+#preview-details, #preview-save-offline { flex: 1 1 42%; min-height: 46px; }
+#preview-refresh-location, #preview-help { flex: 1 1 42%; min-height: 44px; font-size: 11px; }
+.place-preview { max-height: min(350px, 46dvh); }
+.phone-shell:has(#place-preview:not([hidden])) .map-recenter {
+  top: auto;
+  bottom: calc(min(350px, 46dvh) + 28px);
+}
+#close-preview { min-width: 44px; width: 44px; min-height: 44px; height: 44px; right: 8px; top: 8px; }
+@media (max-height: 740px) {
+  #destination-reference { gap: 0 6px; padding-top: 1px; padding-bottom: 1px; }
+  #destination-reference small { padding-bottom: 3px; font-size: 9px; }
+  .place-preview { max-height: 46dvh; }
+  #home-location-label { margin-bottom: 2px; }
+}
