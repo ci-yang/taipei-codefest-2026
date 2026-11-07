@@ -22,10 +22,15 @@ export function findChrome() {
 
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8' };
 
-/** Serves `dir` on 127.0.0.1; `overrides` maps a path such as '/styles.css' to replacement text. */
+/**
+ * Serves `dir` on 127.0.0.1; `overrides` maps a path such as '/styles.css' to replacement text. `hits` lists every
+ * path requested, so a second server can stand in for an outside site and show what reached it.
+ */
 export async function serve(dir, overrides = {}) {
+  const hits = [];
   const server = createServer((req, res) => {
     const path = new URL(req.url, 'http://x').pathname;
+    hits.push(path);
     const file = normalize(join(dir, path));
     let body = overrides[path];
     if (body === undefined && file.startsWith(dir) && existsSync(file) && extname(file)) body = readFileSync(file);
@@ -33,7 +38,7 @@ export async function serve(dir, overrides = {}) {
     res.writeHead(200, { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream' }).end(body);
   });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  return { origin: `http://127.0.0.1:${server.address().port}`, close: () => new Promise((r) => server.close(r)) };
+  return { origin: `http://127.0.0.1:${server.address().port}`, hits, close: () => new Promise((r) => { server.close(r); server.closeAllConnections(); }) };
 }
 
 // Installed before any page script: every CSP violation the page sees.
@@ -41,23 +46,44 @@ const COLLECT = `window.__csp = [];
 document.addEventListener('securitypolicyviolation', (e) => window.__csp.push(
   { directive: e.effectiveDirective, blocked: e.blockedURI, sample: e.sample }));`;
 
-export async function launchChrome() {
+/**
+ * Starts headless Chrome and connects to it. If anything fails before the connection is up, Chrome is killed and its
+ * profile directory removed before the error is rethrown; the error carries `chromePid` and `profile` for checking.
+ * `options.mapWsUrl` rewrites the DevTools address before connecting (tests use it to force a failed connection).
+ */
+export async function launchChrome({ mapWsUrl = (url) => url } = {}) {
   const profile = mkdtempSync(join(tmpdir(), 'situation-csp-'));
-  const proc = spawn(findChrome(), ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`,
-    '--no-first-run', '--no-default-browser-check', '--disable-gpu', 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
-  const wsUrl = await new Promise((resolve, reject) => {
-    let err = '';
-    const timer = setTimeout(() => reject(new Error(`Chrome did not start within 15s:\n${err}`)), 15000);
-    proc.on('error', (e) => { clearTimeout(timer); reject(e); });
-    proc.on('exit', (code) => { clearTimeout(timer); reject(new Error(`Chrome exited (${code}):\n${err}`)); });
-    proc.stderr.on('data', (chunk) => {
-      err += chunk;
-      const m = err.match(/DevTools listening on (ws:\/\/\S+)/);
-      if (m) { clearTimeout(timer); resolve(m[1]); }
+  let proc;
+  const shutdown = async () => {
+    if (proc?.pid !== undefined && proc.exitCode === null && proc.signalCode === null) {
+      const exited = new Promise((r) => proc.once('exit', r));
+      proc.kill();
+      await exited;
+    }
+    rmSync(profile, { recursive: true, force: true });
+  };
+  let ws;
+  try {
+    proc = spawn(findChrome(), ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`,
+      '--no-first-run', '--no-default-browser-check', '--disable-gpu', 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
+    const wsUrl = await new Promise((resolve, reject) => {
+      let err = '';
+      const timer = setTimeout(() => reject(new Error(`Chrome did not start within 15s:\n${err}`)), 15000);
+      proc.on('error', (e) => { clearTimeout(timer); reject(e); });
+      proc.on('exit', (code) => { clearTimeout(timer); reject(new Error(`Chrome exited (${code}):\n${err}`)); });
+      proc.stderr.on('data', (chunk) => {
+        err += chunk;
+        const m = err.match(/DevTools listening on (ws:\/\/\S+)/);
+        if (m) { clearTimeout(timer); resolve(mapWsUrl(m[1])); }
+      });
     });
-  });
-  const ws = new WebSocket(wsUrl);
-  await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = () => reject(new Error(`cannot connect to ${wsUrl}`)); });
+    ws = new WebSocket(wsUrl);
+    await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = () => reject(new Error(`cannot connect to ${wsUrl}`)); });
+  } catch (error) {
+    ws?.close();
+    await shutdown();
+    throw Object.assign(error, { chromePid: proc?.pid, profile });
+  }
   let nextId = 0;
   const pending = new Map();
   const listeners = new Set();
@@ -104,9 +130,7 @@ export async function launchChrome() {
 
   async function close() {
     ws.close();
-    proc.kill();
-    await new Promise((r) => (proc.exitCode !== null ? r() : proc.once('exit', r)));
-    rmSync(profile, { recursive: true, force: true });
+    await shutdown();
   }
   return { open, close };
 }

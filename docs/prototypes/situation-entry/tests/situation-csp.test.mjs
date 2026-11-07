@@ -20,6 +20,7 @@ const EXPECTED = {
   'base-uri': ["'none'"],
   'form-action': ["'none'"],
   'object-src': ["'none'"],
+  'worker-src': ["'none'"],
 };
 
 /** Every CSP meta in the page's <head>, parsed into { directive: [sources] }. */
@@ -52,8 +53,11 @@ let chrome;
 before(async () => { chrome = await launchChrome(); });
 after(async () => { await chrome?.close(); });
 
-/** Serves the page (with optional file overrides), opens it, runs `script` in it, and returns what was logged. */
-async function runPage(overrides, script) {
+/**
+ * Serves the page (with optional file overrides), opens it, runs `script` in it, and returns what was logged.
+ * `outside` (optional) is a second local server standing in for another site; its `hits` show what reached it.
+ */
+async function runPage(overrides, script, outside) {
   const server = await serve(pageDir, overrides);
   try {
     const page = await chrome.open(`${server.origin}/index.html`);
@@ -64,7 +68,7 @@ async function runPage(overrides, script) {
     })()`);
     const violations = await page.evaluate('window.__csp');
     await page.close();
-    return { result, violations, errors: page.errors, requests: page.requests, origin: server.origin };
+    return { result, violations, errors: page.errors, requests: page.requests, origin: server.origin, outsideHits: [...(outside?.hits ?? [])] };
   } finally {
     await server.close();
   }
@@ -132,35 +136,115 @@ test('in Chrome the page works under its CSP with zero violations, errors or out
   assert.equal(result.backHome, data.situations.length);
 });
 
-// Review round 16: the three attacks that got past the source scans, each put into the real file it targets.
+// Review rounds 16 and 17: the attacks that got past the source scans, each put into the real file it targets. The
+// "outside site" is a second local server on another port (another origin), so nothing leaves the machine and the
+// test can see whether a request reached it.
 const PURPLE = 'rgb(102, 51, 153)';
-const ATTACKS = {
-  '/index.html': read('index.html').replace('<body>', '<body style="color: rebeccapurple">'),
-  '/app.js': read('app.js').replace('return (situation ? renderCard', 'return \'<link rel="stylesheet" href="https://evil.test/x.css">\' + (situation ? renderCard'),
-  '/styles.css': `${read('styles.css')}\n.app { background-image: url("ht\\\ntps://evil.test/a.png"); }\n`,
-};
-const ATTACK_CHECK = `return { bodyColor: getComputedStyle(document.body).color, appBackground: getComputedStyle(document.getElementById('app')).backgroundImage,
-  linked: !!document.querySelector('link[href^="https://evil.test"]') };`;
+const OUTSIDE_FILES = { '/x.css': '#app { letter-spacing: 7px; }', '/a.png': 'not really a png', '/from-worker': 'ok' };
+const ATTACK_NAMES = ['body', 'link', 'url', 'worker'];
+
+/** File overrides that plant the named attacks; `outside` is the outside server's origin. */
+function plant(names, outside, base = {}) {
+  const files = { ...base };
+  const edit = (path, change) => { files[path] = change(files[path] ?? read(path.slice(1))); };
+  for (const name of names) {
+    if (name === 'body') edit('/index.html', (t) => t.replace('<body>', '<body style="color: rebeccapurple">'));
+    if (name === 'link') edit('/app.js', (t) => t.replace('return (situation ? renderCard', `return '<link rel="stylesheet" href="${outside}/x.css">' + (situation ? renderCard`));
+    if (name === 'url') edit('/styles.css', (t) => `${t}\n.app { background-image: url("${outside.replace('http', 'ht\\\ntp')}/a.png"); }\n`);
+    if (name === 'worker') files['/worker.js'] = `fetch('${outside}/from-worker').catch(() => {}); postMessage('ran');`;
+  }
+  return files;
+}
+
+// Starts a same-origin Worker (a 404 when the worker attack is not planted), then lets every request settle.
+const ATTACK_CHECK = `let workerRan = false, workerError = '';
+  try {
+    const w = new Worker('/worker.js');
+    await new Promise((r) => { w.onmessage = () => { workerRan = true; r(); }; w.onerror = () => r(); setTimeout(r, 1000); });
+  } catch (e) { workerError = e.name; }
+  await new Promise((r) => setTimeout(r, 300));
+  const app = document.getElementById('app');
+  return { bodyColor: getComputedStyle(document.body).color, appBackground: getComputedStyle(app).backgroundImage,
+    appLetterSpacing: getComputedStyle(app).letterSpacing, linked: !!document.querySelector('link[href$="/x.css"]'), workerRan, workerError };`;
+
+/** Whether each attack actually took effect: the style applied, or the request reached the outside server. */
+function landed({ result, outsideHits }) {
+  return {
+    body: result.bodyColor === PURPLE,
+    link: outsideHits.includes('/x.css') && result.appLetterSpacing === '7px',
+    url: outsideHits.includes('/a.png') && /127\.0\.0\.1/.test(result.appBackground),
+    worker: result.workerRan && outsideHits.includes('/from-worker'),
+  };
+}
+const assertAllLanded = (run) => assert.deepEqual(landed(run), Object.fromEntries(ATTACK_NAMES.map((n) => [n, true])),
+  `attacks that did not take effect without the CSP: ${JSON.stringify({ result: run.result, outsideHits: run.outsideHits })}`);
+
+/** Runs the page with `names` planted, against a fresh outside server. `edit` can change the served index.html. */
+async function runAttacks(names, edit = (html) => html) {
+  const outside = await serve(pageDir, OUTSIDE_FILES);
+  try {
+    const files = plant(names, outside.origin);
+    files['/index.html'] = edit(files['/index.html'] ?? read('index.html'));
+    return await runPage(files, ATTACK_CHECK, outside);
+  } finally {
+    await outside.close();
+  }
+}
+const CSP_META = /\s*<meta http-equiv="Content-Security-Policy"[^>]*>/;
+const withoutCsp = (html) => { const out = html.replace(CSP_META, ''); assert.notEqual(out, html, 'CSP meta was not removed'); return out; };
 
 test('attack mutations apply to the served files', () => {
-  for (const [path, text] of Object.entries(ATTACKS)) assert.notEqual(text, read(path.slice(1)), `${path} mutation did not apply`);
+  const files = plant(ATTACK_NAMES, 'http://127.0.0.1:9');
+  for (const path of ['/index.html', '/app.js', '/styles.css']) assert.notEqual(files[path], read(path.slice(1)), `${path} mutation did not apply`);
+  assert.ok(files['/worker.js']);
 });
 
-test('in Chrome the CSP blocks a body style attribute, a rendered outside <link> and a backslash-newline url()', async () => {
-  const { result, violations } = await runPage(ATTACKS, `await new Promise((r) => setTimeout(r, 300)); ${ATTACK_CHECK}`);
+test('in Chrome the CSP blocks a body style, an outside <link>, a backslash-newline url() and a same-origin Worker', async () => {
+  const run = await runAttacks(ATTACK_NAMES);
+  const { result, violations, outsideHits } = run;
   assert.ok(result.linked, 'app.js did not render the injected <link>');
-  assert.match(result.appBackground, /evil\.test/, 'Chrome did not read the backslash-newline url as an outside address');
-  assert.notEqual(result.bodyColor, PURPLE, 'the inline body style was applied');
+  assert.match(result.appBackground, /127\.0\.0\.1/, 'Chrome did not read the backslash-newline url as an outside address');
+  assert.deepEqual(landed(run), { body: false, link: false, url: false, worker: false });
+  assert.deepEqual(outsideHits, [], 'requests reached the outside server');
   const seen = (directive, blocked) => violations.some((v) => v.directive === directive && v.blocked.startsWith(blocked));
   assert.ok(seen('style-src-attr', 'inline'), `no violation for the body style: ${JSON.stringify(violations)}`);
-  assert.ok(seen('style-src-elem', 'https://evil.test/x.css'), `no violation for the outside <link>: ${JSON.stringify(violations)}`);
-  assert.ok(seen('img-src', 'https://evil.test/a.png'), `no violation for the backslash-newline url: ${JSON.stringify(violations)}`);
+  assert.ok(seen('style-src-elem', 'http://127.0.0.1:'), `no violation for the outside <link>: ${JSON.stringify(violations)}`);
+  assert.ok(seen('img-src', 'http://127.0.0.1:'), `no violation for the backslash-newline url: ${JSON.stringify(violations)}`);
+  assert.ok(violations.some((v) => v.directive === 'worker-src' && v.blocked.endsWith('/worker.js')), `no violation for the Worker: ${JSON.stringify(violations)}`);
 });
 
-test('mutation: without the CSP meta the same attacks get through (so the test above depends on the CSP)', async () => {
-  const noCsp = { ...ATTACKS, '/index.html': ATTACKS['/index.html'].replace(/\s*<meta http-equiv="Content-Security-Policy"[^>]*>/, '') };
-  assert.notEqual(noCsp['/index.html'], ATTACKS['/index.html'], 'CSP meta was not removed');
-  const { result, violations } = await runPage(noCsp, ATTACK_CHECK);
-  assert.deepEqual(violations, []);
-  assert.equal(result.bodyColor, PURPLE);
+test('control: without the CSP meta every attack takes effect and reaches the outside server', async () => {
+  const run = await runAttacks(ATTACK_NAMES, withoutCsp);
+  assert.deepEqual(run.violations, []);
+  assertAllLanded(run);
+});
+
+test('mutation: the control fails when any one attack is left out', async () => {
+  for (const missing of ATTACK_NAMES) {
+    const run = await runAttacks(ATTACK_NAMES.filter((n) => n !== missing), withoutCsp);
+    assert.throws(() => assertAllLanded(run), `control still passed without the ${missing} attack`);
+    assert.equal(landed(run)[missing], false, `${missing} counted as landed although it was not planted`);
+  }
+});
+
+test('mutation: without worker-src a same-origin Worker runs (script-src \'self\' would allow it) and reaches the outside server', async () => {
+  const run = await runAttacks(['worker'], (html) => { const out = html.replace("; worker-src 'none'", ''); assert.notEqual(out, html); return out; });
+  assert.equal(landed(run).worker, true, JSON.stringify(run.result));
+});
+
+test('in Chrome default-src \'none\' already blocks frames, media and the web app manifest', async () => {
+  const outside = await serve(pageDir, {});
+  try {
+    const { violations, outsideHits } = await runPage({}, `
+      const add = (html) => document.body.insertAdjacentHTML('beforeend', html);
+      add('<iframe src="${outside.origin}/frame"></iframe><audio src="${outside.origin}/a.mp3" autoplay></audio><video src="${outside.origin}/v.mp4"></video>');
+      document.head.insertAdjacentHTML('beforeend', '<link rel="manifest" href="${outside.origin}/m.json">');
+      await new Promise((r) => setTimeout(r, 500));`, outside);
+    assert.deepEqual(outsideHits, [], 'requests reached the outside server');
+    for (const directive of ['frame-src', 'media-src', 'manifest-src']) {
+      assert.ok(violations.some((v) => v.directive === directive), `no ${directive} violation: ${JSON.stringify(violations)}`);
+    }
+  } finally {
+    await outside.close();
+  }
 });

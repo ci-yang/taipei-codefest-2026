@@ -68,11 +68,13 @@ pnpm test:situation        # 檢查 situations-data.js 與 data/situation/ 同�
 `index.html` 的 `<head>` 第一行是 CSP meta，只允許頁面自己的檔案：
 
 ```
-default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'
+default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; worker-src 'none'
 ```
 
 - 這是主要防線：style 屬性、內嵌 `<style>`、外部 `<link>`、`@import`、外部圖片和字型，瀏覽器直接拒絕，寫法再怎麼繞都一樣。`frame-ancestors` 在 meta 裡無效，所以沒寫。
-- `tests/situation-csp.test.mjs` 用 headless Chrome（`tests/chrome.mjs`，走 DevTools protocol，不加套件）實際開頁面：首頁、搜尋、分類、八張卡、選區、勾選、日夜切換，`securitypolicyviolation` 必須是 0、沒有 console 錯誤、沒有連到別的來源。再把審查列的三種攻擊（body style、app.js 渲染的外部 `<link>`、反斜線換行拼出的 `url()`）放進實際檔案，確認 Chrome 擋下並觸發違規；拿掉 CSP 後同樣的攻擊會生效，證明測試靠的是 CSP。找不到 Chrome 就失敗（可用 `CHROME_PATH` 指定），不會 skip。
+- `tests/situation-csp.test.mjs` 用 headless Chrome（`tests/chrome.mjs`，走 DevTools protocol，不加套件）實際開頁面：首頁、搜尋、分類、八張卡、選區、勾選、日夜切換，`securitypolicyviolation` 必須是 0、沒有 console 錯誤、沒有連到別的來源。再把審查列的四種攻擊（body style、app.js 渲染的外部 `<link>`、反斜線換行拼出的 `url()`、同源 Worker 對外 `fetch`）放進實際檔案，確認 Chrome 擋下、各自觸發違規、外部伺服器沒收到請求。「外部」是本機另一個 port 的測試伺服器（不同 origin），不連外網，它記錄收到哪些請求。對照組拿掉 CSP 後，四種攻擊都要實際生效：body 文字變色、外部 CSS 被抓且 `letter-spacing` 生效、外部圖片被抓、worker 執行並連到外部伺服器；變異測試逐一拿掉其中一種攻擊，對照組的斷言必須失敗。找不到 Chrome 就失敗（可用 `CHROME_PATH` 指定），不會 skip。Chrome 啟動逾時、提早結束或 DevTools 連不上時，`chrome.mjs` 會先 kill Chrome、刪掉暫存的 user-data-dir 再丟錯；`tests/situation-chrome.test.mjs` 故意連到錯的 port，確認程序與 profile 都沒留下。測試用的本機伺服器關閉時會一併切斷 keep-alive 連線，免得卡住。
+- `worker-src 'none'` 一定要明寫：沒寫時 worker 退回 `child-src`、再退回 `script-src 'self'`，同源的 `new Worker('/x.js')` 就能啟動，而 worker 不吃頁面這組 CSP，可以自己 `fetch` 出去，繞過 `connect-src 'none'`，頁面的 `securitypolicyviolation` 也不會回報（第 17 輪審查實測）。測試裡拿掉 `worker-src` 這一項，worker 確實跑起來並連到外部伺服器。
+- `child-src`、`frame-src`、`media-src`、`manifest-src` 沒另外寫：它們都會退回 `default-src 'none'`（`frame-src` 先退回 `child-src`，`child-src` 再退回 `default-src`），沒有像 worker 那樣中途接到 `'self'` 的來源。測試在 Chrome 實際插入外部 `<iframe>`、`<audio>`、`<video>`、`<link rel="manifest">`，確認分別觸發 `frame-src`、`media-src`、`manifest-src` 違規，外部伺服器一個請求都沒收到。
 - `<link rel="icon" href="data:,">` 是空圖示，讓瀏覽器不去要 `/favicon.ico`（原本每次都 404）。
 - 原有的 `css-audit.mjs` 與 `situation-inline-style.test.mjs` 保留，當第二道防線。
 - **TownPass bridge 不受這組 CSP 影響（判斷，待真機確認）**：
