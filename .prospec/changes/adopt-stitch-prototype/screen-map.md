@@ -1,6 +1,6 @@
 # 畫面與來源對照：後續實作必讀
 
-本版為 **Ci 待審閱原型**。依本輪「先取代 prototype、用 prospec design、後續照 design 與截圖」指示，採 Extract 並先製作可操作版本供審閱；未將本次擷取視為正式路由計畫簽核。
+本版已由 **Ci 於 2026-11-07 確認並授權部署、重包 APK**。依「先取代 prototype、用 prospec design、後續照 design 與截圖」指示，採 Extract 製作可操作版本；這次確認設計及發布，不代表真正道路路由或交通估時已有計畫簽核。
 
 - 規格：本目錄 proposal.md、design-spec.md、interaction-spec.md。
 - 來源清單：`docs/design/stitch-20261107/manifest.json`，含實際畫布節點識別、匯出檔名與 SHA-256。
@@ -38,4 +38,4 @@
 5. 跑 `pnpm test:prototype` 與 `node --test scripts/build-friendly-app.test.mjs`；定位、目的地／資源獨立、離線、未知資料與無bridge退路均要保留。
 6. 確認資料來源、更新日、圖資署名仍可讀；不出現虛構商家、評分、免費條件、營業狀態、分鐘、路況或認證比例。
 7. 在交接證據中列出每張原稿、對應實作截圖、差異與審查結果。**結構驗證通過不等於畫面一致**；人工視覺核對不可省略。
-8. Ci 審閱本版後再定正式設計基準；本 change 保留 story 狀態，不用原型完成冒充 plan／implement／verify 都已通過。
+8. Ci 已確認本版設計可發布；本 change 保留 story 狀態，後續正式功能規劃接 prospec-plan，不用原型部署冒充 plan／implement／verify 都已通過。

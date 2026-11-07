@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-11-07T12:51:35.410488+00:00",
+  "status": "PASS_WITH_LIMITATIONS",
+  "artifactValidation": "PASS",
+  "receiptPath": "/Users/ciyang/Documents/repos/tcf-stitch-prototype/.artifacts/townpass/2026-11-07T12-48-27.742Z.json",
+  "serviceUrl": "https://taipei-friendly-platform.jason21131.workers.dev",
+  "checks": {
+    "sourceOutputDownloadAndChecksumMatch": true,
+    "sizesMatchReceipt": true,
+    "sourceOutputMtimeWithinBuildWindow": true,
+    "downloadIsFresh": true,
+    "apkFilesStableDuringVerification": true,
+    "townpassSourceMatchesExpectedCommitAndBranch": true,
+    "townpassWorktreeCleanBeforeAndAfter": true,
+    "requiredPermissionsPresent": true,
+    "manifestNotDebuggable": true,
+    "apkV2SignatureValid": true,
+    "debugCertificateMatchesPreviousApk": true,
+    "allThreeAbisContainExpectedUrl": true
+  },
+  "townpassStateBeforeVerification": {
+    "sourceSha": "e3ea904f80ef378704c634a0195cb43a020bf217",
+    "repoDirty": false,
+    "branch": "feat/stitch-direct-app"
+  },
+  "townpassStateAfterVerification": {
+    "sourceSha": "e3ea904f80ef378704c634a0195cb43a020bf217",
+    "repoDirty": false,
+    "branch": "feat/stitch-direct-app"
+  },
+  "buildReceiptWindow": {
+    "startedAt": "2026-11-07T12:48:27.742Z",
+    "completedAt": "2026-11-07T12:49:48.912Z"
+  },
+  "platformStateRecordedInReceipt": {
+    "sourceSha": "40360b60a8ac24c9669d11fcd9464efeb7712101",
+    "repoDirty": true
+  },
+  "sourceApk": {
+    "path": "/Users/ciyang/Documents/repos/TownPass-stitch-20261107/build/app/outputs/flutter-apk/app-release.apk",
+    "bytes": 115282208,
+    "sha256": "cf893b7848190f247d09db33d5e6b17787f0474cc9b428a69b240b53d7146761",
+    "mtime": "2026-11-07T12:49:47.817266+00:00",
+    "mtimeNs": 1794055787817266283
+  },
+  "downloadApk": {
+    "path": "/Users/ciyang/Downloads/friendly-taipei-stitch-20261107.apk",
+    "bytes": 115282208,
+    "sha256": "cf893b7848190f247d09db33d5e6b17787f0474cc9b428a69b240b53d7146761",
+    "mtime": "2026-11-07T12:50:28.282437+00:00",
+    "mtimeNs": 1794055828282437107,
+    "checksumPath": "/Users/ciyang/Downloads/friendly-taipei-stitch-20261107.apk.sha256",
+    "checksumFileContents": "cf893b7848190f247d09db33d5e6b17787f0474cc9b428a69b240b53d7146761  friendly-taipei-stitch-20261107.apk"
+  },
+  "androidManifest": {
+    "package": "com.example.townpass",
+    "versionCode": "1",
+    "versionName": "0.0.12",
+    "permissions": [
+      "android.permission.ACCESS_COARSE_LOCATION",
+      "android.permission.ACCESS_FINE_LOCATION",
+      "android.permission.ACCESS_BACKGROUND_LOCATION",
+      "android.permission.INTERNET",
+      "android.permission.VIBRATE",
+      "android.permission.POST_NOTIFICATIONS",
+      "android.permission.CAMERA",
+      "com.example.townpass.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+      "android.permission.ACCESS_NETWORK_STATE"
+    ],
+    "debuggable": false,
+    "explicitDebuggableAttributes": [],
+    "minSdk": "24",
+    "targetSdk": "36"
+  },
+  "signature": {
+    "valid": true,
+    "schemeV2": true,
+    "signerDn": "C=US, O=Android, CN=Android Debug",
+    "certificateSha256": "3ea0832f68f142125f4d5a738f2516e0b889d8f08193715ed540d9b1c01b3c76",
+    "matchesPriorCertificate": true,
+    "androidDebugCertificate": true,
+    "productionSigning": "NOT_READY_DEBUG_CERTIFICATE",
+    "apksignerOutput": "Verifies\nVerified using v1 scheme (JAR signing): false\nVerified using v2 scheme (APK Signature Scheme v2): true\nVerified using v3 scheme (APK Signature Scheme v3): false\nVerified using v3.1 scheme (APK Signature Scheme v3.1): false\nVerified using v4 scheme (APK Signature Scheme v4): false\nVerified for SourceStamp: false\nNumber of signers: 1\nSigner #1 certificate DN: C=US, O=Android, CN=Android Debug\nSigner #1 certificate SHA-256 digest: 3ea0832f68f142125f4d5a738f2516e0b889d8f08193715ed540d9b1c01b3c76\nSigner #1 certificate SHA-1 digest: c231b68ef007e62859ae35f79d7f3a9a31c5a46e\nSigner #1 certificate MD5 digest: 7c13b98f7b143a6e4fc0329465c97d84\nSigner #1 key algorithm: RSA\nSigner #1 key size (bits): 2048\nSigner #1 public key SHA-256 digest: 4b8dc8f4601b9b41d64cb02cf0bdeaeb50185848147a9576be3cf04f63d767e7\nSigner #1 public key SHA-1 digest: ecbc1f792109be913a4580f4c48111bea58bda6a\nSigner #1 public key MD5 digest: 2c2dbf960b6f2352eddfe6caadd08735"
+  },
+  "nativeLibs": {
+    "arm64-v8a": {
+      "entry": "lib/arm64-v8a/libapp.so",
+      "bytes": 6685576,
+      "sha256": "077331da65ea445ae1a7ace7d488af12f077b0f6ebaee307e3fbfed81791263e",
+      "expectedServiceUrlOccurrences": 1
+    },
+    "armeabi-v7a": {
+      "entry": "lib/armeabi-v7a/libapp.so",
+      "bytes": 7438920,
+      "sha256": "d03ca55c9d9db46170e187b0d097094f26347c9ed601a036cb8f8e9a8df1da92",
+      "expectedServiceUrlOccurrences": 1
+    },
+    "x86_64": {
+      "entry": "lib/x86_64/libapp.so",
+      "bytes": 6947720,
+      "sha256": "640b734f65939a8556d69f49b0bc1c4de1b2f4a4ac39a671ee25d455ce29f8d9",
+      "expectedServiceUrlOccurrences": 1
+    }
+  },
+  "devices": {
+    "adbCommand": "adb devices -l",
+    "output": "List of devices attached",
+    "connectedCount": 0,
+    "installationAttempted": false,
+    "runtimeValidation": "NOT_RUN"
+  },
+  "limitations": [
+    "APK is a non-debuggable release-mode build signed with the same Android Debug certificate as the earlier APK; dedicated production signing is not configured.",
+    "No connected Android device was reported; installation, GPS permission, WebView navigation and offline runtime were not exercised.",
+    "The build receipt records a dirty platform prototype worktree; the native TownPass source checkout is independently confirmed clean at the expected commit.",
+    "URL bytes are verified in each ABI; this APK loads the remote application and does not pin or attest the current remote web content.",
+    "Historical build-time clean states are reported by the receipt; this independent check validates current clean native source and artifact integrity, not a reproducible rebuild."
+  ],
+  "tools": {
+    "aapt2": "/Users/ciyang/Library/Android/sdk/build-tools/36.0.0/aapt2",
+    "apksigner": "/Users/ciyang/Library/Android/sdk/build-tools/36.0.0/apksigner",
+    "javaHome": "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
+  },
+  "mutations": {
+    "codeChanges": false,
+    "deviceInstall": false,
+    "remoteActions": false,
+    "onlyWrittenFile": "/Users/ciyang/Documents/repos/tcf-stitch-prototype/.artifacts/townpass/2026-11-07-stitch-apk-verification.json"
+  }
+}

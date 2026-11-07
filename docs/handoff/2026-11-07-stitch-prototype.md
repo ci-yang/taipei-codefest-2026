@@ -2,6 +2,8 @@
 
 本輪唯一主線：依 Ci 指定的 Stitch 設計先更新可操作原型，排除個人帳號，建立後續實作的設計及截圖依據。
 
+後續進度：Ci 已明確回覆「好部署跟包 apk」，此設計已於 2026-11-07 20:44（臺北）發布至正式 App。以下保留原型交接當時狀態；最新發布及 APK 結果見同目錄的 `2026-11-07-stitch-release.md`。
+
 - 預覽：https://ci-share.pages.dev/4b3e8e0e61010e79/ （直接開 App；持有連結者可觀看）
 - 草稿 PR：https://github.com/ci-yang/taipei-codefest-2026/pull/6
 - 分支：`design/stitch-friendly-app`；主要改版 commit `114ca6ff9a2b8b88fb74ba7fa90d02eafca980fa`。
