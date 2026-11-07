@@ -1,5 +1,6 @@
 /* 行動卡（設計方向 B）: each situation is a physical-feeling card — safety-yellow band, huge number,
- * perforated parts. Night turns the desk dark and the band teal, so the period reads at a glance.
+ * perforated parts. Night is the same deck under a desk lamp: dark slate card stock on a darker desk,
+ * the yellow band dimmed to amber, the call button lit in light teal. No surface is pure white at night.
  * Base tokens from TownPass tp_colors.dart (grayscale / primary / secondary); night desk and urgent red are derived. */
 :root {
   --desk: #e3e7e9;          /* grayscale100 */
@@ -24,17 +25,62 @@
   --sos-bg: #ffffff;
   --closed: #8a5a12;        /* "不在服務時間" text on tint, 6.5:1 */
   --desk-link: #22474e;     /* links sitting on the desk (home footer, card foot) */
+  --on-go: #ffffff;         /* text on --go and --tick fills */
+  --urgent-text: #b3261e;   /* urgent red used as text or outline */
+  --pending-ink: #6b4a14;
+  --focus: #5ab4c5;
+  /* category chips */
+  --cat-bg: transparent;
+  --cat-edge: var(--on-desk);
+  --cat-ink: var(--on-desk);
+  --cat-count-bg: var(--on-desk);
+  --cat-count-ink: var(--desk);
+  --cat-on-bg: var(--on-desk);
+  --cat-on-ink: var(--desk);
+  --cat-on-count-bg: var(--band);
+  --cat-on-count-ink: var(--band-ink);
+  --cat-empty-ink: var(--on-desk-muted);
+  --cat-empty-style: dashed;
 }
+/* Night tokens. Contrast (WCAG): ink on paper 11.3:1, muted on paper 7.1:1, muted on tint 5.7:1,
+ * on-go on go 10.6:1, band-ink on band 7.6:1, urgent-text on paper 7.5:1 — checked in tests/situation-night.test.mjs. */
 :root[data-period="night"] {
   --desk: #13262b;
-  --on-desk: #ffffff;
-  --on-desk-muted: #b8c8ce;
+  --on-desk: #eef3f4;
+  --on-desk-muted: #b3c5cb;
+  --paper: #1f363d;         /* card stock: dark slate, a step above the desk */
+  --ink: #eef3f4;
+  --muted: #b3c5cb;
+  --rule: #3f5c64;
+  --tint: #2a454c;
   --edge: #050c0e;
-  --band: #2b6470;
-  --band-ink: #ffffff;
-  --band-sub: #d7eef2;
+  --band: #d6a443;          /* safety yellow under a lamp */
+  --band-ink: #171b1d;
+  --band-sub: #3a2d17;
+  --go: #8fd3de;            /* call button + links on the card */
+  --go-press: #5fa9b5;
+  --on-go: #0b1a1e;
+  --tick: #8fd3de;
+  --blank: #3d3520;
+  --blank-edge: #d6a443;
+  --urgent-soft: #3d2423;
+  --urgent-text: #ffb4ab;
+  --closed: #f2c57c;
+  --pending-ink: #f2d6a2;
   --sos-bg: #0b1a1e;
   --desk-link: #9fdbe6;     /* 10:1 on the night desk */
+  --focus: #6aa8b3;         /* focus ring: 5.9:1 on desk, 4.8:1 on paper, not a glow */
+  --cat-bg: var(--paper);
+  --cat-edge: var(--rule);
+  --cat-ink: var(--ink);
+  --cat-count-bg: var(--tint);
+  --cat-count-ink: var(--ink);
+  --cat-on-bg: var(--band);
+  --cat-on-ink: var(--band-ink);
+  --cat-on-count-bg: var(--band-ink);
+  --cat-on-count-ink: var(--band);
+  --cat-empty-ink: var(--muted);
+  --cat-empty-style: solid;
 }
 
 * { box-sizing: border-box; }
@@ -51,7 +97,11 @@ body {
 .app { max-width: 480px; margin: 0 auto; padding: 8px 16px calc(140px + env(safe-area-inset-bottom)); }
 button { font: inherit; color: inherit; }
 a { color: var(--go); }
-:focus-visible { outline: 3px solid #5ab4c5; outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+}
 
 /* top bar */
 .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 60px; color: var(--on-desk); }
@@ -79,7 +129,7 @@ a { color: var(--go); }
   box-shadow: 0 4px 0 var(--edge); cursor: text;
 }
 .search-field svg { flex: none; color: var(--muted); }
-.search-field:focus-within { outline: 3px solid #5ab4c5; outline-offset: 2px; }
+.search-field:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
 .search-field:focus-within svg { color: var(--ink); }
 .search input {
   flex: 1; min-width: 0; height: 54px; padding: 0; border: 0; background: transparent; color: var(--ink);
@@ -99,17 +149,17 @@ a { color: var(--go); }
 .cats { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
 .cat {
   flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 7px 0 13px; white-space: nowrap;
-  border: 2px solid var(--on-desk); border-radius: 999px; background: transparent; color: var(--on-desk);
+  border: 2px solid var(--cat-edge); border-radius: 999px; background: var(--cat-bg); color: var(--cat-ink);
   font-size: 15px; font-weight: 700; cursor: pointer;
 }
 .cat-count {
   display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 999px;
-  background: var(--on-desk); color: var(--desk); font-size: 14px; font-variant-numeric: tabular-nums;
+  background: var(--cat-count-bg); color: var(--cat-count-ink); font-size: 14px; font-variant-numeric: tabular-nums;
 }
-.cat.is-on { background: var(--on-desk); color: var(--desk); }
-.cat.is-on .cat-count { background: var(--band); color: var(--band-ink); }
-.cat.is-empty:not(.is-on) { border-style: dashed; color: var(--on-desk-muted); border-color: var(--on-desk-muted); }
-.cat.is-empty:not(.is-on) .cat-count { background: transparent; color: var(--on-desk-muted); }
+.cat.is-on { background: var(--cat-on-bg); border-color: var(--cat-on-bg); color: var(--cat-on-ink); }
+.cat.is-on .cat-count { background: var(--cat-on-count-bg); color: var(--cat-on-count-ink); }
+.cat.is-empty:not(.is-on) { border-style: var(--cat-empty-style); color: var(--cat-empty-ink); border-color: var(--cat-empty-ink); }
+.cat.is-empty:not(.is-on) .cat-count { background: transparent; color: var(--cat-empty-ink); }
 
 /* home: nothing matched — a next step, not a dead end */
 .nomatch {
@@ -121,7 +171,7 @@ a { color: var(--go); }
 .nomatch-body { margin: 6px 0 0; font-size: 17px; }
 .nomatch .dial { margin-top: 14px; }
 .nomatch-sos {
-  margin: 16px 0 0; padding: 10px 12px; border-left: 4px solid var(--urgent); border-radius: 0 8px 8px 0;
+  margin: 16px 0 0; padding: 10px 12px; border-left: 4px solid var(--urgent-text); border-radius: 0 8px 8px 0;
   background: var(--urgent-soft); font-size: 16px; font-weight: 700;
 }
 .nomatch-more { margin: 14px 0 0; font-size: 16px; color: var(--muted); }
@@ -157,7 +207,7 @@ a { color: var(--go); }
 }
 .mini-label {
   grid-row: span 2; align-self: start; margin-top: 3px; padding: 1px 8px; border-radius: 6px;
-  background: var(--go); color: #fff; font-size: 14px; font-weight: 700;
+  background: var(--go); color: var(--on-go); font-size: 14px; font-weight: 700;
 }
 .mini-who { font-size: 17px; font-weight: 700; }
 .mini-number { font-size: 30px; font-weight: 800; line-height: 1.2; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
@@ -168,12 +218,11 @@ a { color: var(--go); }
 .mini-hours.is-closed { color: var(--closed); font-weight: 700; }
 
 /* reserved: urgent cards put an emergency number first (no content yet) */
-.group.is-urgent .group-title { color: var(--urgent); }
-:root[data-period="night"] .group.is-urgent .group-title { color: #ffb4ab; }
+.group.is-urgent .group-title { color: var(--urgent-text); }
 .is-urgent .mini-band, .card.is-urgent .band { background: var(--urgent); color: #fff; }
 .card.is-urgent .band-sub { color: #ffe9e6; }
-.is-urgent .mini-label { background: var(--urgent); }
-.mini-label.is-closed { background: var(--closed); }
+.is-urgent .mini-label { background: var(--urgent); color: #fff; }
+.mini-label.is-closed { background: #8a5a12; color: #fff; }
 
 /* home: how this page works */
 .trust {
@@ -187,7 +236,6 @@ a { color: var(--go); }
 .trust-list li::before {
   content: ""; position: absolute; left: 2px; top: 0.6em; width: 8px; height: 8px; border-radius: 2px; background: var(--band);
 }
-:root[data-period="night"] .trust-list li::before { background: #5ab4c5; }
 .trust a, .foot a { color: var(--desk-link); }
 .trust-date { margin: 14px 0 0; font-size: 14px; color: var(--on-desk-muted); }
 
@@ -227,7 +275,7 @@ a { color: var(--go); }
 .hours.is-closed { padding: 6px 10px; border-radius: 8px; background: var(--blank); color: var(--closed); }
 .dial {
   display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 64px; margin-top: 14px;
-  border-radius: 14px; background: var(--go); color: #fff; font-size: 21px; font-weight: 800; text-decoration: none;
+  border-radius: 14px; background: var(--go); color: var(--on-go); font-size: 21px; font-weight: 800; text-decoration: none;
   box-shadow: 0 4px 0 var(--go-press);
 }
 .dial:active { background: var(--go-press); transform: translateY(2px); box-shadow: 0 2px 0 var(--go-press); }
@@ -242,7 +290,7 @@ a { color: var(--go); }
   min-height: 54px; border: 2px solid var(--ink); border-radius: 10px; background: var(--paper);
   font-size: 19px; font-weight: 700; cursor: pointer; box-shadow: 0 3px 0 var(--ink);
 }
-.chip:active { background: #f5ba4b; transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.chip:active { background: var(--band); color: var(--band-ink); transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
 
 .script { margin: 0; font-size: 21px; line-height: 1.95; font-weight: 500; }
 .script-src { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 6px 0 0; font-size: 15px; color: var(--muted); }
@@ -261,14 +309,14 @@ a { color: var(--go); }
   display: grid; place-items: center; background: var(--paper);
 }
 .check input:checked + .box { background: var(--tick); border-color: var(--tick); }
-.check input:checked + .box::after { content: ""; width: 8px; height: 14px; margin-top: -3px; border: solid #fff; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+.check input:checked + .box::after { content: ""; width: 8px; height: 14px; margin-top: -3px; border: solid var(--on-go); border-width: 0 3px 3px 0; transform: rotate(45deg); }
 .check input:checked ~ .check-text { color: var(--tick); }
-.check input:focus-visible + .box { outline: 3px solid #5ab4c5; outline-offset: 2px; }
+.check input:focus-visible + .box { outline: 3px solid var(--focus); outline-offset: 2px; }
 .check-text { font-size: 17px; }
 .checks .ref { margin-top: 2px; margin-right: -6px; }
 
 .know-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 17px; }
-.know-list li { padding-left: 14px; border-left: 4px solid #f5ba4b; }
+.know-list li { padding-left: 14px; border-left: 4px solid var(--band); }
 
 /* text + its one source button side by side; the button keeps its own 44px column */
 .with-ref { display: flex; align-items: flex-start; gap: 8px; }
@@ -279,7 +327,7 @@ a { color: var(--go); }
 
 .pending {
   margin: 0 2px; padding: 0 5px; border: 1.5px solid var(--blank-edge); border-radius: 5px;
-  background: var(--blank); color: #6b4a14; font-weight: 800; white-space: nowrap;
+  background: var(--blank); color: var(--pending-ink); font-weight: 800; white-space: nowrap;
 }
 
 /* below the card: plain rows */
@@ -331,19 +379,16 @@ a { color: var(--go); }
   padding: 6px 12px calc(8px + env(safe-area-inset-bottom));
   background: var(--sos-bg); border-top: 2px solid var(--edge);
 }
-.sos-head { max-width: 456px; margin: 0 auto 4px; font-size: 13px; font-weight: 700; color: var(--urgent); }
-:root[data-period="night"] .sos-head { color: #ffb4ab; }
+.sos-head { max-width: 456px; margin: 0 auto 4px; font-size: 13px; font-weight: 700; color: var(--urgent-text); }
 .sos-row { display: grid; grid-template-columns: 1fr 1fr 1.4fr 1fr; gap: 6px; max-width: 456px; margin: 0 auto; }
 .sos-call {
   display: grid; justify-items: center; align-content: center; min-height: 56px; padding: 4px 2px;
-  border: 2px solid var(--urgent); border-radius: 10px; background: var(--paper); color: var(--urgent);
+  border: 2px solid var(--urgent-text); border-radius: 10px; background: var(--paper); color: var(--urgent-text);
   text-decoration: none; line-height: 1.15; text-align: center;
 }
 .sos-call b { font-size: 21px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .sos-call span { font-size: 12px; font-weight: 700; color: var(--ink); white-space: nowrap; }
 .sos-call:active { background: var(--urgent-soft); }
-:root[data-period="night"] .sos-call { border-color: #ffb4ab; background: #13262b; color: #ffb4ab; }
-:root[data-period="night"] .sos-call span { color: #ffffff; }
 
 .call-status {
   position: fixed; left: 16px; right: 16px; bottom: calc(100px + env(safe-area-inset-bottom)); z-index: 6; margin: 0 auto; max-width: 448px;

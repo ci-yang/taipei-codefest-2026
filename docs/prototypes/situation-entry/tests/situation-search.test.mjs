@@ -127,3 +127,47 @@ test('privacy: the query is never stored, put in the URL or sent', () => {
   assert.ok(!/<input[^>]*\sname=/.test(html), 'a named input could end up in a URL');
   for (const [, href] of html.matchAll(/href="([^"]+)"/g)) assert.ok(!href.includes('被騙') && !href.includes(encodeURIComponent('被騙')), `link carries the query: ${href}`);
 });
+
+const visibleText = (html) => plain(html.replace(/<p class="sr-only"[^>]*>.*?<\/p>/g, ''));
+const srOnly = (html) => [...html.matchAll(/<p class="sr-only"[^>]*>(.*?)<\/p>/g)].map((m) => m[1]).join('');
+
+test('result count: no count sentence on screen, only in the sr-only live region', () => {
+  for (const filter of [{ query: '被騙', category: 'all' }, { query: '', category: 'safety' }, { query: '外星人', category: 'all' }]) {
+    const html = app.renderHome(data, day, filter);
+    assert.ok(!/張卡/.test(visibleText(html)), `count sentence visible for ${JSON.stringify(filter)}`);
+    assert.ok(srOnly(html).length > 0, `no screen-reader count for ${JSON.stringify(filter)}`);
+  }
+  assert.match(srOnly(app.renderHome(data, day, { query: '被騙', category: 'all' })), /1 張卡符合「被騙」/);
+  assert.match(srOnly(app.renderHome(data, day, { query: '', category: 'safety' })), /「人身安全」裡有 2 張卡/);
+});
+
+test('result count: aria-live and role=status only appear on sr-only elements', () => {
+  const html = app.renderHome(data, day, { query: '被騙', category: 'all' });
+  const live = [...html.matchAll(/<[^>]*(?:aria-live|role="status")[^>]*>/g)].map((m) => m[0]);
+  assert.ok(live.length > 0);
+  for (const tag of live) assert.match(tag, /class="sr-only"/, tag);
+});
+
+test('result count: the chips keep their numbers', () => {
+  const html = app.renderHome(data, day, { query: '', category: 'safety' });
+  assert.match(html, /data-category="safety"[^>]*>人身安全<span class="cat-count">2<\/span>/);
+});
+
+test('keys: Enter and Esc do nothing while an IME is composing', () => {
+  for (const key of ['Enter', 'Escape']) {
+    assert.equal(app.searchKeyAction({ key, isComposing: true, keyCode: 13 }, '被'), null, `${key} with isComposing`);
+    assert.equal(app.searchKeyAction({ key, isComposing: false, keyCode: 229 }, '被'), null, `${key} with keyCode 229`);
+  }
+});
+
+test('keys: outside composition Enter closes the keyboard and Esc clears a query', () => {
+  assert.equal(app.searchKeyAction({ key: 'Enter', isComposing: false, keyCode: 13 }, '被騙'), 'close');
+  assert.equal(app.searchKeyAction({ key: 'Escape', isComposing: false, keyCode: 27 }, '被騙'), 'clear');
+  assert.equal(app.searchKeyAction({ key: 'Escape', isComposing: false, keyCode: 27 }, ''), null);
+});
+
+test('search: 「房租 繳不起」 and 「付不出」 find the emergency card', () => {
+  assert.ok(search('房租 繳不起').includes('emergency'));
+  assert.ok(search('付不出').includes('emergency'));
+  assert.ok(search('付不起').includes('emergency'));
+});

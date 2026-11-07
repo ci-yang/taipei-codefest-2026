@@ -138,14 +138,26 @@
       + data.categories.map((c) => chip(c.id, c.title, pool.filter((s) => s.category === c.id).length)).join('');
   }
 
-  function filterStatus(data, filter, shown) {
-    if (!words(filter.query).length && inCategory({}, filter.category)) {
-      return '挑最接近你現在狀況的那張卡。每張都寫好現在打給誰、開口怎麼說、要準備什麼。';
-    }
-    if (!shown) return '';
+  const isFiltered = (filter) => words(filter.query).length > 0 || !inCategory({}, filter.category);
+
+  /* How many cards are showing, for screen readers only (the chips already show counts on screen).
+   * Lives in one persistent sr-only live region so it is announced after every keystroke. */
+  function resultCountText(data, filter) {
+    if (!isFiltered(filter)) return '';
+    const shown = filteredGroups(data, filter).reduce((n, g) => n + g.situations.length, 0);
     const where = filter.category && filter.category !== ALL
       ? `「${data.categories.find((c) => c.id === filter.category).title}」裡` : '';
-    return words(filter.query).length ? `${where}有 ${shown} 張卡符合「${filter.query.trim()}」。` : `${where}有 ${shown} 張卡。`;
+    if (!words(filter.query).length) return `${where}有 ${shown} 張卡。`;
+    return shown ? `${where}有 ${shown} 張卡符合「${filter.query.trim()}」。` : `沒有卡片符合「${filter.query.trim()}」，可以先打 1999 市民熱線。`;
+  }
+
+  /* Enter closes the phone keyboard, Esc clears the search — but never while an IME is composing
+   * (注音／倉頡 use Enter to commit a word and Esc to cancel it). */
+  function searchKeyAction(event, query) {
+    if (event.isComposing || event.keyCode === 229) return null;
+    if (event.key === 'Enter') return 'close';
+    if (event.key === 'Escape' && query) return 'clear';
+    return null;
   }
 
   /* Nothing matched: point to a next step instead of a dead end. 1999 is the city's 24-hour hotline
@@ -176,7 +188,9 @@
     const deck = list.map((g) => `<section class="group${g.urgent ? ' is-urgent' : ''}" aria-labelledby="group-${esc(g.id)}">`
       + `<h2 class="group-title" id="group-${esc(g.id)}">${esc(g.title)}</h2>`
       + `<div class="deck">${g.situations.map((s) => homeCard(data, s, state)).join('')}</div></section>`).join('');
-    return `<p class="intro" role="status">${esc(filterStatus(data, filter, shown))}</p>`
+    const intro = isFiltered(filter) ? ''
+      : '<p class="intro">挑最接近你現在狀況的那張卡。每張都寫好現在打給誰、開口怎麼說、要準備什麼。</p>';
+    return intro
       + (shown ? `<nav class="groups" aria-label="選擇情境">${deck}</nav>` : noMatch(data, filter));
   }
 
@@ -187,7 +201,8 @@
     return `<header class="top"><h1>我遇到了……</h1>${periodTag(state)}</header>`
       + searchBox(filter)
       + `<div class="cats" role="group" aria-label="依分類篩選" data-cats>${categoryChips(data, filter)}</div>`
-      + `<div class="results" data-results aria-live="off">${renderResults(data, state, filter)}</div>`
+      + `<p class="sr-only" role="status" aria-live="polite" data-result-count>${esc(resultCountText(data, filter))}</p>`
+      + `<div class="results" data-results>${renderResults(data, state, filter)}</div>`
       + `<section class="trust" aria-label="這頁怎麼做的">`
       + `<p class="trust-title">${night ? '現在是晚上或假日' : '現在是平日上班時間'}</p>`
       + `<p class="trust-lead">${night
@@ -301,7 +316,7 @@
     return s ? `${s.title}｜我遇到了……` : '我遇到了……';
   }
 
-  root.SituationApp = Object.freeze({ renderHome, renderResults, renderCard, render, nowCall, groups, filteredGroups, matches, titleOf, emergencyBar });
+  root.SituationApp = Object.freeze({ renderHome, renderResults, renderCard, render, nowCall, groups, filteredGroups, matches, titleOf, emergencyBar, resultCountText, searchKeyAction });
 
   if (root.document) {
     root.document.addEventListener('DOMContentLoaded', () => {
@@ -319,6 +334,8 @@
         if (!results || !cats) return;
         cats.innerHTML = categoryChips(data, filter);
         results.innerHTML = renderResults(data, shownState, filter);
+        const count = app.querySelector('[data-result-count]');
+        if (count) count.textContent = resultCountText(data, filter);
         const clear = app.querySelector('[data-clear-search]');
         if (clear) clear.hidden = !filter.query;
         const focus = focusSelector && app.querySelector(focusSelector);
@@ -338,8 +355,10 @@
       });
       app.addEventListener('keydown', (event) => {
         if (!event.target.matches('[data-search]')) return;
-        if (event.key === 'Escape' && filter.query) { event.preventDefault(); clearSearch(); }
-        if (event.key === 'Enter') { event.preventDefault(); event.target.blur(); } // closes the phone keyboard
+        const action = searchKeyAction(event, filter.query);
+        if (action) event.preventDefault();
+        if (action === 'clear') clearSearch();
+        if (action === 'close') event.target.blur(); // closes the phone keyboard
       });
       app.addEventListener('click', (event) => {
         if (event.target.closest('[data-clear-search]')) { clearSearch(); return; }
