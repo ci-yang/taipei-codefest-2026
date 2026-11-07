@@ -11,7 +11,7 @@
   const APP_VERSION = 'friendly-app-v2';
   const scopePath = new URL('./', location.href).pathname;
   const CACHE_NAME = `friendly-route-v2:${scopePath}`;
-  const requiredAssets = ['./', './index.html', './app.js', './styles.css', './data.js', './routing-data.js', './routing.js', './vendor/leaflet.js', './vendor/leaflet.css'];
+  const requiredAssets = ['./', './index.html', './app.js', './styles.css', './inference.css', './data.js', './routing-data.js', './routing.js', './vendor/leaflet.js', './vendor/leaflet.css'];
   const baseKey = `${APP_VERSION}:${scopePath}`;
   const storage = {
     read(key, fallback) { try { return JSON.parse(localStorage.getItem(`${baseKey}:${key}`)) ?? fallback; } catch { return fallback; } },
@@ -20,6 +20,7 @@
   };
   const stores = data.stores.map((store) => ({ ...store, id: String(store.id) }));
   const byId = new Map(stores.map((store) => [store.id, store]));
+  const routableStores = stores.filter((store) => window.FriendlyRouter.contains(store));
   const known = (id) => byId.has(String(id));
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const localDate = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -46,9 +47,24 @@
   const distanceLabel = (meters) => meters >= 1000 ? `${(meters / 1000).toFixed(2)} km` : `${Math.round(meters)} m`;
   const toast = (message) => { clearTimeout(toastTimer); $('#toast').textContent = message; $('#toast').hidden = false; toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 5000); };
   const sourceDate = data.source.updatedAt || '2026-07-20';
+  const sourceFor = (store) => ({
+    key: store.sourceKey || data.source.key || 'friendly-store',
+    label: store.sourceLabel || data.source.label || '友善店家清冊標示',
+    updatedAt: store.sourceUpdatedAt || sourceDate,
+    url: store.sourceUrl || data.source.url || '',
+    detail: store.sourceDetail || '消費條件、營業與現場狀態待確認。',
+  });
+  const serviceEvidence = (store, key) => {
+    const source = sourceFor(store);
+    if (!store.services.includes(key)) return '此資料源未提供';
+    if ((store.inferredServices || []).includes(key)) return '常識推定・分店可能不同';
+    if (source.key === 'public-toilet') return key === 'accessible' ? '列管資料有無障礙廁座' : '臺北市列管公廁';
+    if (source.key === 'taipei-free') return 'Taipei Free 官方熱點';
+    return '友善店家清冊有標示';
+  };
   const selectedRoute = () => state.routes.find((route) => route.id === state.selectedRouteId) || null;
   const routeStores = () => state.points;
-  function serviceTags(store) { return store.services.filter((key) => services[key]).map((key) => `<span class="service-tag"><span aria-hidden="true">${services[key].icon}</span>${services[key].short}</span>`).join(''); }
+  function serviceTags(store) { const tags = store.services.filter((key) => services[key]).map((key) => { const inferred = (store.inferredServices || []).includes(key); return `<span class="service-tag${inferred ? ' inferred' : ''}" title="${inferred ? '常識推定，非單店官方保證' : '官方開放資料標示'}"><span aria-hidden="true">${services[key].icon}</span>${services[key].short}${inferred ? '・推定' : ''}</span>`; }); return tags.join('') || '<span class="service-tag other">其他友善項目</span>'; }
   function storeReviews(id) { return state.reviews.filter((r) => String(r.storeId) === String(id)); }
   function quality(id) {
     const entries = storeReviews(id); if (!entries.length) return { code: 'unknown', label: '尚無回報', reason: '尚無本機試填回報；不是沒有服務。', entries };
@@ -105,7 +121,7 @@
     $$('#date-strip button').forEach((button) => button.addEventListener('click', () => { state.date = button.dataset.date; invalidateComparison(); renderDates(); }));
   }
   $('#trip-date').addEventListener('change', (event) => { if (/^\d{4}-\d{2}-\d{2}$/.test(event.target.value)) { state.date = event.target.value; invalidateComparison(); renderDates(); } });
-  $('#store-options').innerHTML = stores.map((s) => `<option value="${esc(s.name)}">${esc(s.address)}</option>`).join('');
+  $('#store-options').innerHTML = routableStores.map((s) => `<option value="${esc(s.name)}">${esc(s.address)}</option>`).join('');
   function renderPlan() {
     const historyOption = $('#origin-source option[value="history"]');
     if (state.originMode === 'history' && !historyOption) $('#origin-source').insertAdjacentHTML('beforeend', '<option value="history">歷史起點</option>');
@@ -146,8 +162,8 @@
       if (!FriendlyRouter.contains(state.gps)) { $('#route-error').textContent = '目前位置不在這份示範路網內，請手動選擇示範區內起點。'; return; }
       origin = { ...state.gps };
     } else if (state.originMode === 'history') origin = { ...state.historyOrigin };
-    else { const store = stores.find((s) => s.name === state.manualOrigin.trim()); if (!store) { $('#route-error').textContent = '請從建議清單選擇完整的起點店名。'; $('#origin-store').focus(); return; } origin = { id: store.id, lat: store.lat, lng: store.lng, name: store.name, label: store.name, kind: state.demoOrigin ? 'demo' : 'store' }; }
-    const destinations = state.destinations.map((name) => stores.find((s) => s.name === name.trim()));
+    else { const store = routableStores.find((s) => s.name === state.manualOrigin.trim()); if (!store) { $('#route-error').textContent = '請從示範路網內的建議清單選擇完整地點名稱。'; $('#origin-store').focus(); return; } origin = { id: store.id, lat: store.lat, lng: store.lng, name: store.name, label: store.name, kind: state.demoOrigin ? 'demo' : 'store' }; }
+    const destinations = state.destinations.map((name) => routableStores.find((s) => s.name === name.trim()));
     const missing = destinations.findIndex((s) => !s); if (missing >= 0) { $('#route-error').textContent = `目的地 ${missing + 1} 尚未對應清冊，請選擇完整店名。`; $(`#destination-${missing}`).focus(); return; }
     const points = [origin, ...destinations.map((s) => ({ id: s.id, lat: s.lat, lng: s.lng, name: s.name, label: s.name, kind: 'store' }))];
     if (new Set(points.map((p) => `${p.lat},${p.lng}`)).size !== points.length) { $('#route-error').textContent = '起點與目的地有重複，請選擇不同地點。'; return; }
@@ -211,7 +227,7 @@
   }
   $('#fit-map').addEventListener('click', fitRoute);
   function routeDistance(store) { const route = selectedRoute(); return route ? FriendlyRouter.distanceToRoute(store, route.coordinates) : Infinity; }
-  function filteredStores() { return stores.filter((s) => s.services.some((key) => state.filters.has(key))).filter((s) => !state.search || `${s.name} ${s.address}`.toLowerCase().includes(state.search.toLowerCase())).map((store) => ({ store, distance: routeDistance(store) })).filter(({ distance }) => !state.routeOnly || distance <= state.radius).sort((a, b) => (a.distance - b.distance) || a.store.name.localeCompare(b.store.name, 'zh-Hant')); }
+  function filteredStores() { const allSelected = state.filters.size === Object.keys(services).length; return stores.filter((s) => s.services.some((key) => state.filters.has(key)) || (allSelected && !s.services.length)).filter((s) => !state.search || `${s.name} ${s.address}`.toLowerCase().includes(state.search.toLowerCase())).map((store) => ({ store, distance: routeDistance(store) })).filter(({ distance }) => !state.routeOnly || distance <= state.radius).sort((a, b) => (a.distance - b.distance) || a.store.name.localeCompare(b.store.name, 'zh-Hant')); }
   function renderMap() {
     if (expireIfNeeded() && $('#help-dialog').open) renderHelp();
     rangeLayer.clearLayers(); routeLayer.clearLayers(); markerLayer.clearLayers(); gpsLayer.clearLayers(); helpLayer.clearLayers();
@@ -225,17 +241,28 @@
       (route.connectors || []).forEach((segment) => { L.polyline(segment, { color: '#151b20', weight: 7, interactive: false }).addTo(routeLayer); L.polyline(segment, { color: '#a1d7e9', weight: 3, dashArray: '3 5', interactive: false }).addTo(routeLayer); });
       state.points.forEach((p, i) => L.marker([p.lat, p.lng], { title: p.name, zIndexOffset: 500, icon: L.divIcon({ className: '', html: `<span class="route-number${i ? '' : ' origin'}">${i || '起'}</span>`, iconSize: [24, 24], iconAnchor: [12, 12] }) }).bindTooltip(esc(p.name)).addTo(routeLayer));
     }
-    const visible = state.screen === 'home' ? stores.filter((s) => s.services.some((key) => state.filters.has(key))).map((store) => ({ store })) : filteredStores();
-    visible.forEach(({ store }) => { const q = quality(store.id); const key = store.services.find((k) => state.filters.has(k)); L.marker([store.lat, store.lng], { title: `${store.name}，${q.label}`, icon: L.divIcon({ className: '', html: `<span class="store-marker ${q.code}${state.selectedId === store.id ? ' selected' : ''}">${services[key]?.icon || '·'}</span>`, iconSize: [24, 24], iconAnchor: [12, 12] }) }).bindTooltip(`${esc(store.name)} · ${q.label}`).on('click', () => openStore(store.id)).addTo(markerLayer); });
+    const overview = state.screen === 'home'; const viewport = overview ? map.getBounds() : null;
+    const allSelected = state.filters.size === Object.keys(services).length;
+    const visible = (overview ? stores.filter((s) => s.services.some((key) => state.filters.has(key)) || (allSelected && !s.services.length)).map((store) => ({ store })) : filteredStores()).filter(({ store }) => !viewport?.contains || viewport.contains([store.lat, store.lng]));
+    visible.forEach(({ store }) => {
+      const q = quality(store.id); const key = store.services.find((k) => state.filters.has(k)); let marker;
+      if (overview) {
+        const inferred = (store.inferredServices || []).includes(key); marker = L.circleMarker([store.lat, store.lng], { title: `${store.name}，${q.label}`, radius: state.selectedId === store.id ? 7 : 4, color: inferred ? '#f0bd79' : '#cce9a9', fillColor: q.code === 'caution' ? '#b98753' : inferred ? '#9b6d37' : '#6f9f38', fillOpacity: .9, weight: state.selectedId === store.id ? 3 : 1 });
+      } else marker = L.marker([store.lat, store.lng], { title: `${store.name}，${q.label}`, icon: L.divIcon({ className: '', html: `<span class="store-marker ${q.code}${state.selectedId === store.id ? ' selected' : ''}">${services[key]?.icon || '·'}</span>`, iconSize: [24, 24], iconAnchor: [12, 12] }) });
+      marker.bindTooltip(`${esc(store.name)} · ${q.label}`).on('click', () => openStore(store.id)).addTo(markerLayer);
+    });
     if (state.gps) { L.marker([state.gps.lat, state.gps.lng], { title: state.gpsStatus === 'ready' || state.gpsStatus === 'outside' ? '裝置定位結果' : '上次裝置定位（尚未更新）', icon: L.divIcon({ className: '', html: '<span class="gps-marker"></span>', iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(gpsLayer); if (state.gps.accuracy && state.gps.accuracy < 2000) L.circle([state.gps.lat, state.gps.lng], { radius: state.gps.accuracy, color: '#89d9ff', fillOpacity: .06, weight: 1, interactive: false }).addTo(gpsLayer); }
-    $('#map-area').textContent = state.screen === 'home' && state.gpsStatus === 'outside' ? '目前位置・此區無本地底圖' : '信義生活圈・本地圖資';
+    $('#map-area').textContent = state.screen === 'home' && state.gpsStatus === 'outside' ? '目前位置・此區無本地底圖' : '全市資源・信義示範路網';
     if (activeRequest()) { const p = byId.get(state.request.placeId); L.marker([p.lat, p.lng], { icon: L.divIcon({ className: '', html: '<span class="help-marker">♡</span>', iconSize: [30, 30], iconAnchor: [15, 15] }) }).bindTooltip(`本機示範求助點：${esc(p.name)}`).addTo(helpLayer); }
   }
-  map.on('zoomend', renderMap);
+  map.on('zoomend', renderMap); map.on('moveend', renderMap);
   function renderList() {
-    const result = isOffline() && !state.cacheVerified ? [] : filteredStores(); $('#results-title').textContent = `${result.length} 間友善店家`;
-    $('#result-context').textContent = `${state.routeOnly ? `距本次路線 ${state.radius} m 內` : '整個示範區域'} · 任一符合 · 未確認營業與現場可用狀態`;
-    $('#store-list').innerHTML = result.length ? result.map(({ store, distance }) => { const q = quality(store.id); return `<button class="store-card" data-store="${esc(store.id)}"><div class="card-top"><h3>${esc(store.name)}</h3><span class="card-distance">${Number.isFinite(distance) ? `距線 ${Math.round(distance)} m` : '名冊點位'}</span></div><p class="card-address">${esc(store.address)}</p><div class="service-tags">${serviceTags(store)}</div><p class="quality-label"><i class="quality-dot ${q.code}"></i>${q.label}${q.entries.length ? `・${q.entries.length} 筆本機試填` : ''}</p><p class="card-condition">名冊標示 · 消費條件待確認 · ${esc(sourceDate)}</p></button>`; }).join('') : '<div class="empty-state"><strong>目前沒有符合的店家</strong><p>可放大範圍、改看全區，或調整服務篩選。</p></div>';
+    const result = isOffline() && !state.cacheVerified ? [] : filteredStores(); const visibleResults = result.slice(0, 250); $('#results-title').textContent = `${result.length} 個友善資源`;
+    $('#result-context').textContent = `${state.routeOnly ? `距本次路線 ${state.radius} m 內` : (data.resourceScope || '全台北市資料')} · 任一符合 · 未確認營業與現場可用狀態${result.length > visibleResults.length ? ` · 先顯示 ${visibleResults.length} 筆，可用搜尋縮小` : ''}`;
+    $('#store-list').innerHTML = visibleResults.length ? visibleResults.map(({ store, distance }) => {
+      const q = quality(store.id); const source = sourceFor(store);
+      return `<button class="store-card" data-store="${esc(store.id)}"><div class="card-top"><h3>${esc(store.name)}</h3><span class="card-distance">${Number.isFinite(distance) ? `距線 ${Math.round(distance)} m` : '資料點位'}</span></div><p class="card-address">${esc(store.address)}</p><div class="service-tags">${serviceTags(store)}</div><p class="quality-label"><i class="quality-dot ${q.code}"></i>${q.label}${q.entries.length ? `・${q.entries.length} 筆本機試填` : ''}</p><p class="card-condition">${esc(source.label)} · 更新 ${esc(source.updatedAt)}${store.inferredServices?.length ? ' · 含常識推定' : ''}</p></button>`;
+    }).join('') : '<div class="empty-state"><strong>目前沒有符合的資源</strong><p>可放大範圍、改看全區，或調整服務篩選。</p></div>';
     $$('[data-store]').forEach((b) => b.addEventListener('click', () => openStore(b.dataset.store)));
   }
   function renderAll() { $('#route-only').checked = state.routeOnly; $('#route-only').disabled = !selectedRoute(); $$('#range-options button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.radius) === state.radius))); renderMap(); renderList(); }
@@ -251,9 +278,16 @@
 
   function renderDetail() {
     const store = byId.get(state.selectedId); if (!store) return;
-    const q = quality(store.id); const entries = q.entries.slice().sort((a, b) => b.time - a.time);
+    const q = quality(store.id); const source = sourceFor(store); const entries = q.entries.slice().sort((a, b) => b.time - a.time);
     const breakdown = Object.keys(services).filter((key) => entries.some((entry) => entry.service === key)).map((key) => `${services[key].short}：${entries.filter((entry) => entry.service === key && entry.outcome === 'yes').length} 順利／${entries.filter((entry) => entry.service === key && entry.outcome === 'no').length} 不順利`).join('；');
-    $('#store-detail').innerHTML = `<p class="drawer-eyebrow">沿途的一份照應・官方名冊點位</p><h2>${esc(store.name)}</h2><p class="detail-address">${esc(store.address)}</p><div class="service-status">${Object.entries(services).map(([key, service]) => `<div class="${store.services.includes(key) ? '' : 'unlisted'}"><span aria-hidden="true">${service.icon}</span> ${service.label}<small>${store.services.includes(key) ? '名冊有標示' : '名冊未標示'}</small></div>`).join('')}</div><p class="source-note">名冊更新 ${esc(sourceDate)}。消費條件、營業與現場可用狀態待確認；無障礙標籤不代表沿途路徑無障礙。</p><div class="detail-links">${store.phone ? `<a href="tel:${esc(store.phone.replace(/[^+\d,;]/g, ''))}">電話 ${esc(store.phone)}</a>` : '<span class="fine-print">名冊未提供電話</span>'}${store.url && /^https:\/\//.test(store.url) ? `<a href="${esc(store.url)}" target="_blank" rel="noopener">原始店家資料 ↗</a>` : ''}</div><div class="detail-section"><h3>服務品質回報</h3><span class="local-badge">本機試填・未公開・非官方認證</span><div class="quality-box"><strong><i class="quality-dot ${q.code}"></i>${q.label}</strong><p>${q.reason}</p><p>${entries.length} 筆本機回報${entries.length ? `・最新 ${formatDate(entries[0].time)}` : ''}</p>${breakdown ? `<div class="quality-breakdown">${esc(breakdown)}</div>` : ''}</div><form id="review-form" class="review-form"><label for="review-service">這次使用什麼服務？</label><select id="review-service">${Object.entries(services).map(([key, service]) => `<option value="${key}">${service.label}${store.services.includes(key) ? '' : '（名冊未標示）'}</option>`).join('')}</select><label for="review-outcome">使用狀況</label><select id="review-outcome"><option value="yes">順利使用</option><option value="no">未能順利使用，建議再確認</option></select><label for="review-comment">補充說明 <span class="mini-label">選填，最多 160 字；請勿填個資</span></label><textarea id="review-comment" maxlength="160" placeholder="記下實際使用條件；此處僅測試，不公開"></textarea><button class="primary wide" type="submit">儲存本機試填回報</button></form><div class="review-history">${entries.slice(0, 5).map((entry) => `<article class="review-entry"><header><strong>${services[entry.service].short} · ${entry.outcome === 'yes' ? '順利' : '需確認'}</strong><small>${formatDate(entry.time)}</small></header>${entry.comment ? `<p>${esc(entry.comment)}</p>` : ''}<small>本機試填，未驗證</small></article>`).join('')}</div>${entries.length ? '<button id="clear-reviews" class="text-button">清除這間店的本機試填</button>' : ''}</div><div class="detail-section"><h3>也能直接向店家詢問</h3><button id="show-inquiry" class="secondary wide">出示大字詢問卡</button><div id="inquiry-card" hidden><p class="inquiry-message">請問可以借用 WiFi、充電、廁所或無障礙空間嗎？<br><strong>是否需要消費，或有使用限制？</strong></p><p>${esc(store.name)}<br>${esc(store.address)}<br>${esc(store.phone || '')}</p><button id="print-inquiry" class="text-button">列印詢問卡 ↗</button></div></div>`;
+    $('#store-detail').innerHTML = `<p class="drawer-eyebrow">沿途的一份照應・官方名冊點位</p><h2>${esc(store.name)}</h2><p class="detail-address">${esc(store.address)}</p><div class="service-status">${Object.entries(services).map(([key, service]) => `<div class="${(store.inferredServices || []).includes(key) ? 'inferred' : store.services.includes(key) ? '' : 'unlisted'}"><span aria-hidden="true">${service.icon}</span> ${service.label}<small>${serviceEvidence(store, key)}</small></div>`).join('')}</div><p class="source-note">名冊更新 ${esc(sourceDate)}。消費條件、營業與現場可用狀態待確認；無障礙標籤不代表沿途路徑無障礙。</p><div class="detail-links">${store.phone ? `<a href="tel:${esc(store.phone.replace(/[^+\d,;]/g, ''))}">電話 ${esc(store.phone)}</a>` : '<span class="fine-print">名冊未提供電話</span>'}${store.url && /^https:\/\//.test(store.url) ? `<a href="${esc(store.url)}" target="_blank" rel="noopener">原始店家資料 ↗</a>` : ''}</div><div class="detail-section"><h3>服務品質回報</h3><span class="local-badge">本機試填・未公開・非官方認證</span><div class="quality-box"><strong><i class="quality-dot ${q.code}"></i>${q.label}</strong><p>${q.reason}</p><p>${entries.length} 筆本機回報${entries.length ? `・最新 ${formatDate(entries[0].time)}` : ''}</p>${breakdown ? `<div class="quality-breakdown">${esc(breakdown)}</div>` : ''}</div><form id="review-form" class="review-form"><label for="review-service">這次使用什麼服務？</label><select id="review-service">${Object.entries(services).map(([key, service]) => `<option value="${key}">${service.label}${(store.inferredServices || []).includes(key) ? '（常識推定）' : store.services.includes(key) ? '' : '（資料源未標示）'}</option>`).join('')}</select><label for="review-outcome">使用狀況</label><select id="review-outcome"><option value="yes">順利使用</option><option value="no">未能順利使用，建議再確認</option></select><label for="review-comment">補充說明 <span class="mini-label">選填，最多 160 字；請勿填個資</span></label><textarea id="review-comment" maxlength="160" placeholder="記下實際使用條件；此處僅測試，不公開"></textarea><button class="primary wide" type="submit">儲存本機試填回報</button></form><div class="review-history">${entries.slice(0, 5).map((entry) => `<article class="review-entry"><header><strong>${services[entry.service].short} · ${entry.outcome === 'yes' ? '順利' : '需確認'}</strong><small>${formatDate(entry.time)}</small></header>${entry.comment ? `<p>${esc(entry.comment)}</p>` : ''}<small>本機試填，未驗證</small></article>`).join('')}</div>${entries.length ? '<button id="clear-reviews" class="text-button">清除這間店的本機試填</button>' : ''}</div><div class="detail-section"><h3>也能直接向店家詢問</h3><button id="show-inquiry" class="secondary wide">出示大字詢問卡</button><div id="inquiry-card" hidden><p class="inquiry-message">請問可以借用 WiFi、充電、廁所或無障礙空間嗎？<br><strong>是否需要消費，或有使用限制？</strong></p><p>${esc(store.name)}<br>${esc(store.address)}<br>${esc(store.phone || '')}</p><button id="print-inquiry" class="text-button">列印詢問卡 ↗</button></div></div>`;
+    const detail = $('#store-detail');
+    detail.querySelector('.drawer-eyebrow').textContent = `沿途的一份照應・${source.label}`;
+    const inferenceNote = (store.inferenceRules || []).map((rule) => rule.detail).join(' ');
+    detail.querySelector('.source-note').textContent = `${source.label}更新 ${source.updatedAt}。${source.detail}${inferenceNote ? ` 常識推定：${inferenceNote}` : ''} 無障礙標示不代表沿途路徑無障礙。`;
+    const missingPhone = detail.querySelector('.detail-links .fine-print');
+    if (missingPhone) missingPhone.textContent = '此資料源未提供電話';
+    if (source.url && !store.url) detail.querySelector('.detail-links').insertAdjacentHTML('beforeend', `<a href="${esc(source.url)}" target="_blank" rel="noopener">查看資料來源 ↗</a>`);
     $('#review-form').addEventListener('submit', (event) => {
       event.preventDefault(); const service = $('#review-service').value; const outcome = $('#review-outcome').value; const comment = $('#review-comment').value.trim().slice(0, 160);
       if (!services[service] || !['yes', 'no'].includes(outcome)) return;
@@ -307,7 +341,7 @@
     $('#leave-offline').hidden = !state.simulatedOffline; $('#restore-offline').hidden = !(state.snapshot && state.cacheVerified);
     if (state.snapshot && state.cacheVerified) {
       $('#cache-summary').textContent = `已下載 · ${formatDate(state.snapshot.savedAt)}`;
-      $('#offline-detail').textContent = `已保存起點、${state.snapshot.points.length - 1} 個目的地、路線與 ${stores.length} 間店家。離線只讀取這份行程，資料不是即時狀態。`;
+      $('#offline-detail').textContent = `已保存起點、${state.snapshot.points.length - 1} 個目的地、路線與 ${stores.length} 個友善資源。離線只讀取這份行程，資料不是即時狀態。`;
     } else {
       $('#cache-summary').textContent = selectedRoute() ? '還沒下載這段路' : '先規劃並確認一條路線';
       $('#offline-detail').textContent = '完整下載後可離線重開 App；快取被瀏覽器移除時，需重新下載。';
@@ -455,9 +489,13 @@
     if (Date.now() >= state.request.expiresAt) { finishRequest('expired'); return; }
     $$('.request-counter').forEach((element) => { element.textContent = requestCountdown(); });
   }, 1000);
-  $('#dataset-count').textContent = `${stores.length} 間店家 · 本地開放資料快照`;
-  $('#data-version').textContent = `名冊更新 ${sourceDate} · OpenStreetMap © contributors / ODbL · 原型快照 ${data.version}`;
-  if (data.source.url) $('#source-link').href = data.source.url;
+  const sourceList = Array.isArray(data.sources) && data.sources.length ? data.sources : [data.source];
+  const latestSourceDate = sourceList.map((source) => source.updatedAt || '').sort().pop() || sourceDate;
+  const inferredPlaceCount = Object.values(data.inferenceCounts || {}).reduce((sum, count) => sum + Number(count || 0), 0);
+  $('#dataset-count').textContent = `${stores.length} 個全市官方資源 · ${sourceList.length} 項開放資料快照`;
+  $('#source-links').innerHTML = sourceList.map((source) => `<p><a href="${esc(source.url)}" target="_blank" rel="noopener">${esc(source.label)} ↗</a></p>`).join('');
+  $('#inference-summary').textContent = inferredPlaceCount ? `${inferredPlaceCount} 個既有點位另加上「常識推定」服務；推定標籤非官方資料，不保證單店現況。` : '未套用常識推定。';
+  $('#data-version').textContent = `資料更新至 ${latestSourceDate} · OpenStreetMap © contributors / ODbL · 原型快照 ${data.version}`;
   renderDates(); renderPlan(); renderFilters(); setScreen('home'); updateConnectivity();
   const workerReady = prepareWorker();
 })();

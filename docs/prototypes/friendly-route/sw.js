@@ -1,6 +1,6 @@
 /* Explicit, same-origin offline package. No remote tiles or automatic prefetch. */
 const CACHE_NAME = `friendly-route-v2:${new URL(self.registration.scope).pathname}`;
-const ASSETS = ['./', './index.html', './app.js', './styles.css', './data.js', './routing-data.js', './routing.js', './vendor/leaflet.js', './vendor/leaflet.css'];
+const ASSETS = ['./', './index.html', './app.js', './styles.css', './inference.css', './data.js', './routing-data.js', './routing.js', './vendor/leaflet.js', './vendor/leaflet.css'];
 self.addEventListener('install', (event) => event.waitUntil(self.skipWaiting()));
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
 self.addEventListener('message', (event) => {

@@ -67,7 +67,10 @@ pnpm install
 
 | 資料集 | 提供單位 | 連結 | 是否模擬 |
 |---|---|---|---|
-| [臺北市友善店家清冊](https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1) | 臺北市政府 | 原型載入地方快照，詳見原型 README | 否 |
+| [臺北市友善店家清冊](https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1) | 臺北市政府 | 原型載入全市 993 筆快照，詳見原型 README | 否 |
+| [臺北市公廁點位資訊](https://data.taipei/dataset/detail?id=ca205b54-a06f-4d84-894c-d6ab5079ce79) | 臺北市政府 | 原型載入全市 1,531 筆列管公廁快照，詳見原型 README | 否 |
+| [臺北市公眾區免費無線上網熱點資料（新版）](https://data.taipei/dataset/detail?id=6aa6532d-652f-4c1b-814a-4646b75407af) | 臺北市政府 | 原型載全市 3,305 個 AP，合併同類型同址後為 2,036 點，詳見原型 README | 否 |
+| 連鎖餐飲服務推定 | 原型內建規則 | 對既有官方點位補上常見 Wi-Fi、充電與廁所線索，畫面明確標示「推定」 | 是；非單店官方保證 |
 | OpenStreetMap 地方路網與向量底圖 | OpenStreetMap contributors | [來源與授權](docs/prototypes/friendly-route/README.md) | 否；未驗證現場通行 |
 
 ## 第三方套件與 AI 揭露

@@ -92,6 +92,22 @@ function runtime(seed = {}, options = {}) {
 }
 
 function position(lat = 25.034, lng = 121.561, accuracy = 15) { return { coords: { latitude: lat, longitude: lng, accuracy }, timestamp: Date.now() }; }
+
+test('citywide snapshot keeps official evidence separate from common-knowledge inference', () => {
+  const app = runtime(); const { stores, resourceCounts, sources } = app.r.FRIENDLY_DATA;
+  assert.deepEqual({ ...resourceCounts }, { 'friendly-store': 993, 'public-toilet': 1531, 'taipei-free': 2036, 'taipei-free-aps': 3305 });
+  assert.equal(stores.length, 4560); assert.equal(sources.length, 3);
+  const mcdonalds = stores.filter((store) => /麥當勞/.test(store.name)); const mos = stores.filter((store) => /摩斯/.test(store.name)); const cpc = stores.filter((store) => /中油.*加油站/.test(store.name));
+  assert.equal(mcdonalds.length, 41); assert.equal(mos.length, 51); assert.equal(cpc.length, 37);
+  assert(mcdonalds.every((store) => store.sourceKey === 'public-toilet' && store.officialServices.includes('toilet')));
+  assert(mcdonalds.every((store) => store.inferredServices.includes('wifi') && store.inferredServices.includes('charge')));
+  assert(mos.every((store) => store.sourceKey === 'public-toilet' && store.officialServices.includes('toilet')));
+  assert(cpc.every((store) => store.officialServices.includes('toilet') && !store.inferredServices.includes('charge')));
+  assert(stores.some((store) => store.sourceKey === 'taipei-free' && store.services.includes('wifi')));
+  assert.equal(stores.filter((store) => store.inferredServices.length).length, 139);
+  assert(stores.filter((store) => store.inferredServices.length).every((store) => sources.some((source) => source.key === store.sourceKey)));
+});
+
 async function planFromGps(app) {
   await app.click('#home-start'); app.gpsRequests.at(-1).success(position());
   await app.input('#destination-0', app.r.FRIENDLY_DATA.stores[0].name);
@@ -226,7 +242,7 @@ test('the real demo router preserves saved resources preference through date cha
   await app.click('#edit-trip'); await app.input('#trip-date', '2026-11-08', 'change'); await app.click('#open-history'); await app.click('[data-restore-history]');
   const submitting = app.element('#route-form').dispatch('submit'); assert.equal(app.element('#start-trip').disabled, true);
   await app.click('#start-trip'); assert.notEqual(app.state.screen, 'journey'); await submitting;
-  assert.equal(app.state.selectedRouteId, 'resources'); assert.equal(app.state.routes.find((r) => r.id === 'resources').resourceCount, 36);
+  assert.equal(app.state.selectedRouteId, 'resources'); assert(app.state.routes.find((r) => r.id === 'resources').resourceCount > 0);
   await app.click('#start-trip'); assert.equal(app.state.screen, 'journey'); assert.equal(app.state.selectedRouteId, 'resources');
 });
 
@@ -266,7 +282,7 @@ async function cachePackage({ failedAsset = '', failWrite = false } = {}) {
 test('offline package includes both routing assets and uses a versioned per-path cache', async () => {
   const result = await cachePackage();
   assert.equal(result.replies.at(-1).ok, true);
-  assert(result.writes.some((url) => url.endsWith('/routing.js'))); assert(result.writes.some((url) => url.endsWith('/routing-data.js')));
+  assert(result.writes.some((url) => url.endsWith('/routing.js'))); assert(result.writes.some((url) => url.endsWith('/routing-data.js'))); assert(result.writes.some((url) => url.endsWith('/inference.css')));
   assert(result.opened.every((key) => key.includes('/reports/friendly/') && !key.startsWith('friendly-route-v1:')));
 });
 

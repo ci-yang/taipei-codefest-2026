@@ -1,0 +1,24 @@
+.service-tag.inferred {
+  background: #4a3827;
+  border: 1px dashed #936d42;
+  color: #ffd4a0;
+}
+
+.service-status > div.inferred {
+  background: #493725;
+  border: 1px dashed #8e6840;
+  color: #ffd7a7;
+}
+
+.service-status > div.inferred small {
+  color: #d9b98f;
+}
+
+.inference-note {
+  padding: 10px;
+  border: 1px dashed #8e6840;
+  border-radius: 10px;
+  background: #463522;
+  color: #f0c998;
+  line-height: 1.7;
+}
