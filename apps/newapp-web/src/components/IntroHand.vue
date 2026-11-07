@@ -4,11 +4,13 @@
  * 原創 SVG，逐字取自 .plan/.1108/sprint/prototype/index.html 的 #intro-hand；
  * 動作（伸下、收攏、上提、放開、收回）全在 style.css 的 handMove／grab／fingersFade／fistFade。
  * 疊在頁面上、pointer-events: none，不擋操作；減少動態效果時由 HomePage 不掛載（CSS 也隱藏）。
+ * top：手的垂直位置（px），由 HomePage 依首頁年齡卡上緣算出（原型 boot()：卡片 top − 138）；沒給時用 CSS 預設。
  */
+const props = defineProps<{ top?: number | null }>();
 </script>
 
 <template>
-  <svg class="hand" data-test="intro-hand" viewBox="0 0 160 260" aria-hidden="true">
+  <svg class="hand" data-test="intro-hand" viewBox="0 0 160 260" aria-hidden="true" :style="props.top != null ? { top: `${props.top}px` } : undefined">
     <defs>
       <!-- 可愛小手：淺桃粉，亮部 #ffe3d6、中間 #ffc4ae、暗部 #f7b8a2 -->
       <linearGradient id="hArm" gradientUnits="userSpaceOnUse" x1="38" y1="0" x2="122" y2="0">

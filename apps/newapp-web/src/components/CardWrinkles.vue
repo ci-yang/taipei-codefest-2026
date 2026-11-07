@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** 卡片被揪起的放射皺摺（spec 7.9、ADR-017）；形狀逐字取自原型 .pcard > .wrinkles，動作在 style.css clothWrinkle；暗紋 2026-11-08 改 primary-800／900 配淺色主卡 */
+/** 卡片被揪起的放射皺摺（spec 7.9、ADR-017）；形狀逐字取自原型 #card-age > .wrinkles（補助通改版：抓首頁年齡卡），動作在 style.css clothWrinkle；暗紋 2026-11-08 改 primary-800／900 配淺色主卡 */
 </script>
 
 <template>

@@ -1,38 +1,39 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import SubsidyCard from '@/components/SubsidyCard.vue';
+import SubsidyBigCard from '@/components/SubsidyBigCard.vue';
+import SubsidyRow from '@/components/SubsidyRow.vue';
+import { useDetail } from '@/composables/useDetail';
 import { useQuery, type KindFilter, type ResultView } from '@/composables/useQuery';
-import { openLink } from '@/lib/townpass';
 import { MSG_CLEARED, showToast } from '@/composables/useToast';
-import { THRESHOLD_NOTICE, answerSummary, filterKind, formatUpdatedAt } from '@/lib/resultView';
+import { prefersReducedMotion } from '@/lib/intro';
+import { openLink } from '@/lib/townpass';
+import { THRESHOLD_NOTICE, answerSummary, filterKind, filterSearch, formatUpdatedAt, searchNoteText } from '@/lib/resultView';
 
+/**
+ * 結果頁（原型 #page-result）：HEY 膠囊與大標、計數膠囊、閱讀模式（輪播只放可能符合／清單兩組）、資料類型篩選、
+ * 搜尋提示、無符合、答案摘要與門檻提醒、修改答案、清除填寫答案、資料來源。點卡片或列開詳細資訊彈窗。
+ */
 const router = useRouter();
 const q = useQuery();
+const detail = useDetail();
 
-/** [SUBS-R18] 兩組、組內開放資料在前、模擬在後、同類依序號（排序在 match.ts groupResults）；S2 起模擬項目照常呈現 */
+/** [SUBS-R18] 兩組、組內開放資料在前、模擬在後、同類依序號（排序在 match.ts groupResults） */
 const groups = computed(() => q.results.value ?? { eligible: [], ineligible: [] });
-/** [SUBS-R25] 篩選只過濾畫面上的卡片；計數膠囊與無符合用未過濾的 groups */
-const shownYes = computed(() => filterKind(groups.value.eligible, q.kindFilter.value));
-const shownNo = computed(() => filterKind(groups.value.ineligible, q.kindFilter.value));
+const query = computed(() => q.searchQuery.value.trim());
+/** [SUBS-R25] 搜尋與篩選只過濾畫面上的卡片與列；計數膠囊與無符合用未過濾的 groups */
+const searchedYes = computed(() => filterSearch(groups.value.eligible, query.value));
+const searchedNo = computed(() => filterSearch(groups.value.ineligible, query.value));
+const listYes = computed(() => filterKind(searchedYes.value, q.kindFilter.value));
+const listNo = computed(() => filterKind(searchedNo.value, q.kindFilter.value));
+const carousel = computed(() => filterKind(searchedYes.value, q.kindFilter.value));
 const summary = computed(() => answerSummary(q.answers.value));
 const updatedText = computed(() => (q.list.value ? formatUpdatedAt(q.list.value.updatedAt) : ''));
-
-type Group = 'yes' | 'no';
-const activeChip = ref<Group>('yes');
-const grpYes = ref<HTMLElement | null>(null);
-const grpNo = ref<HTMLElement | null>(null);
-
-/** 計數膠囊：點了捲到該組（sprint-1-plan.md S1 驗收） */
-function jumpTo(g: Group): void {
-  activeChip.value = g;
-  const el = g === 'yes' ? grpYes.value : grpNo.value;
-  el?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
-}
+const view = computed(() => q.resultView.value);
 
 const VIEWS: Array<{ v: ResultView; label: string }> = [
-  { v: 'grid', label: '大圖模式' },
-  { v: 'list', label: '小圖模式' },
+  { v: 'carousel', label: '輪播' },
+  { v: 'list', label: '清單' },
 ];
 const KINDS: Array<{ k: KindFilter; label: string }> = [
   { k: 'all', label: '全部' },
@@ -40,19 +41,72 @@ const KINDS: Array<{ k: KindFilter; label: string }> = [
   { k: 'mock', label: '模擬資料' },
 ];
 
-function openDetail(no: number): void {
-  void router.push({ name: 'detail', params: { no: String(no) } });
+// ---------- 輪播 ----------
+const car = ref<HTMLElement | null>(null);
+const carIdx = ref(0);
+function carGo(i: number, instant = false): void {
+  carIdx.value = i;
+  const c = car.value;
+  const s = c?.children[i] as HTMLElement | undefined;
+  if (!c || !s || !c.clientWidth || typeof c.scrollTo !== 'function') return;
+  c.scrollTo({ left: s.offsetLeft - (c.clientWidth - s.offsetWidth) / 2, behavior: instant || prefersReducedMotion() ? 'auto' : 'smooth' });
+}
+function onCarScroll(): void {
+  const c = car.value;
+  const s = c?.children[0] as HTMLElement | undefined;
+  if (!c || !s) return;
+  const i = Math.round(c.scrollLeft / (s.offsetWidth + 12));
+  carIdx.value = Math.max(0, Math.min(i, c.children.length - 1));
+}
+// 篩選、搜尋改變時回第一張
+watch([() => q.kindFilter.value, query], () => {
+  carIdx.value = 0;
+  void nextTick(() => carGo(0, true));
+});
+onMounted(() => {
+  if (carIdx.value >= carousel.value.length) carIdx.value = 0;
+  carGo(carIdx.value, true);
+});
+
+// ---------- 分組與模式 ----------
+type Group = 'yes' | 'no';
+const activeChip = ref<Group>('yes');
+const grpYes = ref<HTMLElement | null>(null);
+const grpNo = ref<HTMLElement | null>(null);
+const viewCarousel = ref<HTMLElement | null>(null);
+
+function setView(v: ResultView): void {
+  q.setResultView(v);
+  if (v === 'carousel') void nextTick(() => carGo(carIdx.value, true));
+}
+/** [W9] 看不符合的 N 項：切清單並捲到不符合組 */
+async function seeNo(): Promise<void> {
+  setView('list');
+  await nextTick();
+  jumpTo('no');
+}
+/** 計數膠囊：點了捲到該組；輪播時點不符合等同「看不符合的 N 項」 */
+function jumpTo(g: Group): void {
+  if (view.value === 'carousel' && g === 'no') {
+    void seeNo();
+    return;
+  }
+  activeChip.value = g;
+  const el = view.value === 'carousel' ? viewCarousel.value : g === 'yes' ? grpYes.value : grpNo.value;
+  el?.scrollIntoView?.({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
 }
 
-/** 修改答案：保留目前答案回第 1 題，答完回結果頁重新比對 */
-function editAnswers(): void {
-  q.setQuestion(0);
-  void router.push({ name: 'question' });
+function openDetail(no: number, from: HTMLElement | null): void {
+  detail.open(no, from);
 }
-/** [SUBS-R20] 清除填寫答案：回第 1 題，年齡與設籍回填台北通帳號值 */
+/** 修改答案：保留目前答案回首頁表單；改任一題後主按鈕變回送出（SUBS-R26） */
+function editAnswers(): void {
+  void router.push({ name: 'home' });
+}
+/** [SUBS-R20] 清除填寫答案：回首頁未填，年齡與戶籍立刻回填台北通帳號值 */
 function clearAnswers(): void {
-  q.resetAnswers();
-  void router.push({ name: 'question' });
+  q.startOver();
+  void router.push({ name: 'home' });
   showToast(MSG_CLEARED);
 }
 function onCenterClick(url: string): void {
@@ -62,41 +116,32 @@ function onCenterClick(url: string): void {
 
 <template>
   <section class="page" data-test="page-result">
-    <div class="title-row">
-      <h2 class="page-title">比對結果</h2>
-      <div class="tr-act">
-        <!-- [SUBS-R25] 閱讀模式，所有組一起套用 -->
-        <div class="seg" role="group" aria-label="閱讀模式">
-          <button
-            v-for="o in VIEWS"
-            :key="o.v"
-            :class="{ on: q.resultView.value === o.v }"
-            :aria-pressed="q.resultView.value === o.v ? 'true' : 'false'"
-            :aria-label="o.label"
-            :data-test="`view-${o.v}`"
-            @click="q.setResultView(o.v)"
-          >
-            <svg v-if="o.v === 'grid'" viewBox="0 0 24 24">
-              <rect x="4" y="4" width="7" height="7" rx="2" /><rect x="13" y="4" width="7" height="7" rx="2" />
-              <rect x="4" y="13" width="7" height="7" rx="2" /><rect x="13" y="13" width="7" height="7" rx="2" />
-            </svg>
-            <svg v-else viewBox="0 0 24 24">
-              <rect x="3" y="4.5" width="5" height="5" rx="1.5" /><rect x="3" y="14.5" width="5" height="5" rx="1.5" />
-              <path d="M11 7h10M11 17h10" />
-            </svg>
-          </button>
-        </div>
+    <span class="hey" data-test="hey">HEY, 找到了 {{ groups.eligible.length }} 項方案 ✨</span>
+    <h2 class="page-title">為你量身試算的<br />專屬補助方案</h2>
+    <div class="tool-row">
+      <div class="chip-row" role="group" aria-label="結果分組">
+        <button class="chip" :class="{ on: activeChip === 'yes' }" data-test="chip-yes" @click="jumpTo('yes')">
+          可能符合 <span class="count" data-test="count-yes">{{ groups.eligible.length }}</span>
+        </button>
+        <button class="chip" :class="{ on: activeChip === 'no' }" data-test="chip-no" @click="jumpTo('no')">
+          不符合 <span class="count" data-test="count-no">{{ groups.ineligible.length }}</span>
+        </button>
       </div>
-    </div>
-    <p class="muted answer-summary" data-test="answer-summary">{{ summary }}</p>
-
-    <div class="chip-row" role="group" aria-label="結果分組">
-      <button class="chip" :class="{ on: activeChip === 'yes' }" data-test="chip-yes" @click="jumpTo('yes')">
-        可能符合 <span class="count" data-test="count-yes">{{ groups.eligible.length }}</span>
-      </button>
-      <button class="chip" :class="{ on: activeChip === 'no' }" data-test="chip-no" @click="jumpTo('no')">
-        不符合 <span class="count" data-test="count-no">{{ groups.ineligible.length }}</span>
-      </button>
+      <!-- [SUBS-R25] 閱讀模式 -->
+      <div class="seg" role="group" aria-label="閱讀模式">
+        <button
+          v-for="o in VIEWS"
+          :key="o.v"
+          :class="{ on: view === o.v }"
+          :aria-pressed="view === o.v ? 'true' : 'false'"
+          :aria-label="o.label"
+          :data-test="`view-${o.v}`"
+          @click="setView(o.v)"
+        >
+          <svg v-if="o.v === 'carousel'" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="3" /><path d="M2.5 7v10M21.5 7v10" /></svg>
+          <svg v-else viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" /></svg>
+        </button>
+      </div>
     </div>
     <div class="chip-row sub" role="group" aria-label="資料類型">
       <button
@@ -115,42 +160,87 @@ function onCenterClick(url: string): void {
     <div v-if="q.listState.value === 'cached'" class="banner warn" data-test="result-cached">
       目前顯示的是上次載入的資料（{{ updatedText }}）。
     </div>
-    <div class="banner info" data-test="result-notice">這是初步篩選，不代表一定可以領。{{ THRESHOLD_NOTICE }}</div>
+    <p v-if="query" class="search-note" data-test="search-note">{{ searchNoteText(query, searchedYes.length + searchedNo.length) }}</p>
 
     <!-- [SUBS-R19] 可能符合（含模擬）為 0 項：最接近 3 項與各差在哪一條、社會福利服務中心 -->
-    <div v-if="q.noMatch.value" class="banner warn no-match" data-test="no-match">
-      <b>目前沒有可能符合的補助</b><br />最接近的 3 項：
-      <ul data-test="no-match-closest">
-        <li v-for="c in q.noMatch.value.closest" :key="c.item.no">{{ c.item.name }}：差在「{{ c.firstFailure }}」</li>
-      </ul>
-      可以洽
-      <a :href="q.noMatch.value.center.url" data-test="no-match-center" @click.prevent="onCenterClick(q.noMatch.value.center.url)">{{
-        q.noMatch.value.center.name
-      }}</a>
-      問問其他資源。
+    <div v-if="q.noMatch.value" class="no-match" data-test="no-match">
+      <div class="banner warn">
+        <b>目前沒有可能符合的補助</b><br />最接近的 3 項：
+        <ul data-test="no-match-closest">
+          <li v-for="c in q.noMatch.value.closest" :key="c.item.no">{{ c.item.name }}：差在「{{ c.firstFailure }}」</li>
+        </ul>
+        可以洽
+        <a :href="q.noMatch.value.center.url" data-test="no-match-center" @click.prevent="onCenterClick(q.noMatch.value.center.url)">{{
+          q.noMatch.value.center.name
+        }}</a>
+        問問其他資源。
+      </div>
     </div>
 
-    <p id="grp-yes" ref="grpYes" class="group-title">可能符合</p>
-    <template v-if="groups.eligible.length">
-      <div v-if="q.resultView.value === 'grid'" class="grid" data-test="list-yes">
-        <SubsidyCard v-for="r in shownYes" :key="r.item.no" :row="r" view="grid" @open="openDetail" />
+    <!-- 輪播：只放可能符合（SUBS-R25） -->
+    <div v-show="view === 'carousel'" ref="viewCarousel" data-test="view-carousel-box">
+      <div
+        v-show="carousel.length"
+        ref="car"
+        class="car"
+        aria-roledescription="carousel"
+        aria-label="可能符合的補助"
+        data-test="carousel"
+        @scroll.passive="onCarScroll"
+      >
+        <SubsidyBigCard v-for="r in carousel" :key="r.item.no" :row="r" @open="openDetail" />
       </div>
-      <div v-else data-test="list-yes">
-        <SubsidyCard v-for="r in shownYes" :key="r.item.no" :row="r" view="list" @open="openDetail" />
+      <div v-if="!carousel.length && groups.eligible.length" class="empty car-empty" data-test="car-empty">
+        {{ query ? '沒有名稱符合搜尋的項目' : '這個篩選下沒有可能符合的項目' }}
       </div>
-    </template>
-    <div v-else class="empty" data-test="empty-yes">目前沒有可能符合的補助</div>
+      <div class="dots" data-test="car-dots">
+        <template v-if="carousel.length > 1">
+          <button
+            v-for="(r, i) in carousel"
+            :key="r.item.no"
+            class="dot"
+            :class="{ on: i === carIdx }"
+            :aria-label="`第 ${i + 1} 張：${r.item.name}`"
+            :aria-current="i === carIdx ? 'true' : 'false'"
+            :data-test="`dot-${i}`"
+            @click="carGo(i)"
+          />
+        </template>
+      </div>
+      <button v-if="groups.ineligible.length" class="btn more" data-test="btn-see-no" @click="seeNo">
+        看不符合的 {{ groups.ineligible.length }} 項
+      </button>
+    </div>
 
-    <p id="grp-no" ref="grpNo" class="group-title">不符合</p>
-    <template v-if="groups.ineligible.length">
-      <div v-if="q.resultView.value === 'grid'" class="grid" data-test="list-no">
-        <SubsidyCard v-for="r in shownNo" :key="r.item.no" :row="r" view="grid" @open="openDetail" />
+    <!-- 清單：兩組 -->
+    <div v-show="view === 'list'" data-test="view-list-box">
+      <p id="grp-yes" ref="grpYes" class="group-title">可能符合</p>
+      <div data-test="list-yes">
+        <template v-if="searchedYes.length">
+          <SubsidyRow
+            v-for="r in listYes"
+            :key="r.item.no"
+            :item="r.item"
+            :ok="true"
+            :why="r.result.reason"
+            :verify="r.result.toVerify.length > 0"
+            @open="openDetail"
+          />
+        </template>
+        <div v-else class="empty" data-test="empty-yes">
+          {{ groups.eligible.length ? '沒有名稱符合搜尋的項目' : '目前沒有可能符合的補助' }}
+        </div>
       </div>
-      <div v-else data-test="list-no">
-        <SubsidyCard v-for="r in shownNo" :key="r.item.no" :row="r" view="list" @open="openDetail" />
+      <p id="grp-no" ref="grpNo" class="group-title">不符合</p>
+      <div data-test="list-no">
+        <SubsidyRow v-for="r in listNo" :key="r.item.no" :item="r.item" :ok="false" :why="r.result.reason" @open="openDetail" />
       </div>
-    </template>
+    </div>
 
+    <div class="result-note">
+      <p class="muted answer-summary" data-test="answer-summary">{{ summary }}</p>
+      <div class="banner info" data-test="result-notice">這是初步篩選，不代表一定可以領。{{ THRESHOLD_NOTICE }}</div>
+    </div>
     <div class="stack">
       <button class="btn primary" data-test="btn-edit" @click="editAnswers">修改答案</button>
       <button class="btn ghost" data-test="btn-clear" @click="clearAnswers">清除填寫答案</button>

@@ -8,7 +8,7 @@ import { THRESHOLD_NOTICE, displayUrl, formatUpdatedAt } from '@/lib/resultView'
 
 /**
  * 資料來源頁（spec 7.6、sa-3-s2.md W5）：資料集、機關、授權、網址、更新時間讀補助清單的 source 與 updatedAt；
- * 門檻提醒與模擬資料說明是固定文案（照原型）。頁首最左是首頁鍵（App.vue 共用標頭），頁底「返回」保留。
+ * 門檻提醒與模擬資料說明是固定文案（照原型）。頂列最左是首頁鍵（App.vue 共用頂列，SUBS-R26），頁底「返回」保留。
  */
 const router = useRouter();
 const q = useQuery();

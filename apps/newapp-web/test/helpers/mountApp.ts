@@ -29,9 +29,8 @@ export async function mountApp(listJson: unknown | null, path = '/') {
   // 先載好各頁（路由是 lazy import），避免第一次換頁還在轉譯時斷言
   await Promise.all([
     import('@/pages/HomePage.vue'),
-    import('@/pages/QuestionPage.vue'),
     import('@/pages/ResultPage.vue'),
-    import('@/pages/DetailPage.vue'),
+    import('@/pages/FavoritesPage.vue'),
     import('@/pages/SourcePage.vue'),
   ]);
   const router: Router = createAppRouter(createMemoryHistory());
@@ -50,20 +49,27 @@ export async function settle(): Promise<void> {
   await flushPromises();
 }
 
-/** 在畫面上依序回答四題（從開始頁按開始查詢起） */
-export async function answerAll(
-  wrapper: VueWrapper,
-  a: { age: string; residency: boolean; identities: string[]; income: number },
-): Promise<void> {
-  await wrapper.get('[data-test="btn-start"]').trigger('click');
-  await settle();
-  await wrapper.get('[data-test="in-age"]').setValue(a.age);
-  await wrapper.get('[data-test="btn-next"]').trigger('click');
-  await wrapper.get(`[data-test="res-${a.residency}"]`).trigger('change');
-  await wrapper.get('[data-test="btn-next"]').trigger('click');
-  for (const id of a.identities) await wrapper.get(`[data-test="id-${id}"]`).trigger('change');
-  await wrapper.get('[data-test="btn-next"]').trigger('click');
-  await wrapper.get(`[data-test="inc-${a.income}"]`).trigger('change');
-  await wrapper.get('[data-test="btn-next"]').trigger('click');
+export interface FormInput {
+  /** 年齡區間值（u18、18-29、30-44、45-64、65+），null 不選 */
+  band: string | null;
+  residency: boolean | null;
+  identities: string[];
+  /** 1～5 級距、0 不清楚、null 不填 */
+  income: number | null;
+}
+
+/** 在首頁表單填四題（不送出） */
+export async function fillForm(wrapper: VueWrapper, a: FormInput): Promise<void> {
+  if (a.band !== null) await wrapper.get(`[data-test="band-${a.band}"]`).trigger('click');
+  if (a.residency !== null) await wrapper.get('[data-test="in-res"]').setValue(String(a.residency));
+  for (const id of a.identities) await wrapper.get(`[data-test="id-${id}"]`).trigger('click');
+  if (a.income === 0) await wrapper.get('[data-test="br-unknown"]').trigger('click');
+  else if (a.income !== null) await wrapper.get('[data-test="in-br"]').setValue(String(a.income));
+}
+
+/** 在首頁表單填四題並按送出 */
+export async function answerAll(wrapper: VueWrapper, a: FormInput): Promise<void> {
+  await fillForm(wrapper, a);
+  await wrapper.get('[data-test="btn-submit"]').trigger('click');
   await settle();
 }
