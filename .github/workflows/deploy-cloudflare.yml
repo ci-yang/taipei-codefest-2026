@@ -1,6 +1,8 @@
 name: Deploy Cloudflare platform
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -35,6 +37,8 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: bb0097fdc915604c5902feb38e8bf463
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -45,6 +49,13 @@ jobs:
           test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Set the repository CLOUDFLARE_API_TOKEN secret before using this workflow.'; exit 1; }
       - run: pnpm install --frozen-lockfile
       - run: pnpm platform:deploy --url https://taipei-friendly-platform.jason21131.workers.dev
+      - name: Publish deployment summary
+        env:
+          DEPLOYED_SHA: ${{ github.sha }}
+        run: |
+          printf 'Cloudflare deployment passed smoke checks.\n\n' >> "$GITHUB_STEP_SUMMARY"
+          printf 'URL: https://taipei-friendly-platform.jason21131.workers.dev\n\n' >> "$GITHUB_STEP_SUMMARY"
+          printf 'Source commit: `%s`\n' "$DEPLOYED_SHA" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

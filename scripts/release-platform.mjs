@@ -14,6 +14,7 @@ import {
   sha256,
 } from './platform-tools.mjs';
 import { smokePlatform } from './smoke-platform.mjs';
+import { assertCiDeploySource } from './platform-ci-source.mjs';
 import {
   assertRollbackData,
   assertVersion,
@@ -71,6 +72,8 @@ export async function releasePlatform(action, options, dependencies = {}) {
     if (action === 'rollback') {
       await rollbackRelease({ run, config, receipt, deployed, smoke, save });
     } else {
+      const assertSource = () => assertCiDeploySource(sourceSha, run, dependencies.env ?? process.env);
+      await assertSource();
       const priorVersion = await readVersion(run, config, Boolean(options['first-deploy']));
       if (priorVersion === null && !options['first-deploy'])
         throw new Error('No existing Worker; explicitly use --first-deploy.');
@@ -87,6 +90,7 @@ export async function releasePlatform(action, options, dependencies = {}) {
       receipt.snapshotSha256 = manifest.files.snapshot.sha256;
       receiptPath = await save(receipt);
       await assertVersion(run, config, priorVersion);
+      await assertSource();
       await run(
         WRANGLER,
         ['d1', 'migrations', 'apply', config.database, '--config', config.path, '--remote'],
@@ -106,6 +110,7 @@ export async function releasePlatform(action, options, dependencies = {}) {
       );
       await assertCleanHead(run, sourceSha);
       await assertVersion(run, config, priorVersion);
+      await assertSource();
       const result = await run(
         WRANGLER,
         [

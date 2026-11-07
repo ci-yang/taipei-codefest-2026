@@ -3,6 +3,12 @@
 > 「之後還會再問一次」的結論寫在這裡，最新的放最上面。一條三段：決定、理由、影響／何時重議。
 > 聊天訊息會被洗掉，這裡不會。值以 `.env`／程式碼為準，這裡記的是「為什麼」。
 
+## 2026-11-07 ｜ Cloudflare CI/CD 自動部署
+
+- **決定**：Ci 要求提供 Cloudflare 入口並完成 CI/CD。沿用既有 `taipei-friendly-platform` Worker 與 D1；PR 只測試，main push／手動 main dispatch 先跑相同 CI，成功才發布。憑證只放 GitHub Actions secret。
+- **理由**：讓成員合併後能更新平台，不依賴某台電腦的 Wrangler OAuth；重用已驗證的部署、smoke 與回退腳本。
+- **影響／重議**：checkout 與發布固定同一 SHA，遠端 main 前進就拒絕過期 run，發布序列化且不取消遠端寫入。範圍仍是 Vue／Hono／D1 平台；原型分享與 APK 另行發布，D6／D7 產品方向不變。此設定改動不新增產品 API 或 demo 主流程，未另開 Prospec change。
+
 ## 2026-11-07 ｜ 分支整合狀態
 
 Ci 本輪授權整理分支、取得最新 main、經 Claude Code review 後合入 main。整合保留成員 `21bc1f3` 的全市資料管線、平台分支的部署基礎，以及原型分支的完整 App；現行主流程依下列 D6／D7 與凍結 proposal `6da4a77f904db5877d10fe8a54adf90356a178dc`。品牌推定保留在歷史資料實驗，不進現行正式分類；平台仍為獨立部署入口，合併不等於重新部署或 APK 更新。

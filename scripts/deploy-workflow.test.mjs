@@ -8,6 +8,42 @@ const workflow = await readFile(
   'utf8',
 );
 const MAIN_ONLY = "${{ github.ref == 'refs/heads/main' }}";
+const ciWorkflow = await readFile(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8');
+
+test('only main pushes or manual dispatch trigger deployment; PRs run credential-free CI', () => {
+  const triggers = workflow.slice(
+    workflow.indexOf('\non:\n'),
+    workflow.indexOf('\npermissions:\n'),
+  );
+  assert.match(triggers, /\n {2}push:\n {4}branches: \[main\]\n/);
+  assert.match(triggers, /\n {2}workflow_dispatch:/);
+  assert.doesNotMatch(triggers, /pull_request|workflow_run|pull_request_target/);
+  const ciTriggers = ciWorkflow.slice(
+    ciWorkflow.indexOf('\non:\n'),
+    ciWorkflow.indexOf('\npermissions:\n'),
+  );
+  assert.match(ciTriggers, /\n {2}pull_request:/);
+  assert.match(ciTriggers, /\n {2}workflow_call:/);
+  assert.doesNotMatch(ciTriggers, /\n {2}push:/);
+  assert.doesNotMatch(ciWorkflow, /secrets\.|secrets:\s*inherit/);
+});
+
+test('deploy pins its verified SHA and serializes releases without cancelling remote writes', () => {
+  assert.match(
+    workflow,
+    /concurrency:\n {2}group: cloudflare-taipei-friendly-platform\n {2}cancel-in-progress: false/,
+  );
+  const deployJob = workflow.slice(workflow.indexOf('\n  deploy:\n'));
+  assert.match(
+    deployJob,
+    /uses: actions\/checkout@v4\n {8}with:\n {10}ref: \$\{\{ github.sha \}\}/,
+  );
+  assert.match(
+    deployJob,
+    /run: pnpm platform:deploy --url https:\/\/taipei-friendly-platform\.jason21131\.workers\.dev/,
+  );
+  assert.match(deployJob, /uses: actions\/upload-artifact@v4\n {8}if: always\(\)/);
+});
 
 // Read only complete job blocks at their YAML indentation, never a whole-file keyword match.
 function inspectWorkflow(source) {

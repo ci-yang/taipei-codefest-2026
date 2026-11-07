@@ -1,10 +1,10 @@
 # 整合後入口說明
 
-本文件描述獨立的 Vue／Hono／D1 平台；`platform:deploy` 發布 `apps/web/dist`，不是目前 D6／D7 的純 JS App 原型。App 本體與打包入口見 [`prototypes/friendly-route/README.md`](prototypes/friendly-route/README.md)。合併 main 只觸發 CI，不會自動部署、遷移遠端 D1 或更新 APK。
+本文件描述獨立的 Vue／Hono／D1 平台；`platform:deploy` 發布 `apps/web/dist`，不是目前 D6／D7 的純 JS App 原型。App 本體與打包入口見 [`prototypes/friendly-route/README.md`](prototypes/friendly-route/README.md)。main 現由部署 workflow 先驗 CI，再發布既有 Worker 並套追加式 D1 migration；不更新原型分享或 APK。
 
 # Cloudflare 友善平台
 
-正式程式採 Workers + Static Assets + D1；Vue、API 與地方圖資同源。既有 GCP 及 Node/PostGIS 留作基線，不執行舊 `deploy/release.sh`。這份手冊描述本輪 readonly 名冊與裝置端路由，產品 prototype 的評論／互助仍由組員另行定規格。
+平台採 Workers + Static Assets + D1；Vue、API 與地方圖資同源。入口為 [Cloudflare 友善平台](https://taipei-friendly-platform.jason21131.workers.dev)。既有 GCP 及 Node/PostGIS 留作基線，不執行舊 `deploy/release.sh`。本手冊描述平台的 readonly 名冊與裝置端路由；產品 App 依 D6／D7，沒有評論或互助。
 
 ## 本機
 
@@ -75,7 +75,18 @@ pnpm platform:rollback --receipt .artifacts/releases/<部署收據>.json
 
 回退使用收據的前版 Worker；先確認其資料快照仍可讀，再回退與 smoke。**D1 不隨 Worker 回退**，舊快照及 schema 必須保留。首次部署沒有前版可回退，驗證失敗就不交付新入口，GCP 保持可用。不要自行刪除仍有 owner 的 lock。
 
-CI 對 PR 執行既有 PostGIS 測試、新 D1 整合及 Worker dry-run，保存明確 SHA 的前端／Worker artifact。另有 `Deploy Cloudflare platform` 手動 Actions workflow：限 main 分支，先跑同一 CI，再序列部署。它需要專用 `CLOUDFLARE_API_TOKEN` repository secret；本機 Wrangler OAuth 不會被複製進 GitHub。部署憑證是否已設定及實際發布結果見本輪 handoff。
+## GitHub CI/CD
+
+- PR：`CI` 執行 typecheck、lint、原型測試、PostGIS 測試、工具測試、build、local D1 integration 及 Worker dry-run；不取得部署 secret。
+- 合併／push 到 main：`Deploy Cloudflare platform` 先做 main preflight，再呼叫相同的 reusable CI。驗證成功後才執行 `platform:deploy`。main 不另跑重複的 CI workflow。
+- 手動重跑：[Actions 部署流程](https://github.com/ci-yang/taipei-codefest-2026/actions/workflows/deploy-cloudflare.yml) 選 main。其他分支會被拒絕。
+- 發布 checkout 固定事件 SHA；GitHub Actions 的 deploy 在開始、建置後 D1 寫入前、Worker upload 前，比對 `GITHUB_SHA`、本機 HEAD 與遠端 main。過期 run 或遠端查詢失敗就停止，不能重跑舊 run 覆蓋新版；真正回退仍使用上方收據指令。
+- 同環境序列部署，不取消正在進行的遠端寫入。Smoke 失敗沿用既有 Worker 回退流程，D1 舊快照保留。
+- 成功後 Actions summary 列出網址與 SHA；部署收據 artifact 保存 30 天。`/config` 與 `/healthz` 用來核對實際線上版本。
+
+需要專用 `CLOUDFLARE_API_TOKEN` repository secret，設定在 [Actions secrets](https://github.com/ci-yang/taipei-codefest-2026/settings/secrets/actions)。只授權既有 Cloudflare 帳號所需的 Workers Scripts 與 D1 寫入權限，不能使用 Global API Key；token 不寫入程式、收據或 git。本機 Wrangler OAuth 不複製進 GitHub。缺少 token 時 workflow 明確失敗，不會宣稱已發布。帳號與 D1 ID 是公開設定，沿用 `wrangler.jsonc`。
+
+流程依 [Cloudflare GitHub Actions 文件](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/) 使用環境 token；發布仍透過本 repo 的版本核對、匯入與 smoke 腳本，實際設定與執行結果見最新 handoff。
 
 ## App 與責任
 
