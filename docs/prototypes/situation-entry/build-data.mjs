@@ -59,7 +59,7 @@ export function buildData() {
   return {
     ...base,
     directories: {
-      welfareCenters: { title: '各區社會福利服務中心', sources: ['d5-welfare-centers'], rows: welfareCenters },
+      welfareCenters: { title: '各區社會福利服務中心', sources: ['dosw-welfare-roster', 'd5-welfare-centers'], rows: welfareCenters },
       laborConsult: { title: '免費勞工法令律師諮詢地點與時段', sources: ['d8-labor-lawyer'], rows: laborConsult },
     },
   };

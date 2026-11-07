@@ -19,6 +19,14 @@ window.SITUATION_DATA = {
       "checkedOn": "2026-11-08",
       "note": "資源檔案更新 2026-03-05；快照 data/situation/social-welfare-centers.csv"
     },
+    "dosw-welfare-roster": {
+      "short": "社福中心名冊（社會局網站）",
+      "title": "臺北市政府社會局：臺北市社福中心（各中心地址、電話）",
+      "publisher": "臺北市政府社會局",
+      "url": "https://dosw.gov.taipei/cp.aspx?n=A09F1F39587B3A69",
+      "checkedOn": "2026-11-08",
+      "note": "頁面資料更新 115-04-29；13 筆電話逐筆與開放資料快照比對一致（萬華街友專責中心在名冊上叫「萬華社會福利服務中心(第二辦公室)」）"
+    },
     "d8-labor-lawyer": {
       "short": "免費勞工律師諮詢時段（開放資料）",
       "title": "臺北市免費勞工法令律師諮詢時段（開放資料 CSV）",
@@ -51,6 +59,14 @@ window.SITUATION_DATA = {
       "checkedOn": "2026-11-08",
       "note": "頁面資料更新 115-09-30；應備文件頁 s=8548895E1D6460E1、洽辦資訊頁 s=3EDF246EE65EE9D5"
     },
+    "dosw-emergency-docs": {
+      "short": "社會局急難救助應備文件",
+      "title": "臺北市政府社會局：急難救助－應備文件",
+      "publisher": "臺北市政府社會局",
+      "url": "https://dosw.gov.taipei/cp.aspx?n=0BF751F1B9F07AA1&s=8548895E1D6460E1",
+      "checkedOn": "2026-11-08",
+      "note": "頁面資料更新 115-09-30；列 6 項應備文件"
+    },
     "dosw-relief": {
       "short": "社會局急難紓困方案頁",
       "title": "臺北市政府社會局：強化社會安全網－急難紓困方案（原馬上關懷）",
@@ -58,6 +74,14 @@ window.SITUATION_DATA = {
       "url": "https://dosw.gov.taipei/cp.aspx?n=7011FE50261D43B5",
       "checkedOn": "2026-11-08",
       "note": "頁面資料更新 115-09-30；應備文件頁 s=ECB09CA2920D0D96、洽辦資訊頁 s=817019EDC51D3538"
+    },
+    "dosw-relief-docs": {
+      "short": "社會局急難紓困應備文件",
+      "title": "臺北市政府社會局：強化社會安全網－急難紓困方案－應備文件",
+      "publisher": "臺北市政府社會局",
+      "url": "https://dosw.gov.taipei/cp.aspx?n=7011FE50261D43B5&s=ECB09CA2920D0D96",
+      "checkedOn": "2026-11-08",
+      "note": "列 3 項應備文件，附申請表、認定表 PDF"
     },
     "law-emergency": {
       "short": "臺北市急難救助金核發作業要點",
@@ -115,6 +139,7 @@ window.SITUATION_DATA = {
           "fromDirectory": true,
           "note": "上班時間打；在上方「找你那一區」選行政區後顯示電話。",
           "sources": [
+            "dosw-welfare-roster",
             "d5-welfare-centers",
             "dosw-food-faq"
           ]
@@ -305,23 +330,48 @@ window.SITUATION_DATA = {
       ],
       "bring": [
         {
-          "text": "身分證或戶籍資料影本。申請書可以到窗口填。",
+          "text": "申請書 1 份（急難紓困是申請書或通報表），加申請人的身分證或戶籍資料影本 1 份。",
           "sources": [
-            "dosw-emergency"
+            "dosw-emergency-docs",
+            "dosw-relief-docs"
           ]
         },
         {
-          "text": "證明發生什麼事的文件：生病受傷帶診斷證明書和醫療收據；家人過世帶死亡證明；失業帶公立就業服務機構開的輔導就業證明。",
+          "text": "生病或受傷：公立或私立財團法人醫療院所開的診斷證明書 1 份，加醫療費用收據（原則上要正本）。",
           "sources": [
-            "dosw-emergency",
-            "dosw-relief"
+            "dosw-emergency-docs"
           ]
         },
         {
-          "text": "房租、水電的欠費單據要不要帶：待確認。可以先帶著，到窗口再問。",
+          "text": "家人過世、要申請喪葬救助：過世家人的死亡證明文件，加治喪費用單據。",
+          "sources": [
+            "dosw-emergency-docs"
+          ]
+        },
+        {
+          "text": "失業：公立就業輔導機構開的輔導就業證明。",
+          "sources": [
+            "dosw-emergency-docs"
+          ]
+        },
+        {
+          "text": "申請急難紓困：發生什麼事的證明，例如死亡證明、失蹤證明、罹患重傷病證明、失業證明，或其他原因沒辦法工作的證明。",
+          "sources": [
+            "dosw-relief-docs"
+          ]
+        },
+        {
+          "text": "其他跟你狀況有關的證明文件，有就一起帶。",
+          "sources": [
+            "dosw-emergency-docs"
+          ]
+        },
+        {
+          "text": "房租、水電的欠費單據要不要帶：官方應備文件沒有列，待確認。可以先帶著，到窗口再問。",
           "pending": true,
           "sources": [
-            "dosw-emergency"
+            "dosw-emergency-docs",
+            "dosw-relief-docs"
           ]
         }
       ],
@@ -340,6 +390,7 @@ window.SITUATION_DATA = {
           "fromDirectory": true,
           "note": "在上方「找你那一區」選行政區後顯示電話。",
           "sources": [
+            "dosw-welfare-roster",
             "d5-welfare-centers",
             "dosw-emergency"
           ]
@@ -369,6 +420,7 @@ window.SITUATION_DATA = {
     "welfareCenters": {
       "title": "各區社會福利服務中心",
       "sources": [
+        "dosw-welfare-roster",
         "d5-welfare-centers"
       ],
       "rows": [
