@@ -4,7 +4,7 @@
 
 ## 功能
 
-- 以 10 項臺北市社會救助開放資料，加上 9 項官方常用方案，進行共 19 項深度門檻初篩。
+- 以 10 項臺北市社會救助開放資料，加上 15 項官方常用方案，進行共 25 項深度門檻初篩。
 - 收錄台北服務通 165 項補助相關官方服務候選，依使用者情況排序並連回官方申辦頁。
 - 透過既有 TownPass `userinfo` bridge 帶入出生日期、臺北市民資訊與原住民族旗標。
 - 由使用者補充居住日數、家戶所得、財產及身分情況。
@@ -51,6 +51,12 @@ pnpm build
 | [育兒及托育相關補助](https://dosw.gov.taipei/Content_List.aspx?n=2C486AA08208CD74) | 臺北市政府社會局 | 育兒與托育規則 | 否 |
 | [臺北市生育補助](https://ca.gov.taipei/News_Content.aspx?n=59F2E04A34FDA3E8&s=B48A280E9EB5F920) | 臺北市政府民政局 | 一般生育補助規則 | 否 |
 | [失業給付](https://eso.gov.taipei/News_Content.aspx?n=B26586FCE6F04719&s=CDE5D0AFE68F030C&sms=87415A8B9CE81B16) | 臺北市就業服務處 | 失業給付規則 | 否 |
+| [特殊境遇家庭扶助](https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=F86046FC3A91FCAF&sms=87415A8B9CE81B16) | 臺北市政府社會局 | 特殊境遇家庭所得、財產與身分規則 | 否 |
+| [身心障礙者輔具費用補助](https://dosw.gov.taipei/cp.aspx?n=49304F9B0793FFEF) | 臺北市政府社會局 | 輔具補助設籍、居住與申請順序規則 | 否 |
+| [老人健保補助](https://dosw.gov.taipei/cp.aspx?n=22B00B4927757FFE) | 臺北市政府社會局 | 長者健保自付額補助規則 | 否 |
+| [兒童醫療補助](https://health.gov.taipei/News_Content.aspx?n=232AD545CBF028A7&s=AD1271100D029C67&sms=D8A8AF6A9CFCB149) | 臺北市政府衛生局 | 第 1 至 3 類兒童醫療資格規則 | 否 |
+| [好孕 2U 孕婦乘車補助](https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=79FC4665DF0CABCD&sms=87415A8B9CE81B16) | 臺北市政府社會局 | 孕婦乘車金資格規則 | 否 |
+| [中低收入老人特別照顧津貼](https://dosw.gov.taipei/cp.aspx?n=3C3D1F78D6280694) | 臺北市政府社會局 | 受照顧長者與家庭照顧者規則 | 否 |
 | [台北服務通申辦服務目錄](https://service.taipei/search-item) | 臺北市政府 | 165 項產品候選（由全站 1,647 項篩選） | 否；候選數非官方統計 |
 
 165 項候選是以「補助、津貼、減免、扶助、救助、獎勵金、慰問金」找到 248 筆後，再排除核銷、請款及明顯機構型案件所得；不是臺北市政府公布的補助總數。

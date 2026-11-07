@@ -106,7 +106,7 @@ export function rankCatalogPrograms(profile: EligibilityProfile, today = new Dat
       reasons.push('你勾選了目前在學');
     }
     if (
-      (selected.has('pregnantOrRecentLoss') || selected.has('infantUnder2') || selected.has('recentBirth')) &&
+      (selected.has('currentlyPregnant') || selected.has('pregnantOrRecentLoss') || selected.has('infantUnder2') || selected.has('recentBirth')) &&
       category === 'family'
     ) {
       score += 6;
@@ -147,6 +147,25 @@ export function rankCatalogPrograms(profile: EligibilityProfile, today = new Dat
     if (selected.has('protectedOrPlaced') && /保護|安置/.test(text)) {
       score += 6;
       reasons.push('你勾選了保護或安置情況');
+    }
+    if (selected.has('specialFamilyCircumstance') && (category === 'family' || category === 'emergency')) {
+      score += 7;
+      reasons.push('你勾選了特殊境遇家庭情況');
+    }
+    if (selected.has('assistiveDeviceNeeded') && category === 'disability') {
+      score += 6;
+      reasons.push('你勾選了身心障礙輔具需求');
+    }
+    if (
+      (selected.has('childMedicalSpecialEligibility') || selected.has('thirdOrLaterChildUnder6')) &&
+      (category === 'family' || category === 'medical')
+    ) {
+      score += 6;
+      reasons.push('你填寫的兒童醫療情況可能相關');
+    }
+    if ((selected.has('elderCareRecipientEligible') || selected.has('familyCaregiverEligible')) && category === 'senior') {
+      score += 7;
+      reasons.push('你勾選了高齡家庭照顧情況');
     }
 
     if (!reasons.length) reasons.push('官方服務目錄候選，尚無足夠欄位自動判斷');

@@ -5,7 +5,7 @@
  * 資料集目錄更新：2026-10-13
  * 授權：政府資料開放授權條款第 1 版
  *
- * 原始開放資料有 10 筆，另依各主管機關現行官方頁面整理 9 項常用方案。
+ * 原始開放資料有 10 筆，另依各主管機關現行官方頁面整理 15 項常用方案。
  * 部分門檻仍須由承辦單位依家戶組成、所得認列與最新法規複核；本檔不把初篩當成核定。
  */
 
@@ -44,6 +44,22 @@ export type BenefitTrait =
   | 'employmentInsuranceOneYear'
   | 'willingToWork'
   | 'jobRegistered14Days'
+  | 'specialFamilyCircumstance'
+  | 'spouseTaipeiResident'
+  | 'assistiveDeviceNeeded'
+  | 'assistiveDeviceSubsidyConditionsMet'
+  | 'taipeiResidentOneYear'
+  | 'taxRateUnder20'
+  | 'noFullNhiSubsidy'
+  | 'childTaipeiResident'
+  | 'childUnder6'
+  | 'parentTaipeiTenMonths'
+  | 'childMedicalSpecialEligibility'
+  | 'thirdOrLaterChildUnder6'
+  | 'currentlyPregnant'
+  | 'pregnancyHealthHandbook'
+  | 'elderCareRecipientEligible'
+  | 'familyCaregiverEligible'
   | 'militaryFamily'
   | 'violenceVictim'
   | 'farmer'
@@ -64,7 +80,12 @@ export interface BenefitRule {
   incomeLimitOverride?: { traitAny: BenefitTrait[]; limit: number };
   movableAssetsLimit?: number;
   realEstateLimit?: number;
-  specialCheck?: 'taipeiHappinessRent';
+  specialCheck?:
+    | 'taipeiHappinessRent'
+    | 'specialFamilyResidence'
+    | 'elderHealthInsurance'
+    | 'childMedical'
+    | 'goodPregnancyRide';
 }
 
 export interface BenefitProgram {
@@ -88,9 +109,9 @@ export const BENEFIT_SOURCE = {
     'https://data.taipei/api/dataset/246337a0-751e-4523-a6c7-c185119b13d8/resource/549a3347-df6e-4bed-b818-368210d01544/download',
   catalogUpdatedAt: '2026-10-13',
   license: '政府資料開放授權條款第 1 版',
-  count: 19,
+  count: 25,
   openDataCount: 10,
-  additionalRuleCount: 9,
+  additionalRuleCount: 15,
 } as const;
 
 export const ADDITIONAL_BENEFIT_SOURCES = [
@@ -99,6 +120,12 @@ export const ADDITIONAL_BENEFIT_SOURCES = [
   { name: '臺北市政府社會局育兒及托育補助', url: 'https://dosw.gov.taipei/Content_List.aspx?n=2C486AA08208CD74' },
   { name: '臺北市政府民政局生育補助', url: 'https://ca.gov.taipei/News_Content.aspx?n=59F2E04A34FDA3E8&s=B48A280E9EB5F920' },
   { name: '臺北市就業服務處失業給付', url: 'https://eso.gov.taipei/News_Content.aspx?n=B26586FCE6F04719&s=CDE5D0AFE68F030C&sms=87415A8B9CE81B16' },
+  { name: '臺北市政府社會局特殊境遇家庭扶助', url: 'https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=F86046FC3A91FCAF&sms=87415A8B9CE81B16' },
+  { name: '臺北市政府社會局身心障礙者輔具費用補助', url: 'https://dosw.gov.taipei/cp.aspx?n=49304F9B0793FFEF' },
+  { name: '臺北市政府社會局老人健保補助', url: 'https://dosw.gov.taipei/cp.aspx?n=22B00B4927757FFE' },
+  { name: '臺北市政府衛生局兒童醫療補助', url: 'https://health.gov.taipei/News_Content.aspx?n=232AD545CBF028A7&s=AD1271100D029C67&sms=D8A8AF6A9CFCB149' },
+  { name: '臺北市好孕 2U 孕婦乘車補助', url: 'https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=79FC4665DF0CABCD&sms=87415A8B9CE81B16' },
+  { name: '臺北市中低收入老人特別照顧津貼', url: 'https://dosw.gov.taipei/cp.aspx?n=3C3D1F78D6280694' },
 ] as const;
 
 export const TRAIT_LABELS: Record<BenefitTrait, string> = {
@@ -136,6 +163,22 @@ export const TRAIT_LABELS: Record<BenefitTrait, string> = {
   employmentInsuranceOneYear: '離職退保前 3 年內，就業保險年資合計滿 1 年',
   willingToWork: '目前具有工作能力及繼續工作意願',
   jobRegistered14Days: '已辦求職登記，14 日內未獲推介就業或職訓',
+  specialFamilyCircumstance: '符合喪偶／失蹤、家暴、孕產、單親照顧、配偶服刑或近期重大變故之一',
+  spouseTaipeiResident: '本人未設籍，但與設籍臺北市的配偶實際居住臺北市',
+  assistiveDeviceNeeded: '因身心障礙需要申請輔具，且尚未購買',
+  assistiveDeviceSubsidyConditionsMet: '所需輔具未受其他同類補助；曾申請者已超過最低使用年限',
+  taipeiResidentOneYear: '已設籍並實際居住臺北市滿 1 年',
+  taxRateUnder20: '最近一年綜所稅未達申報標準或稅率未達 20%',
+  noFullNhiSubsidy: '尚未獲其他政府機關全額補助健保自付額',
+  childTaipeiResident: '申請兒童已設籍臺北市',
+  childUnder6: '家中有未滿 6 歲兒童',
+  parentTaipeiTenMonths: '兒童的父、母或監護人一方已設籍並實住臺北市連續滿 10 個月',
+  childMedicalSpecialEligibility: '兒童符合低收入／特殊境遇、罕病重大傷病，或未滿 2 歲極低體重等醫療補助資格',
+  thirdOrLaterChildUnder6: '未滿 6 歲兒童為同父或母所生第 3 名以上子女',
+  currentlyPregnant: '目前懷孕中',
+  pregnancyHealthHandbook: '已領有孕婦健康手冊',
+  elderCareRecipientEligible: '受照顧長者領中低收入老人津貼、重度失能在家，且未使用其他照顧補助',
+  familyCaregiverEligible: '照顧者 16 至 64 歲、未全職工作，與長者設籍同住且符合親屬資格',
   militaryFamily: '役男家屬或遺屬',
   violenceVictim: '家庭暴力或性侵害被害人',
   farmer: '農戶',
@@ -474,6 +517,103 @@ export const BENEFIT_PROGRAMS: BenefitProgram[] = [
       maxAge: 65,
       requiresTaipei: false,
       traitAll: ['unemployed', 'involuntaryUnemployed', 'employmentInsuranceOneYear', 'willingToWork', 'jobRegistered14Days'],
+    },
+  },
+  {
+    id: '20',
+    name: '特殊境遇家庭扶助',
+    audience: '遭遇喪偶、家暴、單親照顧、配偶服刑或近期重大變故等特殊境遇的臺北市家庭',
+    officialIncome: '115 年度家庭平均每人每月未超過 39,960 元',
+    officialAssets: '家庭動產平均每人未超過 62 萬 2,320 元；全戶不動產未超過 650 萬元',
+    otherConditions: '須符合七類特殊境遇之一；新住民與設籍臺北市市民結婚且實住臺北市者，得不受本人設籍限制',
+    office: '臺北市政府社會局婦女福利及兒童托育科',
+    contact: '1999 轉 1951',
+    officialUrl: 'https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=F86046FC3A91FCAF&sms=87415A8B9CE81B16',
+    rule: {
+      requiresTaipei: false,
+      traitAll: ['specialFamilyCircumstance'],
+      incomeLimit: 39_960,
+      movableAssetsLimit: 622_320,
+      realEstateLimit: 6_500_000,
+      specialCheck: 'specialFamilyResidence',
+    },
+  },
+  {
+    id: '21',
+    name: '身心障礙者輔具費用補助',
+    audience: '設籍臺北市、領有本市身心障礙證明且有輔具需求者',
+    officialIncome: '資格無一般所得上限；補助額度依低收入、中低收入或一般戶別及輔具項目計算',
+    officialAssets: '資格無一般財產上限',
+    otherConditions: '最近 1 年居住國內達 183 日；須先申請核定再購買，每 2 年原則最多 4 項',
+    office: '臺北市政府社會局身心障礙者福利科或各區輔具中心',
+    contact: '1999 轉 1558、1617',
+    officialUrl: 'https://dosw.gov.taipei/cp.aspx?n=49304F9B0793FFEF',
+    rule: {
+      requiresTaipei: true,
+      requires183Days: true,
+      traitAll: ['disabled', 'assistiveDeviceNeeded', 'assistiveDeviceSubsidyConditionsMet'],
+    },
+  },
+  {
+    id: '22',
+    name: '老人全民健康保險保險費自付額補助',
+    audience: '符合年齡、設籍居住與所得稅條件，且未受其他全額健保補助的臺北市長者',
+    officialIncome: '最近一年綜所稅未達申報標準或核定稅率未達 20%；65 至 69 歲中低收入老人另有資格途徑',
+    officialAssets: '無財產門檻',
+    otherConditions: '一般長者年滿 65 歲、原住民年滿 55 歲，原則須設籍實住臺北市滿 1 年且近一年住國內至少 183 日',
+    office: '臺北市政府社會局老人福利科',
+    contact: '1999 轉 1682、1684、1686、1687',
+    officialUrl: 'https://dosw.gov.taipei/cp.aspx?n=22B00B4927757FFE',
+    rule: {
+      requiresTaipei: true,
+      requires183Days: true,
+      specialCheck: 'elderHealthInsurance',
+    },
+  },
+  {
+    id: '23',
+    name: '臺北市兒童醫療補助',
+    audience: '設籍臺北市且符合一般幼兒、特殊醫療或第 3 名以上子女資格的兒童',
+    officialIncome: '第 1、3 類無所得門檻；第 2 類依低收入、特殊境遇或指定醫療資格認定',
+    officialAssets: '第 1、3 類無財產門檻',
+    otherConditions: '第 1 類為未滿 6 歲且父母一方設籍實住滿 10 個月；第 2、3 類依兒童身分及年齡認定',
+    office: '臺北市 12 區健康服務中心',
+    contact: '臺北市民當家熱線 1999',
+    officialUrl: 'https://health.gov.taipei/News_Content.aspx?n=232AD545CBF028A7&s=AD1271100D029C67&sms=D8A8AF6A9CFCB149',
+    rule: {
+      requiresTaipei: false,
+      specialCheck: 'childMedical',
+    },
+  },
+  {
+    id: '24',
+    name: '臺北市好孕 2U 孕婦乘車補助',
+    audience: '設籍臺北市的孕婦，或配偶設籍臺北市的非本國籍孕婦',
+    officialIncome: '無所得門檻',
+    officialAssets: '無財產門檻',
+    otherConditions: '須在懷孕中並領有孕婦健康手冊；115 年每次懷孕補助 10,000 元電子乘車金',
+    office: '合作醫療院所、健康服務中心、區公所、社福中心或線上申請',
+    contact: '臺北市民當家熱線 1999',
+    officialUrl: 'https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=79FC4665DF0CABCD&sms=87415A8B9CE81B16',
+    rule: {
+      requiresTaipei: false,
+      traitAll: ['currentlyPregnant', 'pregnancyHealthHandbook'],
+      specialCheck: 'goodPregnancyRide',
+    },
+  },
+  {
+    id: '25',
+    name: '中低收入老人特別照顧津貼',
+    audience: '在家照顧重度失能中低收入長者、因照顧無法全職工作的家屬',
+    officialIncome: '受照顧者須已領有中低收入老人生活津貼',
+    officialAssets: '由中低收入老人生活津貼資格先行審查',
+    otherConditions: '長者未接受機構、居家、日照、看護等補助；照顧者須 16 至 64 歲、與長者設籍同住且未全職工作',
+    office: '臺北市政府社會局各區老人服務中心',
+    contact: '1999 轉 1674',
+    officialUrl: 'https://dosw.gov.taipei/cp.aspx?n=3C3D1F78D6280694',
+    rule: {
+      requiresTaipei: true,
+      traitAll: ['elderCareRecipientEligible', 'familyCaregiverEligible'],
     },
   },
 ];

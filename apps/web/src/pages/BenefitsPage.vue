@@ -44,15 +44,19 @@ const townPassMessage = ref('');
 const traitGroups: { title: string; traits: BenefitTrait[] }[] = [
   {
     title: '身分與生活情況',
-    traits: ['lowIncome', 'middleLowIncome', 'student', 'disabled', 'indigenous', 'newImmigrant', 'militaryFamily', 'violenceVictim', 'protectedOrPlaced', 'recentEmergency', 'seriouslyIllSenior', 'farmer', 'petOwner'],
+    traits: ['lowIncome', 'middleLowIncome', 'student', 'disabled', 'indigenous', 'newImmigrant', 'militaryFamily', 'violenceVictim', 'protectedOrPlaced', 'recentEmergency', 'specialFamilyCircumstance', 'farmer', 'petOwner'],
   },
   {
     title: '租屋與家庭狀態',
-    traits: ['renter', 'noOwnedHome', 'centralRentApproved', 'single', 'married', 'newlywedWithin2Years', 'minorChild', 'childUnder12', 'taipeiResidentFourMonths'],
+    traits: ['renter', 'noOwnedHome', 'centralRentApproved', 'single', 'married', 'newlywedWithin2Years', 'minorChild', 'childUnder12', 'taipeiResidentFourMonths', 'spouseTaipeiResident'],
   },
   {
     title: '生育與托育',
-    traits: ['pregnantOrRecentLoss', 'infantUnder2', 'childUnder3', 'childAge2To5', 'recentBirth', 'homeCareWithoutPublicChildcare', 'publicOrQuasiChildcare', 'childcare30Hours', 'childNotPubliclyPlaced', 'northNorthKeelungTenMonths', 'birthApplicationInTime'],
+    traits: ['currentlyPregnant', 'pregnancyHealthHandbook', 'pregnantOrRecentLoss', 'infantUnder2', 'childUnder3', 'childAge2To5', 'childUnder6', 'recentBirth', 'homeCareWithoutPublicChildcare', 'publicOrQuasiChildcare', 'childcare30Hours', 'childNotPubliclyPlaced', 'northNorthKeelungTenMonths', 'birthApplicationInTime'],
+  },
+  {
+    title: '醫療、高齡與照顧',
+    traits: ['seriouslyIllSenior', 'assistiveDeviceNeeded', 'assistiveDeviceSubsidyConditionsMet', 'taipeiResidentOneYear', 'taxRateUnder20', 'noFullNhiSubsidy', 'childTaipeiResident', 'parentTaipeiTenMonths', 'childMedicalSpecialEligibility', 'thirdOrLaterChildUnder6', 'elderCareRecipientEligible', 'familyCaregiverEligible'],
   },
   {
     title: '失業與求職',

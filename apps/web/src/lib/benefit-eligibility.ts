@@ -70,8 +70,10 @@ export function evaluateBenefit(
   const conflicts: string[] = [];
   const age = ageFromBirthday(profile.birthday, today);
   const selected = new Set(profile.traits);
+  if (selected.has('currentlyPregnant')) selected.add('pregnantOrRecentLoss');
   if (selected.has('infantUnder2')) selected.add('childUnder3');
-  if (selected.has('infantUnder2') || selected.has('childUnder3') || selected.has('childAge2To5')) {
+  if (selected.has('infantUnder2') || selected.has('childUnder3') || selected.has('childAge2To5') || selected.has('childUnder6')) {
+    selected.add('childUnder6');
     selected.add('childUnder12');
     selected.add('minorChild');
   }
@@ -133,6 +135,54 @@ export function evaluateBenefit(
     } else {
       missing.push('需要確認屬於未滿 40 歲單身、45 歲以下已婚，或育有 12 歲以下子女的家庭');
     }
+  }
+
+  if (rule.specialCheck === 'specialFamilyResidence') {
+    const newImmigrantException = selected.has('newImmigrant') && selected.has('spouseTaipeiResident');
+    if (profile.taipeiResident === true) matched.push('已填寫為設籍臺北市');
+    else if (newImmigrantException) matched.push('符合新住民與設籍臺北市配偶實際居住本市的設籍例外');
+    else if (profile.taipeiResident === false) conflicts.push('未設籍臺北市，且未勾選新住民配偶設籍例外');
+    else missing.push('需要確認本人設籍臺北市，或符合新住民配偶設籍例外');
+  }
+
+  if (rule.specialCheck === 'elderHealthInsurance') {
+    if (age === null) {
+      missing.push('需要出生日期才能核對老人健保補助年齡');
+    } else if (age >= 65 && age <= 69 && selected.has('middleLowIncome')) {
+      matched.push('符合 65 至 69 歲中低收入老人資格途徑');
+    } else {
+      const minimumAge = selected.has('indigenous') ? 55 : 65;
+      if (age < minimumAge) conflicts.push(`目前 ${age} 歲，未達${selected.has('indigenous') ? '原住民' : '一般長者'} ${minimumAge} 歲門檻`);
+      else matched.push(`目前 ${age} 歲，符合${selected.has('indigenous') ? '原住民' : '一般長者'}年齡門檻`);
+
+      const requiredTraits: BenefitTrait[] = ['taipeiResidentOneYear', 'taxRateUnder20', 'noFullNhiSubsidy'];
+      const absent = requiredTraits.filter((trait) => !selected.has(trait));
+      const present = requiredTraits.filter((trait) => selected.has(trait));
+      if (present.length) matched.push(`已確認：${present.map((trait) => TRAIT_LABELS[trait]).join('、')}`);
+      if (absent.length) conflicts.push(`未勾選必要情況：${absent.map((trait) => TRAIT_LABELS[trait]).join('／')}`);
+    }
+  }
+
+  if (rule.specialCheck === 'childMedical') {
+    if (selected.has('childTaipeiResident')) matched.push(`已確認：${TRAIT_LABELS.childTaipeiResident}`);
+    else conflicts.push(`未勾選必要情況：${TRAIT_LABELS.childTaipeiResident}`);
+
+    const generalChild = selected.has('childUnder6') && selected.has('parentTaipeiTenMonths');
+    const specialChild = selected.has('childMedicalSpecialEligibility');
+    const thirdChild = selected.has('thirdOrLaterChildUnder6');
+    if (generalChild) matched.push('符合第 1 類：未滿 6 歲且父母或監護人一方設籍實住滿 10 個月');
+    if (specialChild) matched.push('符合第 2 類特殊醫療或弱勢身分之一');
+    if (thirdChild) matched.push('符合第 3 類：未滿 6 歲第 3 名以上子女');
+    if (!generalChild && !specialChild && !thirdChild) {
+      conflicts.push('尚未符合兒童醫療補助第 1、2 或 3 類任一資格途徑');
+    }
+  }
+
+  if (rule.specialCheck === 'goodPregnancyRide') {
+    if (profile.taipeiResident === true) matched.push('孕婦本人已填寫為設籍臺北市');
+    else if (selected.has('spouseTaipeiResident')) matched.push('符合非本國籍孕婦之配偶設籍臺北市資格途徑');
+    else if (profile.taipeiResident === false) conflicts.push('孕婦本人未設籍臺北市，且未勾選配偶設籍資格');
+    else missing.push('需要確認孕婦本人或其配偶是否設籍臺北市');
   }
 
   const incomeOverride = rule.incomeLimitOverride;

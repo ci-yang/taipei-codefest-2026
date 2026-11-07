@@ -21,7 +21,7 @@ const baseProfile: EligibilityProfile = {
 const program = (id: string) => BENEFIT_PROGRAMS.find((item) => item.id === id)!;
 
 describe('benefit eligibility rules', () => {
-  it('19 項規則都有唯一識別碼與官方 HTTPS 連結', () => {
+  it('25 項規則都有唯一識別碼與官方 HTTPS 連結', () => {
     expect(BENEFIT_PROGRAMS).toHaveLength(BENEFIT_SOURCE.count);
     expect(new Set(BENEFIT_PROGRAMS.map((item) => item.id)).size).toBe(BENEFIT_SOURCE.count);
     expect(BENEFIT_PROGRAMS.every((item) => item.officialUrl.startsWith('https://'))).toBe(true);
@@ -34,9 +34,9 @@ describe('benefit eligibility rules', () => {
     expect(ageFromBirthday('', today)).toBeNull();
   });
 
-  it('逐一回傳 19 項深度規則，並將較可能的結果排前面', () => {
+  it('逐一回傳 25 項深度規則，並將較可能的結果排前面', () => {
     const results = evaluateBenefits({ ...baseProfile, traits: ['lowIncome'] }, today);
-    expect(results).toHaveLength(19);
+    expect(results).toHaveLength(25);
     expect(results.map((result) => result.program.id).sort()).toEqual(BENEFIT_PROGRAMS.map((item) => item.id).sort());
     expect(results[0]!.status).toBe('possible');
   });
@@ -170,6 +170,95 @@ describe('benefit eligibility rules', () => {
       today,
     );
     const incomplete = evaluateBenefit(program('19'), { ...baseProfile, traits: ['unemployed', 'involuntaryUnemployed'] }, today);
+
+    expect(complete.status).toBe('possible');
+    expect(incomplete.status).toBe('unlikely');
+  });
+
+  it('特殊境遇家庭接受臺北市民，並保留新住民配偶設籍例外', () => {
+    const taipeiFamily = evaluateBenefit(program('20'), { ...baseProfile, traits: ['specialFamilyCircumstance'] }, today);
+    const newImmigrantFamily = evaluateBenefit(
+      program('20'),
+      { ...baseProfile, taipeiResident: false, traits: ['specialFamilyCircumstance', 'newImmigrant', 'spouseTaipeiResident'] },
+      today,
+    );
+
+    expect(taipeiFamily.status).toBe('possible');
+    expect(newImmigrantFamily.status).toBe('possible');
+    expect(newImmigrantFamily.matched.join(' ')).toContain('新住民');
+  });
+
+  it('身心障礙輔具補助要求先核定、符合補助間隔且未重複補助', () => {
+    const complete = evaluateBenefit(
+      program('21'),
+      { ...baseProfile, traits: ['disabled', 'assistiveDeviceNeeded', 'assistiveDeviceSubsidyConditionsMet'] },
+      today,
+    );
+    const alreadyPurchased = evaluateBenefit(program('21'), { ...baseProfile, traits: ['disabled'] }, today);
+
+    expect(complete.status).toBe('possible');
+    expect(alreadyPurchased.status).toBe('unlikely');
+  });
+
+  it('老人健保補助分別處理一般長者與原住民年齡門檻', () => {
+    const commonTraits = ['taipeiResidentOneYear', 'taxRateUnder20', 'noFullNhiSubsidy'] as const;
+    const senior = evaluateBenefit(
+      program('22'),
+      { ...baseProfile, birthday: '1956-01-01', traits: [...commonTraits] },
+      today,
+    );
+    const indigenousSenior = evaluateBenefit(
+      program('22'),
+      { ...baseProfile, birthday: '1968-01-01', traits: ['indigenous', ...commonTraits] },
+      today,
+    );
+
+    expect(senior.status).toBe('possible');
+    expect(indigenousSenior.status).toBe('possible');
+    expect(indigenousSenior.matched.join(' ')).toContain('原住民年齡門檻');
+  });
+
+  it('兒童醫療補助可由一般幼兒、特殊醫療或第 3 名以上子女任一路徑符合', () => {
+    const generalChild = evaluateBenefit(
+      program('23'),
+      { ...baseProfile, traits: ['childTaipeiResident', 'childUnder6', 'parentTaipeiTenMonths'] },
+      today,
+    );
+    const specialChild = evaluateBenefit(
+      program('23'),
+      { ...baseProfile, traits: ['childTaipeiResident', 'childMedicalSpecialEligibility'] },
+      today,
+    );
+    const noRoute = evaluateBenefit(program('23'), { ...baseProfile, traits: ['childTaipeiResident'] }, today);
+
+    expect(generalChild.status).toBe('possible');
+    expect(specialChild.status).toBe('possible');
+    expect(noRoute.status).toBe('unlikely');
+  });
+
+  it('好孕 2U 接受孕婦本人設籍或非本國籍孕婦的配偶設籍途徑', () => {
+    const resident = evaluateBenefit(
+      program('24'),
+      { ...baseProfile, traits: ['currentlyPregnant', 'pregnancyHealthHandbook'] },
+      today,
+    );
+    const spouseResident = evaluateBenefit(
+      program('24'),
+      { ...baseProfile, taipeiResident: false, traits: ['currentlyPregnant', 'pregnancyHealthHandbook', 'spouseTaipeiResident'] },
+      today,
+    );
+
+    expect(resident.status).toBe('possible');
+    expect(spouseResident.status).toBe('possible');
+  });
+
+  it('中低收入老人特別照顧津貼同時核對長者與家庭照顧者條件', () => {
+    const complete = evaluateBenefit(
+      program('25'),
+      { ...baseProfile, traits: ['elderCareRecipientEligible', 'familyCaregiverEligible'] },
+      today,
+    );
+    const incomplete = evaluateBenefit(program('25'), { ...baseProfile, traits: ['elderCareRecipientEligible'] }, today);
 
     expect(complete.status).toBe('possible');
     expect(incomplete.status).toBe('unlikely');
