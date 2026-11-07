@@ -4,6 +4,10 @@
 
 ## 開啟
 
+在 repo 根目錄執行 `pnpm prototype`，開啟 `http://localhost:8766`。只需 Python 3；不需啟動 API、Docker 或資料庫，也不需 `.env`。不使用 pnpm 時可直接執行 `python3 -m http.server 8766 --bind 127.0.0.1 --directory docs/prototypes/friendly-route`。結束按 Ctrl+C；8766 已被占用時改用另一個本機 port，不停止別人的服務。
+
+回歸測試：repo 根目錄執行 `pnpm test:prototype`（Node.js ≥ 22）。[協作交接](../../handoff/2026-11-07-friendly-prototype-collaboration.md) 列出檔案地盤與待討論項目。此輪先做前端；規格是討論基線，不代表後端契約定案。
+
 在本資料夾以 HTTP／HTTPS 提供檔案，再開啟 `index.html`。定位與 Service Worker 需要 HTTPS 或 localhost；定位另需使用者允許。`analysis.html` 是提案分析；`spec.html` 與 `proposal.md` 是第二版規格副本，正式來源位於 `.prospec/changes/enable-friendly-routes/`。
 
 ## 資料來源

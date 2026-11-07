@@ -7,7 +7,7 @@ Ci 要求將友善店家 prototype 改為手機 App 四頁：首頁地圖＋開�
 - 新分享：https://ci-share.pages.dev/32d2b105d2eb968a/
 - 第二版規格：https://ci-share.pages.dev/32d2b105d2eb968a/spec.html
 - 提案分析：https://ci-share.pages.dev/32d2b105d2eb968a/analysis.html
-- 本機程式：隔離 worktree `/Users/ciyang/Documents/repos/tcf-friendly-prototype`，branch `codex/friendly-route-prototype`。未合併或推送專案分支。
+- 本機程式：隔離 worktree `/Users/ciyang/Documents/repos/tcf-friendly-prototype`，branch `codex/friendly-route-prototype`。後續已依 Ci 授權推送 GitHub；目前先做前端，最新狀態見 [協作交接](2026-11-07-friendly-prototype-collaboration.md)，不代表已合併 main。
 - 分享透過全域 publish-report；私有主台部署 23881b90，Production/main，來源 commit f1f7b6f。
 - 收回本篇：`bash ~/.claude/skills/publish-report/scripts/share.sh --revoke 32d2b105d2eb968a`。連結可轉傳，不是觀看者身分驗證。
 

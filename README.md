@@ -4,7 +4,30 @@
 
 ## 專案說明
 
-> **題目待 11/7 公布**，公布後在這裡補：要解的問題、誰在什麼情境用、主流程一句話。
+目前主題是「友善同行」：協助網路或電力受限的市民，查詢沿途的 WiFi、充電、友善廁所與無障礙友善店家。**目前先做前端 prototype，規格仍在討論，尚未串接後端。**
+
+## 先看 App Prototype
+
+- [直接操作手機版原型](https://ci-share.pages.dev/32d2b105d2eb968a/)
+- [原始碼與資料說明](docs/prototypes/friendly-route/README.md)
+- [協作方式、待認領工作與待定規格](docs/handoff/2026-11-07-friendly-prototype-collaboration.md)
+
+在 repo 根目錄執行（需 Python 3，不需要 API、資料庫或 `.env`）：
+
+```bash
+pnpm prototype
+# 開啟 http://localhost:8766
+```
+
+無 pnpm 時也可直接執行：
+
+```bash
+python3 -m http.server 8766 --bind 127.0.0.1 --directory docs/prototypes/friendly-route
+```
+
+流程：地圖首頁 → 日期／歷史與起迄設定 → 路線比較 → 開始行程。店家與路網來自開放資料；評論與互助是明示的本機示範。定位、離線需要 localhost 或 HTTPS，手機可直接使用上方 HTTPS 原型連結。
+
+## 既有正式服務骨架
 
 本作品是一個在台北通（TownPass）App 內以 WebView 開啟的城市通微服務：Vue 3 網頁 ＋ Hono API ＋ PostGIS，地圖用 MapLibre ＋ OpenStreetMap，核心資料來自政府開放資料。
 
@@ -44,7 +67,8 @@ pnpm install
 
 | 資料集 | 提供單位 | 連結 | 是否模擬 |
 |---|---|---|---|
-| 待補（題目公布後） | | | |
+| [臺北市友善店家清冊](https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1) | 臺北市政府 | 原型載入地方快照，詳見原型 README | 否 |
+| OpenStreetMap 地方路網與向量底圖 | OpenStreetMap contributors | [來源與授權](docs/prototypes/friendly-route/README.md) | 否；未驗證現場通行 |
 
 ## 第三方套件與 AI 揭露
 
