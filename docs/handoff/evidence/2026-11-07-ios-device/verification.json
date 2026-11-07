@@ -1,0 +1,45 @@
+{
+  "recordedAt": "2026-11-07T13:11:48.937542+00:00",
+  "nativeCommit": "718007878a96b028f56f188b68b086a0ab6df199",
+  "nativeBranch": "feat/stitch-ios-device",
+  "mode": "Release",
+  "bundleId": "com.ciyang.friendlytaipei",
+  "displayName": "Town Pass",
+  "version": "0.0.12",
+  "buildNumber": "0.0.12",
+  "minimumIos": "15.5",
+  "deviceModel": "iPhone 16 Pro Max",
+  "deviceIos": "26.6.2",
+  "serviceUrl": "https://taipei-friendly-platform.jason21131.workers.dev",
+  "profileExpiryUtc": "2026-11-14T13:07:04Z",
+  "buildSucceeded": true,
+  "frameworks": [
+    {
+      "name": "App.framework",
+      "bundleId": "io.flutter.flutter.app"
+    },
+    {
+      "name": "Flutter.framework",
+      "bundleId": "io.flutter.flutter"
+    },
+    {
+      "name": "OrderedSet.framework",
+      "bundleId": "org.cocoapods.OrderedSet"
+    },
+    {
+      "name": "flutter_inappwebview_ios.framework",
+      "bundleId": "org.cocoapods.flutter-inappwebview-ios"
+    },
+    {
+      "name": "objective_c.framework",
+      "bundleId": "io.flutter.flutter.native-assets.objective-c"
+    }
+  ],
+  "appAotSha256": "4d1043a17882e39a59f2a9390d38a8b949150bdd5e6fcacf4f41b619febc6ca4",
+  "installOutcome": "success",
+  "launchOutcome": "failed",
+  "launchBlocker": "iOS Security: signature, entitlement or developer trust check. User asked to trust developer; pending.",
+  "visualVerification": false,
+  "gpsVerified": false,
+  "offlineVerified": false
+}

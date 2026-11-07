@@ -1,5 +1,7 @@
 # Stitch App 正式發布與 APK
 
+後續 iOS 實機建置與安裝狀態見：[iOS 實體機安裝](2026-11-07-ios-device.md)。
+
 Ci 在確認原型後明確授權「好部署跟包 apk」。本次發布沿用既有 Cloudflare Worker／D1 與本機 Wrangler OAuth，沒有建立新憑證或改寫其他工作樹。
 
 ## 正式 App
