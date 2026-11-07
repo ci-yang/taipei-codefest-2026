@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useTownPassBridge } from '@/composables/useTownPassBridge';
-import { BENEFIT_SOURCE, TRAIT_LABELS, type BenefitTrait } from '@/lib/benefit-data';
+import {
+  ADDITIONAL_BENEFIT_SOURCES,
+  BENEFIT_SOURCE,
+  TRAIT_LABELS,
+  type BenefitTrait,
+} from '@/lib/benefit-data';
 import {
   CATALOG_SOURCE,
   CATEGORY_LABELS,
@@ -36,7 +41,24 @@ const showAllCatalog = ref(false);
 const loadingTownPass = ref(false);
 const townPassMessage = ref('');
 
-const traitOptions = Object.entries(TRAIT_LABELS) as [BenefitTrait, string][];
+const traitGroups: { title: string; traits: BenefitTrait[] }[] = [
+  {
+    title: '身分與生活情況',
+    traits: ['lowIncome', 'middleLowIncome', 'student', 'disabled', 'indigenous', 'newImmigrant', 'militaryFamily', 'violenceVictim', 'protectedOrPlaced', 'recentEmergency', 'seriouslyIllSenior', 'farmer', 'petOwner'],
+  },
+  {
+    title: '租屋與家庭狀態',
+    traits: ['renter', 'noOwnedHome', 'centralRentApproved', 'single', 'married', 'newlywedWithin2Years', 'minorChild', 'childUnder12', 'taipeiResidentFourMonths'],
+  },
+  {
+    title: '生育與托育',
+    traits: ['pregnantOrRecentLoss', 'infantUnder2', 'childUnder3', 'childAge2To5', 'recentBirth', 'homeCareWithoutPublicChildcare', 'publicOrQuasiChildcare', 'childcare30Hours', 'childNotPubliclyPlaced', 'northNorthKeelungTenMonths', 'birthApplicationInTime'],
+  },
+  {
+    title: '失業與求職',
+    traits: ['unemployed', 'involuntaryUnemployed', 'employmentInsuranceOneYear', 'willingToWork', 'jobRegistered14Days'],
+  },
+];
 const age = computed(() => ageFromBirthday(birthday.value));
 const personalizedCatalogCount = computed(() => catalogResults.value.filter((item) => item.score >= 4).length);
 const visibleCatalogResults = computed(() =>
@@ -185,12 +207,16 @@ function catalogSummary(value: string): string {
       </div>
 
       <fieldset>
-        <legend>目前符合的身分或情況（可複選）</legend>
-        <div class="trait-grid">
-          <label v-for="[value, label] in traitOptions" :key="value" class="trait-option">
-            <input v-model="traits" type="checkbox" :value="value" />
-            <span>{{ label }}</span>
-          </label>
+        <legend>目前符合的身分或情況（請將符合者全部勾選）</legend>
+        <p class="muted trait-help">未勾選的必要條件會視為目前不符合；不確定時可先不勾，並以官方審查為準。</p>
+        <div v-for="group in traitGroups" :key="group.title" class="trait-section">
+          <h3>{{ group.title }}</h3>
+          <div class="trait-grid">
+            <label v-for="value in group.traits" :key="value" class="trait-option">
+              <input v-model="traits" type="checkbox" :value="value" />
+              <span>{{ TRAIT_LABELS[value] }}</span>
+            </label>
+          </div>
         </div>
       </fieldset>
 
@@ -257,7 +283,7 @@ function catalogSummary(value: string): string {
         由全站 {{ CATALOG_SOURCE.totalServiceCount.toLocaleString() }} 個服務中，以「{{ CATALOG_SOURCE.terms.join('、') }}」找到
         {{ CATALOG_SOURCE.keywordMatchCount }} 筆，再排除核銷、請款及明顯機構型案件。官方目錄沒有一致的所得與資格欄位，因此這裡只排序、不判定符合。
       </p>
-      <p class="muted">部分項目可能與上方 10 項重複；保留是為了提供目前有效的官方申辦入口。</p>
+      <p class="muted">部分項目可能與上方 {{ BENEFIT_SOURCE.count }} 項重複；保留是為了提供目前有效的官方申辦入口。</p>
 
       <div class="catalog-list">
         <article v-for="item in visibleCatalogResults" :key="item.program.id" class="catalog-card">
@@ -289,10 +315,15 @@ function catalogSummary(value: string): string {
     <footer class="data-note">
       <h2>資料來源與範圍</h2>
       <p>
-        本版以開放資料中的 {{ BENEFIT_SOURCE.count }} 項做深度門檻比對，另收錄台北服務通
+        本版以開放資料 {{ BENEFIT_SOURCE.openDataCount }} 項，加上各主管機關官方頁面整理的
+        {{ BENEFIT_SOURCE.additionalRuleCount }} 項常用方案，共 {{ BENEFIT_SOURCE.count }} 項做深度門檻比對；另收錄台北服務通
         {{ CATALOG_SOURCE.candidateCount }} 項補助相關候選。候選數是本專案的關鍵字與排除規則結果，不是官方公布的補助總數。
       </p>
       <a :href="BENEFIT_SOURCE.catalogUrl" target="_blank" rel="noopener">{{ BENEFIT_SOURCE.name }}（{{ BENEFIT_SOURCE.provider }}）</a>
+      <template v-for="source in ADDITIONAL_BENEFIT_SOURCES" :key="source.url">
+        <br />
+        <a :href="source.url" target="_blank" rel="noopener">{{ source.name }}</a>
+      </template>
       <br />
       <a :href="CATALOG_SOURCE.catalogUrl" target="_blank" rel="noopener">{{ CATALOG_SOURCE.name }}（{{ CATALOG_SOURCE.provider }}）</a>
       <p class="muted">開放資料目錄更新 {{ BENEFIT_SOURCE.catalogUpdatedAt }}；服務目錄快照 {{ catalogSnapshotDate }}。門檻若與官方頁面不同，以最新公告為準。</p>
@@ -327,6 +358,9 @@ input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-v
 small { color: var(--muted); font-weight: 400; }
 fieldset { margin: 22px 0 0; padding: 0; border: 0; }
 legend { margin-bottom: 11px; font-size: 14px; font-weight: 750; }
+.trait-help { margin: -3px 0 14px; }
+.trait-section + .trait-section { margin-top: 18px; }
+.trait-section h3 { margin: 0 0 9px; color: #315448; font-size: 14px; }
 .trait-grid { display: grid; gap: 8px; }
 .trait-option { display: flex; align-items: flex-start; gap: 9px; padding: 10px; border: 1px solid #dbe4df; border-radius: 9px; font-weight: 500; line-height: 1.4; cursor: pointer; }
 .trait-option:has(input:checked) { border-color: var(--brand); background: var(--brand-weak); }

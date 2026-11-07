@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 describe('BenefitsPage TownPass flow', () => {
-  it('只帶入生日與臺北市民資訊，送出後呈現全部 10 項', async () => {
+  it('只帶入生日與臺北市民資訊，送出後呈現全部 19 項', async () => {
     installMockTownPassBridge(true);
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
       callback(0);
@@ -26,8 +26,8 @@ describe('BenefitsPage TownPass flow', () => {
 
     await page.get('form').trigger('submit');
     await flushPromises();
-    expect(page.findAll('.result-card')).toHaveLength(10);
-    expect(page.text()).toContain('10 項深度比對');
+    expect(page.findAll('.result-card')).toHaveLength(19);
+    expect(page.text()).toContain('19 項深度比對');
     expect(page.findAll('.catalog-card')).toHaveLength(24);
     expect(page.get('.catalog-toggle').text()).toContain('顯示全部 165 項');
     await page.get('.catalog-toggle').trigger('click');

@@ -70,6 +70,12 @@ export function evaluateBenefit(
   const conflicts: string[] = [];
   const age = ageFromBirthday(profile.birthday, today);
   const selected = new Set(profile.traits);
+  if (selected.has('infantUnder2')) selected.add('childUnder3');
+  if (selected.has('infantUnder2') || selected.has('childUnder3') || selected.has('childAge2To5')) {
+    selected.add('childUnder12');
+    selected.add('minorChild');
+  }
+  if (selected.has('childUnder12')) selected.add('minorChild');
   const { rule } = program;
 
   if (rule.minAge !== undefined || rule.maxAge !== undefined) {
@@ -103,7 +109,37 @@ export function evaluateBenefit(
     else conflicts.push(`未勾選必要情況：${rule.traitAny.map((trait) => TRAIT_LABELS[trait]).join('／')}`);
   }
 
-  compareLimit(profile.monthlyIncomePerPerson, rule.incomeLimit, '每人每月所得', matched, missing, conflicts);
+  if (rule.traitAll?.length) {
+    const absent = rule.traitAll.filter((trait) => !selected.has(trait));
+    const present = rule.traitAll.filter((trait) => selected.has(trait));
+    if (present.length) matched.push(`已確認：${present.map((trait) => TRAIT_LABELS[trait]).join('、')}`);
+    if (absent.length) conflicts.push(`未勾選必要情況：${absent.map((trait) => TRAIT_LABELS[trait]).join('／')}`);
+  }
+
+  if (rule.specialCheck === 'taipeiHappinessRent') {
+    const isSingle = selected.has('single');
+    const isMarried = selected.has('married');
+    const hasYoungChild = selected.has('childUnder12');
+    if (isSingle && isMarried) conflicts.push('單身與已婚不可同時勾選');
+    if (hasYoungChild) matched.push('符合育有 12 歲以下子女的育兒家庭類別');
+    else if (isSingle) {
+      if (age === null) missing.push('需要出生日期才能確認是否為未滿 40 歲單身青年');
+      else if (age >= 40) conflicts.push(`目前 ${age} 歲，不符合未滿 40 歲單身青年條件`);
+      else matched.push(`目前 ${age} 歲，符合未滿 40 歲單身青年條件`);
+    } else if (isMarried) {
+      if (age === null) missing.push('需要出生日期才能確認是否為 45 歲以下已婚青年家庭');
+      else if (age > 45) conflicts.push(`目前 ${age} 歲，不符合 45 歲以下已婚青年家庭條件`);
+      else matched.push(`目前 ${age} 歲，符合 45 歲以下已婚青年家庭條件`);
+    } else {
+      missing.push('需要確認屬於未滿 40 歲單身、45 歲以下已婚，或育有 12 歲以下子女的家庭');
+    }
+  }
+
+  const incomeOverride = rule.incomeLimitOverride;
+  const incomeLimit = incomeOverride?.traitAny.some((trait) => selected.has(trait))
+    ? incomeOverride.limit
+    : rule.incomeLimit;
+  compareLimit(profile.monthlyIncomePerPerson, incomeLimit, '每人每月所得', matched, missing, conflicts);
   compareLimit(profile.movableAssetsPerPerson, rule.movableAssetsLimit, '每人動產', matched, missing, conflicts);
   compareLimit(profile.realEstateHousehold, rule.realEstateLimit, '全家不動產', matched, missing, conflicts);
 
