@@ -1,6 +1,6 @@
 /* Explicit, same-origin offline package. No remote tiles or automatic prefetch. */
-const CACHE_NAME = `friendly-route-v1:${new URL(self.registration.scope).pathname}`;
-const ASSETS = ['./', './index.html', './app.js', './styles.css', './data.js', './vendor/leaflet.js', './vendor/leaflet.css'];
+const CACHE_NAME = `friendly-route-v2:${new URL(self.registration.scope).pathname}`;
+const ASSETS = ['./', './index.html', './app.js', './styles.css', './data.js', './routing-data.js', './routing.js', './vendor/leaflet.js', './vendor/leaflet.css'];
 self.addEventListener('install', (event) => event.waitUntil(self.skipWaiting()));
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
 self.addEventListener('message', (event) => {
@@ -22,8 +22,8 @@ self.addEventListener('message', (event) => {
         await caches.delete(CACHE_NAME);
         throw new Error('離線包更新失敗，已停用，請重新下載。');
       }
-      event.ports[0]?.postMessage({ ok: true });
-    } catch (error) { event.ports[0]?.postMessage({ ok: false, error: error.message || '離線資料下載失敗。' }); }
+      event.ports[0]?.postMessage({ ok: true, version: 'friendly-app-v2' });
+    } catch (error) { await caches.delete(CACHE_NAME); event.ports[0]?.postMessage({ ok: false, error: error.message || '離線資料下載失敗。' }); }
   })());
 });
 self.addEventListener('fetch', (event) => {
