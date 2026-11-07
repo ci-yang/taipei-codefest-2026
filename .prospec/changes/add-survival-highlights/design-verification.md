@@ -36,6 +36,13 @@
 - iOS目前用明示手動電量試玩，沒有新增原生電池bridge。
 - Ci尚未給本輪視覺回饋；這是可試玩的設計原型。
 
+## 分享部署驗證
+App原型：https://ci-share.pages.dev/cc521b0047361278/ 。版本 `friendly-resource-v6-e464d4e7c528085c`。
+
+獨立部署後smoke 22/22 PASS：四入口、市府試玩、18%灰圈、真正本機Worker的386m道路與倒數、金價手動累計皆正常；四個新增資產與Worker／路網／資源檔均HTTP200，無應用例外。證據見evidence/public-smoke.json與public-home.png。本次仍為桌面模擬、停用SW並阻擋外部底圖，不擴大為實機／離線聲明。
+
+文件與精簡證據另由同一獨立驗證者核對：81項check的name／pass、原始report SHA、11處陣列摘要與其餘證據檔全部一致。
+
 ## 後續
 Ci試玩後可用 `prospec-plan` 決定正式範圍。Wi-Fi為點位密度估算；步長、步頻、房貸、耗電均為可見假設；生存圈為直線半徑上限，不能宣稱道路等時圈或保證到達。
 

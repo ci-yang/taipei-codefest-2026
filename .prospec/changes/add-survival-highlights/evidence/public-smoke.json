@@ -1,0 +1,745 @@
+{
+  "baseURL": "https://ci-share.pages.dev/cc521b0047361278/",
+  "startedAt": "2026-11-07T15:19:12.547Z",
+  "scope": "Deployed public prototype; desktop Chrome 390x844 emulation; true DOM controls and real local dedicated route Worker; read-only HTTP response observers. Fixed public City Hall GPS and explicit demo control. Service Workers blocked; external map tiles blocked and recorded. Not physical-device validation.",
+  "checks": [
+    {
+      "name": "highlights.js deployed relative URL returns 200",
+      "pass": true
+    },
+    {
+      "name": "highlights.css deployed relative URL returns 200",
+      "pass": true
+    },
+    {
+      "name": "highlight-math.js deployed relative URL returns 200",
+      "pass": true
+    },
+    {
+      "name": "price-data.js deployed relative URL returns 200",
+      "pass": true
+    },
+    {
+      "name": "routing-worker.js deployed relative URL returns 200",
+      "pass": true
+    },
+    {
+      "name": "routing-data.js deployed relative URL returns 200",
+      "pass": true
+    },
+    {
+      "name": "resources-data.js deployed relative URL returns 200",
+      "pass": true
+    },
+    {
+      "name": "route-client.js deployed relative URL returns 200",
+      "pass": true
+    },
+    {
+      "name": "deployed version is final notice refresh",
+      "pass": true
+    },
+    {
+      "name": "public homepage wifi entry opens",
+      "pass": true
+    },
+    {
+      "name": "public homepage toilet entry opens",
+      "pass": true
+    },
+    {
+      "name": "public homepage gold entry opens",
+      "pass": true
+    },
+    {
+      "name": "public homepage battery entry opens",
+      "pass": true
+    },
+    {
+      "name": "public explicit City Hall demo enabled",
+      "pass": true
+    },
+    {
+      "name": "public 18 percent has gray mask and charge candidates",
+      "pass": true
+    },
+    {
+      "name": "public true Worker calculates road route",
+      "pass": true,
+      "details": {
+        "distanceM": 386,
+        "roadPoints": 4
+      }
+    },
+    {
+      "name": "public toilet countdown starts",
+      "pass": true
+    },
+    {
+      "name": "public gold manually accumulates",
+      "pass": true,
+      "details": "0.01"
+    },
+    {
+      "name": "browser actually requests all new files and real worker graph at deployment prefix",
+      "pass": true,
+      "details": [
+        {
+          "name": "highlights.js",
+          "requested": true
+        },
+        {
+          "name": "highlights.css",
+          "requested": true
+        },
+        {
+          "name": "highlight-math.js",
+          "requested": true
+        },
+        {
+          "name": "price-data.js",
+          "requested": true
+        },
+        {
+          "name": "routing-worker.js",
+          "requested": true
+        },
+        {
+          "name": "routing-data.js",
+          "requested": true
+        },
+        {
+          "name": "resources-data.js",
+          "requested": true
+        }
+      ]
+    },
+    {
+      "name": "no deployed asset HTTP errors",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "no uncaught public application errors",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "no non-blocked public console errors",
+      "pass": true,
+      "details": []
+    }
+  ],
+  "screenshots": [
+    "/tmp/tcf-survival-qa/final/public-home.png",
+    "/tmp/tcf-survival-qa/final/public-battery-18.png",
+    "/tmp/tcf-survival-qa/final/public-toilet-running.png",
+    "/tmp/tcf-survival-qa/final/public-gold-running.png"
+  ],
+  "workers": [
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/routing-worker.js"
+    }
+  ],
+  "requests": [
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app-ui.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/resources-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/icons.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/search.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/bridge.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/offline.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/route-client.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlight-math.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/price-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app-ui.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/resources-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/icons.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/search.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/bridge.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/offline.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/route-client.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlight-math.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/price-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app-ui.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/resources-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/icons.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/search.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/bridge.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/offline.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/route-client.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlight-math.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/price-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app-ui.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.css",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/resources-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/icons.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/search.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/bridge.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/offline.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/route-client.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlight-math.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/price-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/routing-worker.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/routing-data.js",
+      "method": "GET"
+    },
+    {
+      "label": "public-smoke",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/routing.js",
+      "method": "GET"
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "states": [],
+  "assetChecks": [
+    {
+      "name": "highlights.js",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.js",
+      "status": 200,
+      "type": "application/javascript"
+    },
+    {
+      "name": "highlights.css",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.css",
+      "status": 200,
+      "type": "text/css; charset=utf-8"
+    },
+    {
+      "name": "highlight-math.js",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlight-math.js",
+      "status": 200,
+      "type": "application/javascript"
+    },
+    {
+      "name": "price-data.js",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/price-data.js",
+      "status": 200,
+      "type": "application/javascript"
+    },
+    {
+      "name": "routing-worker.js",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/routing-worker.js",
+      "status": 200,
+      "type": "application/javascript"
+    },
+    {
+      "name": "routing-data.js",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/routing-data.js",
+      "status": 200,
+      "type": "application/javascript"
+    },
+    {
+      "name": "resources-data.js",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/resources-data.js",
+      "status": 200,
+      "type": "application/javascript"
+    },
+    {
+      "name": "route-client.js",
+      "url": "https://ci-share.pages.dev/cc521b0047361278/route-client.js",
+      "status": 200,
+      "type": "application/javascript"
+    }
+  ],
+  "version": "friendly-resource-v6-e464d4e7c528085c",
+  "responses": [
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/search.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.css",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/icons.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/bridge.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app-ui.css",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/offline.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.css",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/route-client.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlight-math.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/price-data.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/resources-data.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/data.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.css",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.css",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app-ui.css",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/offline.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/route-client.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlight-math.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/price-data.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/search.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/bridge.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/icons.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/resources-data.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/data.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.css",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app-ui.css",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/route-client.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/search.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/icons.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/bridge.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/offline.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/vendor/leaflet.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.css",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/price-data.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlight-math.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/app.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/highlights.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/data.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/resources-data.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/routing-worker.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/routing-data.js",
+      "status": 200
+    },
+    {
+      "url": "https://ci-share.pages.dev/cc521b0047361278/routing.js",
+      "status": 200
+    }
+  ],
+  "finishedAt": "2026-11-07T15:19:28.850Z",
+  "passed": 22,
+  "failed": 0
+}

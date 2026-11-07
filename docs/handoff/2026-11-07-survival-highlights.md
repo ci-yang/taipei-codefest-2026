@@ -6,6 +6,15 @@
 - Prospec change：`.prospec/changes/add-survival-highlights/`。完成Story與Design原型，保持story，供Ci試玩後再決定正式實作。
 - 四入口：首頁城市生存雷達，或原地圖工具列「城市雷達」。原本「出發」仍可用。
 
+## 試玩與協作連結
+- App原型：https://ci-share.pages.dev/cc521b0047361278/
+- 草稿PR：https://github.com/ci-yang/taipei-codefest-2026/pull/8
+- 分享版：`friendly-resource-v6-e464d4e7c528085c`，26,101,093 bytes。
+- 分享透過 `publish-report` 從受Access保護的私有主台複製單篇；分享連結可轉傳，收回指令如下。正式Worker沒有部署本輪版本。
+```sh
+bash ~/.claude/skills/publish-report/scripts/share.sh --revoke cc521b0047361278
+```
+
 ## 試玩順序
 1. Wi-Fi：選市府試玩，拖動地圖看同心圓、風暴／綠洲／沙漠與估算覆蓋率。
 2. 倒數：選一間廁所→等待本機步行路程→開始，可暫停、重置、開20倍展示。水球退水；倒數到零不是抵達偵測。
@@ -34,6 +43,6 @@ python3 -m http.server 8885 --bind 127.0.0.1 --directory /tmp/tcf-survival-previ
 分享台資產預算25MiB；`package-highlight-preview.py`保留全市路網與資源檔bytes不變，只移除data.js已不用的舊名冊、背景feature id／未用屬性，背景座標取5位小數（每軸最多0.000005度差異）。路由與資源座標不減精度。整包由程式強制檢查上限，不放寬發布閘門。
 
 ## 驗證紀錄
-數學測試12項、獨立數學41項、獨立原始CSV52項通過；離線資產新增後14項快取測試通過，App狀態／數學／離線組合70項通過。完整prototype 103項與Python 17項通過，tooling77項通過；workspace 113項、typecheck、lint與完整build均通過。完整瀏覽器、發布網址與最終結果見change內design-verification.md。
+數學測試12項、獨立數學41項、獨立原始CSV52項通過；離線資產新增後14項快取測試通過，App狀態／數學／離線組合70項通過。完整prototype 103項與Python 17項通過，tooling77項通過；workspace 113項、typecheck、lint與完整build均通過。獨立瀏覽器86項、NOTICE更新後8項、公開分享部署後22項通過；完整結果與限制見change內design-verification.md。
 
 原型不等於正式續航、實測Wi-Fi或抵達判斷。原生iOS離線快取限制沿用前版，沒有在本輪宣稱修復。
