@@ -1,7 +1,7 @@
 /* Variant A「一句話引導」: one question at a time, then one answer. */
 (function (root) {
   'use strict';
-  const C = root.VariantCore;
+  const C = root.SituationCore;
   const { esc } = C;
 
   function pending(entry) {

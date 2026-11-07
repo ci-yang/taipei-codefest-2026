@@ -1,179 +1,190 @@
-/* 情境入口「我遇到了……」: fixed content, no login, no storage, no network beyond static files.
- * Rendering is pure (data -> HTML string) so tests can run it without a DOM. */
+/* 情境入口「我遇到了……」— 行動卡版（BRA-592，取自設計方向 B）.
+ * Each situation is one card: who to call now, a big number, a dial button, a script to read, a checklist.
+ * Rendering is pure (data + state -> HTML string) so tests run it without a DOM.
+ * No storage, no network: the district and the ticked boxes live only in page memory. */
 (function (root) {
   'use strict';
+  const C = root.SituationCore;
+  const { esc } = C;
 
-  const SECTION_TITLES = [
-    ['window', '去哪個窗口'],
-    ['bring', '要帶什麼'],
-    ['call', '打哪支電話'],
-    ['say', '開口怎麼說'],
-  ];
+  const PHONE = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>';
+  const SUN = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></g></svg>';
+  const MOON = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M20 14.6A8.5 8.5 0 0 1 9.4 4a8.5 8.5 0 1 0 10.6 10.6z"/></svg>';
 
-  function escapeHtml(value) {
-    return String(value).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  // Entries the official pages leave open: highlight 「待確認」 where the text says it, or tag the entry.
+  function entryText(entry) {
+    const text = esc(entry.text);
+    if (!entry.pending) return text;
+    return text.includes('待確認')
+      ? text.split('待確認').join('<mark class="pending">待確認</mark>')
+      : `<mark class="pending">待確認</mark>${text}`;
   }
 
-  function formatDial(dial) {
-    if (dial === '1999') return '1999';
-    return `02-${dial.slice(2, 6)}-${dial.slice(6)}`;
+  function periodTag(state) {
+    const night = state.period === 'night';
+    return `<button type="button" class="period" data-flip-period aria-label="${C.periodText(state.period)}，點一下切換">`
+      + `${night ? MOON : SUN}<span>${night ? '晚上／假日' : '白天'}</span><span class="period-swap">切換</span></button>`;
   }
 
-  function sourceLine(data, ids) {
-    const links = ids.map((id) => {
-      const source = data.sources[id];
-      if (!source) throw new Error(`Unknown source id: ${id}`);
-      return `<a href="${escapeHtml(source.url)}" rel="noopener">${escapeHtml(source.short)}</a><span class="checked">查核 ${escapeHtml(source.checkedOn)}</span>`;
-    });
-    return `<p class="source">來源：${links.join('；')}</p>`;
+  /* What the home card says under 「現在打」: the same first call the situation card shows. */
+  function nowCall(data, situation, state) {
+    const p = C.plan(data, situation, state.period, state.district);
+    const f = p.first;
+    if (f.open) return { who: f.who, number: '', hint: '進去選你住的區，就給你電話', entry: f.entry };
+    return { who: f.who, number: f.display, hint: f.aside || '', entry: f.entry };
   }
 
-  function pendingBadge(entry) {
-    return entry.pending ? '<span class="badge-pending">待確認</span>' : '';
+  function homeCard(data, situation, state) {
+    const now = nowCall(data, situation, state);
+    const number = now.number
+      ? `<span class="mini-number">${esc(now.number)}</span>`
+      : `<span class="mini-pick">${esc(now.hint)}</span>`;
+    return `<a class="mini${situation.urgent ? ' is-urgent' : ''}" href="#/${esc(situation.id)}" data-situation="${esc(situation.id)}">`
+      + `<span class="mini-band"><span>${esc(situation.title)}</span><span class="mini-go" aria-hidden="true">›</span></span>`
+      + `<span class="mini-body"><span class="mini-sub">${esc(situation.subtitle)}</span>`
+      + `<span class="mini-now"><span class="mini-label">現在打</span><span class="mini-who">${esc(now.who)}</span>${number}</span>`
+      + `</span></a>`;
   }
 
-  function callButton(dial, label) {
-    return `<a class="call-button" href="tel:${escapeHtml(dial)}" data-dial="${escapeHtml(dial)}">`
-      + `<span class="call-icon" aria-hidden="true">☎</span><span class="call-text"><span class="call-label">${escapeHtml(label)}</span>`
-      + `<span class="call-number">${escapeHtml(formatDial(dial))}</span></span></a>`;
+  /* Home groups: situations marked urgent (110／113／1925 first) go on top, then each category in data order.
+   * Adding a situation or a category is a data change only. */
+  function groups(data) {
+    const urgent = data.situations.filter((s) => s.urgent);
+    const byCategory = data.categories.map((c) => ({
+      id: c.id, title: c.title, urgent: false,
+      situations: data.situations.filter((s) => !s.urgent && s.category === c.id),
+    }));
+    return [
+      ...(urgent.length ? [{ id: 'urgent', title: '有危險，先打這些', urgent: true, situations: urgent }] : []),
+      ...byCategory,
+    ].filter((g) => g.situations.length);
   }
 
-  function renderEntry(data, entry) {
-    return `<li class="entry${entry.pending ? ' is-pending' : ''}"><p>${pendingBadge(entry)}${escapeHtml(entry.text)}</p>${sourceLine(data, entry.sources)}</li>`;
+  function renderHome(data, state) {
+    const night = state.period === 'night';
+    const deck = groups(data).map((g) => `<section class="group${g.urgent ? ' is-urgent' : ''}" aria-labelledby="group-${esc(g.id)}">`
+      + `<h2 class="group-title" id="group-${esc(g.id)}">${esc(g.title)}</h2>`
+      + `<div class="deck">${g.situations.map((s) => homeCard(data, s, state)).join('')}</div></section>`).join('');
+    return `<header class="top"><h1>我遇到了……</h1>${periodTag(state)}</header>`
+      + `<p class="intro">挑最接近你現在狀況的那張卡。每張都寫好現在打給誰、開口怎麼說、要準備什麼。</p>`
+      + `<nav class="groups" aria-label="選擇情境">${deck}</nav>`
+      + `<section class="trust" aria-label="這頁怎麼做的">`
+      + `<p class="trust-title">${night ? '現在是晚上或假日' : '現在是平日上班時間'}</p>`
+      + `<p class="trust-lead">${night
+        ? '社福中心下班了，卡片先給晚上打得通的電話。'
+        : '社福中心有人接，卡片先給你那一區的電話。'}遇到國定假日，按右上角切換。</p>`
+      + `<ul class="trust-list">`
+      + `<li>電話、窗口、要帶的東西，都抄自臺北市社會局、勞動局的官方頁面和開放資料，每一條都標了出處。</li>`
+      + `<li>官方沒寫清楚的，標「待確認」，打電話時再問。</li>`
+      + `<li>不用登入。選了哪一區、勾了什麼，只留在這個畫面，重新整理就清空。</li>`
+      + `</ul><p class="trust-date">資料查核日 ${esc(data.checkedOn)}，以官方最新公告為準。</p></section>`;
   }
 
-  function renderCallEntry(data, entry, center) {
-    let action;
-    if (entry.fromDirectory) {
-      action = center
-        ? callButton(center.phone.dial, center.name)
-        : '<p class="hint">請先在上面選你住的行政區。</p>';
-    } else {
-      action = callButton(entry.number.replace(/\D/g, ''), entry.label);
-    }
-    return `<li class="entry call-entry"><p class="call-title">${escapeHtml(entry.label)}</p>${action}`
-      + `<p class="call-note">${escapeHtml(entry.note)}</p>${sourceLine(data, entry.sources)}</li>`;
+  function districtPicker(data) {
+    const chips = C.districts(data).map((d) => `<button type="button" class="chip" data-district="${esc(d)}">${esc(d.replace(/區$/, ''))}</button>`).join('');
+    return `<div class="pick"><p class="pick-q">你住哪一區？</p><p class="pick-hint">點一下，就給你那一區社福中心的電話。</p><div class="chips">${chips}</div></div>`;
   }
 
-  function districtsOf(rows) {
-    return [...new Set(rows.map((row) => row.district))];
+  function callBlock(data, p, index, state) {
+    const f = p.first;
+    if (f.open) return districtPicker(data);
+    const area = state.district && f.entry.fromDirectory
+      ? `<button type="button" class="area" data-clear-district>${esc(state.district)}<span>換區</span></button>` : '';
+    const sub = [f.aside, f.note, f.address].filter(Boolean).join('。');
+    const more = f.more.map((c) => `<p class="also">同區另有${esc(c.name.replace(/^.*?\(|\)$/g, ''))}：`
+      + `<a href="tel:${esc(c.phone.dial)}" data-dial="${esc(c.phone.dial)}">${esc(c.phone.display)}</a></p>`).join('');
+    return `<p class="who" tabindex="-1" data-focus-after-pick>${esc(f.who)}${area}</p>`
+      + `<p class="number">${esc(f.display)}</p>`
+      + (sub ? `<p class="sub">${esc(sub)}${C.refsHtml(index, f.sources)}</p>` : '')
+      + `<a class="dial" href="tel:${esc(f.dial)}" data-dial="${esc(f.dial)}">${PHONE}撥出這支電話</a>${more}`;
   }
 
-  function renderWelfareDirectory(data, directory, district) {
-    const options = districtsOf(directory.rows)
-      .map((name) => `<option value="${escapeHtml(name)}"${name === district ? ' selected' : ''}>${escapeHtml(name)}</option>`)
-      .join('');
-    const centers = directory.rows.filter((row) => row.district === district);
-    const cards = centers.map((row) => `<div class="place"><p class="place-name">${escapeHtml(row.name)}</p>`
-      + `<p class="place-line">${escapeHtml(row.address)}</p>${callButton(row.phone.dial, row.name)}</div>`).join('');
-    return `<div class="directory"><label class="district-label" for="district">找你那一區</label>`
-      + `<select id="district" class="district-select"><option value="">選擇行政區</option>${options}</select>`
-      + `${cards}${sourceLine(data, directory.sources)}</div>`;
+  function checklist(situation, index, checked) {
+    return situation.bring.map((entry, i) => {
+      const key = `${situation.id}:${i}`;
+      return `<li><label class="check"><input type="checkbox" data-check="${key}"${checked.has(key) ? ' checked' : ''}>`
+        + `<span class="box" aria-hidden="true"></span><span class="check-text">${entryText(entry)}</span></label>`
+        + `${C.refsHtml(index, entry.sources)}</li>`;
+    }).join('');
   }
 
-  function renderLaborDirectory(data, directory) {
-    const cards = directory.rows.map((row) => `<div class="place"><p class="place-name">${escapeHtml(row.name)}</p>`
-      + `<p class="place-line">${escapeHtml(row.address)}</p><p class="place-line">方式：${escapeHtml(row.method)}</p>`
-      + `<p class="place-line">時段：${escapeHtml(row.hours)}</p></div>`).join('');
-    return `<div class="directory"><p class="district-label">${escapeHtml(directory.title)}</p>${cards}${sourceLine(data, directory.sources)}</div>`;
+  function tally(situation, checked) {
+    const done = situation.bring.filter((_, i) => checked.has(`${situation.id}:${i}`)).length;
+    return `已備好 ${done}／${situation.bring.length}`;
   }
 
-  function renderHome(data) {
-    const cards = data.situations.map((situation) => `<a class="situation-card" href="#/${escapeHtml(situation.id)}">`
-      + `<span class="situation-title">${escapeHtml(situation.title)}</span>`
-      + `<span class="situation-sub">${escapeHtml(situation.subtitle)}</span><span class="chevron" aria-hidden="true">›</span></a>`).join('');
-    return `<header class="home-header"><p class="eyebrow">臺北市官方窗口整理</p><h1>我遇到了……</h1>`
-      + `<p class="lead">選一個最接近你現在狀況的，告訴你去哪個窗口、要帶什麼、打哪支電話、開口怎麼說。</p></header>`
-      + `<nav class="situation-list" aria-label="選擇情境">${cards}</nav>`
-      + `<p class="privacy">不用登入。這個頁面不會記錄、也不會上傳你選了什麼。資料查核日 ${escapeHtml(data.checkedOn)}，以官方最新公告為準。</p>`;
+  function row(title, body) {
+    return `<details class="row"><summary>${title}</summary><div class="row-body">${body}</div></details>`;
   }
 
-  function renderSituation(data, id, district) {
-    const situation = data.situations.find((item) => item.id === id);
-    if (!situation) return null;
+  function renderCard(data, situation, state, checked) {
+    const index = C.sourceIndex(data, situation);
+    const p = C.plan(data, situation, state.period, state.district);
+    const script = C.splitScript(p.say.text);
+    const timeNote = p.timeNote ? `<p class="time">${esc(p.timeNote.text)}${C.refsHtml(index, p.timeNote.sources)}</p>` : '';
+    const others = p.others.map((c) => (c.open
+      ? `<li><strong>${esc(c.who)}</strong><span>選了你住的區就會顯示。</span>${districtPicker(data)}</li>`
+      : `<li><strong>${esc(c.who)}</strong>${c.note ? `<span>${esc(c.note)}</span>` : ''}`
+        + `<a class="line-dial" href="tel:${esc(c.dial)}" data-dial="${esc(c.dial)}">${PHONE}${esc(c.display)}</a>${C.refsHtml(index, c.sources)}</li>`)).join('');
+    const sayOthers = p.otherSay.map((e) => {
+      const s = C.splitScript(e.text);
+      return `<li><strong>${esc(s.lead || '另一種說法')}</strong><span>「${C.scriptHtml(s.quote, 'blank', state.district)}」${C.refsHtml(index, e.sources)}</span></li>`;
+    }).join('');
+    const facts = p.facts.map((e) => `<li>${entryText(e)}${C.refsHtml(index, e.sources)}</li>`).join('');
+    const cautions = situation.cautions.map((e) => `<li>${entryText(e)}${C.refsHtml(index, e.sources)}</li>`).join('');
     const directory = data.directories[situation.directory];
-    const center = district ? directory.rows.find((row) => row.district === district) : null;
-    const directoryHtml = situation.directory === 'welfareCenters'
-      ? renderWelfareDirectory(data, directory, district)
-      : renderLaborDirectory(data, directory);
-    const sections = SECTION_TITLES.map(([key, title], index) => {
-      const items = key === 'call'
-        ? situation.call.map((entry) => renderCallEntry(data, entry, center)).join('')
-        : situation[key].map((entry) => renderEntry(data, entry)).join('');
-      const extra = key === 'window' ? directoryHtml : '';
-      return `<section class="step" aria-labelledby="step-${key}"><h2 id="step-${key}"><span class="step-no">${index + 1}</span>${title}</h2>`
-        + `<ul class="entries${key === 'say' ? ' say' : ''}">${items}</ul>${extra}</section>`;
-    }).join('');
-    const cautions = situation.cautions.map((entry) => renderEntry(data, entry)).join('');
-    const usedSources = [...new Set([
-      ...SECTION_TITLES.flatMap(([key]) => situation[key].flatMap((entry) => entry.sources)),
-      ...situation.cautions.flatMap((entry) => entry.sources),
-      ...directory.sources,
-    ])];
-    const sourceList = usedSources.map((sid) => {
-      const source = data.sources[sid];
-      return `<li><a href="${escapeHtml(source.url)}" rel="noopener">${escapeHtml(source.title)}</a>`
-        + `<span class="checked">${escapeHtml(source.publisher)} · 查核 ${escapeHtml(source.checkedOn)}</span></li>`;
-    }).join('');
-    return `<header class="detail-header"><a class="back" href="#/">‹ 我遇到了……</a>`
-      + `<h1>${escapeHtml(situation.title)}</h1><p class="lead">${escapeHtml(situation.subtitle)}</p></header>`
-      + sections
-      + `<section class="step caution" aria-labelledby="step-caution"><h2 id="step-caution">先知道</h2><ul class="entries">${cautions}</ul></section>`
-      + `<section class="sources" aria-labelledby="step-sources"><h2 id="step-sources">資料來源</h2><ol>${sourceList}</ol></section>`
-      + `<p class="privacy">這個頁面不會記錄你選了什麼。</p>`;
+    const places = situation.directory === 'laborConsult'
+      ? row(esc(directory.title), `<ul class="list">${directory.rows.map((r) => `<li><strong>${esc(r.name)}</strong>`
+        + `<span>${esc(r.address)}</span><span>${esc(r.hours)}</span></li>`).join('')}</ul>${C.refsHtml(index, directory.sources)}`)
+      : '';
+
+    return `<header class="top"><a class="back" href="#/" aria-label="回到所有卡片">‹</a>${periodTag(state)}</header>`
+      + `<article class="card${situation.urgent ? ' is-urgent' : ''}" aria-labelledby="card-title">`
+      + `<div class="band"><h1 id="card-title">${esc(situation.title)}</h1><p class="band-sub">${esc(situation.subtitle)}</p></div>`
+      + `<section class="part call" aria-label="現在打給誰"><p class="label">現在打給</p>${callBlock(data, p, index, state)}${timeNote}</section>`
+      + `<section class="part say" aria-label="接通後照著說"><p class="label">接通後照著說</p>`
+      + `<p class="script">「${C.scriptHtml(script.quote, 'blank', state.district)}」${C.refsHtml(index, p.say.sources)}</p></section>`
+      + `<section class="part bring" aria-label="要準備的東西"><p class="label label-row"><span>要準備的東西</span>`
+      + `<span class="tally" data-tally="${esc(situation.id)}">${tally(situation, checked)}</span></p>`
+      + `<ul class="checks">${checklist(situation, index, checked)}</ul></section>`
+      + `<section class="part know" aria-label="先知道"><p class="label">先知道</p><ul class="know-list">${cautions}</ul></section>`
+      + `<p class="card-foot">可以截圖，或直接把手機拿給社工看。</p>`
+      + `</article>`
+      + `<div class="rows">`
+      + (others ? row('其他電話', `<ul class="list">${others}</ul>`) : '')
+      + (sayOthers ? row('其他時段怎麼說', `<ul class="list">${sayOthers}</ul>`) : '')
+      + row('怎麼申請、誰可以申請', `<ul class="list">${facts}</ul>`)
+      + places
+      + `<details class="row" data-sources><summary>資料來源</summary><div class="row-body"><ol class="src-list">${C.sourcesListHtml(index)}</ol></div></details>`
+      + `</div><p class="foot">整理自臺北市官方頁面與開放資料，查核日 ${esc(data.checkedOn)}，以官方最新公告為準。</p>`;
   }
 
-  function parseRoute(hash) {
-    const match = /^#\/([a-z]+)$/.exec(hash || '');
-    return match ? match[1] : null;
+  function render(data, state, checked) {
+    const situation = state.id && C.findSituation(data, state.id);
+    return situation ? renderCard(data, situation, state, checked) : renderHome(data, state);
   }
 
-  function mount(doc, data, bridge) {
-    const app = doc.getElementById('app');
-    const status = doc.getElementById('call-status');
-    let district = '';
+  function titleOf(data, state) {
+    const s = state.id && C.findSituation(data, state.id);
+    return s ? `${s.title}｜我遇到了……` : '我遇到了……';
+  }
 
-    function showStatus(text) {
-      status.textContent = text;
-      status.hidden = !text;
-    }
+  root.SituationApp = Object.freeze({ renderHome, renderCard, render, nowCall, groups, titleOf });
 
-    function render() {
-      const id = parseRoute(root.location.hash);
-      const html = id ? renderSituation(data, id, district) : null;
-      app.innerHTML = html || renderHome(data);
-      doc.title = html ? `${data.situations.find((item) => item.id === id).title}｜我遇到了……` : '我遇到了……';
-    }
-
-    root.addEventListener('hashchange', () => { district = ''; showStatus(''); render(); root.scrollTo(0, 0); });
-
-    app.addEventListener('change', (event) => {
-      if (event.target.id !== 'district') return;
-      district = event.target.value;
-      render();
-      const select = doc.getElementById('district');
-      if (select) select.focus();
+  if (root.document) {
+    root.document.addEventListener('DOMContentLoaded', () => {
+      const checked = new Set(); // page memory only; gone on reload
+      const app = root.document.getElementById('app');
+      C.start((data, state) => render(data, state, checked), titleOf);
+      app.addEventListener('change', (event) => {
+        const key = event.target.dataset && event.target.dataset.check;
+        if (!key) return;
+        if (event.target.checked) checked.add(key); else checked.delete(key);
+        const id = key.split(':')[0];
+        const label = app.querySelector(`[data-tally="${id}"]`);
+        const situation = C.findSituation(root.SITUATION_DATA, id);
+        if (label && situation) label.textContent = tally(situation, checked);
+      });
     });
-
-    app.addEventListener('click', async (event) => {
-      const link = event.target.closest('a[data-dial]');
-      if (!link || !bridge.available()) return; // plain browser: let tel: open the dialer
-      event.preventDefault();
-      const dial = link.dataset.dial;
-      showStatus(`正在撥打 ${formatDial(dial)}…`);
-      const failed = () => showStatus(`這台裝置沒辦法直接撥號，請手動撥打 ${formatDial(dial)}。`);
-      const result = await bridge.call(dial, failed);
-      if (result === 'opened') showStatus('');
-      else if (result === 'unconfirmed') showStatus(`若沒有跳出撥號畫面，請直接撥 ${formatDial(dial)}。`);
-      else if (result === 'busy') showStatus('上一通撥號還在處理，請稍等。');
-      else failed();
-    });
-
-    render();
-  }
-
-  root.SituationApp = Object.freeze({ renderHome, renderSituation, parseRoute, formatDial, escapeHtml, mount });
-  if (root.document && root.SITUATION_DATA && root.SituationBridge) {
-    root.document.addEventListener('DOMContentLoaded', () => mount(root.document, root.SITUATION_DATA, root.SituationBridge));
   }
 })(typeof window === 'undefined' ? globalThis : window);

@@ -1,7 +1,7 @@
 /* Variant C「城市通原生」: TownPass component language (TPAppBar, TPCard, TPButton) so it reads as a built-in service. */
 (function (root) {
   'use strict';
-  const C = root.VariantCore;
+  const C = root.SituationCore;
   const { esc } = C;
 
   const ICONS = {

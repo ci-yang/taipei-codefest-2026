@@ -33,7 +33,7 @@ window.SITUATION_DATA = {
       "publisher": "臺北市政府勞動局",
       "url": "https://data.taipei/dataset/detail?id=0f648fee-c8f5-4990-913c-b4965ffc9bf0",
       "checkedOn": "2026-11-08",
-      "note": "資源檔案更新 2026-06-11；快照 data/situation/labor-lawyer-consultation.csv"
+      "note": "資源檔案更新 2026-06-11；快照 data/situation/labor-lawyer-consultation.csv。電話出自 CSV「臺北市政府勞動局」列：「僅電話服務，請撥02-27208889分機7019。」時段每週一至週五下午2時到5時（2026-11-08 核對）。02-2720-8889 是臺北市政府總機，也就是社會局頁面寫的「外縣市請撥 02-2720-8889」那支，不是勞動局專線，要轉分機 7019。"
     },
     "bola-mediation": {
       "short": "勞動局勞資爭議調解頁",
@@ -92,11 +92,24 @@ window.SITUATION_DATA = {
       "note": "民國 110 年 12 月 29 日修正"
     }
   },
+  "categories": [
+    {
+      "id": "money",
+      "title": "吃飯、生活費",
+      "note": "暫定分類；情境變多後再調整"
+    },
+    {
+      "id": "work",
+      "title": "工作、薪水",
+      "note": "暫定分類；情境變多後再調整"
+    }
+  ],
   "situations": [
     {
       "id": "food",
       "title": "今天沒飯吃",
       "subtitle": "沒錢買食物，想找餐食協助",
+      "category": "money",
       "directory": "welfareCenters",
       "window": [
         {
@@ -180,6 +193,7 @@ window.SITUATION_DATA = {
       "id": "labor",
       "title": "薪水被拖欠、突然被解僱",
       "subtitle": "老闆不發薪水，或突然叫你不用來",
+      "category": "work",
       "directory": "laborConsult",
       "window": [
         {
@@ -238,9 +252,9 @@ window.SITUATION_DATA = {
       ],
       "call": [
         {
-          "label": "勞動局律師電話諮詢",
+          "label": "勞動局免費律師電話諮詢",
           "number": "02-27208889",
-          "note": "接通後轉分機 7019；週一至週五 14:00–17:00。",
+          "note": "這支是臺北市政府總機，接通後轉分機 7019；週一至週五 14:00–17:00。",
           "sources": [
             "d8-labor-lawyer"
           ]
@@ -297,6 +311,7 @@ window.SITUATION_DATA = {
       "id": "emergency",
       "title": "突然沒錢，繳不出房租或水電",
       "subtitle": "家裡出事，生活一下子撐不住",
+      "category": "money",
       "directory": "welfareCenters",
       "window": [
         {

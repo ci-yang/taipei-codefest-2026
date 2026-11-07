@@ -1,7 +1,7 @@
 /* Variant B「行動卡」: one card per situation — number, script, checklist — that can be screenshotted or shown to a social worker. */
 (function (root) {
   'use strict';
-  const C = root.VariantCore;
+  const C = root.SituationCore;
   const { esc } = C;
   const checked = new Set(); // page memory only; gone on reload
 

@@ -1,4 +1,4 @@
-/* Shared logic for the three design variants (BRA-592 design exploration).
+/* Shared logic for the main page (variant B) and the three design-record variants (BRA-592).
  * Pure helpers over SITUATION_DATA: which call comes first right now, which script to read, source footnotes.
  * No storage, no network: the chosen district lives only in page memory.
  * Preview overrides (read-only, for screenshots): ?t=day|night and ?d=<行政區>. */
@@ -187,6 +187,8 @@
       app.innerHTML = render(data, state);
       doc.title = titleOf(data, state);
       doc.documentElement.dataset.period = state.period;
+      const tint = doc.querySelector('meta[name="theme-color"]');
+      if (tint && tint.dataset[state.period]) tint.content = tint.dataset[state.period];
       const focus = focusSelector && app.querySelector(focusSelector);
       if (focus) focus.focus({ preventScroll: false });
     }
@@ -201,7 +203,7 @@
     draw();
   }
 
-  root.VariantCore = Object.freeze({
+  root.SituationCore = Object.freeze({
     start,
     esc, formatDial, detectPeriod, readPreview, districts, centersIn, findSituation, needsDistrict,
     plan, sourceIndex, scriptHtml, periodText, splitScript, refsHtml, wireRefs, sourcesListHtml, wireCalls, parseRoute,

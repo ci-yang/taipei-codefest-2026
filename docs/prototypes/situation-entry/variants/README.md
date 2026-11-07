@@ -1,6 +1,6 @@
 # 情境入口設計探索：三個方向（BRA-592）
 
-主版（上一層的 `index.html`／`app.js`／`styles.css`）沒動。三個方向共用 `../situations-data.js`、`../bridge.js`，以及 `shared/core.js`（時段判斷、「現在這一步」挑選、來源編號、撥號串接）。
+**結果：選 B**（2026-11-08 曄：「只有B合格」）。主版（上一層的 `index.html`／`app.js`／`styles.css`）已換成 B 的完整版；這個資料夾留作設計紀錄。三個方向共用 `../situations-data.js`、`../bridge.js`，以及 `../core.js`（時段判斷、「現在這一步」挑選、來源編號、撥號串接；原本在 `shared/core.js`，主版改用後移到上一層）。
 
 | 方向 | 網址 | 概念 |
 |---|---|---|
