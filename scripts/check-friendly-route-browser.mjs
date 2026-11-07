@@ -39,7 +39,7 @@ function check(name, test, details) {
 const observer = `
 Object.defineProperty(window, '__friendlyRouteQA', { value: Object.freeze({
   snapshot() {
-    const expectedIds = state.route ? stores.filter(s => state.route.storeIds.includes(s.id) && (!state.filters.size || s.services.some(k => state.filters.has(k)))).map(s => s.id).sort() : [];
+    const expectedIds = state.route ? stores.filter(s => state.route.storeIds.includes(s.id) && state.filters.size > 0 && s.services.some(k => state.filters.has(k))).map(s => s.id).sort() : [];
     const highlightedIds = [...markers].filter(([, marker]) => marker.options.radius === 7 && marker.options.fillOpacity > 0.7).map(([id]) => id).sort();
     return { position: state.position && { lat: state.position.lat, lng: state.position.lng }, destination: state.destination && { name: state.destination.name, lat: state.destination.lat, lng: state.destination.lng },
       selectedId: state.selectedId, filters: [...state.filters].sort(), routeStatus: state.routeStatus,
@@ -105,8 +105,8 @@ async function layout(page) {
     const focus = document.activeElement;
     return {
       viewport: { width: innerWidth, height: innerHeight }, documentWidth: document.documentElement.scrollWidth,
-      map: rect('#map'), stage: rect('#map-stage'), button: rect('#start-guidance'), description: rect('#mode-description'),
-      descriptionLines: textLines('#mode-description'), startLines: textLines('#start-guidance'),
+      map: rect('#map'), stage: rect('#map-stage'), button: rect('#panel-toggle'), description: rect('#panel-summary'),
+      descriptionLines: textLines('#panel-summary'),
       searchFocusVisible: document.querySelector('#search-trigger').matches(':focus-visible'),
       active: focus.id || focus.tagName, activeFocusVisible: focus.matches(':focus-visible'), activeOutline: getComputedStyle(focus).outlineWidth,
       mapSize: window.__friendlyRouteQA.snapshot().mapSize,
@@ -134,7 +134,7 @@ async function layoutChecks(browser, width, height) {
     const normal = await layout(page);
     report.viewports.push({ label, normal });
     check(`${label}: no horizontal overflow`, () => assert.ok(normal.documentWidth <= width), normal.documentWidth);
-    check(`${label}: description and START remain one line`, () => { assert.equal(normal.descriptionLines, 1); assert.equal(normal.startLines, 1); assert.ok(normal.button.height >= 44); }, { descriptionLines: normal.descriptionLines, startLines: normal.startLines, button: normal.button });
+    check(`${label}: panel summary stays one line and the collapse button is a 44px target`, () => { assert.equal(normal.descriptionLines, 1); assert.ok(normal.button.height >= 44 && normal.button.width >= 44); }, { descriptionLines: normal.descriptionLines, button: normal.button });
     check(`${label}: pointer entry does not focus search`, () => { assert.equal(normal.searchFocusVisible, false); assert.notEqual(normal.active, 'search-trigger'); });
     check(`${label}: entry starts at map top`, () => assert.equal(normal.stage.y, 0), normal.stage);
     await screenshot(page, `${label}-normal`, true);
@@ -237,16 +237,19 @@ async function routeChecks(browser) {
       }
       const value = await snapshot(page);
       const countText = await page.locator('#visible-count').textContent();
-      await page.locator('#list-button').click();
-      const listIds = await page.locator('#sheet-body [data-resource]').evaluateAll(els => els.map(el => el.dataset.resource).sort());
+      // 「全部 N 筆」只在超過預覽的 6 筆時出現；不到 6 筆時預覽列就是完整清單。
+      const fullList = await page.locator('#list-button').isVisible();
+      if (fullList) await page.locator('#list-button').click();
+      const listIds = await page.locator(fullList ? '#sheet-body [data-resource]' : '#nearby-preview [data-resource]').evaluateAll(els => els.map(el => el.dataset.resource).sort());
       const sample = { categories, expected: value.expectedIds.length, highlighted: value.highlightedIds.length, listed: listIds.length, countText };
       report.categories.push(sample);
-      check(`category ${categories.join('+') || 'all'}: highlight/count/list match same route set`, () => { assert.deepEqual(value.highlightedIds, value.expectedIds); assert.deepEqual(listIds, value.expectedIds); assert.equal(Number(countText.match(/\d+/)?.[0]), value.expectedIds.length); assert.deepEqual(value.route, initial.route); }, sample);
-      await page.locator('#sheet-close').click();
+      check(`category ${categories.join('+') || 'none'}: highlight/count/list match same route set`, () => { assert.deepEqual(value.highlightedIds, value.expectedIds); assert.deepEqual(listIds, value.expectedIds); assert.equal(categories.length ? Number(countText.match(/\d+/)?.[0]) : (/尚未選類別/.test(countText) ? 0 : NaN), value.expectedIds.length); assert.deepEqual(value.route, initial.route); }, sample);
+      if (fullList) await page.locator('#sheet-close').click();
     }
     check('category filters do not create new route Workers', () => assert.equal(report.workers.length, workersBeforeFilters));
-    await page.locator('#list-button').click();
-    await page.locator('#sheet-body [data-resource]').first().click();
+    await page.locator('#nearby-preview [data-resource]').first().click();
+    await page.waitForFunction(() => !document.querySelector('#selected-card').hidden && !document.querySelector('#app-sheet').open);
+    await page.locator('#selected-card [data-action="detail"]').click();
     await page.waitForFunction(() => document.querySelector('#app-sheet').dataset.sheet === 'detail');
     const selected = await snapshot(page);
     const detail = await page.locator('#sheet-body').textContent();
@@ -289,7 +292,7 @@ async function accessibilityChecks(browser) {
         if (Number.isFinite(line)) el.style.lineHeight = `${line * 2}px`;
       }
     });
-    await page.locator('#start-guidance').scrollIntoViewIfNeeded();
+    await page.locator('#panel-toggle').scrollIntoViewIfNeeded();
     const large = await layout(page); report.largeText = large;
     check('200% computed text remains readable without document overflow', () => { assert.ok(large.documentWidth <= 320); assert.ok(large.description.scrollWidth <= large.description.clientWidth + 1); assert.ok(large.button.scrollWidth <= large.button.clientWidth + 1); }, large);
     await screenshot(page, '320x568-text-200-percent', true);

@@ -1,4 +1,4 @@
-// 三急主流程 390px 走查：首頁 → 結果卡 → 帶我去（倒數）→ 開口卡 → 看地圖 → 連按返回；另測無定位與充電生存圈。
+// 三急主流程 390px 走查：首頁 → 結果卡 → 帶我去（倒數）→ 開口卡 → 看地圖 → 連按返回；另測無定位、充電生存圈與地圖第二層的類別與 pin。
 // 對已啟動的 `pnpm prototype` 執行，不安裝依賴、不改程式：
 // NODE_PATH=/path/to/node_modules node scripts/check-three-urgencies-browser.mjs
 // 定位固定為臺北市政府附近的公開座標，不是測試者的 GPS；外部請求一律阻擋，Service Worker 停用。
@@ -24,6 +24,8 @@ await page.goto(base, { waitUntil: 'load' });
 await page.waitForFunction(() => /±/.test(document.querySelector('#home-location').textContent));
 ok('first screen is home', await view() === 'home'); ok('three buttons', (await page.locator('[data-urgency]').count()) === 3);
 ok('home no overflow', await overflow() <= 0, String(await overflow())); await shot('01-home');
+const domes = await page.$$eval('button.urgency-button[data-urgency]', els => els.map(el => Boolean(el.querySelector('.unit .dome svg'))));
+ok('each urgency button has an e-stop dome with its icon', domes.length === 3 && domes.every(Boolean), JSON.stringify(domes));
 const t0 = Date.now(); await page.click('[data-urgency="toilet"]'); await page.waitForSelector('[data-result-id]');
 ok('result within 3s', Date.now() - t0 < 3000, `${Date.now() - t0} ms`); ok('result view', await view() === 'result');
 ok('result no overflow', await overflow() <= 0); await shot('02-result-toilet');
@@ -97,6 +99,25 @@ await r.click('[data-urgency="charge"]'); await r.waitForSelector('[data-result-
 const radar = await r.evaluate(() => ({ hl: document.body.classList.contains('hl-active'), card: Boolean(document.querySelector('#selected-card').getClientRects().length), filters: Boolean(document.querySelector('#category-filters').getClientRects().length) }));
 ok('result → map after radar shows filters and selected card', !radar.hl && radar.card && radar.filters, JSON.stringify(radar));
 await r.screenshot({ path: `${out}/16-map-after-radar-from-result.png` });
+// 地圖第二層：未選類別是空狀態；選類別才有 pin；點 pin 只選取、不開對話框。
+const m = await ctx.newPage(); m.on('pageerror', e => errors.push(e.message));
+await m.goto(base); await m.waitForFunction(() => /±/.test(document.querySelector('#home-location').textContent));
+await m.click('#home-map'); await m.waitForFunction(() => document.querySelector('#app').dataset.view === 'map'); await m.waitForTimeout(500);
+const pins = () => m.locator('.resource-map-pin').count();
+const empty = await m.evaluate(() => ({ state: Boolean(document.querySelector('#nearby-preview [data-empty="no-category"]')), rows: document.querySelectorAll('#nearby-preview [data-resource]').length, count: document.querySelector('#visible-count').textContent }));
+const emptyPins = await pins();
+ok('map from home starts with no category: empty state and zero pins', empty.state && empty.rows === 0 && emptyPins === 0, JSON.stringify({ ...empty, pins: emptyPins }));
+await m.screenshot({ path: `${out}/17-map-no-category.png`, fullPage: true });
+await m.click('[data-service="toilet"]'); await m.waitForTimeout(400);
+const chipPins = await pins(); ok('choosing a category draws pins', chipPins > 0, `${chipPins} pins`);
+await m.screenshot({ path: `${out}/18-map-category-toilet.png`, fullPage: true });
+const stage = await m.locator('#map-stage').boundingBox();
+const target = await m.evaluate(({ top, bottom }) => [...document.querySelectorAll('.resource-map-pin:not(.is-selected) button')].map(el => el.getBoundingClientRect()).map(r => ({ x: r.x + r.width / 2, y: r.y + r.height / 2 })).find(p => p.y > top + 150 && p.y < bottom - 40), { top: stage.y, bottom: stage.y + stage.height });
+if (target) await m.mouse.click(target.x, target.y);
+await m.waitForTimeout(500);
+const picked = await m.evaluate(() => ({ sheetOpen: document.querySelector('#app-sheet').hasAttribute('open'), cardHidden: document.querySelector('#selected-card').hidden }));
+ok('tapping a map pin selects without opening the detail dialog', Boolean(target) && !picked.sheetOpen && !picked.cardHidden, JSON.stringify({ target, ...picked }));
+await m.screenshot({ path: `${out}/19-map-selected-card.png`, fullPage: true });
 // no location
 const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: 'zh-TW', serviceWorkers: 'block' });
 await ctx2.route('**/*', r => new URL(r.request().url()).host !== origin.host ? r.abort() : r.continue());
