@@ -1,4 +1,4 @@
-/* 友善同行 App v2：裝置定位、本地路網；評論與互助不傳送至伺服器。 */
+/* 友善同行 App v3：裝置定位、本地路網；評論與互助不傳送至伺服器。 */
 (() => {
   'use strict';
   const data = window.FRIENDLY_DATA;
@@ -10,8 +10,8 @@
   const services = { wifi: { label: 'Free WiFi', short: 'WiFi', icon: '⌁' }, charge: { label: '行動裝置充電', short: '充電', icon: 'ϟ' }, toilet: { label: '友善廁所', short: '廁所', icon: 'WC' }, accessible: { label: '無障礙友善', short: '無障礙', icon: '♿' } };
   const APP_VERSION = 'friendly-app-v2';
   const scopePath = new URL('./', location.href).pathname;
-  const CACHE_NAME = `friendly-route-v2:${scopePath}`;
-  const requiredAssets = ['./', './index.html', './app.js', './styles.css', './data.js', './routing-data.js', './routing.js', './vendor/leaflet.js', './vendor/leaflet.css'];
+  const CACHE_NAME = `friendly-route-v3:${scopePath}`;
+  const requiredAssets = ['./', './index.html', './app.js', './styles.css', './map-ui.css', './data.js', './routing-data.js', './routing.js', './search.js', './vendor/leaflet.js', './vendor/leaflet.css'];
   const baseKey = `${APP_VERSION}:${scopePath}`;
   const storage = {
     read(key, fallback) { try { return JSON.parse(localStorage.getItem(`${baseKey}:${key}`)) ?? fallback; } catch { return fallback; } },
@@ -32,7 +32,8 @@
   const loadedSnapshot = storage.read('snapshot', null);
   const snapshotValid = loadedSnapshot && loadedSnapshot.version === APP_VERSION && loadedSnapshot.dataVersion === data.version && Array.isArray(loadedSnapshot.points) && loadedSnapshot.points.length >= 2 && loadedSnapshot.points.every(validPoint) && validRoute(loadedSnapshot.route) && Number.isFinite(loadedSnapshot.savedAt) && typeof loadedSnapshot.date === 'string' && Array.isArray(loadedSnapshot.filters) && [100, 250, 500].includes(loadedSnapshot.radius);
   const state = {
-    screen: 'home', date: localDate(), originMode: 'gps', manualOrigin: '', historyOrigin: null, destinations: [''],
+    screen: 'home', date: localDate(), originMode: 'unset', originPoint: null, manualOrigin: '', historyOrigin: null, destinations: [''],
+    previewPlace: null, previewMessage: '', searchTarget: 'destination', searchIndex: null, searchResults: [], searchGeneration: 0, searchController: null,
     gps: null, gpsStatus: 'idle', gpsMessage: '尚未取得定位', gpsRequest: 0,
     points: [], routes: [], selectedRouteId: null, preferredRouteId: 'shortest', criteria: null, routingNote: '', calculating: false,
     filters: new Set(Object.keys(services)), radius: 250, routeOnly: false, search: '', selectedId: null,
@@ -58,21 +59,20 @@
   function setScreen(screen) {
     state.screen = screen; $('#app').dataset.screen = screen;
     ['home', 'plan', 'confirm', 'journey'].forEach((name) => { $(`#${name}-screen`).hidden = name !== screen; });
-    $('#back-button').hidden = screen === 'home'; $('#screen-step').textContent = { home: 'APP / V2', plan: '01 / 規劃', confirm: '02 / 確認', journey: '03 / 出發' }[screen];
+    $('#back-button').hidden = screen === 'home'; $('#screen-step').textContent = { home: 'APP / V3', plan: '01 / 規劃', confirm: '02 / 確認', journey: '03 / 出發' }[screen];
     if (screen === 'plan') { renderDates(); renderPlan(); }
     if (screen === 'confirm') renderRouteOptions();
-    if (screen === 'journey') renderJourney();
+    if (screen === 'journey') renderJourney(); renderPreview();
     requestAnimationFrame(() => { map.invalidateSize({ animate: false }); renderMap(); if (screen !== 'plan') fitRoute(); });
   }
   $('#back-button').addEventListener('click', () => setScreen(state.screen === 'confirm' ? 'plan' : state.screen === 'journey' ? 'confirm' : 'home'));
-  $('#home-start').addEventListener('click', () => { if (isOffline()) { if (state.cacheVerified) restoreSnapshot(); else openInfo(); return; } setScreen('plan'); if (state.originMode === 'gps' && state.gpsStatus === 'idle') requestPosition(); });
-  $('#home-gps').addEventListener('click', () => { state.originMode = 'gps'; state.demoOrigin = false; requestPosition(); });
+  $('#home-start').addEventListener('click', () => { if (isOffline()) { if (state.cacheVerified) restoreSnapshot(); else openInfo(); return; } setScreen('plan'); });
+  $('#home-gps').addEventListener('click', requestPosition);
   $('#retry-gps').addEventListener('click', requestPosition);
-  $('#cancel-gps').addEventListener('click', () => { state.gpsRequest += 1; state.gpsStatus = 'idle'; invalidateComparison(); state.gpsMessage = '已取消定位，可重試或手動選起點。'; renderGps(); });
-  function invalidateComparison() { state.helpDraft.consent = false; state.helpDraft.shareRoute = false; state.draftRevision = (state.draftRevision || 0) + 1; state.routes = []; state.points = []; state.selectedRouteId = null; state.criteria = null; state.routeOnly = false; $('#start-trip').disabled = true; $('#save-history').disabled = true; $('#save-offline').disabled = true; }
+  $('#cancel-gps').addEventListener('click', () => { state.gpsRequest += 1; state.gpsStatus = 'idle'; state.gpsMessage = '已取消定位，可重試或手動選起點。'; renderGps(); });
+  function invalidateComparison() { state.helpDraft.consent = false; state.helpDraft.shareRoute = false; state.draftRevision = (state.draftRevision || 0) + 1; state.calculating = false; state.routes = []; state.points = []; state.selectedRouteId = null; state.criteria = null; state.routeOnly = false; $('#start-trip').disabled = true; $('#save-history').disabled = true; $('#save-offline').disabled = true; $('#build-route').disabled = isOffline(); $('#build-route').innerHTML = '下一步 · 確認路線 <span>→</span>'; }
   function storedOrigin(point, kind) { const prefix = kind === 'saved' ? '已保存' : '歷史'; const name = point.kind === 'gps' || /目前位置|GPS/.test(point.name || '') ? `${prefix} GPS 起點` : `${prefix}起點：${(point.name || point.label || '選定位置').replace(/^(歷史起點|已保存起點)：/, '')}`; return { ...point, kind, name, label: name }; }
   function requestPosition() {
-    if (state.originMode === 'gps') invalidateComparison();
     if (!window.isSecureContext || !navigator.geolocation) { state.gpsStatus = 'error'; state.gpsMessage = '此瀏覽器未提供定位。請用 HTTPS 開啟，或手動選起點。'; renderGps(); return; }
     if (isOffline()) { toast('離線僅能讀已下載的行程；請先恢復連線再建立新行程。'); return; }
     const token = ++state.gpsRequest; state.gpsStatus = 'pending'; state.gpsMessage = '正在取得裝置定位…'; renderGps();
@@ -83,7 +83,7 @@
       state.gps = { id: 'device-position', name: '目前位置（GPS）', label: '目前位置（GPS）', lat, lng, accuracy: Number.isFinite(accuracy) ? accuracy : null, capturedAt: position.timestamp || Date.now(), kind: 'gps' };
       const inside = FriendlyRouter.contains(state.gps); state.gpsStatus = inside ? 'ready' : 'outside';
       state.gpsMessage = inside ? (accuracy > 200 ? '已取得位置，但定位誤差較大；請核對起點，或重試／手動選擇。' : '已取得目前位置。') : '已取得定位，但不在本版示範路網範圍。可手動選起點或以示範區域試用。';
-      renderGps(); renderMap(); if (state.screen === 'home') map.setView([lat, lng], 15, { animate: false });
+      renderGps(); renderMap(); if (state.screen === 'home' && !selectedRoute()) map.setView([lat, lng], 15, { animate: false });
     }, (error) => {
       if (token !== state.gpsRequest) return;
       state.gpsStatus = 'error'; state.gpsMessage = error.code === 1 ? '定位權限未開啟。你仍可手動選起點，或以示範區域試用。' : error.code === 3 ? '定位逾時，請重試或手動選起點。' : '目前無法取得位置，請重試或手動選起點。'; renderGps();
@@ -92,8 +92,11 @@
   function renderGps() {
     const pending = state.gpsStatus === 'pending'; $('#gps-status').textContent = state.gpsMessage;
     $('#retry-gps').textContent = state.gps ? '重新取得定位' : '取得目前位置'; $('#retry-gps').disabled = pending || isOffline(); $('#home-gps').disabled = pending || isOffline(); $('#cancel-gps').hidden = !pending;
-    $('#home-gps-title').textContent = pending ? '正在定位…' : state.gpsStatus === 'ready' ? '目前位置已就緒' : state.gpsStatus === 'outside' ? '目前位置在示範區外' : '從你的位置出發';
-    $('#home-gps-detail').textContent = state.gpsStatus === 'idle' ? '取得定位後，起點自動帶入。' : state.gpsMessage;
+    $('#home-gps-title').textContent = pending ? '正在定位…' : state.gpsStatus === 'ready' ? '目前位置已就緒' : state.gpsStatus === 'outside' ? '目前位置在示範區外' : '查看目前位置';
+    $('#home-gps-detail').textContent = state.gpsStatus === 'idle' ? '定位只更新藍點；行程起點由你設定。' : state.gpsMessage;
+    $('#use-gps-origin').disabled = pending || state.gpsStatus !== 'ready' || isOffline();
+    $('#search-use-gps').textContent = state.gpsStatus === 'ready' ? '以目前位置為起點' : pending ? '正在定位…' : '先取得目前位置';
+    $('#search-use-gps').disabled = pending || isOffline();
     $('#gps-meta').textContent = state.gps ? `${state.gps.lat.toFixed(5)}, ${state.gps.lng.toFixed(5)} · ${state.gps.accuracy === null ? '精度未知' : `誤差半徑約 ${Math.round(state.gps.accuracy)} m`} · ${formatDate(state.gps.capturedAt)}${state.gps.accuracy > 200 ? ' · 精度較低，請核對起點' : ''}` : '';
   }
   function renderDates() {
@@ -113,14 +116,15 @@
     $('#origin-source').value = state.originMode; $('#gps-origin').hidden = state.originMode !== 'gps'; $('#manual-origin').hidden = state.originMode === 'gps';
     $('#origin-store').value = state.originMode === 'history' ? state.historyOrigin?.name || '' : state.manualOrigin;
     $('#origin-store').readOnly = state.originMode === 'history';
-    $('#origin-note').textContent = state.originMode === 'history' ? (state.historyOrigin?.kind === 'saved' ? '此為離線包的已保存起點，不是新取得的 GPS 位置。可切換目前位置或手動起點。' : '此為已儲存的歷史起點，不是新取得的 GPS 位置。要更改可切換目前位置或手動起點。') : state.demoOrigin ? '示範起點，不是你的目前位置。' : '選擇官方清冊中、示範範圍內的店家。';
-    renderDestinations(); renderFilters(); renderGps(); renderHistoryCount();
+    $('#origin-note').textContent = state.originMode === 'history' ? (state.historyOrigin?.kind === 'saved' ? '此為離線包的已保存起點，不是新取得的 GPS 位置。可切換目前位置或手動起點。' : '此為已儲存的歷史起點，不是新取得的 GPS 位置。要更改可切換目前位置或手動起點。') : state.demoOrigin ? '示範起點，不是你的目前位置。' : '輸入名冊店名，或搜尋其他地點；路線僅支援本地路網範圍。';
+    renderDestinations(); renderFilters(); renderGps(); renderHistoryCount(); renderOrigin();
   }
-  $('#origin-source').addEventListener('change', (event) => { state.gpsRequest += 1; if (state.gpsStatus === 'pending') { state.gpsStatus = 'idle'; state.gpsMessage = '定位已取消。'; } state.originMode = event.target.value; state.demoOrigin = false; invalidateComparison(); renderPlan(); });
-  $('#origin-store').addEventListener('input', (event) => { state.manualOrigin = event.target.value; state.demoOrigin = false; invalidateComparison(); $('#origin-note').textContent = '選擇官方清冊中、示範範圍內的店家。'; });
+  $('#origin-source').addEventListener('change', (event) => { state.gpsRequest += 1; if (state.gpsStatus === 'pending') { state.gpsStatus = 'idle'; state.gpsMessage = '定位已取消。'; } state.originMode = event.target.value; state.originPoint = null; state.demoOrigin = false; invalidateComparison(); renderPlan(); });
+  $('#origin-store').addEventListener('input', (event) => { state.manualOrigin = event.target.value; state.originPoint = null; state.originMode = 'manual'; state.demoOrigin = false; invalidateComparison(); $('#origin-note').textContent = '輸入名冊店名，或搜尋其他地點；路線僅支援本地路網範圍。'; });
   function renderDestinations() {
-    $('#destination-inputs').innerHTML = state.destinations.map((name, i) => `<div class="route-row"><span class="stop-number">${i + 1}</span><div class="route-field"><label for="destination-${i}">目的地 ${i + 1}</label><input id="destination-${i}" data-destination="${i}" list="store-options" value="${esc(name)}" placeholder="輸入或選擇店名" autocomplete="off"></div><div class="stop-actions">${i > 0 ? `<button type="button" data-up="${i}" aria-label="將目的地 ${i + 1} 上移">↑</button>` : ''}${state.destinations.length > 1 ? `<button type="button" data-remove="${i}" aria-label="移除目的地 ${i + 1}">×</button>` : ''}</div></div>`).join('');
+    $('#destination-inputs').innerHTML = state.destinations.map((place, i) => `<div class="route-row"><span class="stop-number">${i + 1}</span><div class="route-field"><label for="destination-${i}">目的地 ${i + 1}</label><input id="destination-${i}" data-destination="${i}" list="store-options" value="${esc(typeof place === 'string' ? place : place.name)}" placeholder="輸入店名，或按搜尋" autocomplete="off"></div><div class="stop-actions"><button type="button" data-search-stop="${i}" aria-label="搜尋目的地 ${i + 1}">⌕</button>${i > 0 ? `<button type="button" data-up="${i}" aria-label="將目的地 ${i + 1} 上移">↑</button>` : ''}${state.destinations.length > 1 ? `<button type="button" data-remove="${i}" aria-label="移除目的地 ${i + 1}">×</button>` : ''}</div></div>`).join('');
     $$('[data-destination]').forEach((input) => input.addEventListener('input', () => { state.destinations[Number(input.dataset.destination)] = input.value; invalidateComparison(); }));
+    $$('[data-search-stop]').forEach((button) => button.addEventListener('click', () => openSearch('destination', Number(button.dataset.searchStop))));
     $$('[data-up]').forEach((button) => button.addEventListener('click', () => { const i = Number(button.dataset.up); [state.destinations[i - 1], state.destinations[i]] = [state.destinations[i], state.destinations[i - 1]]; invalidateComparison(); renderDestinations(); }));
     $$('[data-remove]').forEach((button) => button.addEventListener('click', () => { state.destinations.splice(Number(button.dataset.remove), 1); invalidateComparison(); renderDestinations(); }));
     $('#add-stop').disabled = state.destinations.length >= 5 || isOffline();
@@ -129,41 +133,147 @@
   $('#demo-route').addEventListener('click', () => {
     if (isOffline()) { openInfo(); return; }
     state.gpsRequest += 1; if (state.gpsStatus === 'pending') { state.gpsStatus = 'idle'; state.gpsMessage = '已取消定位，現在使用示範起點。'; } invalidateComparison(); const points = data.demoRoute.map((id) => byId.get(String(id))).filter(Boolean);
-    state.preferredRouteId = 'shortest'; state.originMode = 'manual'; state.manualOrigin = points[0].name; state.destinations = points.slice(1).map((p) => p.name); state.demoOrigin = true;
+    state.preferredRouteId = 'shortest'; state.originMode = 'manual'; state.manualOrigin = points[0].name; state.originPoint = { ...catalogPlace(points[0]), kind: 'demo' }; state.destinations = points.slice(1).map(catalogPlace); state.demoOrigin = true;
     $('#route-error').textContent = ''; setScreen('plan'); $('#origin-note').textContent = '示範起點，不是你的目前位置。'; toast('已帶入示範起點與目的地；尚未使用你的 GPS 位置。');
   });
   function renderFilters() {
-    ['filters', 'resource-filters'].forEach((id) => {
-      $(`#${id}`).innerHTML = Object.entries(services).map(([key, s]) => `<button type="button" class="filter-chip" data-service="${key}" aria-pressed="${state.filters.has(key)}"><span class="service-icon" aria-hidden="true">${s.icon}</span><span>${s.short === 'WiFi' ? 'Wi-Fi' : s.short}</span></button>`).join('');
-      $$(`#${id} button`).forEach((button) => button.addEventListener('click', () => { const key = button.dataset.service; state.filters.has(key) ? state.filters.delete(key) : state.filters.add(key); if (state.screen === 'plan') invalidateComparison(); renderFilters(); renderAll(); }));
+    ['filters', 'resource-filters', 'map-filters'].forEach((id) => {
+      $(`#${id}`).innerHTML = Object.entries(services).map(([key, s]) => `<button type="button" class="filter-chip" data-service="${key}" aria-pressed="${id === 'map-filters' ? state.filters.size === 1 && state.filters.has(key) : state.filters.has(key)}"><span class="service-icon" aria-hidden="true">${s.icon}</span><span>${s.short === 'WiFi' ? 'Wi-Fi' : s.short}</span></button>`).join('');
+      $$(`#${id} button`).forEach((button) => button.addEventListener('click', () => { const key = button.dataset.service; if (id === 'map-filters') state.filters = new Set(state.filters.size === 1 && state.filters.has(key) ? Object.keys(services) : [key]); else state.filters.has(key) ? state.filters.delete(key) : state.filters.add(key); if (state.screen === 'plan') invalidateComparison(); renderFilters(); renderAll(); }));
     });
   }
-  $('#route-form').addEventListener('submit', async (event) => {
-    event.preventDefault(); if (isOffline() || state.calculating) return;
-    let origin;
-    if (state.originMode === 'gps') {
-      if (!state.gps || state.gpsStatus !== 'ready') { $('#route-error').textContent = state.gpsStatus === 'outside' ? '目前位置不在示範路網範圍，請手動選起點。' : '請先取得有效的目前位置，或改用手動起點。'; return; }
-      if (!FriendlyRouter.contains(state.gps)) { $('#route-error').textContent = '目前位置不在這份示範路網內，請手動選擇示範區內起點。'; return; }
-      origin = { ...state.gps };
-    } else if (state.originMode === 'history') origin = { ...state.historyOrigin };
-    else { const store = stores.find((s) => s.name === state.manualOrigin.trim()); if (!store) { $('#route-error').textContent = '請從建議清單選擇完整的起點店名。'; $('#origin-store').focus(); return; } origin = { id: store.id, lat: store.lat, lng: store.lng, name: store.name, label: store.name, kind: state.demoOrigin ? 'demo' : 'store' }; }
-    const destinations = state.destinations.map((name) => stores.find((s) => s.name === name.trim()));
-    const missing = destinations.findIndex((s) => !s); if (missing >= 0) { $('#route-error').textContent = `目的地 ${missing + 1} 尚未對應清冊，請選擇完整店名。`; $(`#destination-${missing}`).focus(); return; }
-    const points = [origin, ...destinations.map((s) => ({ id: s.id, lat: s.lat, lng: s.lng, name: s.name, label: s.name, kind: 'store' }))];
-    if (new Set(points.map((p) => `${p.lat},${p.lng}`)).size !== points.length) { $('#route-error').textContent = '起點與目的地有重複，請選擇不同地點。'; return; }
-    if (!state.filters.size) { $('#route-error').textContent = '請至少選一種沿途需要的服務。'; return; }
-    invalidateComparison();
-    const revision = state.draftRevision || 0; const comparisonServices = [...state.filters]; const comparisonRadius = state.radius;
-    state.calculating = true; $('#start-trip').disabled = true; $('#save-history').disabled = true; $('#save-offline').disabled = true; $('#build-route').disabled = true; $('#build-route').textContent = '正在比較路線…'; $('#route-error').textContent = '';
+  function catalogPlace(store) { return { id: String(store.id), storeId: String(store.id), name: store.name, label: store.name, address: store.address, lat: store.lat, lng: store.lng, source: 'catalog', kind: 'store' }; }
+  function resolvePlace(value) { if (validPoint(value)) return { ...value }; const store = typeof value === 'string' && stores.find((entry) => entry.name === value.trim()); return store ? catalogPlace(store) : null; }
+  function currentOrigin() {
+    if (validPoint(state.originPoint)) return { ...state.originPoint };
+    if (state.originMode === 'history' && validPoint(state.historyOrigin)) return { ...state.historyOrigin };
+    if (state.originMode === 'manual') { const place = resolvePlace(state.manualOrigin); return place ? { ...place, kind: state.demoOrigin ? 'demo' : place.kind } : null; }
+    return null;
+  }
+  async function calculateRoute(points, screen = 'confirm') {
+    const preview = screen === 'home';
+    const fail = (message) => { $('#route-error').textContent = message; if (preview) { state.previewMessage = message; renderPreview(); } };
+    if (isOffline()) { fail('離線僅能讀取已下載行程，請連線後建立路線。'); return; }
+    if (!points[0]) { fail('請先設定行程起點：搜尋地點、使用目前位置，或選示範起點。'); return; }
+    if (points.some((point) => !validPoint(point) || !FriendlyRouter.contains(point))) { fail('起點或目的地超出這份本地路網範圍；已保留地點，無法在此快照計算路線。'); return; }
+    if (new Set(points.map((point) => `${point.lat},${point.lng}`)).size !== points.length) { fail('起點與目的地有重複，請選擇不同地點。'); return; }
+    if (!state.filters.size) { fail('請至少選一種沿途需要的服務。'); return; }
+    invalidateComparison(); const revision = state.draftRevision; const comparisonServices = [...state.filters]; const comparisonRadius = state.radius;
+    state.calculating = true; $('#build-route').disabled = true; $('#build-route').textContent = '正在比較路線…'; $('#route-error').textContent = '';
+    if (preview) { state.previewMessage = '正在計算最短路徑…'; renderPreview(); }
+    renderMap();
     try {
       await new Promise((resolve) => requestAnimationFrame(resolve));
       const result = await FriendlyRouter.compare({ points, services: comparisonServices, radius: comparisonRadius, stores });
-      if (revision !== (state.draftRevision || 0) || isOffline()) { $('#route-error').textContent = '設定已變更，請再次確認路線。'; return; }
+      if (revision !== state.draftRevision || isOffline()) return;
       if (result.error || !result.routes?.length) throw new Error(result.error || '這份本地路網沒有可連接的路線，請調整起迄點。');
-      state.points = points; state.routes = result.routes; const preferred = result.routes.find((route) => route.id === state.preferredRouteId); state.selectedRouteId = (preferred || result.routes[0]).id; state.criteria = { services: comparisonServices, radius: comparisonRadius, candidateCount: result.candidateCount };
-      state.routingNote = result.warning || '依地方路網快照比較；路線與現場通行條件仍需確認。'; state.routeOnly = true; $('#history-saved').textContent = ''; setScreen('confirm'); if (!preferred && state.preferredRouteId === 'resources') toast('這次沒有資源更多的有效候選，已改選最短路徑；請重新確認。');
-    } catch (error) { $('#route-error').textContent = error instanceof Error ? error.message : '路線暫時無法計算，請重試。'; }
-    finally { state.calculating = false; $('#build-route').disabled = isOffline(); $('#build-route').innerHTML = '下一步 · 確認路線 <span>→</span>'; }
+      state.points = points; state.routes = result.routes; const preferred = result.routes.find((route) => route.id === (preview ? 'shortest' : state.preferredRouteId)); state.selectedRouteId = (preferred || result.routes[0]).id;
+      state.criteria = { services: comparisonServices, radius: comparisonRadius, candidateCount: result.candidateCount };
+      state.routingNote = result.warning || '依地方路網快照比較；路線與現場通行條件仍需確認。'; state.routeOnly = true; $('#history-saved').textContent = '';
+      if (preview) { state.previewMessage = ''; renderPreview(); renderRouteOptions(); renderMap(); fitRoute(); }
+      else { setScreen('confirm'); if (!preferred && state.preferredRouteId === 'resources') toast('這次沒有資源更多的有效候選，已改選最短路徑；請重新確認。'); }
+    } catch (error) { if (revision === state.draftRevision) fail(error instanceof Error ? error.message : '路線暫時無法計算，請重試。'); }
+    finally { if (revision === state.draftRevision) { state.calculating = false; $('#build-route').disabled = isOffline(); $('#build-route').innerHTML = '下一步 · 確認路線 <span>→</span>'; renderPreview(); } }
+  }
+  $('#route-form').addEventListener('submit', async (event) => {
+    event.preventDefault(); if (isOffline() || state.calculating) return;
+    const origin = currentOrigin();
+    if (!origin) { $('#route-error').textContent = state.gpsStatus === 'outside' ? '目前位置超出路網範圍，請另選起點。' : '請先設定起點；取得 GPS 後仍須按「以目前位置為起點」。'; return; }
+    const destinations = state.destinations.map(resolvePlace); const missing = destinations.findIndex((place) => !place);
+    if (missing >= 0) { $('#route-error').textContent = `目的地 ${missing + 1} 尚未選定，請輸入完整名冊店名或按搜尋選擇地點。`; $(`#destination-${missing}`).focus(); return; }
+    await calculateRoute([origin, ...destinations]);
+  });
+  function renderOrigin() {
+    const origin = currentOrigin(); $('#map-origin-chip').textContent = origin ? `起點 · ${origin.name}` : '＋ 設定行程起點'; $('#clear-origin').hidden = !origin;
+  }
+  async function setOrigin(place) {
+    if (isOffline() || !validPoint(place)) return;
+    invalidateComparison(); state.originPoint = { ...place }; state.originMode = place.kind === 'gps' ? 'gps' : 'manual'; state.manualOrigin = place.name; state.demoOrigin = place.kind === 'demo'; state.previewMessage = '';
+    renderOrigin(); renderPlan(); renderMap(); renderPreview();
+    if (state.previewPlace && state.screen === 'home' && (state.previewPlace.lat !== place.lat || state.previewPlace.lng !== place.lng)) await routeToPreview();
+  }
+  async function useCurrentOrigin() {
+    if (state.gpsStatus !== 'ready' || !validPoint(state.gps)) { toast('先取得範圍內的目前位置，再按一次「以目前位置為起點」。'); requestPosition(); return; }
+    if ($('#search-dialog').open) $('#search-dialog').close();
+    await setOrigin({ ...state.gps }); toast('已複製這次定位作為行程起點；之後重新定位不會改動它。');
+  }
+  $('#use-gps-origin').addEventListener('click', useCurrentOrigin);
+  $('#search-use-gps').addEventListener('click', useCurrentOrigin);
+  $('#search-demo-origin').addEventListener('click', async () => { const store = byId.get(String(data.demoRoute[0])); if (!store) return; $('#search-dialog').close(); await setOrigin({ ...catalogPlace(store), kind: 'demo' }); toast('已選示範起點，不是你的目前位置。'); });
+  $('#map-origin-chip').addEventListener('click', () => openSearch('origin'));
+  $('#search-origin').addEventListener('click', () => openSearch('origin'));
+  $('#clear-origin').addEventListener('click', () => { if (isOffline()) return; invalidateComparison(); state.originPoint = null; state.originMode = 'unset'; state.manualOrigin = ''; state.historyOrigin = null; state.previewMessage = ''; renderOrigin(); renderPreview(); renderMap(); });
+  async function selectPlace(place, { autoPreview = false } = {}) {
+    if (!validPoint(place)) return;
+    state.previewPlace = { ...place }; state.selectedId = place.storeId && known(place.storeId) ? String(place.storeId) : known(place.id) ? String(place.id) : null; state.previewMessage = '';
+    renderPreview(); renderMap();
+    if (autoPreview && !selectedRoute() && currentOrigin() && !isOffline()) await routeToPreview();
+  }
+  function renderPreview() {
+    renderOrigin(); const place = state.previewPlace; const show = Boolean(place) && state.screen === 'home';
+    $('#place-preview').hidden = !show; $('#home-overview').hidden = show;
+    if (!place) return;
+    const store = byId.get(String(place.storeId || place.id)); const route = selectedRoute(); const destination = state.points.at(-1);
+    const isDestination = route && destination && destination.lat === place.lat && destination.lng === place.lng;
+    $('#place-preview-content').innerHTML = `<p class="drawer-eyebrow">${store ? '友善資源 · 官方名冊' : '搜尋地點 · OpenStreetMap'}</p><h3>${esc(place.name)}</h3><p class="card-address">${esc(place.address || '未提供地址')}</p>${store ? `<div class="service-tags">${serviceTags(store)}</div>` : '<p class="micro">此地點沒有友善服務名冊資訊。</p>'}`;
+    $('#preview-status').textContent = state.previewMessage || (!FriendlyRouter.contains(place) ? '此地點超出本地路網快照範圍，無法計算路線。' : !currentOrigin() ? '先設定行程起點，再查看到這裡的路線。' : isDestination ? `${distanceLabel(route.distanceM)} · 約 ${Math.round(route.estimateMinutes || route.distanceM / (4000 / 60))} 分 · 沿線 ${route.resourceCount} 間資源` : route ? '目前路線保持不變；按「到這裡」才會更換目的地。' : '已選定地點，可查看最短路徑與沿途資源。');
+    $('#preview-route').disabled = isOffline() || state.calculating || !FriendlyRouter.contains(place);
+    $('#preview-route').textContent = state.calculating ? '計算路線中…' : currentOrigin() ? '到這裡 ↗' : '先設定起點 ↗';
+    $('#preview-details').textContent = store ? '店家資訊' : '地點資訊'; $('#preview-origin').disabled = isOffline();
+  }
+  async function routeToPreview() {
+    const destination = state.previewPlace; if (!destination || isOffline()) return;
+    const origin = currentOrigin(); if (!origin) { openSearch('origin'); return; }
+    state.destinations = [{ ...destination }]; state.preferredRouteId = 'shortest';
+    // A deliberate destination change invalidates an existing preview even when routing fails.
+    invalidateComparison(); await calculateRoute([origin, { ...destination }], 'home'); renderMap();
+  }
+  $('#preview-route').addEventListener('click', routeToPreview);
+  $('#preview-plan').addEventListener('click', () => { if (isOffline()) return; if (state.previewPlace && !selectedRoute()) state.destinations = [{ ...state.previewPlace }]; setScreen('plan'); });
+  $('#preview-origin').addEventListener('click', () => setOrigin(state.previewPlace));
+  function showPlaceDetails(place) { if (!place) return; const id = String(place.storeId || place.id); if (known(id)) openStore(id); else { $('#place-info-content').innerHTML = `<h2>${esc(place.name)}</h2><p>${esc(place.address || '未提供地址')}</p><p class="fine-print">OpenStreetMap · Photon 地點資料。未列於本機友善店家名冊，沒有服務或品質回報資訊。</p><p class="micro">${place.lat.toFixed(5)}, ${place.lng.toFixed(5)}</p>`; $('#place-info-dialog').showModal(); } }
+  $('#preview-details').addEventListener('click', () => showPlaceDetails(state.previewPlace));
+  $('#close-preview').addEventListener('click', () => { state.previewPlace = null; state.selectedId = null; state.previewMessage = ''; renderPreview(); renderMap(); });
+  const searchClient = window.FriendlySearch?.createClient({ endpoint: window.FRIENDLY_SEARCH_CONFIG?.endpoint });
+  const searchLocal = (query) => window.FriendlySearch?.searchLocal(query, stores) || stores.filter((store) => `${store.name} ${store.address}`.toLowerCase().includes(query.toLowerCase())).slice(0, 15).map(catalogPlace);
+  function cancelSearch() { state.searchGeneration += 1; state.searchController?.abort(); state.searchController = null; $('#search-submit').disabled = isOffline(); }
+  function renderSearchResults(results, generation) {
+    state.searchResults = results.filter(validPoint);
+    $('#search-results').innerHTML = state.searchResults.map((place, index) => `<button class="search-result" data-search-result="${index}"><strong>${esc(place.name)}</strong><span>${esc(place.address || '未提供地址')}</span><small class="search-result-meta">${place.source === 'catalog' ? '本機友善店家' : 'OpenStreetMap · Photon'}${FriendlyRouter.contains(place) ? '' : ' · 超出路網快照範圍'}</small></button>`).join('');
+    $$('[data-search-result]').forEach((button) => button.addEventListener('click', async () => {
+      if (generation !== state.searchGeneration || isOffline()) return;
+      const place = state.searchResults[Number(button.dataset.searchResult)]; if (!place) return; const target = state.searchTarget; const index = state.searchIndex;
+      cancelSearch(); $('#search-dialog').close();
+      if (target === 'origin') { await setOrigin(place); return; }
+      if (index !== null) { state.destinations[index] = { ...place }; invalidateComparison(); renderDestinations(); return; }
+      await selectPlace(place, { autoPreview: true });
+    }));
+  }
+  function showLocalSearch() {
+    cancelSearch(); const query = $('#place-search').value.trim(); const results = query ? searchLocal(query) : [];
+    renderSearchResults(results, state.searchGeneration); $('#search-status').textContent = isOffline() ? '離線只可查看已下載行程，無法搜尋新的目的地。' : query ? results.length ? `本機找到 ${results.length} 個地點；也可按搜尋查找其他地點。` : '本機沒有符合地點；按搜尋查找其他地點。' : '輸入地點、地址或店名。';
+  }
+  function openSearch(target = 'destination', index = null) {
+    state.searchTarget = target; state.searchIndex = index; $('#search-title').textContent = target === 'origin' ? '設定行程起點' : '搜尋目的地'; $('#search-origin-actions').hidden = target !== 'origin';
+    const existing = index !== null ? state.destinations[index] : ''; $('#place-search').value = typeof existing === 'string' ? existing : existing?.name || '';
+    showLocalSearch(); renderGps(); if (!$('#search-dialog').open) $('#search-dialog').showModal(); $('#place-search').focus();
+  }
+  $('#home-search').addEventListener('click', () => openSearch());
+  $('#place-search').addEventListener('input', showLocalSearch);
+  $('#search-dialog').addEventListener('close', cancelSearch);
+  $('#search-form').addEventListener('submit', async (event) => {
+    event.preventDefault(); if (isOffline()) return; cancelSearch(); const query = $('#place-search').value.trim(); const generation = state.searchGeneration; const local = query ? searchLocal(query) : [];
+    renderSearchResults(local, generation);
+    if (!query) { $('#search-status').textContent = '請先輸入搜尋關鍵字。'; return; }
+    if (!searchClient) { $('#search-status').textContent = '地點搜尋模組尚未載入，目前僅能使用本機名冊。'; return; }
+    state.searchController = new AbortController(); $('#search-submit').disabled = true; $('#search-status').textContent = '正在搜尋地點…';
+    try {
+      const remote = await searchClient.search(query, { signal: state.searchController.signal });
+      if (generation !== state.searchGeneration || $('#place-search').value.trim() !== query) return;
+      const results = [...local, ...remote.filter((place) => !local.some((entry) => entry.name === place.name && Math.abs(entry.lat - place.lat) < .0001 && Math.abs(entry.lng - place.lng) < .0001))];
+      renderSearchResults(results, generation); $('#search-status').textContent = results.length ? `找到 ${results.length} 個地點。請核對地址後選擇。` : '找不到符合地點，請試試完整地址或其他名稱。';
+    } catch (error) { if (generation !== state.searchGeneration || error.name === 'AbortError') return; $('#search-status').textContent = `${window.FriendlySearch?.ERROR_MESSAGES?.[error.code] || '線上搜尋暫時無法使用，請稍後重試。'}${local.length ? '仍可選擇下方本機結果。' : ''}`; }
+    finally { if (generation === state.searchGeneration) { state.searchController = null; $('#search-submit').disabled = isOffline(); } }
   });
   function renderRouteOptions() {
     $('#confirm-date').textContent = `${state.date} · ${state.points.length - 1} 個目的地 · ${state.points[0]?.kind === 'gps' ? '裝置定位起點' : state.points[0]?.kind === 'history' ? '歷史起點' : state.points[0]?.kind === 'demo' ? '示範起點' : state.points[0]?.kind === 'saved' ? '已保存起點' : '手動起點'}`;
@@ -193,21 +303,21 @@
   $('#open-history').addEventListener('click', openHistory); $('#history-shortcut').addEventListener('click', openHistory);
   function renderHistory() {
     $('#history-list').innerHTML = state.history.length ? state.history.map((r) => `<article class="history-card"><h3>${esc(r.points.at(-1).name)}</h3><p>${esc(r.date)} · ${esc(r.route.label)} · ${distanceLabel(r.route.distanceM)}<br>${esc(storedOrigin(r.points[0], 'history').name)} → ${r.points.length - 1} 個目的地</p><div class="history-actions"><button class="text-button" data-restore-history="${esc(r.id)}">套用這條路線 →</button><button class="text-button" data-delete-history="${esc(r.id)}">刪除</button></div></article>`).join('') : '<div class="empty-state"><strong>還沒有歷史路線</strong><p>確認路線後，按「儲存行程到歷史」才會留在此裝置。</p></div>';
-    $$('[data-restore-history]').forEach((button) => button.addEventListener('click', () => { if (isOffline()) { toast('離線不能重新規劃歷史行程，請開啟已下載路線。'); return; } const r = state.history.find((entry) => entry.id === button.dataset.restoreHistory); if (!r) return; state.gpsRequest += 1; state.originMode = 'history'; state.historyOrigin = storedOrigin(r.points[0], 'history'); invalidateComparison(); state.preferredRouteId = r.route.id; if (state.gpsStatus === 'pending') { state.gpsStatus = 'idle'; state.gpsMessage = '已取消定位，現在使用歷史起點。'; } state.destinations = r.points.slice(1).map((p) => p.name); state.filters = new Set((r.criteria?.services || Object.keys(services)).filter((key) => services[key])); state.radius = r.criteria?.radius || 250; $('#history-dialog').close(); $('#route-error').textContent = ''; setScreen('plan'); toast('已套用歷史起迄點，保留本次選定日期。下一步將重新比較路線。'); }));
+    $$('[data-restore-history]').forEach((button) => button.addEventListener('click', () => { if (isOffline()) { toast('離線不能重新規劃歷史行程，請開啟已下載路線。'); return; } const r = state.history.find((entry) => entry.id === button.dataset.restoreHistory); if (!r) return; state.gpsRequest += 1; state.originMode = 'history'; state.historyOrigin = storedOrigin(r.points[0], 'history'); invalidateComparison(); state.preferredRouteId = r.route.id; if (state.gpsStatus === 'pending') { state.gpsStatus = 'idle'; state.gpsMessage = '已取消定位，現在使用歷史起點。'; } state.originPoint = { ...state.historyOrigin }; state.destinations = r.points.slice(1).map((p) => ({ ...p })); state.filters = new Set((r.criteria?.services || Object.keys(services)).filter((key) => services[key])); state.radius = r.criteria?.radius || 250; $('#history-dialog').close(); $('#route-error').textContent = ''; setScreen('plan'); toast('已套用歷史起迄點，保留本次選定日期。下一步將重新比較路線。'); }));
     $$('[data-delete-history]').forEach((button) => button.addEventListener('click', () => { const next = state.history.filter((r) => r.id !== button.dataset.deleteHistory); if (!storage.write('history', next)) { toast('刪除失敗，請檢查本機儲存設定。'); return; } state.history = next; renderHistory(); renderHistoryCount(); }));
   }
   const map = L.map('map', { preferCanvas: true, zoomControl: false, minZoom: 10, maxZoom: 19, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false });
-  map.setView([25.034, 121.561], 15, { animate: false }); map.attributionControl.setPrefix(false); map.attributionControl.addAttribution('© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap · ODbL</a>');
+  map.setView([25.034, 121.561], 16, { animate: false }); map.attributionControl.setPrefix(false); map.attributionControl.addAttribution('© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap · ODbL</a>');
   map.createPane('basemap'); map.getPane('basemap').style.zIndex = 250; map.createPane('range'); map.getPane('range').style.zIndex = 350;
-  function mapStyle(feature) { const p = feature.properties || {}; if (feature.geometry.type.includes('Polygon')) return { fillColor: p.leisure ? '#25382b' : '#1d2228', fillOpacity: .9, color: '#252d33', weight: .5 }; return { color: ['primary', 'secondary', 'tertiary'].includes(p.highway) ? '#333e46' : '#2b343b', weight: ['primary', 'secondary', 'tertiary'].includes(p.highway) ? 7 : 3, opacity: 1 }; }
+  function mapStyle(feature) { const p = feature.properties || {}; if (feature.geometry.type.includes('Polygon')) return { fillColor: p.leisure ? '#203a2d' : '#1d2a27', fillOpacity: .95, color: '#2b3833', weight: .5 }; return { color: ['primary', 'secondary', 'tertiary'].includes(p.highway) ? '#394841' : '#2e3c36', weight: ['primary', 'secondary', 'tertiary'].includes(p.highway) ? 7 : 3, opacity: 1 }; }
   const names = new Set();
-  L.geoJSON(data.map, { pane: 'basemap', interactive: false, style: (feature) => { const p = feature.properties || {}; if (feature.geometry.type.includes('Polygon')) return { fillColor: p.leisure ? '#25382b' : '#1d2228', fillOpacity: .9, color: '#252d33', weight: .5 }; return { color: ['primary', 'secondary', 'tertiary'].includes(p.highway) ? '#333e46' : '#2b343b', weight: ['primary', 'secondary', 'tertiary'].includes(p.highway) ? 7 : 3, opacity: 1 }; }, onEachFeature: (f) => { const name = f.properties?.name; if (!name || names.has(name) || f.geometry.type !== 'LineString' || !['primary', 'secondary'].includes(f.properties.highway)) return; names.add(name); const c = f.geometry.coordinates[Math.floor(f.geometry.coordinates.length / 2)]; L.marker([c[1], c[0]], { interactive: false, keyboard: false, pane: 'basemap', icon: L.divIcon({ className: 'road-label', html: esc(name), iconSize: [95, 12] }) }).addTo(map); } }).addTo(map);
+  L.geoJSON(data.map, { pane: 'basemap', interactive: false, style: mapStyle, onEachFeature: (f) => { const name = f.properties?.name; if (!name || names.has(name) || f.geometry.type !== 'LineString' || !['primary', 'secondary'].includes(f.properties.highway)) return; names.add(name); const c = f.geometry.coordinates[Math.floor(f.geometry.coordinates.length / 2)]; L.marker([c[1], c[0]], { interactive: false, keyboard: false, pane: 'basemap', icon: L.divIcon({ className: 'road-label', html: esc(name), iconSize: [95, 12] }) }).addTo(map); } }).addTo(map);
   const rangeLayer = L.layerGroup().addTo(map); const routeLayer = L.layerGroup().addTo(map); const markerLayer = L.layerGroup().addTo(map); const gpsLayer = L.layerGroup().addTo(map); const helpLayer = L.layerGroup().addTo(map);
   function fitRoute() {
     const route = selectedRoute();
-    if (route && state.screen !== 'home') { const bottom = state.screen === 'confirm' ? 285 : 255; map.fitBounds(route.coordinates, { paddingTopLeft: [32, 105], paddingBottomRight: [32, bottom], maxZoom: 16, animate: false }); }
+    if (route) { const bottom = state.screen === 'home' ? 290 : state.screen === 'confirm' ? 285 : 255; map.fitBounds(route.coordinates, { paddingTopLeft: [32, state.screen === 'home' ? 190 : 105], paddingBottomRight: [32, bottom], maxZoom: 16, animate: false }); }
     else if (state.gps) map.setView([state.gps.lat, state.gps.lng], 15, { animate: false });
-    else map.fitBounds(data.bounds, { padding: [12, 60], animate: false });
+    else map.setView([25.034, 121.561], 16, { animate: false });
   }
   $('#fit-map').addEventListener('click', fitRoute);
   function routeDistance(store) { const route = selectedRoute(); return route ? FriendlyRouter.distanceToRoute(store, route.coordinates) : Infinity; }
@@ -216,17 +326,21 @@
     if (expireIfNeeded() && $('#help-dialog').open) renderHelp();
     rangeLayer.clearLayers(); routeLayer.clearLayers(); markerLayer.clearLayers(); gpsLayer.clearLayers(); helpLayer.clearLayers();
     if (isOffline() && !state.cacheVerified) return;
-    const route = selectedRoute(); const showRoute = route && state.screen !== 'home';
+    const route = selectedRoute(); const showRoute = Boolean(route);
     if (showRoute) {
       const mpp = 156543.03392 * Math.cos(map.getCenter().lat * Math.PI / 180) / (2 ** map.getZoom());
       L.polyline(route.coordinates, { pane: 'range', color: '#a6dc65', opacity: .07, weight: state.radius * 2 / mpp, lineCap: 'round', interactive: false }).addTo(rangeLayer);
       L.polyline(route.coordinates, { color: '#5b7a37', weight: 8, opacity: .3, interactive: false }).addTo(routeLayer);
       L.polyline(route.coordinates, { color: '#bdff58', weight: 3, interactive: false }).addTo(routeLayer);
       (route.connectors || []).forEach((segment) => { L.polyline(segment, { color: '#151b20', weight: 7, interactive: false }).addTo(routeLayer); L.polyline(segment, { color: '#a1d7e9', weight: 3, dashArray: '3 5', interactive: false }).addTo(routeLayer); });
-      state.points.forEach((p, i) => L.marker([p.lat, p.lng], { title: p.name, zIndexOffset: 500, icon: L.divIcon({ className: '', html: `<span class="route-number${i ? '' : ' origin'}">${i || '起'}</span>`, iconSize: [24, 24], iconAnchor: [12, 12] }) }).bindTooltip(esc(p.name)).addTo(routeLayer));
+      state.points.forEach((p, i) => L.marker([p.lat, p.lng], { title: p.name, zIndexOffset: 500, icon: L.divIcon({ className: '', html: `<span class="route-number${i ? '' : ' origin'}">${i || '起'}</span>`, iconSize: [30, 30], iconAnchor: [15, 15] }) }).bindTooltip(esc(p.name)).on('click', () => { if (i) { if (state.screen === 'home') selectPlace(p); else showPlaceDetails(p); } else openSearch('origin'); }).addTo(routeLayer));
     }
-    const visible = state.screen === 'home' ? stores.filter((s) => s.services.some((key) => state.filters.has(key))).map((store) => ({ store })) : filteredStores();
-    visible.forEach(({ store }) => { const q = quality(store.id); const key = store.services.find((k) => state.filters.has(k)); L.marker([store.lat, store.lng], { title: `${store.name}，${q.label}`, icon: L.divIcon({ className: '', html: `<span class="store-marker ${q.code}${state.selectedId === store.id ? ' selected' : ''}">${services[key]?.icon || '·'}</span>`, iconSize: [24, 24], iconAnchor: [12, 12] }) }).bindTooltip(`${esc(store.name)} · ${q.label}`).on('click', () => openStore(store.id)).addTo(markerLayer); });
+    const visible = stores.filter((store) => store.services.some((key) => state.filters.has(key))).map((store) => ({ store, distance: routeDistance(store) }));
+    visible.forEach(({ store, distance }) => { const q = quality(store.id); const key = store.services.find((service) => state.filters.has(service)); const near = route && distance <= (state.criteria?.radius || state.radius); const selected = state.selectedId === store.id;
+      L.marker([store.lat, store.lng], { title: `${store.name}，${near ? '路線附近，' : ''}${q.label}`, zIndexOffset: selected ? 700 : near ? 400 : 0, icon: L.divIcon({ className: '', html: `<span class="store-marker ${q.code}${selected ? ' selected' : ''}${near ? ' near-route' : route ? ' dimmed' : ''}">${services[key]?.icon || '·'}</span>`, iconSize: [44, 44], iconAnchor: [22, 22] }) }).bindTooltip(`${esc(store.name)} · ${q.label}`).on('click', () => { if (state.screen === 'home') return selectPlace(catalogPlace(store), { autoPreview: true }); openStore(store.id); }).addTo(markerLayer);
+    });
+    if (!route && currentOrigin()) { const origin = currentOrigin(); L.marker([origin.lat, origin.lng], { title: `行程起點：${origin.name}`, icon: L.divIcon({ className: '', html: '<span class="route-number origin">起</span>', iconSize: [30, 30], iconAnchor: [15, 15] }) }).on('click', () => openSearch('origin')).addTo(routeLayer); }
+    if (state.previewPlace && !known(state.previewPlace.storeId || state.previewPlace.id)) { const place = state.previewPlace; L.marker([place.lat, place.lng], { title: place.name, icon: L.divIcon({ className: '', html: '<span class="store-marker selected">⌖</span>', iconSize: [44, 44], iconAnchor: [22, 22] }) }).bindTooltip(esc(place.name)).on('click', () => selectPlace(place)).addTo(markerLayer); }
     if (state.gps) { L.marker([state.gps.lat, state.gps.lng], { title: state.gpsStatus === 'ready' || state.gpsStatus === 'outside' ? '裝置定位結果' : '上次裝置定位（尚未更新）', icon: L.divIcon({ className: '', html: '<span class="gps-marker"></span>', iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(gpsLayer); if (state.gps.accuracy && state.gps.accuracy < 2000) L.circle([state.gps.lat, state.gps.lng], { radius: state.gps.accuracy, color: '#89d9ff', fillOpacity: .06, weight: 1, interactive: false }).addTo(gpsLayer); }
     $('#map-area').textContent = state.screen === 'home' && state.gpsStatus === 'outside' ? '目前位置・此區無本地底圖' : '信義生活圈・本地圖資';
     if (activeRequest()) { const p = byId.get(state.request.placeId); L.marker([p.lat, p.lng], { icon: L.divIcon({ className: '', html: '<span class="help-marker">♡</span>', iconSize: [30, 30], iconAnchor: [15, 15] }) }).bindTooltip(`本機示範求助點：${esc(p.name)}`).addTo(helpLayer); }
@@ -246,7 +360,7 @@
   $('#search-store').addEventListener('input', (event) => { state.search = event.target.value.trim(); renderList(); });
   function openStore(id) { if (!known(id)) return; focusedBeforeDrawer = document.activeElement; state.selectedId = id; renderDetail(); if (!$('#store-drawer').open) $('#store-drawer').showModal(); renderMap(); }
   $('#close-store').addEventListener('click', () => $('#store-drawer').close());
-  $('#store-drawer').addEventListener('close', () => { state.selectedId = null; renderMap(); if (focusedBeforeDrawer?.isConnected) focusedBeforeDrawer.focus(); });
+  $('#store-drawer').addEventListener('close', () => { state.selectedId = state.previewPlace?.storeId || null; renderMap(); if (focusedBeforeDrawer?.isConnected) focusedBeforeDrawer.focus(); });
   $$('[data-close]').forEach((b) => b.addEventListener('click', () => $(`#${b.dataset.close}`).close()));
 
   function renderDetail() {
@@ -312,13 +426,13 @@
       $('#cache-summary').textContent = selectedRoute() ? '還沒下載這段路' : '先規劃並確認一條路線';
       $('#offline-detail').textContent = '完整下載後可離線重開 App；快取被瀏覽器移除時，需重新下載。';
     }
-    renderGps(); renderAll(); if ($('#help-dialog').open) renderHelp();
+    renderGps(); renderPreview(); renderAll(); if ($('#help-dialog').open) renderHelp();
   }
   function restoreSnapshot() {
     if (!state.snapshot || !state.cacheVerified) { updateConnectivity(); return; }
     const snapshot = state.snapshot;
     state.gpsRequest += 1; invalidateComparison(); if (state.gpsStatus === 'pending') { state.gpsStatus = 'idle'; state.gpsMessage = '已取消定位，現在查看已保存行程。'; }
-    state.originMode = 'history'; state.historyOrigin = storedOrigin(snapshot.points[0], 'saved'); state.destinations = snapshot.points.slice(1).map((p) => p.name); state.demoOrigin = false;
+    state.originMode = 'history'; state.historyOrigin = storedOrigin(snapshot.points[0], 'saved'); state.originPoint = { ...state.historyOrigin }; state.destinations = snapshot.points.slice(1).map((p) => ({ ...p })); state.demoOrigin = false;
     state.points = snapshot.points.map((p, i) => i ? { ...p } : storedOrigin(p, 'saved'));
     state.routes = [JSON.parse(JSON.stringify(snapshot.route))]; state.selectedRouteId = snapshot.route.id; state.preferredRouteId = snapshot.route.id; state.criteria = snapshot.criteria;
     state.date = snapshot.date; state.radius = snapshot.radius; state.filters = new Set(snapshot.filters.filter((key) => services[key])); state.routeOnly = true;

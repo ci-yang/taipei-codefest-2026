@@ -58,11 +58,11 @@ function makeDocument(html) {
 
 function runtime(seed = {}, options = {}) {
   const document = makeDocument(fs.readFileSync(path.join(base, 'index.html'), 'utf8'));
-  const saved = new Map(Object.entries(seed)); const writes = []; const gpsRequests = [];
+  const saved = new Map(Object.entries(seed)); const writes = []; const gpsRequests = []; const markers = [];
   const chain = new Proxy({ style: {}, getCenter: () => ({ lat: 25.034, lng: 121.56 }), getZoom: () => 15 }, { get(target, key) { return key in target ? target[key] : key === 'attributionControl' ? chain : () => chain; } });
   class FixedDate extends Date { constructor(...args) { super(...(args.length ? args : ['2026-11-06T17:30:00Z'])); } static now() { return new Date('2026-11-06T17:30:00Z').valueOf(); } }
   const r = {
-    document, URL, Date: FixedDate, console, location: new URL('https://example.test/friendly/index.html'),
+    document, URL, AbortController, Date: FixedDate, console, location: new URL('https://example.test/friendly/index.html'),
     navigator: { onLine: !options.offline, geolocation: { getCurrentPosition(success, failure, options) { gpsRequests.push({ success, failure, options }); } } },
     isSecureContext: true, L: new Proxy({}, { get: () => () => chain }),
     localStorage: { getItem: (key) => saved.get(key) ?? null, setItem(key, value) { if (options.denyStorage) throw new Error('Storage blocked'); saved.set(key, value); writes.push([key, value]); }, removeItem(key) { saved.delete(key); } },
@@ -70,6 +70,8 @@ function runtime(seed = {}, options = {}) {
     setTimeout() { return 1; }, clearTimeout() {}, setInterval() { return 1; }, clearInterval() {},
     addEventListener() {}, matchMedia: () => ({ matches: false }), print() {},
   };
+  r.L = new Proxy({}, { get: (_, key) => key === 'marker' ? (coordinates, settings) => { const marker = { coordinates, settings, handlers: {}, bindTooltip() { return this; }, on(name, handler) { this.handlers[name] = handler; return this; }, addTo() { markers.push(this); return this; } }; return marker; } : () => chain });
+  if (options.searchClient) r.FriendlySearch = { createClient: () => options.searchClient, searchLocal: (query, stores) => stores.filter((store) => store.name.includes(query)).slice(0, 6).map((store) => ({ ...store, id: `catalog:${store.id}`, storeId: String(store.id), source: 'catalog' })) };
   if (options.noGeolocation) delete r.navigator.geolocation;
   if (options.worker) {
     const registration = { active: { postMessage(_, ports) { ports[0].postMessage({ ok: true, version: 'friendly-app-v2' }); } } };
@@ -85,15 +87,15 @@ function runtime(seed = {}, options = {}) {
     compare: ({ points }) => ({ routes: [{ id: 'shortest', label: '最短路徑', distanceM: 1000, resourceCount: 3, coordinates: points.map((p) => [p.lat, p.lng]), connectors: [], connectorDistanceM: 0, estimateMinutes: 15 }, ...(options.twoRoutes ? [{ id: 'resources', label: '資源最多', distanceM: 1200, resourceCount: 5, coordinates: points.map((p) => [p.lat, p.lng]), connectors: [], connectorDistanceM: 0, estimateMinutes: 18 }] : [])], warning: '測試路由替身', candidateCount: options.twoRoutes ? 2 : 1 }),
   };
   if (options.realRouter) for (const name of ['routing-data.js', 'routing.js']) vm.runInContext(fs.readFileSync(path.join(base, name), 'utf8'), r, { filename: name });
-  const source = fs.readFileSync(path.join(base, 'app.js'), 'utf8').replace(/\}\)\(\);\s*$/, 'window.__test = { state, localDate, requestPosition, selectedRoute, renderHistory, renderPlan, restoreSnapshot, workerReady };\n})();');
+  const source = fs.readFileSync(path.join(base, 'app.js'), 'utf8').replace(/\}\)\(\);\s*$/, 'window.__test = { state, localDate, requestPosition, selectedRoute, renderHistory, renderPlan, restoreSnapshot, workerReady, selectPlace, catalogPlace, currentOrigin, setOrigin, openSearch, renderMap };\n})();');
   vm.runInContext(source, r, { filename: 'app.js' });
   const element = (selector) => { const el = document.querySelector(selector); assert(el, `Missing test element: ${selector}`); return el; };
-  return { r, state: r.__test.state, saved, writes, gpsRequests, element, click: (selector) => element(selector).dispatch('click'), async input(selector, value, event = 'input') { element(selector).value = value; await element(selector).dispatch(event); } };
+  return { r, state: r.__test.state, saved, writes, gpsRequests, markers, element, click: (selector) => element(selector).dispatch('click'), async input(selector, value, event = 'input') { element(selector).value = value; await element(selector).dispatch(event); } };
 }
 
 function position(lat = 25.034, lng = 121.561, accuracy = 15) { return { coords: { latitude: lat, longitude: lng, accuracy }, timestamp: Date.now() }; }
 async function planFromGps(app) {
-  await app.click('#home-start'); app.gpsRequests.at(-1).success(position());
+  await app.click('#home-start'); await app.click('#retry-gps'); app.gpsRequests.at(-1).success(position()); await app.click('#use-gps-origin');
   await app.input('#destination-0', app.r.FRIENDLY_DATA.stores[0].name);
   await app.element('#route-form').dispatch('submit');
   assert.equal(app.state.screen, 'confirm');
@@ -108,7 +110,7 @@ test('local today, empty history, real GPS API and no implicit persistence', asy
 });
 
 test('manual origin rejects an outstanding GPS callback', async () => {
-  const app = runtime(); await app.click('#home-start'); const pending = app.gpsRequests[0];
+  const app = runtime(); await app.click('#home-start'); await app.click('#retry-gps'); const pending = app.gpsRequests[0];
   await app.input('#origin-source', 'manual', 'change');
   const store = app.r.FRIENDLY_DATA.stores[1]; await app.input('#origin-store', store.name);
   pending.success(position());
@@ -116,28 +118,28 @@ test('manual origin rejects an outstanding GPS callback', async () => {
 });
 
 test('out-of-range GPS is retained and never replaced with demo coordinates', async () => {
-  const app = runtime(); await app.click('#home-start'); app.gpsRequests[0].success(position(24.1, 120.7));
+  const app = runtime(); await app.click('#home-start'); await app.click('#retry-gps'); app.gpsRequests[0].success(position(24.1, 120.7));
   assert.equal(app.state.gps.lat, 24.1); assert.equal(app.state.gps.lng, 120.7);
   await app.input('#destination-0', app.r.FRIENDLY_DATA.stores[0].name); await app.element('#route-form').dispatch('submit');
   assert.equal(app.state.screen, 'plan'); assert.match(app.element('#route-error').textContent, /範圍|路網/); assert.equal(app.state.history.length, 0);
 });
 
 test('failed GPS refresh cannot silently reuse an old position', async () => {
-  const app = runtime(); await app.click('#home-start'); app.gpsRequests[0].success(position());
+  const app = runtime(); await app.click('#home-start'); await app.click('#retry-gps'); app.gpsRequests[0].success(position());
   await app.click('#retry-gps'); app.gpsRequests[1].failure({ code: 3 });
   await app.input('#destination-0', app.r.FRIENDLY_DATA.stores[0].name); await app.element('#route-form').dispatch('submit');
   assert.equal(app.state.screen, 'plan'); assert.match(app.element('#gps-status').textContent, /逾時/);
 });
 
 test('denied and unavailable geolocation report failure without a substitute location', async () => {
-  const denied = runtime(); await denied.click('#home-start'); denied.gpsRequests[0].failure({ code: 1 });
+  const denied = runtime(); await denied.click('#home-start'); await denied.click('#retry-gps'); denied.gpsRequests[0].failure({ code: 1 });
   assert.equal(denied.state.gps, null); assert.match(denied.element('#gps-status').textContent, /權限/);
-  const unavailable = runtime({}, { noGeolocation: true }); await unavailable.click('#home-start');
+  const unavailable = runtime({}, { noGeolocation: true }); await unavailable.click('#home-start'); await unavailable.click('#retry-gps');
   assert.equal(unavailable.state.gps, null); assert.equal(unavailable.gpsRequests.length, 0); assert.match(unavailable.element('#gps-status').textContent, /未提供定位/);
 });
 
 test('imprecise GPS keeps the real coordinates and explicitly reports its uncertainty', async () => {
-  const app = runtime(); await app.click('#home-start'); app.gpsRequests[0].success(position(25.034, 121.561, 5000));
+  const app = runtime(); await app.click('#home-start'); await app.click('#retry-gps'); app.gpsRequests[0].success(position(25.034, 121.561, 5000));
   assert.equal(app.state.gps.lat, 25.034); assert.equal(app.state.gps.lng, 121.561); assert.equal(app.state.gps.accuracy, 5000);
   assert.match(`${app.element('#gps-status').textContent} ${app.element('#gps-meta').textContent}`, /精度|誤差/);
   assert.equal(app.state.history.length, 0); assert.equal(app.writes.length, 0);
@@ -190,18 +192,18 @@ test('editing a restored offline route uses the saved points, not a later draft'
   const destination = app.state.snapshot.points[1].name;
   await app.click('#back-button'); await app.input('#destination-0', app.r.FRIENDLY_DATA.stores[1].name);
   await app.click('#restore-offline'); await app.click('#edit-trip');
-  assert.equal(app.state.destinations[0], destination);
+  assert.equal(app.state.destinations[0].name, destination);
   assert.equal(app.state.originMode, 'history'); assert.match(app.state.historyOrigin.name, /已保存/);
 });
 
 test('a route calculation completing after input changed cannot restore the old comparison', async () => {
-  const app = runtime(); await app.click('#home-start'); app.gpsRequests[0].success(position());
+  const app = runtime(); await app.click('#home-start'); await app.click('#retry-gps'); app.gpsRequests[0].success(position()); await app.click('#use-gps-origin');
   await app.input('#destination-0', app.r.FRIENDLY_DATA.stores[0].name);
   let resolve; const compare = app.r.FriendlyRouter.compare;
   app.r.FriendlyRouter.compare = (options) => new Promise((done) => { resolve = () => done(compare(options)); });
   const submitting = app.element('#route-form').dispatch('submit'); await Promise.resolve(); await Promise.resolve();
   assert(resolve); await app.input('#destination-0', app.r.FRIENDLY_DATA.stores[1].name);
-  resolve(); await submitting; assert.equal(app.state.screen, 'plan'); assert.equal(app.state.routes.length, 0);
+  resolve(); await submitting; assert.equal(app.state.screen, 'plan'); assert.equal(app.state.routes.length, 0); assert.equal(app.element('#build-route').disabled, false); app.r.FriendlyRouter.compare = compare; await app.element('#route-form').dispatch('submit'); assert.equal(app.state.screen, 'confirm');
 });
 
 test('history preserves its chosen route; an immediate start during recomputation cannot use stale results', async () => {
@@ -248,6 +250,79 @@ test('help is local, requires consent, defaults to no route, and hides data afte
   assert.equal(app.writes.length, 0);
 });
 
+test('the map starts without an origin; opening planning never requests GPS implicitly', async () => {
+  const app = runtime(); assert.equal(app.r.__test.currentOrigin(), null); assert.equal(app.state.gps, null);
+  await app.click('#home-start'); assert.equal(app.gpsRequests.length, 0); assert.equal(app.state.originMode, 'unset');
+  await app.element('#route-form').dispatch('submit'); assert.match(app.element('#route-error').textContent, /先設定起點/);
+});
+
+test('GPS refresh and cancellation preserve a deliberately copied origin and its route', async () => {
+  const app = runtime(); await planFromGps(app); const origin = JSON.stringify(app.state.points[0]); const route = app.state.routes[0];
+  await app.click('#home-gps'); app.gpsRequests.at(-1).success(position(25.035, 121.563));
+  assert.equal(app.state.gps.lat, 25.035); assert.equal(JSON.stringify(app.r.__test.currentOrigin()), origin); assert.equal(app.state.routes[0], route);
+  await app.click('#retry-gps'); const pending = app.gpsRequests.at(-1); await app.click('#cancel-gps'); pending.success(position(25.036, 121.564));
+  assert.equal(app.state.gps.lat, 25.035); assert.equal(app.state.routes[0], route); assert.equal(JSON.stringify(app.r.__test.currentOrigin()), origin);
+});
+
+test('map place selection requires an explicit origin, then previews a route and highlights nearby resources', async () => {
+  const app = runtime(); const store = app.r.FRIENDLY_DATA.stores[0];
+  await app.r.__test.selectPlace(app.r.__test.catalogPlace(store), { autoPreview: true });
+  assert.equal(app.state.routes.length, 0); assert.equal(app.element('#place-preview').hidden, false); assert.equal(app.element('#home-overview').hidden, true);
+  assert.match(app.element('#preview-status').textContent, /先設定行程起點/);
+  await app.click('#preview-route'); assert.equal(app.element('#search-dialog').open, true);
+  await app.click('#search-demo-origin');
+  assert.equal(app.state.originPoint.kind, 'demo'); assert.equal(app.state.screen, 'home'); assert.equal(app.state.selectedRouteId, 'shortest');
+  assert(app.markers.some((marker) => marker.settings.title?.includes('路線附近')));
+  const previous = app.state.routes[0]; const destination = JSON.stringify(app.state.points.at(-1));
+  await app.r.__test.selectPlace(app.r.__test.catalogPlace(app.r.FRIENDLY_DATA.stores[1]), { autoPreview: true });
+  assert.equal(app.state.routes[0], previous); assert.equal(JSON.stringify(app.state.points.at(-1)), destination);
+  await app.click('#preview-details'); assert.equal(app.element('#store-drawer').open, true); assert.equal(app.state.routes[0], previous);
+  await app.click('#preview-route'); assert.equal(app.state.points.at(-1).name, app.r.FRIENDLY_DATA.stores[1].name);
+});
+
+test('home service chips pick one category and pressing it again restores all services', async () => {
+  const app = runtime(); const chip = app.element('#map-filters').children.find((element) => element.dataset.service === 'toilet');
+  await chip.dispatch('click'); assert.deepEqual([...app.state.filters], ['toilet']);
+  const selected = app.element('#map-filters').children.find((element) => element.dataset.service === 'toilet'); await selected.dispatch('click'); assert.equal(app.state.filters.size, 4);
+});
+
+test('search runs locally on input, only submits remotely, escapes labels, and preserves arbitrary coordinates', async () => {
+  const requests = []; const place = { id: 'photon:101', name: '<img src=x onerror=alert(1)>', address: '<b>松智路</b>', lat: 25.0338352, lng: 121.5644995, source: 'photon' };
+  const app = runtime({}, { searchClient: { async search(query, options) { requests.push({ query, options }); return [place]; } } });
+  await app.click('#home-search'); await app.input('#place-search', '台北101'); assert.equal(requests.length, 0);
+  await app.element('#search-form').dispatch('submit'); assert.equal(requests.length, 1); assert.equal(requests[0].query, '台北101');
+  assert.match(app.element('#search-results').innerHTML, /&lt;img/); assert.doesNotMatch(app.element('#search-results').innerHTML, /<img/);
+  await app.click('[data-search-result]'); assert.equal(app.state.previewPlace.lat, place.lat); assert.equal(app.state.previewPlace.lng, place.lng); assert.equal(app.state.routes.length, 0);
+  await app.click('#preview-route'); await app.click('#search-demo-origin'); assert.equal(app.state.points.at(-1).lat, place.lat);
+  await app.click('#home-start'); await app.input('#destination-0', '另一個尚未選定地點'); assert.equal(typeof app.state.destinations[0], 'string');
+  await app.element('#route-form').dispatch('submit'); assert.equal(app.state.routes.length, 0); assert.match(app.element('#route-error').textContent, /尚未選定/);
+});
+
+test('new search input aborts an old request and prevents old result selection', async () => {
+  let resolve; let signal; const app = runtime({}, { searchClient: { search(_, options) { signal = options.signal; return new Promise((done) => { resolve = done; }); } } });
+  await app.click('#home-search'); await app.input('#place-search', app.r.FRIENDLY_DATA.stores[0].name);
+  const staleButton = app.element('[data-search-result]'); const submitting = app.element('#search-form').dispatch('submit');
+  await app.input('#place-search', 'new query'); assert.equal(signal.aborted, true);
+  resolve([{ id: 'old', name: 'old', lat: 25.034, lng: 121.561, source: 'photon' }]); await submitting;
+  assert.equal(app.state.searchResults.length, 0); await staleButton.dispatch('click'); assert.equal(app.state.previewPlace, null);
+});
+
+test('outside search results retain their coordinates but cannot create a fake route', async () => {
+  const app = runtime(); await app.r.__test.setOrigin(app.r.__test.catalogPlace(app.r.FRIENDLY_DATA.stores[0]));
+  await app.r.__test.selectPlace({ id: 'remote', name: '範圍外地點', lat: 24, lng: 120, source: 'photon' }, { autoPreview: true });
+  assert.equal(app.state.previewPlace.lat, 24); assert.equal(app.state.routes.length, 0); assert.equal(app.element('#preview-route').disabled, true);
+  assert.match(app.element('#preview-status').textContent, /超出/);
+});
+
+test('arbitrary destination coordinates survive history and offline restoration', async () => {
+  const app = runtime({}, { worker: true }); const origin = app.r.__test.catalogPlace(app.r.FRIENDLY_DATA.stores[0]);
+  const destination = { id: 'photon:101', name: '台北101', address: '信義路五段7號', lat: 25.0338352, lng: 121.5644995, source: 'photon' };
+  await app.r.__test.setOrigin(origin); await app.r.__test.selectPlace(destination, { autoPreview: true }); await app.click('#save-history'); await app.click('#save-offline');
+  await app.click('#open-history'); await app.click('[data-restore-history]'); assert.equal(app.state.destinations[0].lat, destination.lat); assert.equal(app.state.destinations[0].source, 'photon');
+  await app.element('#route-form').dispatch('submit'); assert.equal(app.state.points.at(-1).lng, destination.lng);
+  await app.click('#restore-offline'); assert.equal(app.state.destinations[0].lat, destination.lat); assert.equal(app.state.points.at(-1).source, 'photon');
+});
+
 async function cachePackage({ failedAsset = '', failWrite = false } = {}) {
   const handlers = {}; const requested = []; const writes = []; const deleted = []; const replies = []; const opened = [];
   const scope = 'https://example.test/reports/friendly/'; let work;
@@ -266,7 +341,7 @@ async function cachePackage({ failedAsset = '', failWrite = false } = {}) {
 test('offline package includes both routing assets and uses a versioned per-path cache', async () => {
   const result = await cachePackage();
   assert.equal(result.replies.at(-1).ok, true);
-  assert(result.writes.some((url) => url.endsWith('/routing.js'))); assert(result.writes.some((url) => url.endsWith('/routing-data.js')));
+  assert(result.writes.some((url) => url.endsWith('/search.js'))); assert(result.writes.some((url) => url.endsWith('/map-ui.css'))); assert(result.writes.some((url) => url.endsWith('/routing.js'))); assert(result.writes.some((url) => url.endsWith('/routing-data.js')));
   assert(result.opened.every((key) => key.includes('/reports/friendly/') && !key.startsWith('friendly-route-v1:')));
 });
 
