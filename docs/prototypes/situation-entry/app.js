@@ -133,14 +133,8 @@
     const status = doc.getElementById('call-status');
     let district = '';
 
-    function showStatus(text, telDial) {
+    function showStatus(text) {
       status.textContent = text;
-      if (telDial) {
-        const link = doc.createElement('a');
-        link.href = `tel:${telDial}`;
-        link.textContent = `撥打 ${formatDial(telDial)}`;
-        status.append(' ', link);
-      }
       status.hidden = !text;
     }
 
@@ -172,7 +166,6 @@
       if (result === 'opened') showStatus('');
       else if (result === 'unconfirmed') showStatus(`若沒有跳出撥號畫面，請直接撥 ${formatDial(dial)}。`);
       else if (result === 'busy') showStatus('上一通撥號還在處理，請稍等。');
-      else if (result === 'pending') showStatus(`前一次撥 ${formatDial(dial)} 還沒有結果，請直接撥打：`, dial);
       else failed();
     });
 

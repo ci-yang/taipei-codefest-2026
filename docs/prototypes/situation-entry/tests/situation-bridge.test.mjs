@@ -107,21 +107,24 @@ test('a new call stops listening for an earlier 1999 reply', async () => {
   assert.equal(env.listeners.size, 0);
 });
 
-test('redialing 1999 while the earlier 1999 has no reply is not sent and never takes the late false', async () => {
+test('redialing 1999 after an unanswered 1999agree sends a dialable phone_call 1999 that ignores the old reply', async () => {
   const env = setup();
-  const first = env.api.call('1999');
+  const late = [];
+  const first = env.api.call('1999', (result) => late.push(result));
   await tick();
   env.fireTimeout();
   assert.equal(await first, 'unconfirmed');
   const second = env.api.call('1999');
   await tick();
+  assert.deepEqual(env.sent.at(-1), { name: 'phone_call', data: '1999' });
   env.reply('1999agree', false);
-  assert.equal(await second, 'pending');
-  assert.equal(env.sent.length, 1);
-  assert.equal(env.listeners.size, 0);
+  env.reply('phone_call', true);
+  assert.equal(await second, 'opened');
+  assert.deepEqual(late, []);
+  assert.equal(env.sent.filter((m) => m.name === '1999agree').length, 1);
 });
 
-test('1999 stays blocked after a regular call until the earlier 1999 reply arrives', async () => {
+test('1999agree stays off after a regular call until the earlier 1999 reply arrives', async () => {
   const env = setup();
   const first = env.api.call('1999');
   await tick();
@@ -131,11 +134,15 @@ test('1999 stays blocked after a regular call until the earlier 1999 reply arriv
   await tick();
   env.reply('phone_call', true);
   assert.equal(await regular, 'opened');
-  assert.equal(await env.api.call('1999'), 'pending');
+  const redial = env.api.call('1999');
+  await tick();
+  assert.deepEqual(env.sent.at(-1), { name: 'phone_call', data: '1999' });
+  env.reply('phone_call', true);
+  assert.equal(await redial, 'opened');
   env.reply('1999agree', false);
   const retry = env.api.call('1999');
   await tick();
-  assert.equal(env.sent.length, 3);
+  assert.deepEqual(env.sent.at(-1), { name: '1999agree', data: true });
   env.reply('1999agree', false);
   assert.equal(await retry, 'failed');
 });

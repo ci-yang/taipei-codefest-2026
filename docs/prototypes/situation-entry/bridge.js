@@ -5,7 +5,8 @@
  *   failure — possibly long after the tap, once the user leaves the terms page. Silence never proves a dial,
  *   so 1999 resolves 'unconfirmed' and keeps listening for a late `false`. Only the latest tap's onLate hears it.
  *   Because that late `false` could arrive at any time, no new 1999agree is sent while one is unanswered:
- *   a reply could not be told apart from the earlier one. Such a tap resolves 'pending' (dial 1999 by hand).
+ *   a reply could not be told apart from the earlier one. Such a tap dials 1999 through 'phone_call' instead;
+ *   its reply is named 'phone_call', so the earlier 1999agree `false` can never settle it.
  * - Other numbers use 'phone_call', which always replies a boolean (canLaunchUrl result).
  * Outside the app there is no flutterObject: callers fall back to a plain tel: link. */
 (function (root) {
@@ -71,19 +72,16 @@
     });
   }
 
-  // Resolves 'opened' | 'unconfirmed' | 'pending' (1999 only) | 'failed' | 'unsupported' | 'busy'.
+  // Resolves 'opened' | 'unconfirmed' | 'failed' | 'unsupported' | 'busy'.
   async function call(number, onLate = () => {}) {
     const target = bridgeObject();
     if (!target) return 'unsupported';
     if (!dialable(number)) return 'failed';
     if (busy) return 'busy';
-    if (open1999) {
-      open1999.notify = () => {};
-      if (number === '1999') return 'pending';
-    }
+    if (open1999) open1999.notify = () => {};
     busy = true;
     try {
-      if (number === '1999') return await request1999(target, onLate);
+      if (number === '1999' && !open1999) return await request1999(target, onLate);
       return (await request(target, 'phone_call', number, PHONE_TIMEOUT)) === true ? 'opened' : 'failed';
     } finally {
       busy = false;
