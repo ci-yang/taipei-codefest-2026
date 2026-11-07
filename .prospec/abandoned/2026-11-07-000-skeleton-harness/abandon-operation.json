@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "source": "000-skeleton-harness",
+  "source_digest": "c0d5c51b2a62c07941636b9fbb6b768035816cd41d45261d3b65e87803831c0e",
+  "origin": {
+    "commonDir": "/Users/ciyang/Documents/repos/taipei-codefest-2026/.git",
+    "worktree": "/Users/ciyang/Documents/repos/taipei-codefest-2026",
+    "projectPrefix": "",
+    "changeName": "000-skeleton-harness"
+  },
+  "phase": "publishing",
+  "moved": [],
+  "pending": [
+    "metadata.yaml",
+    "proposal.md"
+  ]
+}

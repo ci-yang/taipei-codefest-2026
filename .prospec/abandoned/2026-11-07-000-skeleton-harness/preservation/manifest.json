@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "root": "/Users/ciyang/Documents/repos/taipei-codefest-2026",
+  "git_prefix": "",
+  "head": "74da1ddd6e6acc82df64044c2fec226320eead5d",
+  "patches": {
+    "staged": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "unstaged": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "entries": []
+}

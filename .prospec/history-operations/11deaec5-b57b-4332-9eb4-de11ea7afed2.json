@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "operationId": "11deaec5-b57b-4332-9eb4-de11ea7afed2",
+  "kind": "abandoned",
+  "identity": "2026-11-07-000-skeleton-harness",
+  "origin": {
+    "commonDir": "/Users/ciyang/Documents/repos/taipei-codefest-2026/.git",
+    "worktree": "/Users/ciyang/Documents/repos/taipei-codefest-2026",
+    "projectPrefix": "",
+    "changeName": "000-skeleton-harness"
+  },
+  "sourceDir": "/Users/ciyang/Documents/repos/taipei-codefest-2026/.prospec/changes/000-skeleton-harness",
+  "stagingDir": "/Users/ciyang/Documents/repos/taipei-codefest-2026/.prospec/history-operations/.staging-11deaec5-b57b-4332-9eb4-de11ea7afed2",
+  "finalDir": "/Users/ciyang/Documents/repos/taipei-codefest-2026/.prospec/abandoned/2026-11-07-000-skeleton-harness",
+  "phase": "complete",
+  "original": [
+    {
+      "path": "",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": "metadata.yaml",
+      "kind": "regular",
+      "mode": 420,
+      "sha256": "1ea05ef569bf8e39bc77b10ce3d5adcc334571921f0609d6c1ac6438ffc67d6b"
+    },
+    {
+      "path": "proposal.md",
+      "kind": "regular",
+      "mode": 420,
+      "sha256": "739364791e4fa4f65a5931a4f9bd25245fcdf24d0f177e0de0ff1989e4476491"
+    }
+  ],
+  "prepared": [
+    {
+      "path": "",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": ".prospec-transfer.json",
+      "kind": "regular",
+      "mode": 384,
+      "sha256": "3ea2a5e3d6bfb84afc5b67ffacc5869a0416820d7adefe979d66756b2a35bd7c"
+    },
+    {
+      "path": "abandon-operation.json",
+      "kind": "regular",
+      "mode": 384,
+      "sha256": "dc7a03b4fed8865d043f5bc1bfcf617e232fcba5fc06591c541125edd727f932"
+    },
+    {
+      "path": "metadata.yaml",
+      "kind": "regular",
+      "mode": 420,
+      "sha256": "8069f3fa6fa03fea5d223ec9644bb9b0500a49fa829714c41cfcdb6f8c5304b5"
+    },
+    {
+      "path": "preservation",
+      "kind": "directory",
+      "mode": 493
+    },
+    {
+      "path": "preservation/manifest.json",
+      "kind": "regular",
+      "mode": 384,
+      "sha256": "61766591678e92b66a0e22a5dd605e1ff99c3005828d8abbafa4db9fb871a1bb"
+    },
+    {
+      "path": "preservation/staged.patch",
+      "kind": "regular",
+      "mode": 384,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "preservation/unstaged.patch",
+      "kind": "regular",
+      "mode": 384,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "proposal.md",
+      "kind": "regular",
+      "mode": 420,
+      "sha256": "739364791e4fa4f65a5931a4f9bd25245fcdf24d0f177e0de0ff1989e4476491"
+    }
+  ],
+  "cleanup": true
+}

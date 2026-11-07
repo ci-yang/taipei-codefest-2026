@@ -1,0 +1,17 @@
+name: 000-skeleton-harness
+created_at: 2026-11-07T02:23:47.400Z
+status: abandoned
+description: 骨架與 harness：monorepo 骨架、開發規則、多 session 協作協議、prospec 規格層
+acceptance:
+  version: 1
+  revisions: []
+premise_version: 1
+retry_of: []
+abandonment:
+  reason: 歷史示範：骨架與 harness 已完成（2026-11-07）
+  at: 2026-11-07T03:46:30.379Z
+  from_status: story
+  escalation: null
+  overturned: []
+  premise_note: No overturned fields declared
+  manifest: preservation/manifest.json
