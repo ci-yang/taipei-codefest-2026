@@ -1,0 +1,549 @@
+name: add-three-urgencies-flow
+created_at: 2026-11-07T16:30:09.386Z
+status: verified
+scale: standard
+description: 三急首頁與開口卡：首頁三顆大按鈕直接出最近一家結果卡，帶我去／開口卡／看地圖；現有地圖與搜尋降為第二層
+quality_log:
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    baseline_revision: 1
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - INVEST：US-1 依賴 enable-friendly-routes 的定位與離線契約（既有規格不重述）；Knowledge
+        module-map 與 Feature Specs 仍空，無可匹配模組；底分支 route-experience 與開口卡的 D6 解讀待
+        Ci 確認。
+  - skill: prospec-plan
+    date: 2026-11-07
+    result: FAIL
+    warnings:
+      - F1 改法：步驟 7 不要手動升 VERSION（打包已依內容雜湊），保留 friendly-resource-v6-20261107
+        字面值；把 urgency.js、speak-card.js、句庫檔（與 CSS，如果有）加進
+        tools/package-friendly-prototype.py ASSETS；Affected Modules 補 tools/ 與
+        scripts/build-friendly-app.mjs；若一定要升版，打包的 replace 字串、build 的正則與
+        friendly-offline.test.cjs:9 的 VERSION 常數要一起改。
+      - "F2 改法：步驟 3 明列在 #guidance-hud 新增會旋轉的箭頭元素，renderGuidance 依 bearing 與
+        heading 設 transform，orientation() 同時重繪 guide HUD；同時調整 guidance-bearing
+        文字裡的「（非步行路線）」，它和新的「步行 X」並列會互相矛盾，test :374 的斷言也要跟著改。"
+      - F3 改法：步驟 4 為 guide 定一個倒數顯示位置（guide HUD 上的精簡倒數，或讓 active() 在 guide＋toilet
+        時只渲染倒數區塊），openToilet 注入路線時同步設定
+        routeKey=`${id}:${positionKey()}`、toiletStatus='ready'，並在 resetTimer
+        之後才呼叫 startTimer；也要決定 GPS 更新時是否重算（目前一定會重算）。
+      - F4 改法：步驟 5 的地圖入口改為 selectedCard（app.js:235-237）的 route-actions，需要的話
+        showDetails 也加；關閉後還原依來源分兩種：selectedCard 只要 setView('map')，selectedId
+        還在卡就會留著；showDetails 才需要重開 sheet。REQ-3U-102 的 Before 也要對齊這兩種卡片的實際內容。
+      - view 字面值清單不完整：除了 plan 列的 :90、:274、:426、:446，還有
+        app.js:151、:160、:163、:168、:172、:281、:292-295、:297（selectResource 在
+        welcome 時自動 setView('explore')）、:305、:427、:444，以及 highlights.js:27
+        的初值；建議先 grep "'welcome'|'explore'|'guidance'" 列成清單再改。
+      - 共用 routeClient 會互相取消：route() 第一步就
+        cancel()（route-client.js:22），cancelDestinationRoute 也
+        cancel（app.js:133）；只要有目的地，requestPosition 的 finally 就會呼叫
+        scheduleRoute（app.js:310），guide 路線被中止；guide 路線也會中止目的地路線，使它顯示「已取消」。建議
+        guide 用自己的 client，或在進入 guide 時明確處理 destination。
+      - guide 的充電生存圈：drawBattery 畫的是全世界的 .62 暗色遮罩，離開 guide 時沒有任何清除路徑（clearLayers
+        只在 render 或 drawLayers 時跑），位置與電量變化也不會重繪（update 只在 mode==='battery' &&
+        active() 時畫）；snapshot 裡也沒有急用類別。需要一個明確的 show/hide API 並在 setView 時清除。
+      - 低電量自動開啟副作用：batteryChanged 在非 map 畫面跳過 open 時，deviceWasLow 仍會被設為 true，之後進
+        map 不會再自動開啟；這需要決定要不要補。
+      - "測試面：friendly-app-state.test.cjs 的 vm context（:122-140）沒有 history，plan
+        若直接呼叫 history.pushState 會讓整支測試 ReferenceError，要加 stub
+        或在程式裡做防護；scripts/check-friendly-route-browser.mjs:80-82 寫死 #enter-app 與
+        view==='explore'，步驟 7 要用它量 390px 前必須先改寫。8 個 app-state 案例的行號我核過，正確。"
+      - "openMap／startGuide 時機：從 home／result 進入前 #explore-screen
+        是隱藏的，map.invalidateSize 在 setView 的 rAF 裡（app.js:281），plan 在 setView
+        之後同步呼叫 focusPoint，或依 selectResource 內的 focusPoint，都會以 0 尺寸計算；應照
+        startGuidance（app.js:293）的寫法改在 rAF 內 focus。"
+      - 檔名漂移：plan 寫 speak-phrases.js，沒有 CSS；工作樹已經出現 speak-card-strings.js 與
+        speak-card.css（另一個 agent 進行中，不在本次審查範圍）。ASSETS 的『22 改 25』、index.html
+        的載入順序與打包白名單要以最後實際的檔案為準，否則離線或線上會少檔。
+      - 未驗證：TownPass 系統返回是否觸發
+        popstate。docs/handoff/2026-11-07-route-experience.md:14 寫「系統返回先走網頁歷史」，支持
+        pushState 做法，但新流程沒有實機證據；全螢幕開口卡與 getBattery 同樣未在實機驗證，plan 風險表已列。
+      - delta-spec 建議：在 archive 前，若 enable-friendly-routes 仍未落地 Feature Spec，就把
+        REQ-3U-101／102 改列 ADDED，把 201～203 的移除理由放進 plan 或 proposal；如果
+        enable-friendly-routes 先 archive 了，則改用它實際的 REQ id 與 Feature 名稱，並補上
+        **Dropped:**。
+      - "blast_radius: 漏列部署打包：tools/package-friendly-prototype.py:11-35 有獨立
+        ASSETS 白名單，:55 只替換字面值
+        friendly-resource-v6-20261107，scripts/build-friendly-app.mjs:91 以
+        /friendly-resource-v6-[a-f0-9]{16}/ 驗版本；照 plan 步驟 7 升 v7 會讓 build
+        拋錯、三個新檔不進 dist/app 而線上 404。另 plan 步驟 5 把開口卡鈕放進
+        showDetails（app.js:344），但「導航」「撥號」在 selectedCard（app.js:237），sheet
+        內沒有撥號鈕。"
+      - "state_safety: openToilet 在 guide 不可行：倒數 UI 在
+        #highlight-host（#bottom-panel 內），guide 時 CSS app-ui.css:264 隱藏
+        #bottom-panel，active() 也為 false，倒數無畫面；另 highlights.js update() 位置一變且
+        selected 存在就 scheduleToiletRoute（重開 Worker、resetTimer），plan
+        只說跳過一次排程，沒有設定 routeKey／toiletStatus='ready'／resetTimer，GPS 更新就會清掉倒數並再載
+        20 MB。"
+      - "delta_spec: US-1.1～US-3.3 共 15 個情境都對得到 REQ-3U-001～006／201～203，無孤兒需求；3
+        秒目標有實測基線（我在 e479b2e、Node v24.18.0 重跑：中位數 1.14 ms，筆數 5,948
+        與四類計數完全吻合）。MODIFIED／REMOVED 的 REQ id 不在任何 Feature
+        Spec（prospec/specs/features 不存在），依 delta-spec-format.md:57 archive
+        會拒收；這是 archive 階段的阻擋，不影響實作，已自揭露。"
+      - "reuse: plan 說 guide 箭頭沿用 renderGuidance／renderDirection／orientation，但
+        renderGuidance（app.js:261）只寫文字，HUD 的
+        .guidance-direction-icon（index.html）是固定指南針圖示；會旋轉的箭頭只在方向
+        sheet（app.js:366），orientation()（app.js:375）也只重繪那個 sheet。US-1.6 要的箭頭沒有既有
+        owner，需要明確新增並說明。最近一家排序既有 visibleStores（app.js:81）與 highlights
+        nearby，都受視窗限制或退回地圖中心，plan 沒點名也沒說明為何不用（理由其實成立）。"
+    verifier_verdict: FLAWS
+    audited_plan_digest: 1c3760ddb38c71c802ba1eb33d4d61559799025ed456ef226345ae9ec9d9d27b
+    attempt_id: prospec-plan:d2bdb59c88981f0d569675aa6b75cbd0b22424583c912ec6b4e68b5003515a04
+    accepted:
+      request_id: prospec-plan:d2bdb59c88981f0d569675aa6b75cbd0b22424583c912ec6b4e68b5003515a04
+  - skill: prospec-plan
+    date: 2026-11-07
+    result: FAIL
+    warnings:
+      - "F 新（state_safety）改法：pushState 時把 { view, storeId, cardSource } 存進
+        history.state；popstate 依 event.state.view 還原，沒有 state 時回
+        home；畫面內的返回鈕（#map-back、開口卡關閉、guide 結束）在有 history 時一律
+        history.back()，避免返回堆疊和 app 狀態脫節；開口卡被 popstate 關閉時用 closeSpeakCard({
+        silent: true })，避免 onClose 又 push 一筆。刪掉 returnView 單槽位，或只留給沒有 history
+        的測試環境用。"
+      - guide 倒數的點擊：highlights.js 只對 host 綁 click（:285
+        host.addEventListener('click', click)），guideHost 裡的開始／暫停鈕沒有
+        listener；click() 結尾呼叫 render()，guide 時 active() 為 false，會走到 render 的
+        !visible 分支直接 return，guideHost 不會重繪。步驟 4 要寫明 guideHost 也要綁 click，並給
+        guide 一條自己的 render 路徑。
+      - render 的 !visible 分支會清掉 guide 圖層：只要使用者之前在地圖開過雷達，mode 就不會是
+        null（只有按關閉才清），update() 的 if (mode) render() 在 guide 會走到
+        clearLayers()，把剛畫的生存圈與廁所 routeLayer 清掉。要讓 guide 繪製排在 render 之後，或讓
+        !visible 分支在 guide＋urgency 時不清 batteryLayer。
+      - "openToilet 的時機：guide 路線是背景計算，若 state.guideRoute 還是 null 就呼叫
+        openToilet，resetTimer 會得到 status idle、remaining 0，startTimer 不動作。要寫明只在
+        scheduleGuideRoute 成功後才呼叫，失敗時 #guide-timer 顯示「需要步行路線才能倒數」之類的明確狀態，不留空白。"
+      - "重複 id：render 在 !visible 時只設 host.hidden，不清 innerHTML，所以 guide 時
+        #highlight-host 裡舊的 #hl-countdown 與 #guide-timer 的新 #hl-countdown 會同時在
+        DOM。tick() 用 host.querySelector 有限定範圍，不會互相覆寫，但 id 重複不合法，測試的
+        document.querySelector 也只拿得到第一個。guide 端建議改用 class，或用 data-hl-countdown。"
+      - guide 有目的地時：renderDestinationRoute（app.js:116-124）不分 view，會把目的地橘線畫在
+        guide 上；focusGuidance（app.js:286-289）先判斷 state.route，會 fit 目的地路線而不是
+        guide 目標。步驟 3 要寫明 guide 時隱藏 destinationRouteLayer（或不 fit），並在 guide 路線成功後
+        fit 自己的路線。
+      - Worker 數：每個 Worker 都 importScripts 20 MB 路網，完成或逾時後
+        terminate（route-client.js:29）。guide 與目的地同時計算最多兩個並行、最長 10 秒，plan
+        已列為實機觀察；若 Android WebView 記憶體吃緊，退路是進入 guide 時暫停目的地重算，可先寫進風險表的處置欄。
+      - selectedCard 的開口卡類別：openCard(category, source) 從 selectedCard
+        進入時沒說類別怎麼決定。店家可能同時有多種服務，或一個都不是 toilet、charge、wifi（例如只有 accessible），這時
+        planSpeakCard 會 throw（speak-card.js:27）。規則建議：優先用目前的 filters／urgency，其次依
+        services 取第一個；三類都沒有就不出按鈕。
+      - 測試 harness：app-state runtime 要注入 FriendlyUrgency（可直接 require urgency.js
+        的 UMD）與 FriendlySpeakCard stub。另外 FriendlyHighlights 在 app-state
+        裡根本不存在，風險表 :119 說的「離開 guide 的遮罩回歸案例」目前沒有可跑的 harness，要嘛新增 highlights 的
+        guide 單元測試，要嘛標明改由瀏覽器腳本或手測。
+      - HUD 版面：#guide-arrow 若保留 .guidance-direction-icon
+        class，app-ui.css:272-273 的 48px 圓形就會沿用，旋轉的是整個圓，版面成立；若換掉 class，要補樣式。HUD 有
+        max-height 42dvh 與 overflow-y auto（:270），加入步行行、倒數與方位鈕後在 390px
+        會出現捲動，倒數可能被捲到可視範圍外，五畫面截圖要包含 guide＋廁所這個狀態。
+      - "browser 腳本：check-friendly-route-browser.mjs 除了 :80-82，:108-109、:292 也量
+        #start-guidance。plan 保留地圖頁的 START，所以改入口後這三處仍成立，屬查過 OK；只要提醒實作者別一起刪掉
+        #start-guidance。"
+      - 未驗證：TownPass 系統返回會不會觸發 popstate，仍然沒有實機證據。交接文件 :14 寫「系統返回先走網頁歷史」，支持這個做法。
+      - "blast_radius: F1 已解：sw.js 與 tools/package-friendly-prototype.py 都加同樣 4
+        檔，不手動升 VERSION，build 的 v6 正則與 offline 測試 :9 常數都不必動。F4 已解：入口改到
+        selectedCard（app.js:237）。剩下的是測試面：app-state 的 vm 只注入
+        Bridge／Search／RouteClient／Offline stub（test :130-137），沒有
+        FriendlyUrgency、FriendlySpeakCard、FriendlyHighlights，plan 步驟 7 只提到
+        history stub。"
+      - "state_safety: 返回只有一個 state.returnView 槽位（plan
+        :44-45、:86），巢狀時會卡住：home→result→map 時 returnView 是 result，從 selectedCard
+        開開口卡又被覆寫成 map，關卡後按 #map-back 會 setView('map') 回不到結果卡；系統返回也一樣，第二次
+        popstate 仍回 returnView 而不是 home，下一次返回就直接離開微服務。第 44
+        行（onClose→returnView）和第 100 行（依來源還原）互相矛盾。F3 的狀態設定已解，但 guide 倒數的點擊與
+        render 路徑還有缺口（見 warnings）。"
+      - "delta_spec: 三個 user story 的情境都對得到 REQ；REQ-3U-102 的 Before 已改成
+        selectedCard 與 showDetails 的實際內容，和 app.js:237、:344-346 一致；母語值改為 zh-TW，符合
+        speak-card-strings.js:28。MODIFIED／REMOVED 在 archive 時仍會被拒收，header
+        已寫明處置方式，只擋 archive。基線沿用實測值，verifier 重跑的數字也已註記。"
+    verifier_verdict: FLAWS
+    audited_plan_digest: 2320f04b233fc76f1ea6b56363b391beeeae347c7ec2a136376deab097738fd4
+    attempt_id: prospec-plan:935c0617cdb7564e2d7b744a27c902de8fa243b33438e7f111bfd22f6f4f27c2
+    accepted:
+      request_id: prospec-plan:935c0617cdb7564e2d7b744a27c902de8fa243b33438e7f111bfd22f6f4f27c2
+  - skill: prospec-plan
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - "重新載入：初始化時無條件 replaceState({ view: 'home', depth: 0 })（plan :41）。session
+        history 跨 reload 會保留，在 map（depth 2）時被 TownPass 重新載入，結果是 [H0, R1,
+        home0]：按返回會回到 result，順序顛倒，而且 state.result 已不在記憶體。建議初始化時若
+        history.state?.view 存在就 applyScreen(history.state)，不存在才 replaceState
+        home。"
+      - applyScreen(result) 需要能重建：popstate 回到 result 時，如果 state.result
+        已經不在（重新載入，或 urgency 不同），就要以 entry.urgency 重跑
+        rankNearest；沒有定位時顯示需要定位。plan :46 只寫還原 urgency、storeId、view，沒寫 result
+        的重建。
+      - "無定位的結果卡：plan :42 寫「無有效定位則 renderResult({ needLocation: true
+        })」，但沒說這條路徑有沒有 pushScreen。如果直接 setView('result') 而沒有 push，按返回就會離開微服務。建議也
+        push { view: 'result', urgency }；之後定位到了用 replaceState 更新，不要再
+        push。「換下一家」同樣用 replaceState，不要 push。"
+      - 離開 guide：plan :94 有 state.guideGeneration，但沒寫離開 guide 時要遞增並呼叫
+        guideRouteClient.cancel()。路線在返回 result 之後才成功的話，會在非 guide 畫面呼叫
+        openToilet，把 highlights 的 selected 換成這間廁所，影響之後的地圖雷達。也建議離開 guide 時對倒數
+        pauseTimer，避免計時在背景繼續跑。
+      - 倒數歸零：highlights.js 的 tick() 在 timer.remaining<=0 時只做 if (active() &&
+        mode==='toilet') render()，guide 時 active() 為 false，guideHost
+        會停在「暫停」按鈕。tick 的歸零分支也要呼叫 renderGuide()；plan :99 只寫了數字更新。
+      - 回首頁的 depth 0：history.go(0) 會重新載入頁面。「回首頁」只在 depth>0 時呼叫
+        go(-depth)，否則不做事；搭配上面的重新載入建議，可以避免 depth 與實際堆疊脫節。
+      - test 的雙路徑：plan :89 用 screenStack 模擬沒有 history 的環境，:114 又注入 history
+        stub；正式環境只走 history，screenStack 分支形同只在測試存在。建議測試一律用 stub，讓測試走的是正式程式碼路徑。
+      - 未驗證：TownPass 系統返回是否先走 WebView 歷史、歷史用完才關閉微服務。交接 route-experience.md:14
+        支持這個假設，但要在 Android 實機上把巢狀四次返回與 guide 返回各走一次。
+      - "state_safety: 返回機制已改為
+        history.state，巢狀走過都成立：home→result→map→地圖卡開口卡，連按返回依序回
+        map、result、home，第四次才離開；關卡鈕走 goBack→popstate，那時 current 已是 null，silent
+        close 回 false，不會多 push。F3 三個缺口在 highlights.js 的結構下都可行。剩下的是邊界：重新載入後舊
+        entry 會殘留、無定位時的結果卡有沒有 push 沒寫清楚、離開 guide 時晚到的路線、倒數歸零不重繪 guideHost，都屬
+        WARN。"
+    verifier_verdict: WARN
+    audited_plan_digest: dd10ef49bbdc0985ab9ab0fbdb8f41ecfa9edf2074b519e37fe065236900892c
+    attempt_id: prospec-plan:40bc59faa342fe8daa9f82b49372faf3ca85027b8063e93cc2afc081b9f275c3
+    accepted:
+      request_id: prospec-plan:40bc59faa342fe8daa9f82b49372faf3ca85027b8063e93cc2afc081b9f275c3
+  - skill: prospec-tasks
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - T9 依賴 highlights 的暫停倒數 hook，但 T10～T13 都沒有定義：建議在 T11 加上「update() 看到 view
+        離開 guide 時 pauseTimer()」，或匯出 pauseGuide()；並把 T10～T13 移到 T9 之前，至少在 T9
+        註明依賴 T11。
+      - T20 補 guide 案例：用既有的 routeRequests stub 測兩件事。第一，進入 guide 同一輪就有「直線」，路線
+        resolve 後才出「步行 Y · 約 N 分鐘」，reject 時沒有步行。第二，離開 guide 後路線才
+        resolve，不會改到畫面。這對應 SC-004 與 T9 的 generation 防護，不需要 highlights。
+      - 每個 task 補上「~N lines」估計，並把 T20 拆成兩個 task；T17 很可能低於 20 行，可以併入 T16 或維持現狀。
+      - T2 與 T10 中間的空窗：plan 風險表要求兩者同一人依序做，tasks 卻相隔 7 個 task。建議在 T2 註明「完成後立刻做
+        T10，或與 T10 同一個 commit」，避免中間狀態被別人拿去 demo。
+      - T24 要寫明檢查 dist/app 內 sw.js 的 ASSETS 有 26 項、打包白名單有 27 項，而不只是「含 4
+        個新檔」，才能抓到兩份清單只改了一份。
+      - "dag_topological_order: 大致由低到高：純函式→殼層→guide→highlights→開口卡→離線→測試，沒有
+        [P]。但 app.js 的 T9（離開 guide 時通知 highlights 暫停倒數）與 T12 的 app 端呼叫
+        openToilet，排在提供這些 API 的 highlights 任務（T10～T13）之前，而且 T10～T13 都沒有定義「暫停倒數」的
+        hook。T2 改完 view 名稱到 T10 改 active() 之間，地圖雷達會暫時失效。實際呼叫都經過 highlights?.
+        防護，不會壞掉，所以判 WARN。"
+      - "tdd_module_closure: 有測試：urgency.js 對 T18；app.js 與 index.html 對
+        T19、T20；sw.js 對 T21 的 offline 數量；CSS 與 highlights.js 對 T22
+        的瀏覽器腳本；package-friendly-prototype.py 對 T24 [V] 的 pnpm app:build（檢查 dist
+        有 4 個新檔、v6 雜湊共用）。不足：highlights.js 沒有 node 層測試（app-state 不載入，plan
+        已揭露）；T20 新增案例沒有 guide 的「直線＋步行」與「只有直線」兩例（SC-004），但 app-state 已有
+        routeRequests stub，可以直接測。"
+      - "task_sizing_schema: 25 個 task（≤30），Summary 寫 code 22、[V] 2、[M] 1，與
+        checkbox 數一致；T23、T24 標 [V]、T25 標 [M] 都正確，T17（README）與 T22（改腳本）會產生
+        diff，維持 code 正確。但每個 task 都沒有 tasks-format.md:30 要求的「~N
+        lines」估計，粒度無法機械核對；T20（改寫 8 個舊案例＋約 7 個新案例）很可能超過 200
+        行，建議拆成「改寫舊案例」與「新增返回／結果卡案例」兩個 task。"
+    verifier_verdict: WARN
+    attempt_id: prospec-tasks:303057adf73486dbc9d2dcee016f769670baaf1df8b6b6aed1b6e33472b1d8fa
+    accepted:
+      request_id: prospec-tasks:303057adf73486dbc9d2dcee016f769670baaf1df8b6b6aed1b6e33472b1d8fa
+  - skill: prospec-review
+    date: 2026-11-07
+    result: WARN
+    warnings: []
+    criticals_found: 2
+    criticals_fixed: 0
+    majors: 1
+    round: 1
+  - skill: prospec-review
+    date: 2026-11-07
+    result: WARN
+    warnings: []
+    attempt_id: prospec-review:bafd7a7088b098489c7d86aed14eaec9acce77f3539d9ee1d2f7a1b8da69bbc6
+    accepted:
+      request_id: 785d5cb03e138acc3d8ae25bc322d802b8dbaefdfec0c86e77c65a3440867931
+      artifact_digest: c0b719ef6c9806d3469a46c0a88fd659e28df4366db0007ff1dfe1259376f2a4
+      base_digest: 12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126
+  - skill: prospec-review
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - Round 1（a8f7f96／7a7c013）：critical F-1 導引中換地點資料拼接、F-2 雷達殘留蓋卡片；major F-3
+        導引標題寫死最近；已於 b224061 修正並加 pin 測試，待 round 2 fresh 複核
+  - skill: prospec-new-story
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    baseline_revision: 2
+  - skill: prospec-review
+    date: 2026-11-07
+    result: WARN
+    warnings: []
+    criticals_found: 2
+    criticals_fixed: 0
+    majors: 2
+    round: 2
+  - skill: prospec-review
+    date: 2026-11-07
+    result: WARN
+    warnings: []
+    attempt_id: prospec-review:097062f45e18844debd128ce02f9a273bb1636346004debe6ce1350b1c5e5eb4
+    accepted:
+      request_id: 336403f8828f1089233a78bd00c26c294798ddda6c421b1e46f3c1b4644c6c04
+      artifact_digest: 4dfd160bb9a1753809d4018f8ece1473b5ac2ba53946127020094c3ae999c600
+      base_digest: c0b719ef6c9806d3469a46c0a88fd659e28df4366db0007ff1dfe1259376f2a4
+  - skill: prospec-review
+    date: 2026-11-07
+    result: WARN
+    warnings:
+      - Round 2（b224061）：F-1～F-3、F-6、F-7 resolved，0 critical；新 major F-8
+        結束導引在換過目標後需多次返回、minor F-9 reload 後結果卡標題、F-10 guide→guide 清理無 pin；交 round
+        3 修正
+  - skill: prospec-review
+    date: 2026-11-07
+    result: WARN
+    warnings: []
+    criticals_found: 0
+    criticals_fixed: 0
+    majors: 1
+    round: 3
+  - skill: prospec-review
+    date: 2026-11-07
+    result: WARN
+    warnings: []
+    attempt_id: prospec-review:659f0a94b28005f3670ec1bb0f8570b352b2e4eccc839e7fd167c741a89071d2
+    accepted:
+      request_id: ddc56968ac6696c6925121f943ff966eac012ec5edb439fdd7e5dbc3008149e8
+      artifact_digest: 1251aaaf63c9f125f326b0583077e5cfd1564cd27cdaadbd0ae6918c3abd2627
+      base_digest: 4dfd160bb9a1753809d4018f8ece1473b5ac2ba53946127020094c3ae999c600
+  - skill: prospec-escalation
+    date: 2026-11-07
+    result: WARN
+    warnings: []
+    escalation:
+      event_id: review:3
+      station: prospec-review
+      kind: trigger
+      trigger: max_rounds_exceeded
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+  - skill: prospec-verify
+    date: 2026-11-07
+    result: PASS
+    warnings:
+      - acceptance baseline was captured or amended after story stage
+        (late-capture)
+    grade: A
+    dimensions:
+      - name: task-completion
+        result: PASS
+        adjudicator: machine
+      - name: knowledge
+        result: PASS
+        adjudicator: machine
+      - name: tests
+        result: PASS
+        adjudicator: machine
+      - name: delta-spec-compliance
+        result: WARN
+        adjudicator: judgment
+        graded_by: fresh-subagent
+        executor: Claude Opus 5.5 (fresh-context grader subagent)
+        context_id: d92ac309eff4e4a1e316448685d74b7a997b1ad526b917be883fb665e2f896a7
+        baseline_revision: 2
+      - name: constitution
+        result: PASS
+        adjudicator: judgment
+        graded_by: fresh-subagent
+        executor: Claude Opus 5.5 (fresh-context grader subagent)
+      - name: design
+        result: not-applicable
+        adjudicator: judgment
+        graded_by: fresh-subagent
+        executor: Claude Opus 5.5 (fresh-context grader subagent)
+    context_id: d92ac309eff4e4a1e316448685d74b7a997b1ad526b917be883fb665e2f896a7
+    baseline_revision: 2
+    coverage_summary: 11/11
+    attempt_id: prospec-verify:f501a41c14b40377bf76bf7ccfe27f1d3564d8b67bc0b55f965d112bc84c7b68
+    accepted:
+      request_id: prospec-verify:f501a41c14b40377bf76bf7ccfe27f1d3564d8b67bc0b55f965d112bc84c7b68
+      artifact_digest: ac14dd1cbc216ee86cb2f742f64e98134f4cb62fe3baf88b386dcfbfacf03b7a
+review_provenance:
+  digest: ceb160be83ae89208ad74b4ad5fe36cb7050759004ba0e37f165d025f9289c12
+  date: 2026-11-07
+  fingerprint_version: snapshot-v2
+  scope: repository-inputs-v2
+  graded_by: fresh-subagent
+test_provenance:
+  command: pnpm test
+  exit_code: 0
+  digest: ceb160be83ae89208ad74b4ad5fe36cb7050759004ba0e37f165d025f9289c12
+  date: 2026-11-07
+  fingerprint_version: snapshot-v2
+  scope: repository-inputs-v2
+  attempt_id: b9ab4442-bca2-42b9-866f-c09d01e11a73
+test_attempt:
+  id: b9ab4442-bca2-42b9-866f-c09d01e11a73
+  date: 2026-11-07
+  outcome: passed
+  command: pnpm test
+  before_digest: ceb160be83ae89208ad74b4ad5fe36cb7050759004ba0e37f165d025f9289c12
+  after_digest: ceb160be83ae89208ad74b4ad5fe36cb7050759004ba0e37f165d025f9289c12
+  exit_code: 0
+delta_spec_provenance:
+  digest: 902cca098e6280577ca4ca8536a4a63004e42d08af2b5a66b695e3b44365183c
+  date: 2026-11-07
+acceptance:
+  version: 1
+  current_revision: 2
+  revisions:
+    - revision: 1
+      digest: 9b4ea275635fb0466202275b1c52ec9629b24f44644d11e325dabb58e5cece03
+      captured_at: 2026-11-07T16:32:59.664Z
+      captured_status: story
+      origin: story
+      reason: initial freeze
+      scenarios:
+        - id: US-1.1
+          story_id: US-1
+          text: WHEN 我開啟 App，THEN 首頁只有三顆全寬大按鈕「廁所」「充電」「網路」與一行定位狀態（沿用
+            `enable-friendly-routes`
+            的定位規則與「無法取得定位」狀態），沒有地圖、沒有歡迎頁、沒有交通偏好；另有「看地圖」與「設定」的小入口。
+          source: proposal.md:30
+        - id: US-1.2
+          story_id: US-1
+          text: WHEN 我按任一按鈕且有有效定位，THEN 3
+            秒內顯示結果卡：該類別中直線距離最近的一筆（名稱、直線距離、方向文字、無障礙標記「有／未標示」、來源與更新日），三顆動作鈕「帶我去」「開口卡」「看地圖」，以及「換下一家」（最多再看
+            2 筆次近）。
+          source: proposal.md:31
+        - id: US-1.3
+          story_id: US-1
+          text: WHEN 我按按鈕但沒有有效定位，THEN 不出結果卡，顯示「需要定位才能找最近」、重新定位入口與「看地圖」；不以地圖中心假裝最近。
+          source: proposal.md:32
+        - id: US-1.4
+          story_id: US-1
+          text: WHEN 設定裡的「輪椅／推車」偏好開啟，THEN
+            只在該類別中有無障礙標記者挑最近；該類別一筆都沒有無障礙標記時，顯示最近一筆並標「無障礙資料不足」，不隱瞞也不假裝符合。
+          source: proposal.md:33
+        - id: US-1.5
+          story_id: US-1
+          text: WHEN 我按「網路」，THEN 類別為 Wi-Fi 聯集（名冊標記店家加公眾免費熱點，沿用既有定義），卡片標「免費 Wi-Fi
+            熱點，不保證訊號」，無電話不顯示撥號。
+          source: proposal.md:34
+        - id: US-1.6
+          story_id: US-1
+          text: WHEN 我按「帶我去」，THEN 進入導引畫面：沿用方向與距離導引（箭頭加「東北方約 120
+            公尺」）；若本機步行路網已就緒，另畫步行路線並顯示步行距離與估計分鐘，直線與步行兩個數字分別標「直線」「步行」；路網未就緒時只有箭頭，不等待下載、不顯示空白。
+          source: proposal.md:35
+        - id: US-1.7
+          story_id: US-1
+          text: WHEN 我按「看地圖」，THEN 進入現有地圖頁，該類別已 highlight、該筆置中並開卡，返回鍵回結果卡。
+          source: proposal.md:36
+        - id: US-2.1
+          story_id: US-2
+          text: WHEN 我在結果卡或店家卡片按「開口卡」，THEN
+            全螢幕顯示雙面卡：上半為給店員看的中文大字（依類別固定一句，例如「您好，我想借用廁所，請問方便嗎？謝謝」），下半為我的母語同一句；兩面都附「不方便也沒關係，謝謝」。
+          source: proposal.md:42
+        - id: US-2.2
+          story_id: US-2
+          text: WHEN 我在設定選母語（中文、英文、印尼文、越南文），THEN 下半改為該語言；母語為中文時只顯示單面大字。
+          source: proposal.md:43
+        - id: US-2.3
+          story_id: US-2
+          text: WHEN 離線，THEN 開口卡仍可用，文案內建於 App，不呼叫任何線上翻譯或 LLM。
+          source: proposal.md:44
+        - id: US-2.4
+          story_id: US-2
+          text: WHEN 某語言的句子尚未經母語者校對，THEN 該語言不出現在語言清單；校對人與日期記錄於 README 資料來源表旁。
+          source: proposal.md:45
+        - id: US-2.5
+          story_id: US-2
+          text: WHEN 我關閉開口卡，THEN 回到原本的結果卡或店家卡片；開口卡不記錄、不送出、不提供店員回覆機制。
+          source: proposal.md:46
+        - id: US-3.1
+          story_id: US-3
+          text: WHEN 我從首頁或結果卡進入「看地圖」，THEN 現有地圖、目的地搜尋、多選類別、清單、快取狀態列全部保留並可操作；返回鍵回到來源畫面。
+          source: proposal.md:52
+        - id: US-3.2
+          story_id: US-3
+          text: WHEN 我在地圖點店家開卡，THEN 卡片除原有「導航」「撥號」外也有「開口卡」。
+          source: proposal.md:53
+        - id: US-3.3
+          story_id: US-3
+          text: WHEN App 啟動，THEN route-experience 分支的歡迎頁「出發」鈕與步行、捷運、單車、開車偏好不出現在任何畫面。
+          source: proposal.md:54
+    - revision: 2
+      digest: 4138d3ea9b2d965834651d08796c042d9f9eb44680016fa2ac97c5f7b325bdc4
+      previous_digest: 9b4ea275635fb0466202275b1c52ec9629b24f44644d11e325dabb58e5cece03
+      captured_at: 2026-11-07T18:21:16.016Z
+      captured_status: implemented
+      origin: late-capture
+      reason: 審查 F-6：公眾 Wi-Fi 熱點現場無店員，不顯示開口卡；US-1.2 與 US-3.2 補此例外
+      scenarios:
+        - id: US-1.1
+          story_id: US-1
+          text: WHEN 我開啟 App，THEN 首頁只有三顆全寬大按鈕「廁所」「充電」「網路」與一行定位狀態（沿用
+            `enable-friendly-routes`
+            的定位規則與「無法取得定位」狀態），沒有地圖、沒有歡迎頁、沒有交通偏好；另有「看地圖」與「設定」的小入口。
+          source: proposal.md:30
+        - id: US-1.2
+          story_id: US-1
+          text: WHEN 我按任一按鈕且有有效定位，THEN 3
+            秒內顯示結果卡：該類別中直線距離最近的一筆（名稱、直線距離、方向文字、無障礙標記「有／未標示」、來源與更新日），三顆動作鈕「帶我去」「開口卡」「看地圖」，以及「換下一家」（最多再看
+            2 筆次近）；若該筆為公眾 Wi-Fi 熱點（來源為免費熱點資料集，現場無店員），不顯示「開口卡」，只剩兩顆動作鈕。
+          source: proposal.md:31
+        - id: US-1.3
+          story_id: US-1
+          text: WHEN 我按按鈕但沒有有效定位，THEN 不出結果卡，顯示「需要定位才能找最近」、重新定位入口與「看地圖」；不以地圖中心假裝最近。
+          source: proposal.md:32
+        - id: US-1.4
+          story_id: US-1
+          text: WHEN 設定裡的「輪椅／推車」偏好開啟，THEN
+            只在該類別中有無障礙標記者挑最近；該類別一筆都沒有無障礙標記時，顯示最近一筆並標「無障礙資料不足」，不隱瞞也不假裝符合。
+          source: proposal.md:33
+        - id: US-1.5
+          story_id: US-1
+          text: WHEN 我按「網路」，THEN 類別為 Wi-Fi 聯集（名冊標記店家加公眾免費熱點，沿用既有定義），卡片標「免費 Wi-Fi
+            熱點，不保證訊號」，無電話不顯示撥號。
+          source: proposal.md:34
+        - id: US-1.6
+          story_id: US-1
+          text: WHEN 我按「帶我去」，THEN 進入導引畫面：沿用方向與距離導引（箭頭加「東北方約 120
+            公尺」）；若本機步行路網已就緒，另畫步行路線並顯示步行距離與估計分鐘，直線與步行兩個數字分別標「直線」「步行」；路網未就緒時只有箭頭，不等待下載、不顯示空白。
+          source: proposal.md:35
+        - id: US-1.7
+          story_id: US-1
+          text: WHEN 我按「看地圖」，THEN 進入現有地圖頁，該類別已 highlight、該筆置中並開卡，返回鍵回結果卡。
+          source: proposal.md:36
+        - id: US-2.1
+          story_id: US-2
+          text: WHEN 我在結果卡或店家卡片按「開口卡」，THEN
+            全螢幕顯示雙面卡：上半為給店員看的中文大字（依類別固定一句，例如「您好，我想借用廁所，請問方便嗎？謝謝」），下半為我的母語同一句；兩面都附「不方便也沒關係，謝謝」。
+          source: proposal.md:42
+        - id: US-2.2
+          story_id: US-2
+          text: WHEN 我在設定選母語（中文、英文、印尼文、越南文），THEN 下半改為該語言；母語為中文時只顯示單面大字。
+          source: proposal.md:43
+        - id: US-2.3
+          story_id: US-2
+          text: WHEN 離線，THEN 開口卡仍可用，文案內建於 App，不呼叫任何線上翻譯或 LLM。
+          source: proposal.md:44
+        - id: US-2.4
+          story_id: US-2
+          text: WHEN 某語言的句子尚未經母語者校對，THEN 該語言不出現在語言清單；校對人與日期記錄於 README 資料來源表旁。
+          source: proposal.md:45
+        - id: US-2.5
+          story_id: US-2
+          text: WHEN 我關閉開口卡，THEN 回到原本的結果卡或店家卡片；開口卡不記錄、不送出、不提供店員回覆機制。
+          source: proposal.md:46
+        - id: US-3.1
+          story_id: US-3
+          text: WHEN 我從首頁或結果卡進入「看地圖」，THEN 現有地圖、目的地搜尋、多選類別、清單、快取狀態列全部保留並可操作；返回鍵回到來源畫面。
+          source: proposal.md:52
+        - id: US-3.2
+          story_id: US-3
+          text: WHEN 我在地圖點店家開卡，THEN 卡片除原有「導航」「撥號」外也有「開口卡」；該筆為公眾 Wi-Fi 熱點時不顯示「開口卡」。
+          source: proposal.md:53
+        - id: US-3.3
+          story_id: US-3
+          text: WHEN App 啟動，THEN route-experience 分支的歡迎頁「出發」鈕與步行、捷運、單車、開車偏好不出現在任何畫面。
+          source: proposal.md:54
+premise_version: 1
+retry_of: []
