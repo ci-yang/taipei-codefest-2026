@@ -148,6 +148,16 @@ test('result count: aria-live and role=status only appear on sr-only elements', 
   for (const tag of live) assert.match(tag, /class="sr-only"/, tag);
 });
 
+test('result count: on the whole page, with index.html as the shell, only sr-only elements carry aria-live', () => {
+  const shell = readFileSync(join(pageDir, 'index.html'), 'utf8');
+  const rendered = app.renderHome(data, day, { query: '被騙', category: 'all' });
+  const page = shell.replace('<main id="app" class="app"></main>', `<main id="app" class="app">${rendered}</main>`);
+  assert.notEqual(page, shell, 'index.html shell no longer matches <main id="app" class="app"></main>');
+  const live = [...page.matchAll(/<[^>]*\baria-live\b[^>]*>/g)].map((m) => m[0]);
+  assert.ok(live.length > 0);
+  for (const tag of live) assert.match(tag, /class="sr-only"/, tag);
+});
+
 test('result count: the chips keep their numbers', () => {
   const html = app.renderHome(data, day, { query: '', category: 'safety' });
   assert.match(html, /data-category="safety"[^>]*>人身安全<span class="cat-count">2<\/span>/);
