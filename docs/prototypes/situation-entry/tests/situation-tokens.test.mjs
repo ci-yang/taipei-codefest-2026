@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { audit, declarations } from './css-audit.mjs';
+import { audit, declarations, externalLoads } from './css-audit.mjs';
 import { contrast, css, day, pageDir, palette, resolve } from './css-tokens.mjs';
 
 // Pinned TPColors snapshot (source file, commit and date inside). Required: the palette check never skips.
@@ -93,6 +93,18 @@ const MUTATIONS = {
   'font revert': '.x { font: revert; }',
   'unknown word before the size in the font shorthand': '.x { font: heavy 16px sans-serif; }',
   'font-variation-settings weight axis': '.x { font-variation-settings: "wght" 900; }',
+  // Review round 15: nothing may load from another origin, whatever the case or spelling.
+  'upper-case @IMPORT': '@IMPORT "https://example.test/evil.css";',
+  'mixed-case @ImPoRt': '@ImPoRt "evil.css";',
+  '@import url(...)': '@import url(https://example.test/evil.css);',
+  'escaped @\\69mport': '@\\69mport "evil.css";',
+  'protocol-relative url(//evil)': '.x { background: url(//evil.test/x.png); }',
+  'upper-case URL( with a quoted https address': '.x { background: URL( "https://evil.test/x.png" ); }',
+  'backslash-relative url': '.x { background: url(\\\\evil.test/x.png); }',
+  '@font-face with an external src': '@font-face { font-family: x; src: url(https://evil.test/x.woff2); }',
+  '@FONT-FACE with a protocol-relative src': '@FONT-FACE { font-family: x; src: url("//evil.test/x.woff2"); }',
+  'image-set with an external string': '.x { background-image: image-set("https://evil.test/x.png" 1x); }',
+  'unknown at-rule @namespace': '@namespace svg url(http://www.w3.org/2000/svg);',
 };
 for (const [name, rule] of Object.entries(MUTATIONS)) {
   test(`audit rejects ${name}`, () => {
@@ -110,6 +122,8 @@ const ACCEPTED = {
   'font-weight through a variable set to 600': ':root { --strong: 600; } .x { font-weight: var(--strong); }',
   'italic 600 font shorthand': '.x { font: italic 600 14px sans-serif; }',
   'font: inherit (takes the audited parent font)': '.x { font: inherit; }',
+  '@font-face with a local src only': '@font-face { font-family: x; src: local("PingFang TC"), url(fonts/x.woff2); }',
+  'upper-case @MEDIA': '@MEDIA (min-width: 1px) { .x { color: var(--ink); } }',
 };
 for (const [name, rule] of Object.entries(ACCEPTED)) {
   test(`audit accepts ${name}`, () => {
@@ -126,7 +140,7 @@ test('the browser theme colour in index.html is the white page colour, with no n
 
 test('text uses the system UI font (PingFang TC on iOS, Roboto + Noto Sans TC on Android); no web font', () => {
   assert.match(css, /font-family:\s*system-ui,\s*-apple-system,\s*"PingFang TC"/);
-  assert.doesNotMatch(css, /@font-face|@import/);
+  assert.doesNotMatch(css, /@font-face|@import/i);
 });
 
 test('the page loads nothing from another origin (zero external requests)', () => {
@@ -135,7 +149,7 @@ test('the page loads nothing from another origin (zero external requests)', () =
   assert.ok(refs.length >= 5, 'expected the page’s own stylesheet and scripts');
   for (const ref of refs) assert.doesNotMatch(ref, /^(?:[a-z][\w+.-]*:|\/\/)/i, `external resource ${ref}`);
   assert.doesNotMatch(html, /rel="(?:preconnect|dns-prefetch|preload|prefetch)"/, 'resource hints open connections');
-  for (const m of css.matchAll(/url\(([^)]*)\)/g)) assert.doesNotMatch(m[1], /^['"]?(?:[a-z][\w+.-]*:|\/\/)/i, `external url ${m[1]}`);
+  assert.deepEqual(externalLoads(css), []);
 });
 
 // [text token, background token] pairs that carry readable text, in both periods.

@@ -48,6 +48,7 @@ const NO_COLOUR_PROP = new RegExp(`^(${[
   'touch-action', 'appearance', 'transform(-.+)?', 'transition(-.+)?', 'animation(-.+)?', 'will-change',
   'scroll-(margin|padding)(-.+)?', 'scroll-behavior', 'border(-(top|bottom)-(left|right))?-radius', 'border-width',
   'border-style', 'outline-(offset|width|style)', 'aspect-ratio', 'object-fit', 'isolation', 'contain',
+  'src', 'font-display', 'unicode-range',
 ].join('|')})$`);
 // currentColor follows the text colour, so it is only allowed where a line or glyph should match its own text.
 // On `color` it is a no-op that hides the real value; on backgrounds or tokens it can erase the contrast.
@@ -79,11 +80,11 @@ const hex = (r, g, b) => `#${[r, g, b].map((n) => Number(n).toString(16).padStar
  * @returns {string[]} one message per violation; empty when the stylesheet is clean
  */
 export function audit(cssText, paletteHexes) {
+  const problems = externalLoads(cssText);
   const decls = declarations(cssText).map((d) => ({ ...d, value: d.value.toLowerCase().replace(/\s*!\s*important$/, '') }));
   const defs = new Map();
   for (const d of decls) if (d.prop.startsWith('--')) defs.set(d.prop, [...(defs.get(d.prop) || []), d.value]);
   const defined = new Set(defs.keys());
-  const problems = [];
   for (const { selector, prop, value } of decls) {
     const at = `${selector} { ${prop}: ${value} }`;
     if (prop.startsWith('--tp-')) {
@@ -111,6 +112,32 @@ export function audit(cssText, paletteHexes) {
     if (prop === 'font' && !['inherit', 'initial', 'unset'].includes(value)) {
       for (const v of expand(value, defs, at, problems)) checkFontShorthand(v, at, problems);
     }
+  }
+  return problems;
+}
+
+// At-rules the stylesheet may use, compared lower-cased. @import is never allowed: it loads another stylesheet.
+const AT_RULES = new Set(['media', 'supports', 'keyframes', '-webkit-keyframes', 'font-face', 'layer', 'container']);
+// A URL that leaves the page's own origin: any scheme (https:, data:, javascript:) or a protocol-relative // or \\.
+const EXTERNAL = /^\s*(?:[a-z][\w+.-]*:|[\\/]{2})/i;
+
+/**
+ * Anything that would make the stylesheet load from somewhere else: @import in any case, an at-rule outside
+ * AT_RULES, or a url()/quoted URL pointing off the page. @font-face src therefore can only be local() or a page path.
+ */
+export function externalLoads(cssText) {
+  const text = unescapeCss(cssText.replace(/\/\*[\s\S]*?\*\//g, ''));
+  const problems = [];
+  for (const [, name] of text.matchAll(/@([\w-]+)/g)) {
+    const rule = name.toLowerCase();
+    if (rule === 'import') problems.push(`@${name} loads another stylesheet`);
+    else if (!AT_RULES.has(rule)) problems.push(`at-rule @${name} is not allowed`);
+  }
+  for (const [call, , ref] of text.matchAll(/\burl\s*\(\s*(['"]?)([^'")]*)/gi)) {
+    if (EXTERNAL.test(ref)) problems.push(`external url: ${call}`);
+  }
+  for (const [str, , ref] of text.matchAll(/(['"])([^'"]*)\1/g)) {
+    if (EXTERNAL.test(ref)) problems.push(`external address in a string: ${str}`);
   }
   return problems;
 }
