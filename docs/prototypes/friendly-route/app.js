@@ -10,13 +10,14 @@
   }
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const icon = (name, size = 22) => icons.icon(name, size);
-  const SERVICES = { toilet: '廁所', charge: '充電', wifi: 'Wi-Fi', accessible: '無障礙' };
+  const TRANSPORTS = { walk: '步行', transit: '捷運', bike: '單車', car: '開車' };
+  const SERVICES = { wifi: 'Wi-Fi', toilet: '廁所', charge: '充電', accessible: '無障礙' };
   const valid = (p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng) && Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180;
   const stores = data.stores.map(s => ({ ...s, id: String(s.id) }));
   const byId = new Map(stores.map(s => [s.id, s]));
   const center = { lat: 25.0375, lng: 121.5637 };
-  const state = { position: null, gpsPending: false, gpsMessage: '', gpsGeneration: 0, filters: new Set(), selectedId: null, destination: null, online: navigator.onLine, searchGeneration: 0, searchController: null, searchQuery: '', searchResults: [], theme: 'dark', heading: null, orientationEnabled: false, orientationMessage: '未使用方位感測，以正北為基準', activeSheet: null, cache: null, externalGeneration: 0 };
-  let toastTimer; let beforeSheet; let searchClient; let selectedMarker; let gpsMarker; let referenceMarker; let tileLayer; let viewportFrame;
+  const state = { view: 'welcome', mode: 'free', transport: 'walk', detailId: null, position: null, gpsPending: false, gpsMessage: '', gpsGeneration: 0, filters: new Set(), selectedId: null, destination: null, online: navigator.onLine, searchGeneration: 0, searchController: null, searchQuery: '', searchResults: [], theme: 'light', heading: null, orientationEnabled: false, orientationMessage: '未使用方位感測，以正北為基準', activeSheet: null, cache: null, externalGeneration: 0 };
+  let toastTimer; let beforeSheet; let searchClient; let selectedLine; let selectedMarker; let gpsMarker; let referenceMarker; let tileLayer; let viewportFrame;
   const map = L.map('map', { zoomControl: false, attributionControl: false, preferCanvas: true }).setView([center.lat, center.lng], 17);
   const attribution = L.control.attribution({ position: 'bottomright', prefix: false }).addTo(map);
   attribution.addAttribution('© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> (ODbL)');
@@ -27,7 +28,7 @@
   const markers = new Map();
   const geoLayers = [];
   function isInBasemap(point) { const b = basemap.bounds; return valid(point) && point.lat >= b[0][0] && point.lat <= b[1][0] && point.lng >= b[0][1] && point.lng <= b[1][1]; }
-  function palette() { return state.theme === 'dark' ? { bg: '#171f1a', building: '#253129', road: '#46534b', park: '#2b3d2c', line: '#687763', accent: '#c5ec8a', muted: '#85917f' } : { bg: '#e6eadd', building: '#d4dccd', road: '#fffef5', park: '#cfddbb', line: '#afbd9f', accent: '#466e2c', muted: '#6b7b5c' }; }
+  function palette() { return state.theme === 'dark' ? { bg: '#171f1a', building: '#253129', road: '#46534b', park: '#2b3d2c', line: '#687763', accent: '#a89bff', muted: '#91a0b8' } : { bg: '#edf1f8', building: '#dfe6f2', road: '#ffffff', park: '#e1eddf', line: '#cad3e4', accent: '#3525cd', muted: '#8e9db4' }; }
   function drawBasemap() {
     geoLayers.forEach(layer => map.removeLayer(layer)); geoLayers.length = 0;
     const colors = palette();
@@ -45,7 +46,14 @@
     });
     geoLayers.push(labelLayer); syncOnlineTiles();
   }
+  function renderBasemapNotice() {
+    const notice = $('#basemap-notice'); if (!notice) return;
+    const outsideCoverage = !state.online && !isInBasemap(map.getCenter());
+    notice.hidden = !outsideCoverage;
+    notice.textContent = outsideCoverage ? '此區尚無離線底圖，可查看資源與直線距離' : '';
+  }
   function syncOnlineTiles() {
+    renderBasemapNotice();
     const bounds = map.getBounds(); const localView = isInBasemap(bounds.getSouthWest()) && isInBasemap(bounds.getNorthEast());
     const showLocal = !state.online || localView;
     for (const layer of geoLayers) { if (showLocal && !map.hasLayer(layer)) layer.addTo(map); else if (!showLocal && map.hasLayer(layer)) map.removeLayer(layer); }
@@ -72,9 +80,9 @@
   function toast(message) { clearTimeout(toastTimer); $('#toast').textContent = message; $('#toast').hidden = false; toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 4500); }
   function updateIcons(root = document) { root.querySelectorAll('[data-icon]').forEach(el => { el.innerHTML = icon(el.dataset.icon); }); }
   function cancelSearch() { state.searchGeneration += 1; state.searchController?.abort(); state.searchController = null; if ($('#search-submit')) $('#search-submit').disabled = false; }
-  function closeSheet() { cancelSearch(); state.activeSheet = null; $('#app-sheet').close(); if (beforeSheet?.isConnected) beforeSheet.focus({ preventScroll: true }); }
+  function closeSheet() { state.externalGeneration += 1; cancelSearch(); state.activeSheet = null; state.detailId = null; $('#app-sheet').close(); const restore = beforeSheet?.isConnected && !beforeSheet.closest('dialog') ? beforeSheet : $(state.view === 'welcome' ? '#enter-app' : state.view === 'guidance' ? '#exit-guidance' : '#search-trigger'); restore?.focus({ preventScroll: true }); }
   function openSheet(title, html, name) {
-    beforeSheet = document.activeElement; state.activeSheet = name; $('#sheet-title').textContent = title; $('#sheet-body').innerHTML = html;
+    state.externalGeneration += 1; beforeSheet = document.activeElement; state.activeSheet = name; $('#app-sheet').dataset.sheet = name === 'details' ? 'detail' : name; $('#sheet-title').textContent = title; $('#sheet-body').innerHTML = html;
     updateIcons($('#sheet-body')); if (!$('#app-sheet').open) $('#app-sheet').showModal();
   }
   function dateText(value) { return value ? String(value).slice(0, 10) : '待確認'; }
@@ -82,14 +90,25 @@
   function tags(store) { return Object.keys(SERVICES).map(key => `<span class="service-tag ${store.services.includes(key) ? 'available' : 'unknown'}">${icon(key, 16)}${SERVICES[key]}${store.services.includes(key) ? '' : ' · 未標示'}</span>`).join(''); }
   function phoneFor(store) { return typeof store.normalizedPhone === 'string' && /^\+?\d{8,15}$/.test(store.normalizedPhone) ? store.normalizedPhone : null; }
   function sourceHtml(store) { return `<p class="source-line">來源：<a href="${esc(store.sourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(store.sourceName)}</a><br>資料更新：${esc(dateText(store.updatedAt))}</p>`; }
-  function row(store) { const d = valid(store) ? distanceLabel(distance(pointForDistance(), store)) : '未提供座標'; return `<button class="resource-row" data-resource="${esc(store.id)}"><span class="resource-symbol">${icon(store.services.find(s => state.filters.has(s)) || store.services[0] || 'info', 23)}</span><span class="resource-copy"><strong>${esc(store.name)}</strong><span>${esc(store.address || '地址待確認')}</span></span><span class="resource-distance">${d}${icon('chevron', 15)}</span></button>`; }
+  function row(store) {
+    const d = valid(store) ? distanceLabel(distance(pointForDistance(), store)) : '未提供座標';
+    return `<button class="resource-row" data-resource="${esc(store.id)}"><span class="resource-symbol">${icon(store.services.find(s => state.filters.has(s)) || store.services[0] || 'info', 23)}</span><span class="resource-copy"><strong>${esc(store.name)}</strong><span class="resource-card-address">${esc(store.address || '地址待確認')}</span><span class="resource-card-services">${store.services.map(key => `<span>${icon(key, 15)}${SERVICES[key]}</span>`).join('') || '服務未標示'}</span><span class="resource-card-meta"><span class="resource-card-source">${esc(store.sourceName)}</span><span class="resource-card-updated">更新 ${esc(dateText(store.updatedAt))}</span></span></span><span class="resource-distance">直線 ${d}${icon('chevron', 15)}</span></button>`;
+  }
+  function renderResourceLine() {
+    if (selectedLine) { map.removeLayer(selectedLine); selectedLine = null; }
+    const store = byId.get(state.selectedId);
+    if (state.mode !== 'resource' || !state.position || !valid(store)) return;
+    selectedLine = L.polyline([[state.position.lat, state.position.lng], [store.lat, store.lng]], { color: '#ff5e3a', weight: 4, dashArray: '7 9', opacity: .8, interactive: false }).addTo(map);
+  }
+  function openResource(id) { if (!byId.has(String(id))) return; selectResource(id); showDetails(byId.get(state.selectedId)); }
   function renderMarkers() {
+    renderResourceLine();
     const colors = palette();
     for (const store of stores) {
       if (!valid(store)) continue;
       const match = matches(store); const active = state.filters.size > 0 && match;
       let marker = markers.get(store.id);
-      if (!marker) { marker = L.circleMarker([store.lat, store.lng], { renderer: canvas }).on('click', () => selectResource(store.id)).addTo(resourceLayer); markers.set(store.id, marker); }
+      if (!marker) { marker = L.circleMarker([store.lat, store.lng], { renderer: canvas }).on('click', () => openResource(store.id)).addTo(resourceLayer); markers.set(store.id, marker); }
       marker.setStyle({ radius: active ? 7 : 4, color: active ? colors.accent : colors.muted, weight: active ? 2 : 1, opacity: match ? .9 : .2, fillColor: active ? colors.accent : colors.muted, fillOpacity: match ? .72 : .15 });
     }
     iconLayer.clearLayers();
@@ -98,7 +117,7 @@
       for (const store of candidates) {
         const p = map.latLngToContainerPoint([store.lat, store.lng]); const cell = `${Math.floor(p.x / 52)},${Math.floor(p.y / 52)}`; if (cells.has(cell)) continue; cells.add(cell);
         const key = store.services.find(s => state.filters.has(s)) || store.services[0] || 'info';
-        L.marker([store.lat, store.lng], { icon: L.divIcon({ className: 'resource-map-pin', iconSize: [44, 44], iconAnchor: [22, 22], html: `<button aria-label="${esc(store.name)}">${icon(key, 22)}</button>` }), keyboard: false }).on('click', () => selectResource(store.id)).addTo(iconLayer);
+        L.marker([store.lat, store.lng], { icon: L.divIcon({ className: 'resource-map-pin', iconSize: [44, 44], iconAnchor: [22, 22], html: `<button aria-label="${esc(store.name)}">${icon(key, 22)}</button>` }), keyboard: false }).on('click', () => openResource(store.id)).addTo(iconLayer);
       }
     }
     if (selectedMarker) map.removeLayer(selectedMarker);
@@ -116,7 +135,7 @@
     $('#location-notice').hidden = Boolean(p && !state.gpsMessage);
     $('#location-notice').innerHTML = p ? esc(state.gpsMessage) : `${esc(state.gpsMessage || '尚未取得位置；距離依地圖中心估算。')} <button class="text-button" data-action="gps">重新定位</button>`;
     if (gpsMarker) { map.removeLayer(gpsMarker); gpsMarker = null; }
-    if (p) gpsMarker = L.circleMarker([p.lat, p.lng], { radius: 8, color: '#fff', weight: 3, fillColor: '#79a7de', fillOpacity: 1, interactive: false }).addTo(map);
+    if (p) gpsMarker = L.circleMarker([p.lat, p.lng], { radius: 8, color: '#fff', weight: 3, fillColor: '#3525cd', fillOpacity: 1, interactive: false }).addTo(map);
   }
   function selectedCard(store) {
     const d = valid(store) ? distanceLabel(distance(pointForDistance(), store)) : '未提供座標';
@@ -128,17 +147,54 @@
     $('#panel-heading').textContent = store ? '找到身邊的資源' : '友善，就在身邊';
     $('#bottom-panel').classList.toggle('has-selection', Boolean(store)); $('#selected-card').hidden = !store; $('#nearby-preview').hidden = Boolean(store);
     if (store) $('#selected-card').innerHTML = selectedCard(store);
-    else $('#nearby-preview').innerHTML = visible.length ? visible.slice(0, 2).map(row).join('') : '<p class="empty-copy">視窗內沒有符合的資源，試著縮放地圖或搜尋其他地點。</p>';
+    else $('#nearby-preview').innerHTML = visible.length ? visible.slice(0, 6).map(row).join('') : '<p class="empty-copy">視窗內沒有符合的資源，試著縮放地圖或搜尋其他地點。</p>';
     if (state.activeSheet === 'list') $('#sheet-body').innerHTML = `<p class="field-note">視窗內 ${visible.length} 筆 · 直線距離（非步行路線）${state.position ? '' : '，依地圖中心估算'}</p>${visible.map(row).join('') || '<p class="empty-copy">目前視窗沒有符合的資源。</p>'}`;
   }
-  function renderAll() { renderPosition(); renderPanel(); renderMarkers(); renderCache(); }
-  function selectResource(id) { const store = byId.get(String(id)); if (!store) return; state.externalGeneration += 1; state.selectedId = store.id; closeSheet(); renderPanel(); renderMarkers(); if (valid(store)) focusPoint(store); if (!state.online && state.position && !isInBasemap(state.position)) showDirection(); }
-  function focusPoint(point) { const panelHeight = $('#bottom-panel').getBoundingClientRect().height; const target = map.project([point.lat, point.lng], Math.max(map.getZoom(), 17)); const offset = $('#app').clientWidth >= 768 ? L.point(-210, 0) : L.point(0, (panelHeight - 125) / 2); map.setView(map.unproject(target.add(offset), Math.max(map.getZoom(), 17)), Math.max(map.getZoom(), 17), { animate: false }); }
+  function setText(selector, text) { const el = $(selector); if (el) el.textContent = text; }
+  function renderMode() {
+    const resource = state.mode === 'resource';
+    setText('#mode-title', resource ? '資源引導模式' : '自由探索模式');
+    setText('#mode-description', resource ? '直線方向參考；依現場道路通行' : '點選地圖資源，查看資訊與方向');
+    $('#mode-toggle')?.setAttribute('aria-pressed', String(resource));
+    document.querySelectorAll('[data-transport]').forEach(button => { const selected = button.dataset.transport === state.transport; button.setAttribute('aria-pressed', String(selected)); button.classList.toggle('selected', selected); });
+    setText('#transport-status', `偏好：${TRANSPORTS[state.transport]} · 直線距離，非步行／捷運／單車／開車路線`);
+  }
+  function renderGuidance() {
+    const store = state.mode === 'resource' ? byId.get(state.selectedId) : null; const position = state.position;
+    setText('#guidance-title', store ? store.name : '探索附近資源');
+    setText('#guidance-distance', store ? !valid(store) ? '未提供座標' : position ? distanceLabel(distance(position, store)) : '需要定位' : `視窗內 ${visibleStores().length} 筆`);
+    setText('#guidance-bearing', store ? !valid(store) ? '無法計算方向，請選擇有座標的資源' : position ? `${directionName(bearing(position, store))}方 · 正北基準 · 直線距離（非步行路線）` : '需要定位才能顯示方向' : '點選資源查看資訊；未規劃行走路線');
+    setText('#guidance-location', position ? `${position.accuracy > 100 ? '精度不足 · ' : ''}定位${position.accuracy !== null ? ` ±${Math.round(position.accuracy)} m` : '精度未知'} · ${timeText(position.capturedAt)}` : state.gpsPending ? '正在定位…' : state.gpsMessage || '尚未取得位置，請使用定位按鈕重試');
+    if ($('#guidance-detail')) $('#guidance-detail').hidden = !store;
+  }
+  function setView(view) {
+    if (!['welcome', 'explore', 'guidance'].includes(view)) return;
+    state.externalGeneration += 1; closeSheet(); state.view = view; $('#app').dataset.view = view;
+    if ($('#welcome-screen')) $('#welcome-screen').hidden = view !== 'welcome';
+    if ($('#explore-screen')) $('#explore-screen').hidden = view === 'welcome';
+    renderMode(); renderGuidance();
+    requestAnimationFrame(() => { if (state.view !== view) return; map.invalidateSize({ animate: false }); if (!state.activeSheet) $(view === 'welcome' ? '#enter-app' : view === 'guidance' ? '#exit-guidance' : '#search-trigger')?.focus({ preventScroll: true }); });
+  }
+  function clearResource() { state.externalGeneration += 1; state.selectedId = null; state.mode = 'free'; closeSheet(); renderAll(); }
+  function toggleMode() { if (state.mode === 'resource') clearResource(); else toast('請先點選地圖或清單中的資源，即可切換資源引導。'); }
+  function focusGuidance() {
+    const store = byId.get(state.selectedId);
+    if (state.mode === 'resource' && state.position && valid(store)) map.fitBounds([[state.position.lat, state.position.lng], [store.lat, store.lng]], { padding: [48, 140], maxZoom: 17, animate: false });
+    else if (state.position) focusPoint(state.position);
+  }
+  function startGuidance() {
+    setView('guidance');
+    requestAnimationFrame(() => { if (state.view === 'guidance') focusGuidance(); });
+  }
+  function endGuidance() { setView('explore'); }
+  function renderAll() { renderBasemapNotice(); renderPosition(); renderPanel(); renderMarkers(); renderCache(); renderMode(); renderGuidance(); renderDetailsDistance(); }
+  function selectResource(id) { const store = byId.get(String(id)); if (!store) return; state.externalGeneration += 1; state.selectedId = store.id; state.mode = 'resource'; if (state.view === 'welcome') setView('explore'); closeSheet(); renderPanel(); renderMarkers(); renderMode(); renderGuidance(); if (state.view === 'guidance') focusGuidance(); else if (valid(store)) focusPoint(store); if (!state.online && state.position && !isInBasemap(state.position)) showDirection(); }
+  function focusPoint(point) { map.setView([point.lat, point.lng], Math.max(map.getZoom(), 17), { animate: false }); }
   async function requestPosition() {
-    const generation = ++state.gpsGeneration; state.gpsPending = true; state.gpsMessage = ''; renderPosition();
+    const generation = ++state.gpsGeneration; state.gpsPending = true; state.gpsMessage = ''; renderPosition(); renderGuidance();
     try {
       const position = await FriendlyBridge.getLocation(); if (generation !== state.gpsGeneration || !valid(position)) return;
-      state.position = position; state.gpsMessage = position.accuracy > 100 ? '定位精度不足，距離與方向可能有偏差。' : ''; focusPoint(position);
+      state.position = position; state.gpsMessage = position.accuracy > 100 ? '定位精度不足，距離與方向可能有偏差。' : ''; if (state.view === 'guidance') focusGuidance(); else focusPoint(position);
     } catch (error) {
       if (generation !== state.gpsGeneration) return;
       const messages = { BRIDGE_LOCATION_FAILED: '無法取得定位', GEO_DENIED: '定位權限未開啟', GEO_TIMEOUT: '定位逾時', GEO_UNSUPPORTED: '此瀏覽器不支援定位', GEO_FAILED: '無法取得定位' };
@@ -146,7 +202,7 @@
     } finally { if (generation === state.gpsGeneration) { state.gpsPending = false; renderAll(); if (state.activeSheet === 'direction') renderDirection(); } }
   }
   function setDestination(place) {
-    if (!valid(place)) { const record = byId.get(place.storeId || place.id); if (record) { state.externalGeneration += 1; state.selectedId = record.id; showDetails(record); } toast('此資料未提供座標，無法在地圖標記。'); return; }
+    if (!valid(place)) { const record = byId.get(place.storeId || place.id); if (record) showDetails(record); toast('此資料未提供座標，無法在地圖標記。'); return; }
     state.destination = place; $('#search-label').textContent = place.name; $('#destination-clear').hidden = false; $('#destination-name').textContent = place.name;
     if (referenceMarker) map.removeLayer(referenceMarker);
     referenceMarker = L.marker([place.lat, place.lng], { icon: L.divIcon({ className: 'destination-map-pin', iconSize: [40, 40], iconAnchor: [20, 40], html: `<span title="${esc(place.name)}">${icon('flag', 24)}</span>` }) }).addTo(map);
@@ -173,20 +229,26 @@
       finally { if (generation === state.searchGeneration && $('#search-submit')) $('#search-submit').disabled = false; }
     });
   }
-  function showDetails(store) {
-    openSheet('資源資訊', `<div class="store-heading"><span class="store-category">${esc(store.sourceName)}</span><h2>${esc(store.name)}</h2><p>${esc(store.address || '地址待確認')}</p></div><div class="service-grid">${tags(store)}</div><p class="field-note">現場使用條件、營業狀態與免消費條件：待確認。</p>${sourceHtml(store)}<div class="store-actions"><button class="secondary-button" data-copy="address">${icon('copy', 18)}複製地址</button>${store.phone ? `<button class="secondary-button" data-copy="phone">${icon('copy', 18)}複製電話</button>` : ''}</div>${store.phone ? `<p class="field-note">電話：${esc(store.phone)}</p>` : '<p class="field-note">電話未提供。</p>'}<p class="field-note">直線距離（非步行路線）：${valid(store) ? distanceLabel(distance(pointForDistance(), store)) : '未提供座標'}${state.position ? '' : ' · 依地圖中心估算'}</p><button class="primary-button full-width" data-action="navigate" ${valid(store) ? '' : 'disabled'}>${icon('navigation', 20)}導航</button><p id="external-message" class="field-note" role="status"></p>`, 'details');
+  function renderDetailsDistance() {
+    const store = byId.get(state.detailId); if (state.activeSheet !== 'details' || !store) return;
+    setText('#detail-distance', `直線距離（非步行路線）：${valid(store) ? distanceLabel(distance(pointForDistance(), store)) : '未提供座標'}${valid(store) && !state.position ? ' · 依地圖中心估算' : ''}${state.position?.accuracy > 100 ? ' · 定位精度不足，距離可能有偏差' : ''}`);
   }
+  function showDetails(store) {
+    if (!store) return; state.detailId = store.id;
+    openSheet('資源資訊', `<div class="store-heading"><span class="store-category">${esc(store.sourceName)}</span><h2>${esc(store.name)}</h2><p>${esc(store.address || '地址待確認')}</p></div><div class="service-grid">${tags(store)}</div><p class="field-note">現場使用條件、營業狀態與免消費條件：待確認。</p>${sourceHtml(store)}<div class="store-actions"><button class="secondary-button" data-copy="address">${icon('copy', 18)}複製地址</button>${store.phone ? `<button class="secondary-button" data-copy="phone">${icon('copy', 18)}複製電話</button>` : ''}</div>${store.phone ? `<p class="field-note">電話：${esc(store.phone)}</p>` : '<p class="field-note">電話未提供。</p>'}<p id="detail-distance" class="field-note">直線距離（非步行路線）：${valid(store) ? distanceLabel(distance(pointForDistance(), store)) : '未提供座標'}${valid(store) && !state.position ? ' · 依地圖中心估算' : ''}</p><button class="primary-button full-width" data-action="navigate" ${valid(store) ? '' : 'disabled'}>${icon('navigation', 20)}導航</button>${store.id === state.selectedId ? `<button class="secondary-button full-width" data-action="direction">${icon('compass', 20)}方向與距離</button>` : ''}<p id="external-message" class="field-note" role="status"></p>`, 'details'); renderDetailsDistance();
+  }
+  const actionResource = () => byId.get(state.activeSheet === 'details' ? state.detailId : state.selectedId);
   async function externalAction(kind) {
-    const store = byId.get(state.selectedId); if (!store) return; const generation = ++state.externalGeneration;
+    const store = actionResource(); if (!store) return; const generation = ++state.externalGeneration;
     if (!state.online) toast('此功能依賴外部程式或通話功能，離線時可能無法使用。');
     const buttons = document.querySelectorAll(`[data-action="${kind}"]`); buttons.forEach(button => { button.disabled = true; });
     try {
       const result = kind === 'navigate' ? await FriendlyBridge.navigate(store) : await FriendlyBridge.callPhone(phoneFor(store));
-      if (generation !== state.externalGeneration || state.selectedId !== store.id) return;
+      if (generation !== state.externalGeneration || actionResource()?.id !== store.id) return;
       const message = result === 'unsupported' ? '需在台北通 App 內使用' : result === 'failed' ? kind === 'navigate' ? '無法開啟外部地圖' : '無法撥號' : kind === 'navigate' ? '已交由裝置開啟地圖' : '已交由裝置撥號';
       const offlineNote = state.online ? '' : '離線時此功能依賴外部程式或通話功能，可能無法使用。';
       toast(`${message}。${offlineNote}`); if (result !== 'opened') { showDetails(store); $('#external-message').textContent = `${message}。${offlineNote}可複製地址${store.phone ? '或電話' : ''}。`; }
-    } catch { if (generation !== state.externalGeneration || state.selectedId !== store.id) return; toast(kind === 'navigate' ? '無法開啟外部地圖' : '無法撥號'); showDetails(store); $('#external-message').textContent = '操作未完成，請複製地址或電話後手動使用。'; } finally { buttons.forEach(button => { button.disabled = false; }); }
+    } catch { if (generation !== state.externalGeneration || actionResource()?.id !== store.id) return; toast(kind === 'navigate' ? '無法開啟外部地圖' : '無法撥號'); showDetails(store); $('#external-message').textContent = '操作未完成，請複製地址或電話後手動使用。'; } finally { buttons.forEach(button => { button.disabled = false; }); }
   }
   function renderDirection() {
     const store = byId.get(state.selectedId); if (!store || state.activeSheet !== 'direction') return;
@@ -210,6 +272,11 @@
     const cache = state.cache; $('#network-label').textContent = state.online ? '' : '離線';
     $('#cache-status').textContent = cache?.state === 'ready' ? `已快取 ${timeText(cache.savedAt)} · 底圖限信義／大安東` : cache?.state === 'downloading' ? `下載離線資料 ${cache.completed}/${cache.total}` : cache?.state === 'partial' ? '快取未完整 · 可在設定重試' : cache?.state === 'unsupported' ? '此環境不支援離線快取' : state.online ? '準備離線資料' : '離線資料尚未確認';
     $('#cache-status').title = '全市資源點位；離線底圖限信義區及大安東側';
+    setText('#welcome-network', state.online ? '目前已連線' : '離線可用範圍依快取而定');
+    if ($('#welcome-network')) $('#welcome-network').dataset.online = String(state.online);
+    setText('#welcome-resource-count', stores.length.toLocaleString('zh-TW'));
+    if ($('#welcome-resource-count')) $('#welcome-resource-count').title = `${stores.filter(valid).length.toLocaleString('zh-TW')} 筆有座標；不同來源可能同址，非去重後場所數`;
+    setText('#welcome-cache', $('#cache-status').textContent);
     if (state.activeSheet === 'settings') renderSettingsCache();
   }
   function renderSettingsCache() {
@@ -220,18 +287,19 @@
     openSheet('地圖設定', `<section class="setting-section"><h3>地圖外觀</h3><div class="segmented"><button data-theme-choice="dark" aria-pressed="${state.theme === 'dark'}">${icon('moon', 20)}深色</button><button data-theme-choice="light" aria-pressed="${state.theme === 'light'}">${icon('sun', 20)}淺色</button></div></section><section class="setting-section"><h3>離線資料</h3><div id="settings-cache"></div><button class="secondary-button" data-action="cache">${icon('download', 19)}重新檢查與下載</button></section><section class="setting-section"><h3>目前位置</h3><p class="field-note">${state.position ? `精度：${state.position.accuracy === null ? '未知' : `${Math.round(state.position.accuracy)} 公尺`}<br>取得時間：${timeText(state.position.capturedAt)}` : '目前非您的位置，距離依地圖中心估算。'}</p><button class="secondary-button" data-action="gps">${icon('location', 20)}重新定位</button></section><details class="data-disclosure"><summary>資料來源與授權</summary>${data.sources.map(source => `<p><a href="${esc(source.url || source.sourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(source.name || source.sourceName)}</a><br>更新日期：${esc(dateText(source.updatedAt))}</p>`).join('')}<p>OpenStreetMap contributors（ODbL）；離線底圖快照 2026-11-07。Photon 地點搜尋為 OpenStreetMap 資料。</p><a href="https://photon.komoot.io" target="_blank" rel="noopener noreferrer">Photon 搜尋</a><p>無障礙標籤指設施，不代表沿途無障礙。名冊不提供即時營業或免消費保證。</p><a href="./NOTICE.txt" target="_blank">資料與第三方元件聲明</a></details>`, 'settings'); renderSettingsCache();
   }
   async function cacheData() { state.cache = await FriendlyOffline.initialize(status => { state.cache = status; renderCache(); }); renderCache(); }
-  async function copyValue(key) { const store = byId.get(state.selectedId); const value = store?.[key]; if (!value) { toast('資料未提供'); return; } try { await navigator.clipboard.writeText(value); toast(key === 'phone' ? '已複製電話' : '已複製地址'); } catch { toast('無法自動複製，請長按卡片文字複製。'); } }
+  async function copyValue(key) { const store = actionResource(); const value = store?.[key]; if (!value) { toast('資料未提供'); return; } try { await navigator.clipboard.writeText(value); toast(key === 'phone' ? '已複製電話' : '已複製地址'); } catch { toast('無法自動複製，請長按卡片文字複製。'); } }
   function setTheme(theme) { state.theme = theme; document.documentElement.dataset.theme = theme; try { localStorage.setItem('friendly-theme-v6', theme); } catch { /* Optional. */ } drawBasemap(); renderMarkers(); if (state.activeSheet === 'settings') openSettings(); }
   document.addEventListener('click', event => {
     const button = event.target.closest('button'); if (!button) return;
-    if (button.dataset.resource) selectResource(button.dataset.resource);
-    if (button.dataset.service) { const service = button.dataset.service; state.filters.has(service) ? state.filters.delete(service) : state.filters.add(service); renderFilters(); renderPanel(); renderMarkers(); document.querySelector(`[data-service="${service}"]`)?.focus({ preventScroll: true }); }
+    if (button.dataset.resource) openResource(button.dataset.resource);
+    if (button.dataset.transport && Object.hasOwn(TRANSPORTS, button.dataset.transport)) { state.transport = button.dataset.transport; renderMode(); }
+    if (button.dataset.service) { const service = button.dataset.service; state.filters.has(service) ? state.filters.delete(service) : state.filters.add(service); renderFilters(); renderPanel(); renderMarkers(); renderGuidance(); document.querySelector(`[data-service="${service}"]`)?.focus({ preventScroll: true }); }
     if (button.dataset.searchResult !== undefined) setDestination(state.searchResults[Number(button.dataset.searchResult)]);
     if (button.dataset.themeChoice) setTheme(button.dataset.themeChoice);
     if (button.dataset.copy) copyValue(button.dataset.copy);
     const action = button.dataset.action; if (!action) return;
     if (action === 'gps') requestPosition();
-    else if (action === 'clear') { state.externalGeneration += 1; state.selectedId = null; renderPanel(); renderMarkers(); }
+    else if (action === 'clear') clearResource();
     else if (action === 'detail') showDetails(byId.get(state.selectedId));
     else if (action === 'navigate' || action === 'phone') externalAction(action);
     else if (action === 'direction') showDirection();
@@ -239,20 +307,27 @@
     else if (action === 'cache') cacheData();
   });
   $('#sheet-close').addEventListener('click', closeSheet); $('#app-sheet').addEventListener('cancel', event => { event.preventDefault(); closeSheet(); });
-  let backdropPointer = false; $('#app-sheet').addEventListener('pointerdown', event => { backdropPointer = event.target === $('#app-sheet') && event.clientY < $('#app-sheet').getBoundingClientRect().top; });
+  let backdropPointer = false; $('#app-sheet').addEventListener('pointerdown', event => { const bounds = $('#app-sheet').getBoundingClientRect(); backdropPointer = event.target === $('#app-sheet') && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom); });
   $('#app-sheet').addEventListener('click', event => { if (backdropPointer && event.target === $('#app-sheet')) closeSheet(); backdropPointer = false; });
   $('#search-trigger').addEventListener('click', openSearch); $('#settings-button').addEventListener('click', openSettings);
   $('#list-button').addEventListener('click', () => { openSheet('視窗內的資源', '', 'list'); renderPanel(); });
   $('#gps-button').addEventListener('click', requestPosition); $('#overview-button').addEventListener('click', () => map.setView([25.06, 121.55], 12, { animate: false }));
-  $('#home-button').addEventListener('click', event => { event.preventDefault(); state.externalGeneration += 1; state.selectedId = null; closeSheet(); renderAll(); });
+  $('#home-button').addEventListener('click', event => { event.preventDefault(); setView('welcome'); });
+  $('#enter-app')?.addEventListener('click', () => setView('explore'));
+  $('#mode-toggle')?.addEventListener('click', toggleMode);
+  $('#start-guidance')?.addEventListener('click', startGuidance);
+  $('#exit-guidance')?.addEventListener('click', endGuidance);
+  $('#guidance-end')?.addEventListener('click', endGuidance);
+  $('#guidance-detail')?.addEventListener('click', () => showDetails(byId.get(state.selectedId)));
+  $('#guidance-resources')?.addEventListener('click', () => { openSheet('視窗內的資源', '', 'list'); renderPanel(); });
   $('#destination-clear').addEventListener('click', () => { state.destination = null; if (referenceMarker) map.removeLayer(referenceMarker); referenceMarker = null; $('#destination-clear').hidden = true; $('#search-label').textContent = '想去哪裡？'; });
-  map.on('moveend zoomend', () => { cancelAnimationFrame(viewportFrame); viewportFrame = requestAnimationFrame(() => { syncOnlineTiles(); renderPanel(); renderMarkers(); }); });
+  map.on('moveend zoomend', () => { cancelAnimationFrame(viewportFrame); viewportFrame = requestAnimationFrame(() => { syncOnlineTiles(); renderPanel(); renderMarkers(); renderGuidance(); renderDetailsDistance(); }); });
   const resizeObserver = new ResizeObserver(() => { const height = $('#bottom-panel').getBoundingClientRect().height; document.documentElement.style.setProperty('--panel-inset', `${height + 18}px`); }); resizeObserver.observe($('#bottom-panel')); new ResizeObserver(() => map.invalidateSize({ animate: false })).observe($('#app'));
   function connectivity() { state.online = navigator.onLine; cancelSearch(); syncOnlineTiles(); renderAll(); if (state.activeSheet === 'search') openSearch(); if (state.online) cacheData(); }
   window.addEventListener('online', connectivity); window.addEventListener('offline', connectivity);
   window.addEventListener('deviceorientationabsolute', orientation); window.addEventListener('deviceorientation', orientation);
   document.addEventListener('keydown', () => { document.documentElement.dataset.input = 'keyboard'; }); document.addEventListener('pointerdown', () => { document.documentElement.dataset.input = 'pointer'; });
-  try { if (localStorage.getItem('friendly-theme-v6') === 'light') state.theme = 'light'; } catch { /* Optional. */ }
-  document.documentElement.dataset.theme = state.theme; updateIcons(); drawBasemap(); syncOnlineTiles(); renderFilters(); renderAll();
+  try { if (localStorage.getItem('friendly-theme-v6') === 'dark') state.theme = 'dark'; } catch { /* Optional. */ }
+  document.documentElement.dataset.theme = state.theme; updateIcons(); drawBasemap(); syncOnlineTiles(); renderFilters(); renderAll(); setView('welcome');
   requestPosition(); cacheData();
 })();

@@ -1,16 +1,19 @@
 # 友善同行：App 原型
 
-直接開啟 `index.html` 對應的 HTTP／HTTPS 網址，就是資源地圖 App。手機全螢幕，桌面呈現最大 480px 的 App 視窗；沒有提案側欄或說明頁導覽。
+直接開啟 `index.html` 對應的 HTTP／HTTPS 網址，就是 App 首頁；按「出發」進入資源地圖。手機全螢幕，桌面呈現最大 480px 的 App 視窗；沒有提案側欄或說明頁導覽。
 
-本輪依 Ci 交接的 D6／D7 與凍結 proposal 實作。程式本體仍在這個目錄，使用純 JavaScript、Leaflet 1.9.4、OpenStreetMap 與 Phosphor 官方圖示；沒有 Vue 執行期依賴，沒有更動 `apps/web`／`apps/api`。
+本輪依 Ci 指定的 Stitch 設計更新視覺，沿用 D6／D7 的資料、定位、離線與橋接契約。程式本體仍在這個目錄，使用純 JavaScript、Leaflet 1.9.4、OpenStreetMap 與 SVG 圖示；沒有 Vue 執行期依賴，沒有更動 `apps/web`／`apps/api`。
+
+後續實作先讀 [畫面對照與驗收門檻](../../../.prospec/changes/adopt-stitch-prototype/screen-map.md)、[設計規格](../../../.prospec/changes/adopt-stitch-prototype/design-spec.md)及 [Stitch 截圖來源](../../design/stitch-20261107/README.md)。原型是待 Ci 審閱的基準，不把未接的路由服務宣稱為已完成。
 
 ## 主流程
 
-1. 開啟即要求定位；精度與取得時間顯示在地圖上。精度大於 100 公尺仍保留位置並提示。失敗時明示非目前位置，距離依地圖中心估算。
+1. 首頁開始定位與快取，出發進入探索；精度與取得時間顯示在地圖上。精度大於 100 公尺仍保留位置並提示。失敗時明示非目前位置，距離依地圖中心估算。
 2. 搜尋目的地，先搜尋已下載的名稱／地址，送出後才使用 Photon。離線只查已下載資料，GPS 不附在搜尋請求。
 3. 底部廁所／充電／Wi-Fi／無障礙可以多選，任一符合就高亮；再按取消，非符合點位保留淡色。
 4. 點資源看名稱、類別、來源、官方更新日與「直線距離（非步行路線）」。有有效電話才顯示撥號。
 5. 導航以 TownPass `launch_map` 送 geo URI，失敗或 5 秒逾時改送 OpenStreetMap URL。一般瀏覽器會說明「需在台北通 App 內使用」，保留地址／電話可複製。
+6. START 進入全螢幕探索／資源方位導引，結束回探索並保留選取。交通列只選偏好，不提供道路路線、估時或轉彎指令；全程明示直線距離。
 
 本輪移除評論、品質回報、互助、協助者、求助；沒有安排／確認行程頁。多站與日期歷史是規格中的 P1，未在本輪主流程實作。
 
@@ -25,7 +28,7 @@ python3 tools/package-friendly-prototype.py /tmp/friendly-app-package
 python3 -m http.server 8776 --bind 127.0.0.1 --directory /tmp/friendly-app-package
 ```
 
-`package-friendly-prototype.py` 只輸出執行用的 14 個檔案（含 SW），不包含舊提案頁、分析頁或歷史路由資產。快取清單含入口的兩種 URL，計 14 項。整合成員的 `data.js` 後，公開資料與頁面約 8.3 MB；最終大小以打包指令實測輸出為準。
+`package-friendly-prototype.py` 只輸出執行用的 15 個檔案（含 SW 與授權），不包含舊提案頁、分析頁或歷史路由資產。快取清單含入口的兩種 URL，計 14 項；最終大小以打包指令實測輸出為準。
 
 `pnpm prototype` 直接使用原始碼的固定 Service Worker 版本。第一次快取後，修改 JS／資料可能仍看到舊內容；請先在瀏覽器開發工具清除該 localhost 網站的 Service Worker 與快取，再重開頁面。要驗證版本更新，先重新打包到預覽目錄再啟動 HTTP server；打包版本會依內容雜湊更新。設定頁的「重新檢查與下載」只補齊目前版本，不等於清除開發快取。
 
@@ -75,4 +78,4 @@ pnpm typecheck && pnpm lint && pnpm test && pnpm build
 
 `friendly-app-state` 是 Node VM 的明示 DOM／Leaflet 替身；bridge 與 SW 測試分開，另有資料清洗測試。瀏覽器實測與限制詳見 [`QA-v6.md`](QA-v6.md)。舊路由計算保留作 P1 歷史資產，不在本輪 UI 或分享套件執行。
 
-規格位於 `.prospec/changes/enable-friendly-routes/proposal.md`，blob `6da4a77f904db5877d10fe8a54adf90356a178dc`。已用 CLI 建立 acceptance revision 3；正式 Prospec validation 仍被既有 abandoned history 衝突阻擋，不宣稱計畫／驗證站完成，也不把主工作樹的 placeholder plan／delta 當成定案。
+原規格位於 `.prospec/changes/enable-friendly-routes/proposal.md`，blob `6da4a77f904db5877d10fe8a54adf90356a178dc`，本次未修改。新視覺及新增畫面由 `.prospec/changes/adopt-stitch-prototype/` 獨立記錄。新工作樹的 history 權限差異已依 canonical 權限修正，proposal 與 design-spec 結構檢查可執行；仍不宣稱正式計畫／實作／驗證站完成。

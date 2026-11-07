@@ -20,3 +20,6 @@ agents:
   - codex
 knowledge:
   base_path: prospec/ai-knowledge
+design:
+  platform: html
+  output_dir: docs/prototypes/friendly-route

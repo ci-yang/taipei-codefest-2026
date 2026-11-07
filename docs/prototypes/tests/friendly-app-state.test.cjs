@@ -85,11 +85,13 @@ function makeDocument(markup) {
 }
 
 function makeLeaflet() {
-  const layers = new Set(); const mapEvents = new Map(); const moves = [];
+  const layers = new Set(); const mapEvents = new Map(); const moves = []; const invalidations = []; const fittedBounds = [];
   let center = { lat: 25.0375, lng: 121.5637 }; let zoom = 14.5; let bounds = [[-90, -180], [90, 180]];
   const point = (x, y) => ({ x, y, add(other) { return point(this.x + other.x, this.y + other.y); } });
   const latLng = value => Array.isArray(value) ? { lat: value[0], lng: value[1] } : value;
   const map = {
+    invalidateSize(options) { invalidations.push(options); return this; },
+    fitBounds(value, options) { fittedBounds.push({ value, options }); center = { lat: (value[0][0] + value[1][0]) / 2, lng: (value[0][1] + value[1][1]) / 2 }; return this; },
     setView(value, nextZoom) { center = latLng(value); zoom = nextZoom; moves.push({ center: { ...center }, zoom }); return this; },
     getCenter: () => center, getZoom: () => zoom, getSize: () => point(390, 844),
     getBounds: () => ({ getSouthWest: () => latLng(bounds[0]), getNorthEast: () => latLng(bounds[1]), contains(value) { const p = latLng(value); return p.lat >= bounds[0][0] && p.lat <= bounds[1][0] && p.lng >= bounds[0][1] && p.lng <= bounds[1][1]; } }),
@@ -109,8 +111,8 @@ function makeLeaflet() {
     addAttribution() { return this; },
   });
   return {
-    L: { map: () => map, point, canvas: () => ({}), control: { attribution: () => layer(), scale: () => layer() }, layerGroup: () => layer(), geoJSON: () => layer(), tileLayer: () => layer(), circleMarker: layer, marker: layer, divIcon: settings => settings },
-    map, moves, layers,
+    L: { map: () => map, point, canvas: () => ({}), control: { attribution: () => layer(), scale: () => layer() }, layerGroup: () => layer(), geoJSON: () => layer(), tileLayer: () => layer(), circleMarker: layer, marker: layer, polyline: (coordinates, options) => Object.assign(layer(coordinates, options), { kind: 'polyline' }), divIcon: settings => settings },
+    map, moves, layers, invalidations, fittedBounds,
     async setBounds(value) { bounds = value; mapEvents.get('moveend')?.(); await settle(); },
   };
 }
@@ -140,7 +142,7 @@ function runtime(options = {}) {
   };
   r.window = r; vm.createContext(r);
   // Observe private state through an in-memory seam, leaving production files unchanged.
-  const seam = 'window.__test = { state, markers, requestPosition, visibleStores, selectResource, setDestination, showDetails, showDirection, externalAction, enableOrientation, orientation, renderAll };';
+  const seam = 'window.__test = { state, markers, requestPosition, visibleStores, selectResource, setDestination, showDetails, showDirection, externalAction, enableOrientation, orientation, renderAll, setView, startGuidance, endGuidance, toggleMode }; ';
   const source = fs.readFileSync(path.join(base, 'app.js'), 'utf8'); assert.match(source, /\}\)\(\);\s*$/);
   vm.runInContext(source.replace(/\}\)\(\);\s*$/, `${seam}\n})();`), r, { filename: 'app.js' });
   const element = selector => { const el = document.querySelector(selector); assert(el, `Missing test element: ${selector}`); return el; };
@@ -341,4 +343,148 @@ test('partial cache is not shown as complete and settings name the missing part'
   const app = runtime({ cacheStatus: { state: 'partial', completed: 3, total: 4, failures: [{ asset: 'resources-data.js', label: '全市資源點位' }] } }); await settle();
   assert.match(app.element('#cache-status').textContent, /快取未完整/); assert.doesNotMatch(app.element('#cache-status').textContent, /已快取/);
   await app.click('#settings-button'); assert.match(app.element('#settings-cache').innerHTML, /全市資源點位/); assert.match(app.element('#settings-cache').innerHTML, /未完成/);
+});
+
+test('welcome can enter immediately while GPS and cache initialize, and home preserves location', async () => {
+  const app = runtime(); await settle();
+  assert.equal(app.state.view, 'welcome'); assert.equal(app.element('#app').dataset.view, 'welcome');
+  assert.equal(app.state.theme, 'light'); assert.equal(app.state.mode, 'free');
+  assert.equal(app.element('#welcome-resource-count').textContent, actualData.stores.length.toLocaleString('zh-TW'));
+  assert.match(app.element('#welcome-resource-count').title, new RegExp(actualData.stores.filter(hasCoordinates).length.toLocaleString('zh-TW')));
+  assert.match(app.element('#welcome-cache').textContent, /已快取/);
+  assert.equal(app.element('#enter-app').disabled, false); await app.click('#enter-app');
+  assert.equal(app.state.view, 'explore'); assert.equal(app.state.gpsPending, true); assert(app.invalidations.length > 0);
+  await app.fix(); const position = app.state.position;
+  await app.click('#home-button'); assert.equal(app.state.view, 'welcome'); assert.equal(app.state.position, position);
+  await app.click('#enter-app'); await app.click('#start-guidance');
+  assert.equal(app.state.view, 'guidance'); assert.equal(app.element('#guidance-title').textContent, '探索附近資源');
+  assert.equal(app.state.selectedId, null); assert.equal(app.gpsRequests.length, 1);
+  await app.click('#guidance-end'); assert.equal(app.state.view, 'explore'); assert.equal(app.state.position, position);
+});
+
+test('resource guidance is a GPS straight line; destinations and filters survive exit and free-mode reset', async () => {
+  const app = runtime(); const [resource, destination] = actualData.stores.filter(hasCoordinates);
+  await app.fix(0, { lat: resource.lat + .001, lng: resource.lng });
+  app.r.__test.selectResource(resource.id); app.r.__test.setDestination(destination);
+  await app.click('[data-service="wifi"]'); await app.click('#start-guidance');
+  assert.equal(app.state.view, 'guidance'); assert.equal(app.state.mode, 'resource');
+  assert.match(app.element('#guidance-distance').textContent, /111 公尺/);
+  assert.match(app.element('#guidance-bearing').textContent, /南方.*正北.*直線距離（非步行路線）/);
+  const line = [...app.layers].find(layer => layer.kind === 'polyline'); assert(line); assert.equal(line.options.dashArray, '7 9');
+  assert.equal(line.coordinates[0][0], resource.lat + .001); assert.equal(line.coordinates[1][0], resource.lat);
+  assert.equal(line.coordinates[1][1], resource.lng); assert.equal(app.fittedBounds.length, 1);
+  const another = actualData.stores.find(s => hasCoordinates(s) && s.id !== resource.id && s.id !== destination.id);
+  app.r.__test.setDestination(another);
+  assert.equal(app.state.selectedId, resource.id); assert.equal(app.state.mode, 'resource'); assert(app.layers.has(line));
+  await app.click('#exit-guidance'); assert.equal(app.state.view, 'explore');
+  assert.equal(app.state.destination.id, another.id); assert.equal(app.state.selectedId, resource.id); assert(app.state.filters.has('wifi'));
+  await app.click('#mode-toggle'); assert.equal(app.state.mode, 'free'); assert.equal(app.state.selectedId, null);
+  assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 0); assert.equal(app.state.destination.id, another.id);
+  assert(app.state.filters.has('wifi')); await app.click('#mode-toggle'); assert.equal(app.state.mode, 'free');
+  assert.match(app.element('#toast').textContent, /先點選.*資源/);
+});
+
+test('transport choices are local preferences and never claim routes or travel times', async () => {
+  const app = runtime(); await app.fix(); app.r.__test.selectResource(actualData.stores.find(hasCoordinates).id);
+  const line = [...app.layers].find(layer => layer.kind === 'polyline');
+  for (const [mode, name] of [['walk', '步行'], ['transit', '捷運'], ['bike', '單車'], ['car', '開車']]) {
+    await app.click(`[data-transport="${mode}"]`); assert.equal(app.state.transport, mode);
+    assert.equal(app.element(`[data-transport="${mode}"]`).getAttribute('aria-pressed'), 'true');
+    assert.match(app.element('#transport-status').textContent, new RegExp(`偏好：${name}`));
+    assert.match(app.element('#transport-status').textContent, /直線距離，非步行／捷運／單車／開車路線/);
+    assert.doesNotMatch(app.element('#transport-status').textContent, /分鐘|最佳化|剩餘時間/);
+    assert(app.layers.has(line));
+  }
+  assert.equal(app.searchCalls.length, 0); assert.equal(app.bridgeCalls.length, 0); assert.equal(app.storageWrites.length, 0);
+});
+
+test('guidance without GPS has no route or arrow and opens a source-attributed detail card', async () => {
+  const app = runtime(); await app.fail('GEO_DENIED'); const resource = actualData.stores.find(hasCoordinates);
+  app.r.__test.selectResource(resource.id); await app.click('#start-guidance');
+  assert.equal(app.state.view, 'guidance'); assert.match(app.element('#guidance-distance').textContent, /需要定位/);
+  assert.match(app.element('#guidance-bearing').textContent, /需要定位/); assert.match(app.element('#guidance-location').textContent, /定位權限未開啟/);
+  assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 0);
+  await app.click('#guidance-detail'); assert.equal(app.element('#app-sheet').dataset.sheet, 'detail');
+  const details = app.element('#sheet-body').innerHTML;
+  assert(details.includes(resource.sourceName)); assert(details.includes(resource.updatedAt.slice(0, 10)));
+  assert.match(details, /現場使用條件、營業狀態與免消費條件：待確認/); assert.match(details, /直線距離（非步行路線）/);
+  await app.click('#sheet-close'); await app.click('#guidance-end'); assert.equal(app.state.view, 'explore'); assert.equal(app.state.selectedId, resource.id);
+});
+
+test('map taps open details and an unlocated search record never replaces selected resource or destination', async () => {
+  const app = runtime(); await app.fix(); const [resource, destination] = actualData.stores.filter(hasCoordinates);
+  app.r.__test.markers.get(resource.id).handlers.click(); assert.equal(app.element('#app-sheet').dataset.sheet, 'detail');
+  assert.equal(app.state.selectedId, resource.id); app.r.__test.setDestination(destination);
+  const missing = actualData.stores.find(s => !hasCoordinates(s)); app.r.__test.setDestination(missing);
+  assert.equal(app.state.selectedId, resource.id); assert.equal(app.state.destination.id, destination.id);
+  assert.equal(app.state.detailId, missing.id); assert(app.element('#sheet-body').textContent.includes(missing.name));
+  assert.match(app.element('#sheet-body').innerHTML, /未提供座標/); assert.match(app.element('#toast').textContent, /未提供座標/);
+});
+
+test('late GPS in resource guidance fits the actual position and resource together', async () => {
+  const app = runtime(); const resource = actualData.stores.find(hasCoordinates);
+  app.r.__test.selectResource(resource.id); await app.click('#start-guidance'); assert.equal(app.fittedBounds.length, 0);
+  await app.fix(0, { lat: resource.lat + .05, lng: resource.lng });
+  assert.equal(app.state.view, 'guidance'); assert.equal(app.state.selectedId, resource.id);
+  assert.equal(app.fittedBounds.length, 1); const bounds = app.fittedBounds[0].value;
+  assert.equal(bounds[0][0], resource.lat + .05); assert.equal(bounds[1][0], resource.lat);
+  assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 1);
+});
+
+test('closing or replacing a detail sheet cancels UI reactions from an older external action', async () => {
+  for (const trigger of ['#sheet-close', '#search-trigger']) {
+    let finish; const app = runtime({ navigate: () => new Promise(resolve => { finish = resolve; }) });
+    const resource = actualData.stores.find(hasCoordinates); app.r.__test.selectResource(resource.id); app.r.__test.showDetails(resource);
+    const pending = app.r.__test.externalAction('navigate'); await settle(); await app.click(trigger);
+    const expectedSheet = trigger === '#sheet-close' ? null : 'search'; finish('failed'); await pending;
+    assert.equal(app.state.activeSheet, expectedSheet); assert.equal(app.element('#app-sheet').open, expectedSheet !== null);
+  }
+});
+
+test('late GPS refreshes the open detail distance without reopening the sheet or changing focus', async () => {
+  const app = runtime(); const resource = actualData.stores.find(hasCoordinates);
+  app.r.__test.markers.get(resource.id).handlers.click(); await settle();
+  assert.match(app.element('#detail-distance').textContent, /依地圖中心估算/);
+  const active = app.r.document.activeElement; const body = app.element('#sheet-body'); const distanceNode = app.element('#detail-distance');
+  await app.fix(0, { lat: resource.lat + .001, lng: resource.lng });
+  assert.equal(app.state.activeSheet, 'details'); assert.equal(app.element('#sheet-body'), body);
+  assert.equal(app.r.document.activeElement, active); assert.equal(app.element('#detail-distance'), distanceNode, 'Update the existing distance node without replacing the modal contents');
+  assert.match(app.element('#detail-distance').textContent, /111 公尺/); assert.doesNotMatch(app.element('#detail-distance').textContent, /依地圖中心估算/);
+});
+
+test('detail overlay closes from the side backdrop and escaped source names stay plain text', async () => {
+  const app = runtime(); const resource = actualData.stores.find(hasCoordinates);
+  app.r.__test.selectResource(resource.id); app.r.__test.showDetails({ ...resource, name: '<img src=x onerror=alert(1)>長名稱測試', address: '<b>測試地址</b>' });
+  assert.match(app.element('#sheet-body').innerHTML, /&lt;img/); assert.doesNotMatch(app.element('#sheet-body').innerHTML, /<img|<b>/);
+  const dialog = app.element('#app-sheet'); await dialog.dispatch('pointerdown', { clientX: 400, clientY: 300 }); await dialog.dispatch('click', { clientX: 400, clientY: 300 });
+  assert.equal(dialog.open, false); assert.equal(app.state.activeSheet, null); assert.equal(app.r.document.activeElement, app.element('#search-trigger'));
+});
+
+test('offline outside cached basemap coverage shows a map notice, clearing online or on return', async () => {
+  const app = runtime(); await app.click('#enter-app');
+  const [[south, west], [north, east]] = actualBasemap.bounds;
+  const outside = { lat: north + .02, lng: east + .02 };
+  const inside = { lat: (south + north) / 2, lng: (west + east) / 2 };
+  await app.fix(0, outside);
+  assert.equal(app.element('#basemap-notice').hidden, true, 'Online OSM coverage must not display an offline warning');
+  await app.connectivity(false);
+  assert.equal(app.element('#basemap-notice').hidden, false);
+  assert.match(app.element('#basemap-notice').textContent, /此區尚無離線底圖.*資源與直線距離/);
+  assert.doesNotMatch(app.element('#basemap-notice').textContent, /25\.\d|121\.\d/);
+  await app.click('#start-guidance'); assert.equal(app.element('#basemap-notice').hidden, false);
+  await app.connectivity(true); assert.equal(app.element('#basemap-notice').hidden, true);
+  await app.connectivity(false); assert.equal(app.element('#basemap-notice').hidden, false);
+  assert.equal(app.storageWrites.length, 0);
+  app.map.setView([inside.lat, inside.lng], 17); await app.setBounds(actualBasemap.bounds);
+  assert.equal(app.element('#basemap-notice').hidden, true); assert.equal(app.element('#basemap-notice').textContent, '');
+  assert.equal(app.state.position.lat, outside.lat, 'Panning the map must not change GPS');
+});
+
+test('compact cards expose address, complete source and update date as separate fields', async () => {
+  const app = runtime(); await settle();
+  const preview = app.element('#nearby-preview').innerHTML;
+  assert.match(preview, /class="resource-card-address"/);
+  assert.match(preview, /class="resource-card-source"/);
+  assert.match(preview, /class="resource-card-updated">更新 \d{4}-\d{2}-\d{2}/);
+  assert.doesNotMatch(preview, /resource-card-meta">[^<]/);
 });

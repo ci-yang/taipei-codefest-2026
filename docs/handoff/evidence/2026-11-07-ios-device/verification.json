@@ -1,0 +1,53 @@
+{
+  "recordedAt": "2026-11-07T13:14:58.308455+00:00",
+  "nativeCommit": "718007878a96b028f56f188b68b086a0ab6df199",
+  "nativeBranch": "feat/stitch-ios-device",
+  "mode": "Release",
+  "bundleId": "com.ciyang.friendlytaipei",
+  "displayName": "Town Pass",
+  "version": "0.0.12",
+  "buildNumber": "0.0.12",
+  "minimumIos": "15.5",
+  "deviceModel": "iPhone 16 Pro Max",
+  "deviceIos": "26.6.2",
+  "serviceUrl": "https://taipei-friendly-platform.jason21131.workers.dev",
+  "profileExpiryUtc": "2026-11-14T13:07:04Z",
+  "buildSucceeded": true,
+  "frameworks": [
+    {
+      "name": "App.framework",
+      "bundleId": "io.flutter.flutter.app"
+    },
+    {
+      "name": "Flutter.framework",
+      "bundleId": "io.flutter.flutter"
+    },
+    {
+      "name": "OrderedSet.framework",
+      "bundleId": "org.cocoapods.OrderedSet"
+    },
+    {
+      "name": "flutter_inappwebview_ios.framework",
+      "bundleId": "org.cocoapods.flutter-inappwebview-ios"
+    },
+    {
+      "name": "objective_c.framework",
+      "bundleId": "io.flutter.flutter.native-assets.objective-c"
+    }
+  ],
+  "appAotSha256": "4d1043a17882e39a59f2a9390d38a8b949150bdd5e6fcacf4f41b619febc6ca4",
+  "installOutcome": "success",
+  "launchOutcome": "success",
+  "launchBlocker": null,
+  "visualVerification": true,
+  "gpsVerified": false,
+  "offlineVerified": false,
+  "visualEvidence": "device-home.png",
+  "visualObservations": [
+    "正式友善同行首頁",
+    "全市資源 5,948 筆名冊",
+    "目前已連線",
+    "此環境不支援離線快取"
+  ],
+  "offlineLimitation": "iOS WebView 首頁明確顯示此環境不支援離線快取；未進行斷網測試。"
+}

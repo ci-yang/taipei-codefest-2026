@@ -1,0 +1,9 @@
+00:00 +0: loading /Users/ciyang/Documents/repos/TownPass-stitch-20261107/test/codefest_launch_test.dart
+00:00 +0: /Users/ciyang/Documents/repos/TownPass-stitch-20261107/test/codefest_service_test.dart: Codefest entry uses the requested deployment URL
+00:00 +1: /Users/ciyang/Documents/repos/TownPass-stitch-20261107/test/codefest_service_test.dart: Codefest configuration preserves official service entries
+00:00 +2: /Users/ciyang/Documents/repos/TownPass-stitch-20261107/test/codefest_launch_test.dart: root directly opens the service only after its bridge is ready
+00:00 +3: /Users/ciyang/Documents/repos/TownPass-stitch-20261107/test/codefest_launch_test.dart: main-frame failure offers a retry without a TownPass home
+00:00 +4: /Users/ciyang/Documents/repos/TownPass-stitch-20261107/test/codefest_launch_test.dart: Android back uses WebView history before leaving the root
+00:00 +5: /Users/ciyang/Documents/repos/TownPass-stitch-20261107/test/codefest_launch_test.dart: successful history navigation clears a previous load failure
+00:00 +6: /Users/ciyang/Documents/repos/TownPass-stitch-20261107/test/codefest_launch_test.dart: browser geolocation is limited to the configured origin
+00:00 +7: All tests passed!

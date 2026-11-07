@@ -1,0 +1,30 @@
+{
+  "startedAt": "2026-11-07T12:48:27.742Z",
+  "completedAt": "2026-11-07T12:49:48.912Z",
+  "serviceUrl": "https://taipei-friendly-platform.jason21131.workers.dev",
+  "platform": {
+    "sourceSha": "40360b60a8ac24c9669d11fcd9464efeb7712101",
+    "repoDirty": true
+  },
+  "townpass": {
+    "path": "/Users/ciyang/Documents/repos/TownPass-stitch-20261107",
+    "before": {
+      "sourceSha": "e3ea904f80ef378704c634a0195cb43a020bf217",
+      "repoDirty": false
+    },
+    "after": {
+      "sourceSha": "e3ea904f80ef378704c634a0195cb43a020bf217",
+      "repoDirty": false
+    }
+  },
+  "sourceCommitRepresentsBuild": true,
+  "mode": "release",
+  "signing": "not-verified-by-wrapper",
+  "deviceValidation": "not-run",
+  "apk": {
+    "path": "/Users/ciyang/Documents/repos/TownPass-stitch-20261107/build/app/outputs/flutter-apk/app-release.apk",
+    "bytes": 115282208,
+    "sha256": "cf893b7848190f247d09db33d5e6b17787f0474cc9b428a69b240b53d7146761"
+  },
+  "status": "apk-built"
+}

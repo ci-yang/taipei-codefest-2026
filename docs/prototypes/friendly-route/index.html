@@ -1,34 +1,126 @@
 <!doctype html>
-<html lang="zh-Hant-TW" data-theme="dark">
+<html lang="zh-Hant-TW" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#171d19">
+  <meta name="theme-color" content="#f6f8fc">
   <meta name="description" content="友善同行，尋找身邊的廁所、充電、Wi-Fi 與無障礙資源，離線也能查看。">
   <title>友善同行 · 身邊的城市資源</title>
   <link rel="stylesheet" href="./vendor/leaflet.css">
   <link rel="stylesheet" href="./app-ui.css">
 </head>
 <body>
-<main id="app" class="friendly-app" aria-label="友善同行資源地圖">
-  <div id="map" aria-label="臺北友善資源地圖"></div>
-  <header class="app-header">
-    <div class="brand-row"><a href="#" class="brand" id="home-button" aria-label="友善同行，回到地圖"><span class="brand-symbol" data-icon="navigation"></span><span>友善同行</span></a><span id="network-label" class="connection-label" aria-live="polite"></span><button id="settings-button" class="icon-button settings-button" aria-label="地圖設定" data-icon="settings"></button></div>
-    <button id="search-trigger" class="search-trigger"><span data-icon="search"></span><span id="search-label">想去哪裡？</span><span data-icon="arrowUpRight" class="muted"></span></button>
-  </header>
-  <div class="map-status"><span id="location-status" class="map-status-pill" aria-live="polite">正在取得目前位置…</span><span id="cache-status" class="map-status-pill" aria-live="polite">準備離線資料</span><button id="destination-clear" class="destination-pill" hidden><span data-icon="flag"></span><span id="destination-name"></span><span data-icon="close"></span></button></div>
-  <div class="map-tools"><button id="overview-button" class="map-tool" aria-label="查看台北資源範圍" data-icon="compass"></button><button id="gps-button" class="map-tool location-tool" aria-label="重新取得目前位置" data-icon="location"></button></div>
-  <section id="bottom-panel" class="map-panel" aria-label="附近資源">
-    <div class="sheet-handle" aria-hidden="true"></div>
-    <div class="nearby-heading"><div><p id="location-kicker" class="location-kicker">臺北資源地圖</p><h1 id="panel-heading">友善，就在身邊</h1></div><button id="list-button" class="text-button">清單 <span data-icon="chevron"></span></button></div>
-    <div id="category-filters" class="filters" aria-label="資源類別"></div>
-    <div class="category-selection-note"><span>可多選 · 任一符合</span><span id="visible-count" aria-live="polite"></span></div>
-    <div id="location-notice" class="location-notice" role="status"></div>
-    <div id="nearby-preview" class="preview-list"></div>
-    <article id="selected-card" hidden></article>
+<main id="app" class="friendly-app" data-view="welcome" aria-label="友善同行資源地圖">
+  <section id="welcome-screen" class="welcome-screen" aria-labelledby="welcome-heading">
+    <div class="welcome-art" aria-hidden="true">
+      <svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" fill="none" focusable="false">
+        <path class="contour contour-dashed" d="M-60 180C40 140 120 220 230 170C340 120 370 210 440 240"/>
+        <path class="contour" d="M-40 290C60 250 160 360 270 310C360 270 410 370 450 390"/>
+        <path class="contour" d="M-80 430C50 370 140 500 290 440C380 400 420 500 460 520"/>
+        <circle class="contour-ring" cx="290" cy="358" r="42"/>
+        <circle class="contour-ring" cx="290" cy="358" r="90"/>
+        <circle class="contour-ring" cx="290" cy="358" r="150"/>
+        <path class="welcome-trail" d="M62 268C110 240 185 242 235 275C290 312 280 390 240 450C205 500 245 565 275 610"/>
+        <circle class="art-origin" cx="62" cy="268" r="9"/>
+        <circle class="art-origin-core" cx="62" cy="268" r="3.5"/>
+        <circle class="art-node" cx="160" cy="248" r="16"/>
+        <circle class="art-node-core" cx="160" cy="248" r="4.5"/>
+        <circle class="art-node" cx="258" cy="305" r="18"/>
+        <circle class="art-node-core" cx="258" cy="305" r="4.5"/>
+        <circle class="art-destination" cx="236" cy="460" r="22"/>
+        <circle class="art-destination-ring" cx="236" cy="460" r="12"/>
+        <circle class="art-origin-core" cx="236" cy="460" r="6"/>
+        <circle class="art-node" cx="275" cy="610" r="15"/>
+        <circle class="art-node-core" cx="275" cy="610" r="4"/>
+      </svg>
+    </div>
+    <header class="welcome-header">
+      <span id="welcome-network" class="welcome-network" aria-live="polite">確認連線中</span>
+      <h1 id="welcome-heading">探索城市<br>溫暖友善角落</h1>
+      <p>廁所・充電・Wi-Fi・無障礙</p>
+    </header>
+    <div class="welcome-spacer" aria-hidden="true">
+      <span class="welcome-map-label"><span data-icon="navigation"></span>友善，就在身邊<span class="welcome-label-tag">城市資源</span></span>
+    </div>
+    <div class="welcome-bottom">
+      <div class="welcome-stats">
+        <article class="welcome-stat">
+          <h2><span data-icon="location"></span>全市資源</h2>
+          <div><div class="welcome-count"><strong id="welcome-resource-count" aria-live="polite">載入中</strong><span class="welcome-count-unit">筆名冊</span></div><p>臺北開放資料</p></div>
+        </article>
+        <article class="welcome-stat">
+          <h2><span data-icon="download"></span>離線資料</h2>
+          <div><strong id="welcome-cache" aria-live="polite">準備中</strong><p>隨身帶著友善</p></div>
+        </article>
+      </div>
+      <button id="enter-app" class="welcome-start" type="button"><span><strong>出發</strong><small>找尋身邊友善資源</small></span><span class="welcome-start-arrow" data-icon="chevron"></span></button>
+    </div>
+  </section>
+
+  <section id="explore-screen" class="explore-screen" aria-label="探索友善資源">
+    <div class="map-stage">
+      <div id="map" aria-label="臺北友善資源地圖"></div>
+      <header class="app-header">
+        <button id="search-trigger" class="search-trigger" type="button"><span data-icon="search"></span><span id="search-label">搜尋地點或店家…</span></button>
+      </header>
+      <button id="gps-button" class="map-tool location-tool" type="button" aria-label="重新取得目前位置" data-icon="location"></button>
+      <div class="map-status">
+        <span id="location-status" class="map-status-pill" aria-live="polite">正在取得目前位置…</span>
+        <button id="destination-clear" class="destination-pill" type="button" hidden><span data-icon="flag"></span><span id="destination-name"></span><span data-icon="close"></span></button>
+      </div>
+      <p id="basemap-notice" class="basemap-notice" role="status" hidden>此區尚無離線底圖，可查看資源與直線距離</p>
+      <header id="guidance-header" class="guidance-header">
+        <button id="exit-guidance" class="icon-button" type="button" aria-label="退出導引" data-icon="close"></button>
+        <div><p class="guidance-eyebrow">FRIENDLY ROUTE</p><h1>身邊的友善導引</h1></div>
+      </header>
+      <section id="guidance-hud" class="guidance-hud" aria-label="方向與距離">
+        <div class="guidance-main">
+          <span class="guidance-direction-icon" data-icon="compass"></span>
+          <div><h2 id="guidance-title">探索附近資源</h2><p id="guidance-distance" class="guidance-distance" aria-live="polite">等待定位</p></div>
+        </div>
+        <p id="guidance-bearing" class="guidance-bearing">需要定位才能顯示方向</p>
+        <div class="guidance-location-row"><span id="guidance-location" aria-live="polite">正在取得目前位置…</span><button id="guidance-detail" class="text-button" type="button" hidden>資源資訊<span data-icon="chevron"></span></button></div>
+      </section>
+      <div id="guidance-controls" class="guidance-controls">
+        <button id="guidance-resources" class="guidance-resource-button" type="button"><span data-icon="all"></span>附近資源<span data-icon="chevron"></span></button>
+        <button id="guidance-end" class="guidance-end" type="button"><span data-icon="close"></span>結束導引</button>
+      </div>
+    </div>
+
+    <section id="bottom-panel" class="map-panel" aria-label="附近資源">
+      <div id="category-filters" class="filters" aria-label="資源類別"></div>
+      <div class="nearby-heading">
+        <div class="nearby-title"><span class="heading-symbol" data-icon="store"></span><h2 id="panel-heading">友善，就在身邊</h2></div>
+        <button id="list-button" class="text-button" type="button">全部<span data-icon="chevron"></span></button>
+      </div>
+      <p class="filter-help">可多選 · 任一符合</p>
+      <div class="category-selection-note"><p id="location-kicker" class="location-kicker">臺北資源地圖</p><span id="visible-count" aria-live="polite"></span></div>
+      <div id="location-notice" class="location-notice" role="status"></div>
+      <div id="nearby-preview" class="preview-list"></div>
+      <article id="selected-card" hidden></article>
+
+      <div class="explore-mode-card">
+        <button id="mode-toggle" class="mode-toggle" type="button" aria-label="切換探索模式"><span class="mode-icon" data-icon="navigation"></span><span class="mode-copy"><strong id="mode-title">自由探索模式</strong><span id="mode-description">隨心發現身邊的資源</span></span></button>
+        <button id="start-guidance" class="start-guidance" type="button" aria-label="開始導引">START<span data-icon="arrowRight"></span></button>
+      </div>
+      <section class="transport-section" aria-labelledby="transport-heading">
+        <div class="section-heading"><h2 id="transport-heading"><span data-icon="route"></span>交通方式選擇</h2></div>
+        <div id="transport-modes" class="transport-modes" aria-label="交通方式">
+          <button type="button" data-transport="walk" aria-pressed="true"><span data-icon="walk"></span><span>步行</span></button>
+          <button type="button" data-transport="transit" aria-pressed="false"><span data-icon="transit"></span><span>捷運</span></button>
+          <button type="button" data-transport="bike" aria-pressed="false"><span data-icon="bike"></span><span>單車</span></button>
+          <button type="button" data-transport="car" aria-pressed="false"><span data-icon="car"></span><span>開車</span></button>
+        </div>
+        <p id="transport-status" class="transport-status" role="status">以方向與直線距離導引</p>
+      </section>
+      <footer class="explore-footer">
+        <div class="footer-actions"><button id="home-button" class="text-button secondary-text" type="button">回首頁</button><button id="overview-button" class="text-button secondary-text" type="button"><span data-icon="compass"></span>全市範圍</button><button id="settings-button" class="text-button secondary-text" type="button"><span data-icon="download"></span>離線資料</button></div>
+        <div class="footer-status"><span id="network-label" class="connection-label" aria-live="polite"></span><span id="cache-status" aria-live="polite">準備離線資料</span></div>
+      </footer>
+    </section>
   </section>
 </main>
-<dialog id="app-sheet" class="app-sheet" aria-labelledby="sheet-title"><div class="sheet-handle" aria-hidden="true"></div><header class="sheet-header"><h2 id="sheet-title"></h2><button id="sheet-close" class="sheet-close" aria-label="關閉" data-icon="close"></button></header><div id="sheet-body" class="sheet-body"></div></dialog>
+<dialog id="app-sheet" class="app-sheet" aria-labelledby="sheet-title"><div class="sheet-handle" aria-hidden="true"></div><header class="sheet-header"><h2 id="sheet-title"></h2><button id="sheet-close" class="sheet-close" type="button" aria-label="關閉" data-icon="close"></button></header><div id="sheet-body" class="sheet-body"></div></dialog>
 <div id="toast" class="app-toast" role="status" hidden></div>
 <noscript>請開啟 JavaScript，才能使用資源地圖。</noscript>
 <script src="./vendor/leaflet.js"></script>

@@ -1,0 +1,37 @@
+{
+  "status": "upgrade_confirmed_without_storage_clear",
+  "recordedAt": "2026-11-07T12:46:52.729073+00:00",
+  "origin": "https://taipei-friendly-platform.jason21131.workers.dev",
+  "sourceSha": "40360b60a8ac24c9669d11fcd9464efeb7712101",
+  "previousSourceSha": "8044891fd3642d441214fb9b7c88522b65355952",
+  "offlineVersion": "friendly-resource-v6-c0150f4063526057",
+  "conclusion": "目前無需改程式。既有舊版頁面可能先呈現舊快取；完成新版快取後，再重新開啟或重新載入頁面即可顯示新版。",
+  "observations": {
+    "reportedBy": "主代理 /root 的正式 Chrome 頁面核對；本審查代理未另行操作該瀏覽器",
+    "firstReload": "仍為舊 UI，但快取時間由 19:21 更新至 20:45，CacheStorage 只剩新版 c0150f4063526057。",
+    "secondReload": "#app data-view=welcome；首頁主標為探索城市／溫暖友善角落；名冊 5,948 筆；快取時間 20:45。",
+    "storageCleared": false,
+    "timeZone": "Asia/Taipei",
+    "date": "2026-11-07"
+  },
+  "codeFindings": [
+    {
+      "file": "docs/prototypes/friendly-route/offline.js:33",
+      "finding": "每個新頁面的 registration 初值為 null；仍會 register sw.js（updateViaCache:none）。同頁已取得 activated registration 時才直接返回，並非有 controller 就永遠不註冊。"
+    },
+    {
+      "file": "docs/prototypes/friendly-route/sw.js:72",
+      "finding": "INITIALIZE 驗到目前 worker 版本的完整快取時會直接回 ready；新版 worker 初始化後才會更新快取指標。"
+    },
+    {
+      "file": "docs/prototypes/friendly-route/sw.js:125",
+      "finding": "activate 只呼叫 clients.claim；目前沒有主動重新載入既有 client 的機制。下載新快取不會更換當次已載入的 DOM。"
+    },
+    {
+      "file": "docs/prototypes/friendly-route/sw.js:144",
+      "finding": "App shell 採 cache-first，且 cache.match 使用 ignoreSearch:true；僅添加 ?v= 參數不能作為繞過舊快取的辦法。"
+    }
+  ],
+  "handoffInstruction": "已開啟舊版的使用者，先連線開啟並等待離線資料完成更新，再重開頁面。此次實測經兩次正常 reload 更新成功，未清除 localStorage、CacheStorage 或 Service Worker。",
+  "scopeLimit": "這是一次既有 Chrome 快取升級觀察，不保證所有瀏覽器固定只需兩次 reload；未驗證 TownPass 實機升級或飛航模式重開。無新增功能、無修改程式、無清除儲存資料。"
+}

@@ -1,0 +1,351 @@
+{
+  "id": "2026-11-07T12-44-02.430Z-68bd1b29-2ee6-4df7-9b31-0e1871136826",
+  "action": "deploy",
+  "status": "deployed",
+  "accountId": "bb0097fdc915604c5902feb38e8bf463",
+  "workerName": "taipei-friendly-platform",
+  "sourceSha": "40360b60a8ac24c9669d11fcd9464efeb7712101",
+  "startedAt": "2026-11-07T12:44:02.430Z",
+  "databaseRollback": false,
+  "url": "https://taipei-friendly-platform.jason21131.workers.dev",
+  "previous": {
+    "versionId": "8cc467ca-cf75-4213-b102-ed17230dc92a",
+    "sourceSha": "8044891fd3642d441214fb9b7c88522b65355952",
+    "manifest": {
+      "version": "friendly-route-2026-11-07-v1",
+      "fetchedAt": "2026-11-07T04:28:29.616811+00:00",
+      "bounds": [
+        [
+          25.023,
+          121.546
+        ],
+        [
+          25.044,
+          121.574
+        ]
+      ],
+      "storeCount": 103,
+      "source": {
+        "name": "友善店家清冊（繁體中文）",
+        "url": "https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1",
+        "downloadUrl": "https://data.taipei/api/frontstage/tpeod/dataset/resource.download?rid=5a5b36e0-f870-4b7f-8378-c91ac5f57941",
+        "updatedAt": "2026-07-20",
+        "license": "臺北市資料大平臺資料使用規範：https://data.taipei/rule",
+        "declaredSha256": "301a3fe1b08dbcf2fc478eeaaa4a19886451df4a7b6f507ceca0ab09b67126c5",
+        "measuredSha256": "301a3fe1b08dbcf2fc478eeaaa4a19886451df4a7b6f507ceca0ab09b67126c5",
+        "verification": "verified"
+      },
+      "files": {
+        "snapshot": {
+          "path": "/friendly/snapshot.json",
+          "sha256": "eec6fd8f52e815942c58c377e53d7c8b691df545f934f01c6ad7d622f96076f3"
+        },
+        "routingGraph": {
+          "path": "/friendly/routing-graph.json",
+          "sha256": "eb196909c2b737cb120b7cbdf32487cd74bf2d30c1e507d05de93be367ea2bb3"
+        },
+        "mapData": {
+          "path": "/friendly/map-data.geojson",
+          "sha256": "1227ef2eacc9b6ce94f0aef5b09580c641c296ad24decf4eebb37ba21655e3c7"
+        }
+      },
+      "graph": {
+        "version": "friendly-pedestrian-snapshot-2026-11-07-v1",
+        "nodeCount": 9483,
+        "edgeCount": 24314,
+        "license": "ODbL-1.0",
+        "attribution": "© OpenStreetMap contributors",
+        "source": "https://api.openstreetmap.org/api/0.6/map",
+        "sources": [
+          {
+            "file": "codefest-osm-core.osm",
+            "declaredSha256": "55c726e9b2d3a0c0da899a9d6e70dc15289e84b5a6bca9896a18e26ba0917bfa",
+            "measuredSha256": "55c726e9b2d3a0c0da899a9d6e70dc15289e84b5a6bca9896a18e26ba0917bfa",
+            "verification": "verified"
+          },
+          {
+            "file": "codefest-osm-east-edge.osm",
+            "declaredSha256": "473e4c9dab922ba7e697a2d227a42a9fe30e7e7acc0caa3dbb7e0865ddf5792b",
+            "measuredSha256": "473e4c9dab922ba7e697a2d227a42a9fe30e7e7acc0caa3dbb7e0865ddf5792b",
+            "verification": "verified"
+          },
+          {
+            "file": "codefest-osm-east-north.osm",
+            "declaredSha256": "faa842da48d27ec2d21cd1c1ac8cb4522027e4e90c006360a0b782dde402c837",
+            "measuredSha256": "faa842da48d27ec2d21cd1c1ac8cb4522027e4e90c006360a0b782dde402c837",
+            "verification": "verified"
+          },
+          {
+            "file": "codefest-osm-east-south.osm",
+            "declaredSha256": "78619f9b988e898026842800bb4153fb128957ea5b16e16680f28580659837f4",
+            "measuredSha256": "78619f9b988e898026842800bb4153fb128957ea5b16e16680f28580659837f4",
+            "verification": "verified"
+          },
+          {
+            "file": "codefest-osm-west-north.osm",
+            "declaredSha256": "776fc6beffdddb85e4edf94c0e477fd0d31163859c985d13521fa97534f24a70",
+            "measuredSha256": "776fc6beffdddb85e4edf94c0e477fd0d31163859c985d13521fa97534f24a70",
+            "verification": "verified"
+          },
+          {
+            "file": "codefest-osm-west-south.osm",
+            "declaredSha256": "36866132a75e39afa15d86d2f6d582d83805142caa69546b9ae1169ff521f7d7",
+            "measuredSha256": "36866132a75e39afa15d86d2f6d582d83805142caa69546b9ae1169ff521f7d7",
+            "verification": "verified"
+          }
+        ]
+      },
+      "provenance": {
+        "stores": "docs/prototypes/friendly-route/data.js",
+        "routingGraph": "docs/prototypes/friendly-route/routing-data.js",
+        "mapData": "docs/prototypes/friendly-route/map-data.geojson"
+      },
+      "limitations": [
+        "地方快照不是全臺北或即時資料。",
+        "服務空白表示未標示；實際可用、營業與消費條件須向店家確認。",
+        "路線是本地 OSM 候選計算；接線與現場通行、無障礙條件未驗證。"
+      ]
+    },
+    "appManifest": {
+      "schemaVersion": 1,
+      "app": "friendly-resource",
+      "sourceSha": "8044891fd3642d441214fb9b7c88522b65355952",
+      "offlineVersion": "friendly-resource-v6-c1d10f9f193ce287",
+      "files": [
+        {
+          "path": "/LICENSE.txt",
+          "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+          "bytes": 34523
+        },
+        {
+          "path": "/NOTICE.txt",
+          "sha256": "12b131986b4f4552b78300d9836e013f79297d690c44792833ae1ca83b9ff923",
+          "bytes": 2165
+        },
+        {
+          "path": "/_headers",
+          "sha256": "18fc11ddf16c07c6851bcca15dca2d3706c921f6a2cacd07d4ceb3b182ec2455",
+          "bytes": 172
+        },
+        {
+          "path": "/_redirects",
+          "sha256": "39fd3ea52a3c5f851d07cce48df2736c49956fed6697d75e4a89a86d81c31418",
+          "bytes": 118
+        },
+        {
+          "path": "/app-ui.css",
+          "sha256": "374ca85098284133b2c6cf7e593fc33cc5f12211bf6d01a0687683b35b0095d6",
+          "bytes": 24740
+        },
+        {
+          "path": "/app.js",
+          "sha256": "a99cf02277c17a3985d73c7dfc56561ed13d9dd9b78c94e9f16c4e6ebe397239",
+          "bytes": 33438
+        },
+        {
+          "path": "/bridge.js",
+          "sha256": "3f87100933d6d19332ea43e4c4326e2b4ae27d69b62287bbba59ff8c2e96a597",
+          "bytes": 8055
+        },
+        {
+          "path": "/data.js",
+          "sha256": "908501f0eb8d5b73c29c56c94b8d8e92d4fbf302f035de52b4957262f779ec12",
+          "bytes": 5256838
+        },
+        {
+          "path": "/friendly/manifest.json",
+          "sha256": "45a90064447254c5b5936c09268c302e9f1c019ca1e9f598e71cbb6e051bcb4f",
+          "bytes": 3795
+        },
+        {
+          "path": "/friendly/map-data.geojson",
+          "sha256": "1227ef2eacc9b6ce94f0aef5b09580c641c296ad24decf4eebb37ba21655e3c7",
+          "bytes": 2685552
+        },
+        {
+          "path": "/friendly/routing-graph.json",
+          "sha256": "eb196909c2b737cb120b7cbdf32487cd74bf2d30c1e507d05de93be367ea2bb3",
+          "bytes": 1124267
+        },
+        {
+          "path": "/friendly/snapshot.json",
+          "sha256": "eec6fd8f52e815942c58c377e53d7c8b691df545f934f01c6ad7d622f96076f3",
+          "bytes": 27364
+        },
+        {
+          "path": "/icons.js",
+          "sha256": "0bbae65a25c09cb262a6073ae5532539be87167a584b8f2804c0fdd68bc425cb",
+          "bytes": 10205
+        },
+        {
+          "path": "/index.html",
+          "sha256": "4da340175e95ebd518ef3411d94cdf5c7bfb178243a9270ce709f55d25eb0c9b",
+          "bytes": 3647
+        },
+        {
+          "path": "/offline.js",
+          "sha256": "394e1d2613b1e7baaf0032ed55a6152e5e852e8cea93ecc02ed47d84f291ac6a",
+          "bytes": 5757
+        },
+        {
+          "path": "/resources-data.js",
+          "sha256": "fc18e37324981637c5cb04b6ed22ddca361d453835b52948f11ad6c8baacbede",
+          "bytes": 2768911
+        },
+        {
+          "path": "/search.js",
+          "sha256": "afa11e9c5828ab4b8d14a179e2b9c84e163a2d5830ea7c7a1b1c41b4b63f43d3",
+          "bytes": 10965
+        },
+        {
+          "path": "/sw.js",
+          "sha256": "102ecc04a89be346e823f9ae255f8a108519b7846c162889612b6107ad3d48d4",
+          "bytes": 9816
+        },
+        {
+          "path": "/vendor/LICENSE-leaflet.txt",
+          "sha256": "53e8dc25862014e4324741ca18fbe3611e11d42ef69f59f86ea8c5389647d4cb",
+          "bytes": 1395
+        },
+        {
+          "path": "/vendor/leaflet.css",
+          "sha256": "a7837102824184820dfa198d1ebcd109ff6d0ff9a2672a074b9a1b4d147d04c6",
+          "bytes": 14806
+        },
+        {
+          "path": "/vendor/leaflet.js",
+          "sha256": "db49d009c841f5ca34a888c96511ae936fd9f5533e90d8b2c4d57596f4e5641a",
+          "bytes": 147552
+        }
+      ]
+    }
+  },
+  "appManifest": {
+    "schemaVersion": 1,
+    "app": "friendly-resource",
+    "sourceSha": "40360b60a8ac24c9669d11fcd9464efeb7712101",
+    "offlineVersion": "friendly-resource-v6-c0150f4063526057",
+    "files": [
+      {
+        "path": "/LICENSE.txt",
+        "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+        "bytes": 34523
+      },
+      {
+        "path": "/NOTICE.txt",
+        "sha256": "12b131986b4f4552b78300d9836e013f79297d690c44792833ae1ca83b9ff923",
+        "bytes": 2165
+      },
+      {
+        "path": "/_headers",
+        "sha256": "18fc11ddf16c07c6851bcca15dca2d3706c921f6a2cacd07d4ceb3b182ec2455",
+        "bytes": 172
+      },
+      {
+        "path": "/_redirects",
+        "sha256": "39fd3ea52a3c5f851d07cce48df2736c49956fed6697d75e4a89a86d81c31418",
+        "bytes": 118
+      },
+      {
+        "path": "/app-ui.css",
+        "sha256": "3446aa56e6d69bcc95bfe6804cdf2efc22d4acef13b72d951425c19790891626",
+        "bytes": 40163
+      },
+      {
+        "path": "/app.js",
+        "sha256": "c14b85643f0d947b37cd78638c77cc0b2196249d4d088cbb0492bc51713b3943",
+        "bytes": 40809
+      },
+      {
+        "path": "/bridge.js",
+        "sha256": "3f87100933d6d19332ea43e4c4326e2b4ae27d69b62287bbba59ff8c2e96a597",
+        "bytes": 8055
+      },
+      {
+        "path": "/data.js",
+        "sha256": "908501f0eb8d5b73c29c56c94b8d8e92d4fbf302f035de52b4957262f779ec12",
+        "bytes": 5256838
+      },
+      {
+        "path": "/friendly/manifest.json",
+        "sha256": "45a90064447254c5b5936c09268c302e9f1c019ca1e9f598e71cbb6e051bcb4f",
+        "bytes": 3795
+      },
+      {
+        "path": "/friendly/map-data.geojson",
+        "sha256": "1227ef2eacc9b6ce94f0aef5b09580c641c296ad24decf4eebb37ba21655e3c7",
+        "bytes": 2685552
+      },
+      {
+        "path": "/friendly/routing-graph.json",
+        "sha256": "eb196909c2b737cb120b7cbdf32487cd74bf2d30c1e507d05de93be367ea2bb3",
+        "bytes": 1124267
+      },
+      {
+        "path": "/friendly/snapshot.json",
+        "sha256": "eec6fd8f52e815942c58c377e53d7c8b691df545f934f01c6ad7d622f96076f3",
+        "bytes": 27364
+      },
+      {
+        "path": "/icons.js",
+        "sha256": "1ce9e687c202e18f8052f985f2958db81b18358802d4bab28c9e787d6af57506",
+        "bytes": 12247
+      },
+      {
+        "path": "/index.html",
+        "sha256": "61227b0fca315f8dbdadaa436472beefc41948cb6ee26fc115ba75de14203ea6",
+        "bytes": 9914
+      },
+      {
+        "path": "/offline.js",
+        "sha256": "87a17eadcd7ad0a22b117299df8c58e5e14cb4a42501d8738a2afdb62a0083bc",
+        "bytes": 5757
+      },
+      {
+        "path": "/resources-data.js",
+        "sha256": "fc18e37324981637c5cb04b6ed22ddca361d453835b52948f11ad6c8baacbede",
+        "bytes": 2768911
+      },
+      {
+        "path": "/search.js",
+        "sha256": "afa11e9c5828ab4b8d14a179e2b9c84e163a2d5830ea7c7a1b1c41b4b63f43d3",
+        "bytes": 10965
+      },
+      {
+        "path": "/sw.js",
+        "sha256": "c62177ecce71066b3e33f43165086f5aa91ce29c07d9272e5835cd6f8db205c2",
+        "bytes": 9816
+      },
+      {
+        "path": "/vendor/LICENSE-leaflet.txt",
+        "sha256": "53e8dc25862014e4324741ca18fbe3611e11d42ef69f59f86ea8c5389647d4cb",
+        "bytes": 1395
+      },
+      {
+        "path": "/vendor/leaflet.css",
+        "sha256": "a7837102824184820dfa198d1ebcd109ff6d0ff9a2672a074b9a1b4d147d04c6",
+        "bytes": 14806
+      },
+      {
+        "path": "/vendor/leaflet.js",
+        "sha256": "db49d009c841f5ca34a888c96511ae936fd9f5533e90d8b2c4d57596f4e5641a",
+        "bytes": 147552
+      }
+    ]
+  },
+  "dataVersion": "friendly-route-2026-11-07-v1",
+  "snapshotSha256": "eec6fd8f52e815942c58c377e53d7c8b691df545f934f01c6ad7d622f96076f3",
+  "deployedVersion": "19bdf1ef-5b55-4f78-a208-b92cd2386ea9",
+  "smoke": {
+    "url": "https://taipei-friendly-platform.jason21131.workers.dev",
+    "sourceSha": "40360b60a8ac24c9669d11fcd9464efeb7712101",
+    "dataVersion": "friendly-route-2026-11-07-v1",
+    "storeCount": 103,
+    "snapshotSha256": "eec6fd8f52e815942c58c377e53d7c8b691df545f934f01c6ad7d622f96076f3",
+    "checkedAt": "2026-11-07T12:44:38.708Z",
+    "app": "friendly-resource",
+    "offlineVersion": "friendly-resource-v6-c0150f4063526057",
+    "appAssetCount": 21
+  },
+  "completedAt": "2026-11-07T12:44:39.674Z"
+}
