@@ -75,3 +75,5 @@ Knowledge check：WARN — Greenfield知識庫，沒有L2或Feature Specs；已�
 獨立plan核對補充：Worker需處理window/self全域相容並真實載圖測試；原生直接返回需越過既有PopScope文件歷史攔截。tasks與驗證包含此兩項。缺L2的WARN持續標示。
 
 Ci補充確認本機方案後：新增固定公共區域資料建置，官方count基線64,080 ways／286,385 referenced nodes；最終runtime容量與速度依實際建圖量測，不編估計。完整review與verify包含此補充，未修改驗收情境。
+
+發布驗證補充：App資產以已驗證manifest的bytes作讀取界線，另受25 MiB硬上限與caller較低上限約束；current／historical共用，API與manifest維持通用8 MB讀取限制。新增實際Response stream測試涵蓋合法20.76 MB路網、超量、hash及回退相容，避免正式發布因檢查器大小假設而回退。

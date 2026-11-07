@@ -39,3 +39,5 @@
 
 ## 執行備註
 T4／T5 為獨立原生呼叫鏈，可與本機router平行；T6依賴T1～T3的介面契約。UI視覺微調以design-spec與interaction-spec為準。Knowledge空缺不以虛構module補齊；變更路徑及兩個repo皆明示於plan。
+
+發布後T11/T14補正：首次真實smoke因新全市路網超過舊8 MB讀取上限而自動回退；App資產改按manifest與硬上限受控讀取，current及historical、root及其他檔案均測先紅後綠。此為既有發布驗證任務的修正，驗收情境與App行為不變。

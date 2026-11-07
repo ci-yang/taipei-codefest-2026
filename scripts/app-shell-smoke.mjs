@@ -30,6 +30,7 @@ export const APP_FILES = [
 ];
 const configurationFiles = new Set(['/_headers', '/_redirects']);
 const requiredAppFiles = ['/index.html', '/app.js', '/offline.js', '/sw.js'];
+const MAX_APP_ASSET_BYTES = 25 * 1024 * 1024;
 
 // Schema 1 is a historical receipt contract, independent of today's build inventory.
 export function validateAppManifest(value, expectedSha) {
@@ -57,7 +58,7 @@ export function validateAppManifest(value, expectedSha) {
     paths.add(file.path);
     assert.match(file.sha256 || '', /^[a-f0-9]{64}$/);
     assert.ok(
-      Number.isSafeInteger(file.bytes) && file.bytes > 0,
+      Number.isSafeInteger(file.bytes) && file.bytes > 0 && file.bytes <= MAX_APP_ASSET_BYTES,
       `Invalid asset size: ${file.path}`,
     );
   }
@@ -162,17 +163,21 @@ export async function smokeAppShell({
   assert.ok(['current', 'historical'].includes(appManifestMode), 'Unknown App manifest mode.');
   const remote = await fetchJson(origin + '/app-manifest.json', fetchOptions);
   assert.deepEqual(remote, appManifest, 'Published App manifest differs from the built artifact.');
-  const response = await fetchResource(origin + '/', fetchOptions);
+  const fetchAsset = (path, expected) =>
+    fetchResource(origin + path, {
+      ...fetchOptions,
+      // Validated manifest sizes bound App streams; callers may tighten this limit.
+      maxBytes: fetchOptions?.maxBytes < expected.bytes ? fetchOptions.maxBytes : expected.bytes,
+    });
+  const entry = appManifest.files.find((file) => file.path === '/index.html');
+  const response = await fetchAsset('/', entry);
   assert.equal(response.status, 200);
   assertContentType('/index.html', response.headers.get('content-type'));
   if (appManifestMode === 'historical') assertHistoricalAppEntry(response.bytes, appManifest);
   else assertAppHtml(response.bytes.toString(), expectedSha);
   for (const file of appManifest.files) {
     if (configurationFiles.has(file.path)) continue;
-    const asset =
-      file.path === '/index.html'
-        ? response
-        : await fetchResource(origin + file.path, fetchOptions);
+    const asset = file.path === '/index.html' ? response : await fetchAsset(file.path, file);
     assert.equal(asset.status, 200, `Missing App asset: ${file.path}`);
     assertContentType(file.path, asset.headers.get('content-type'));
     assert.equal(asset.bytes.length, file.bytes, `App asset size differs: ${file.path}`);

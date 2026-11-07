@@ -12,6 +12,21 @@ const sha = 'a'.repeat(40);
 const json = (value, status = 200) =>
   new Response(JSON.stringify(value), { status, headers: { 'content-type': 'application/json' } });
 
+function streamedResponse(bytes, options) {
+  let offset = 0;
+  return new Response(
+    new ReadableStream({
+      pull(controller) {
+        if (offset === bytes.length) return controller.close();
+        const end = Math.min(offset + 64 * 1024, bytes.length);
+        controller.enqueue(bytes.subarray(offset, end));
+        offset = end;
+      },
+    }),
+    options,
+  );
+}
+
 const offlineVersion = 'friendly-resource-v6-0123456789abcdef';
 const appBytes = new Map(
   await Promise.all(
@@ -60,6 +75,7 @@ function fixtureFetch({
   runtimeBytes = appBytes,
   runtimeManifest = appManifest,
   contentTypes = {},
+  streamAssetPath,
 } = {}) {
   return async (input) => {
     const url = new URL(input);
@@ -135,14 +151,15 @@ function fixtureFetch({
       };
       if (path === '/sw.js')
         Object.assign(headers, { 'cache-control': 'no-cache', 'service-worker-allowed': '/' });
-      return new Response(
+      const body =
         wrongShell && path === '/index.html'
           ? '<div id="app"></div><script src="/assets/old.js"></script>'
           : corruptAsset && path === '/app.js'
             ? Buffer.alloc(bytes.length)
-            : bytes,
-        { headers },
-      );
+            : bytes;
+      return path === streamAssetPath
+        ? streamedResponse(body, { headers })
+        : new Response(body, { headers });
     }
     if (url.pathname.endsWith('.js'))
       return new Response('/* test asset */', {
@@ -154,6 +171,145 @@ function fixtureFetch({
     );
   };
 }
+
+function assetFixture(path, bytes, declaredBytes = bytes.length) {
+  return {
+    app: true,
+    runtimeBytes: new Map(appBytes).set(path, bytes),
+    runtimeManifest: {
+      ...appManifest,
+      files: appManifest.files.map((file) =>
+        file.path === path ? { ...file, bytes: declaredBytes, sha256: sha256(bytes) } : file,
+      ),
+    },
+    streamAssetPath: path,
+  };
+}
+
+function assetSmokeOptions(fixture, appManifestMode = 'current', fetchOptions = {}) {
+  return {
+    url: 'https://example.test',
+    expectedSha: sha,
+    manifest,
+    appManifest: fixture.runtimeManifest,
+    appManifestMode,
+    fetchOptions: { fetchImpl: fixtureFetch(fixture), retries: 0, ...fetchOptions },
+  };
+}
+
+test('App asset limits allow large streamed assets and root entries in current and historical smoke', async (context) => {
+  assert.ok(appBytes.get('/routing-data.js').length > 8_000_000);
+  for (const path of ['/routing-data.js', '/index.html']) {
+    const original = appBytes.get(path);
+    const bytes = Buffer.concat([
+      original,
+      Buffer.alloc(Math.max(0, 8_000_001 - original.length), ' '),
+    ]);
+    const fixture = assetFixture(path, bytes);
+    for (const mode of ['current', 'historical'])
+      await context.test(`${mode} ${path}`, async () => {
+        const result = await smokePlatform(assetSmokeOptions(fixture, mode));
+        assert.equal(result.app, 'friendly-resource');
+      });
+  }
+});
+
+test('App asset limits allow the exact 25 MiB asset ceiling', async () => {
+  const fixture = assetFixture('/routing-data.js', Buffer.alloc(25 * 1024 * 1024, ' '));
+  const result = await smokePlatform(assetSmokeOptions(fixture));
+  assert.equal(result.app, 'friendly-resource');
+});
+
+test('App asset limits reject oversized manifest entries before any fetch', async (context) => {
+  const fixture = assetFixture('/routing-data.js', Buffer.from('fixture'), 25 * 1024 * 1024 + 1);
+  for (const mode of ['current', 'historical'])
+    await context.test(mode, async () => {
+      let fetched = false;
+      await assert.rejects(
+        smokePlatform(
+          assetSmokeOptions(fixture, mode, {
+            fetchImpl: async () => {
+              fetched = true;
+              throw new Error('Oversized manifest must fail before fetch.');
+            },
+          }),
+        ),
+        /Invalid asset size/,
+      );
+      assert.equal(fetched, false);
+    });
+});
+
+test('App asset limits reject streamed bodies exceeding their declared size', async (context) => {
+  for (const path of ['/app.js', '/index.html'])
+    await context.test(path, async () => {
+      const original = appBytes.get(path);
+      const fixture = assetFixture(
+        path,
+        Buffer.concat([original, Buffer.from(' ')]),
+        original.length,
+      );
+      await assert.rejects(
+        smokePlatform(assetSmokeOptions(fixture)),
+        /Response exceeds output limit/,
+      );
+    });
+});
+
+test('App asset limits reject a body over 25 MiB despite a valid manifest size', async () => {
+  const fixture = assetFixture(
+    '/routing-data.js',
+    Buffer.alloc(25 * 1024 * 1024 + 1, ' '),
+    25 * 1024 * 1024,
+  );
+  await assert.rejects(smokePlatform(assetSmokeOptions(fixture)), /Response exceeds output limit/);
+});
+
+test('App asset limits preserve a caller byte limit below the declared asset size', async (context) => {
+  for (const path of ['/routing-data.js', '/index.html'])
+    await context.test(path, async () => {
+      const original = appBytes.get(path);
+      const fixture = assetFixture(
+        path,
+        Buffer.concat([original, Buffer.alloc(Math.max(0, 8_000_001 - original.length), ' ')]),
+      );
+      await assert.rejects(
+        smokePlatform(assetSmokeOptions(fixture, 'current', { maxBytes: 8_000_000 })),
+        /Response exceeds output limit/,
+      );
+    });
+});
+
+test('App asset limits retain the default 8 MB API and App manifest limit', async (context) => {
+  for (const path of ['/healthz', '/app-manifest.json'])
+    await context.test(path, async () => {
+      const fixture = assetFixture('/routing-data.js', appBytes.get('/routing-data.js'));
+      const baseFetch = fixtureFetch(fixture);
+      await assert.rejects(
+        smokePlatform(
+          assetSmokeOptions(fixture, 'current', {
+            fetchImpl: async (input) => {
+              const response = await baseFetch(input);
+              if (new URL(input).pathname !== path) return response;
+              const bytes = Buffer.from(await response.arrayBuffer());
+              return streamedResponse(
+                Buffer.concat([bytes, Buffer.alloc(8_000_001 - bytes.length, ' ')]),
+                { headers: response.headers },
+              );
+            },
+          }),
+        ),
+        /Response exceeds output limit/,
+      );
+    });
+});
+
+test('App asset limits still reject a large asset with a different hash', async () => {
+  const path = '/routing-data.js';
+  const fixture = assetFixture(path, Buffer.from(appBytes.get(path)));
+  fixture.runtimeBytes.get(path)[0] ^= 1;
+  await assert.rejects(smokePlatform(assetSmokeOptions(fixture)), /App asset hash differs/);
+});
 
 test('smoke validates real canonical count/source/hash and SPA/API separation', async () => {
   const result = await smokePlatform({

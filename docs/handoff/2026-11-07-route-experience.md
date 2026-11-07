@@ -22,18 +22,18 @@
 ## 可重跑驗證
 
 - `pnpm test:prototype`：91項Node及17項Python測試通過。
-- `pnpm test:tooling`：57項通過。
+- `pnpm test:tooling`：77項通過，含App大型資產的current／historical讀取界線。
 - 原生 `flutter test test/codefest_launch_test.dart test/codefest_service_test.dart`：13項通過。
 - 原生 Claude Code Opus review 找出起始頁偏好被覆蓋；新增回歸測試先失敗，恢復原設定讀取後通過。Podfile.lock僅有本機CocoaPods雜訊，已排除。
 - 真實瀏覽器腳本 `scripts/check-friendly-route-browser.mjs`：82項通過；完整量測見 `evidence/2026-11-07-route-experience/browser.json`。5種尺寸、Tab/pointer/touch、200%文字、展開復原及資源集合皆覆蓋。
 - 指定公開測試座標臺北車站→市府，真Worker算出5,195m、156道路點、473沿線資源；接線合計152m。載圖＋計算303ms是localhost桌面Chrome結果，不能當手機效能。
-- 瀏覽器receipt產生後，僅把兩段過時的局部路網提示更新成臺北市，路由與版面程式未再變更；發布smoke另核對打包產物。
+- 上述瀏覽器receipt後僅更新兩段過時路網提示；最終獨立重跑82項及七檔hash核對存於 `.prospec/changes/improve-route-experience/evidence/browser-final.json`。發布smoke另核對打包產物。
 
 重跑瀏覽器：先啟動repo prototype HTTP server（8883），再以已安裝Playwright的node_modules作NODE_PATH執行腳本；不將真人GPS加入測試。腳本攔截外部底圖並停用Service Worker，因此不能據此宣稱實機與離線快取通過。
 
 ## 發布與原生建置
 
-沿用既有Cloudflare Worker與回退腳本。服務入口：`https://taipei-friendly-platform.jason21131.workers.dev`；實際部署SHA以`/app-manifest.json`為準，本文件不把工作樹建置當已部署。
+沿用既有Cloudflare Worker與回退腳本。服務入口：`https://taipei-friendly-platform.jason21131.workers.dev`；實際部署SHA以`/app-manifest.json`為準，本文件不把工作樹建置當已部署。完整發布、回退、APK hash與安裝紀錄見 [.prospec release.md](../../.prospec/changes/improve-route-experience/release.md)。
 
 原生 `CODEFEST_SERVICE_URL` 必須明確指定上方HTTPS網址。iOS沿用既有開發簽章與`CODEFEST_IOS_BUNDLE_ID`，不得用全域PRODUCT_BUNDLE_IDENTIFIER覆蓋框架；細節見前次iOS交接。APK仍是測試簽章，不能宣稱商店版。
 

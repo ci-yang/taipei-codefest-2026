@@ -1,0 +1,78 @@
+{
+  "reviewer": "fresh-subagent",
+  "scope": "累計 diff 18dffb32d1b35c6f7a83ddee693c8420a99c2127 至 working tree，含發布 smoke 修正",
+  "lenses": [
+    "correctness",
+    "security",
+    "spec-architecture",
+    "performance",
+    "maintainability",
+    "docs-claims",
+    "parallel-site",
+    "test-quality"
+  ],
+  "snapshot": "/private/var/folders/v1/2qrgkmr92mgbc668grwdx09w0000gn/T/prospec-snapshot-review-lens-all-1-2-Szn4IF",
+  "platformIntegration": {
+    "command": "pnpm_config_verify_deps_before_run=false TMPDIR=.test-tmp WRANGLER_LOG_PATH=\"$PWD/.test-tmp/wrangler.log\" WRANGLER_SEND_METRICS=false pnpm test:platform",
+    "exitCode": 0,
+    "url": "http://127.0.0.1:59420",
+    "sourceSha": "b7b2c437c0d6f29ce33c8a4c48878bc55d14ad35",
+    "sourceTreeDirty": true,
+    "checkedAt": "2026-11-07T14:28:39.835Z",
+    "dataVersion": "friendly-route-2026-11-07-v1",
+    "storeCount": 103,
+    "snapshotSha256": "eec6fd8f52e815942c58c377e53d7c8b691df545f934f01c6ad7d622f96076f3",
+    "offlineVersion": "friendly-resource-v6-2da11eff24feb430",
+    "appAssetCount": 25,
+    "routingAsset": {
+      "bytes": 20758759,
+      "sha256": "1afe78ce7135dcbbc09ac908b85cf9ea74a5fb1eab4a3bc2fd40677f47d5070c"
+    },
+    "capturedPathname": "GET /api/v1/friendly-stores 200",
+    "checks": {
+      "repeatedImport": "passed",
+      "immutableConflict": "passed",
+      "missingVersion": "passed",
+      "appEntry": "passed",
+      "legacyRedirects": "passed",
+      "missingAssets404": "passed"
+    },
+    "remoteWrites": false,
+    "harnessNotes": "依賴為唯讀 symlink；關閉 pnpm 自動安裝，避免改依賴。初次絕對 TMPDIR 太長令 tsx Unix socket EINVAL；改為 snapshot 相對 .test-tmp 後同一測試完整通過。未改 source。測試 D1／Worker 已由 finally 清理。"
+  },
+  "independentTests": [
+    {
+      "command": "node --test scripts/smoke-platform.test.mjs",
+      "passed": 29,
+      "failed": 0
+    },
+    {
+      "command": "node --test docs/prototypes/tests/friendly-route-client.test.cjs docs/prototypes/tests/friendly-routing.test.cjs docs/prototypes/tests/friendly-taipei-routing.test.cjs docs/prototypes/tests/friendly-app-state.test.cjs",
+      "passed": 52,
+      "failed": 0
+    },
+    {
+      "command": "python3 -m unittest discover -s docs/prototypes/tests -p 'test_friendly_routing_builder.py' -v",
+      "passed": 8,
+      "failed": 0
+    }
+  ],
+  "browserEvidence": {
+    "path": ".prospec/changes/improve-route-experience/evidence/browser-final.json",
+    "passed": 82,
+    "failed": 0,
+    "sourceHashesMatched": 7,
+    "rerunByThisReviewer": false
+  },
+  "nativeEvidence": {
+    "head": "8f106f6ba082bf8f66f266c87ca7a0c1f819a0c6",
+    "workingTreeClean": true,
+    "sourceDiffInspected": true,
+    "testsRerunByThisReviewer": false
+  },
+  "findings": {
+    "critical": 0,
+    "major": 0
+  },
+  "limitations": "本機 Worker 的 dirty snapshot 驗證，不是正式發布成功收據。未重跑原生／瀏覽器耗時測試；實機點按與 iOS 離線限制沿用既有 design WARN。"
+}

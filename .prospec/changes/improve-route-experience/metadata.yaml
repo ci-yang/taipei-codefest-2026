@@ -126,8 +126,71 @@ quality_log:
     accepted:
       request_id: prospec-verify:8e2157ca7227d70b3dbcd062f8fd195f53ebed6de33cb637270644f26260fe50
       artifact_digest: fb7c0f7d34e68d68b9f8a1b6ff34767cf37defc3ad46235a205ca506537a25d8
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    criticals_found: 0
+    criticals_fixed: 0
+    majors: 0
+    round: 2
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+    attempt_id: prospec-review:ff7c0f134305290eb757988a09bbe3f3797c1a99e9c97a5b0731c0119d19fbe1
+    accepted:
+      request_id: cc65e092d8dc3d482d248defa26a0a94a50ece1d36cb86c2582b482030ee9398
+      artifact_digest: 0bae997e505d90b9b2f23fe4d521ec67814bfb7bbbdee9af9846c2fd4daabbf8
+      base_digest: 24b13d2a4ab211c01264dd2a5cc4c149496bcb2a0e5f894bf71a8b4aea176ccc
+  - skill: prospec-review
+    date: 2026-11-07
+    result: PASS
+    warnings: []
+  - skill: prospec-verify
+    date: 2026-11-07
+    result: PASS
+    warnings:
+      - 原生實機已完成安裝與啟動；首頁→友善同行→返回的人工點按與視覺核對待確認。
+      - acceptance baseline was captured or amended after story stage
+        (late-capture)
+    grade: A
+    dimensions:
+      - name: task-completion
+        result: PASS
+        adjudicator: machine
+      - name: knowledge
+        result: PASS
+        adjudicator: machine
+      - name: tests
+        result: PASS
+        adjudicator: machine
+      - name: delta-spec-compliance
+        result: not-adjudicated
+        adjudicator: judgment
+        graded_by: fresh-subagent
+        executor: Codex fresh contract verifier /root/route_reverify_contract
+        context_id: d47ad1ef2e9a8ccd97441bfb44863153258976f397a4effe34b7eedf64a81198
+        baseline_revision: 2
+      - name: constitution
+        result: PASS
+        adjudicator: judgment
+        graded_by: fresh-subagent
+        executor: Codex fresh contract verifier /root/route_reverify_contract
+      - name: design
+        result: WARN
+        adjudicator: judgment
+        graded_by: fresh-subagent
+        executor: Codex /root/route_reverify_design
+    context_id: d47ad1ef2e9a8ccd97441bfb44863153258976f397a4effe34b7eedf64a81198
+    baseline_revision: 2
+    coverage_summary: 5/5
+    attempt_id: prospec-verify:316cd484a452e4d44146ff7221d2fa23a36d7588cba9547e14234446957e682a
+    accepted:
+      request_id: prospec-verify:316cd484a452e4d44146ff7221d2fa23a36d7588cba9547e14234446957e682a
+      artifact_digest: 06cda2a2867f40e0df785de92e929a7fc9b895bdf871cfa5d8bc2edf021e37e4
 review_provenance:
-  digest: 362d9d50cd394732e82d6fe8a0397b81d5805af0bcb10acff86452d8a2ce4f3c
+  digest: 579241b0f150bce2479e35de748fbca9b24860bb79a165d56b3aa834eafa027d
   date: 2026-11-07
   fingerprint_version: snapshot-v2
   scope: repository-inputs-v2
@@ -135,18 +198,18 @@ review_provenance:
 test_provenance:
   command: pnpm test
   exit_code: 0
-  digest: 362d9d50cd394732e82d6fe8a0397b81d5805af0bcb10acff86452d8a2ce4f3c
+  digest: 579241b0f150bce2479e35de748fbca9b24860bb79a165d56b3aa834eafa027d
   date: 2026-11-07
   fingerprint_version: snapshot-v2
   scope: repository-inputs-v2
-  attempt_id: 11a07794-f354-4f0d-89c1-0cbe92ddde9a
+  attempt_id: 7b9514c5-37d5-455c-ab60-bae0bc81571e
 test_attempt:
-  id: 11a07794-f354-4f0d-89c1-0cbe92ddde9a
+  id: 7b9514c5-37d5-455c-ab60-bae0bc81571e
   date: 2026-11-07
   outcome: passed
   command: pnpm test
-  before_digest: 362d9d50cd394732e82d6fe8a0397b81d5805af0bcb10acff86452d8a2ce4f3c
-  after_digest: 362d9d50cd394732e82d6fe8a0397b81d5805af0bcb10acff86452d8a2ce4f3c
+  before_digest: 579241b0f150bce2479e35de748fbca9b24860bb79a165d56b3aa834eafa027d
+  after_digest: 579241b0f150bce2479e35de748fbca9b24860bb79a165d56b3aa834eafa027d
   exit_code: 0
 delta_spec_provenance:
   digest: bab9016912ce891e49ce0892e0eb2b9b8f4dbcd6e497b3d52ba889caa77c0d0a
