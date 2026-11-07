@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>友善同行｜App 第二版與路線比較</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:#edf1e8;background:#111312;line-height:1.8}*{box-sizing:border-box}body{margin:0}main{max-width:1000px;margin:auto;padding:40px 24px 72px}a{color:#b8f557;text-underline-offset:4px}nav{display:flex;gap:20px;flex-wrap:wrap;align-items:center}nav .button{background:#b8f557;color:#111512;padding:10px 18px;border-radius:9px;text-decoration:none}h1{font-size:clamp(28px,5vw,48px);line-height:1.3;letter-spacing:-.04em;margin:32px 0 16px}h2{font-size:25px;margin-top:36px}.eyebrow{font-size:13px;letter-spacing:.14em;color:#a2ada2}.lead{font-size:21px;max-width:740px}section{background:#1c201d;border:1px solid #333b33;border-radius:16px;padding:26px;margin:24px 0}.note{border-left:4px solid #b8f557;background:#242d20;padding:16px 20px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.step{padding:18px;background:#252d23;border-radius:12px}.step strong{display:block;font-size:19px}table{width:100%;border-collapse:collapse;font-size:15px}td,th{vertical-align:top;text-align:left;padding:14px 10px;border-bottom:1px solid #394036}th{color:#b2bcb0;font-size:13px}ul,ol{padding-left:24px}li+li{margin-top:10px}.scroll{overflow:auto}.tag{background:#35472b;padding:3px 8px;border-radius:5px;font-size:12px}small{color:#b2bcb0}footer{font-size:13px;color:#b2bcb0}details summary{cursor:pointer;font-weight:650}details p{margin-bottom:0}@media(max-width:650px){main{padding:24px 16px}.grid{grid-template-columns:1fr}section{padding:18px}td,th{min-width:135px}h2{font-size:23px}}
+</style>
+</head>
+<body><main>
+<nav><a class="button" href="./">開啟互動 Prototype →</a><a href="spec.html">閱讀第二版規格</a><a href="proposal.md" download>下載規格 Markdown</a></nav>
+<p class="eyebrow">APP PROTOTYPE V2 · 拿不到 / 資源限制</p>
+<h1>友善同行<br>從目前位置，選一條適合的路。</h1>
+<p class="lead">用手機定位開始，選日期、重用自己的行程，再比較距離與沿途資源。確認後，把路線與地圖一起帶走。</p>
+<p>這版把 Ci 討論的五項功能做成可操作原型。真正的差異是<strong>出發前安排資源、途中保留資訊、到店前看懂不確定性</strong>。官網已經有地圖與友善項目篩選；本提案延伸行程、離線與回報流程。<a href="https://friendlystore.taipei/map/tw/pg1/3/qop/41" target="_blank" rel="noopener">既有友善店家地圖</a></p>
+
+<section><h2>照你的草稿，改成四個 App 畫面</h2><div class="grid">
+<div class="step"><strong>01 地圖首頁</strong>地圖是主角。使用目前位置，或明確選擇示範起點，再按「開始」。</div>
+<div class="step"><strong>02 行程設定</strong>選日期、歷史、起點與目的地；四種友善需求放在同頁，完成後下一步。</div>
+<div class="step"><strong>03 確認路線</strong>比較「最短路徑／資源最多」，看距離、估時與店家數，選好才開始。</div>
+<div class="step"><strong>04 行程地圖</strong>查看沿途資源、保存行程或下載離線包。評論與協助放在可關閉的次層畫面。</div>
+</div><p><small>深色底、亮綠主操作、手機優先。桌面呈現手機預覽；這是 Web App 原型，尚未交付原生 APK。</small></p></section>
+<section><h2>「最短」與「資源最多」怎麼比較？</h2>
+<p><strong>最短路徑：</strong>在本次保存的可用路網內，依你設定的站序找距離較短的路線。地點與路網之間的短接線另外揭露，不能把它當成已實測的通道。</p>
+<p><strong>資源最多：</strong>在本次實際產生的候選路線中，以同一組需求與沿線距離範圍，計算不重複店家數。只在有增加資源的替代方案時列出第二條；沒有時會直接說明。</p>
+<div class="note">範圍限定信義區／大安東側的地方快照。不是全臺北最優解；店家數不等於當下可用數，也不代表沿途無障礙。時間依步行速度假設估算，沒有即時路況。</div>
+</section>
+<section><h2>GPS 與歷史，來源要看得懂</h2><ol>
+<li><strong>目前位置：</strong>使用裝置回傳的位置、時間與精度。權限被拒、逾時或超出示範路網時明確提示；不會拿預設店家冒充 GPS。</li>
+<li><strong>示範起點：</strong>只有主動選擇才套用，用於體驗流程。畫面持續標示它是示範。</li>
+<li><strong>歷史路線：</strong>初始空白，只有你明確保存的行程才出現。套用舊行程時保留本次日期，重新確認路線，舊起點不會被當作目前位置。</li>
+<li><strong>位置保存：</strong>定位先只供本次操作；保存行程或下載離線包時會明示包含起點。沒有呼叫外部路由服務，也不會把位置送給其他使用者。</li>
+</ol></section>
+<section><h2>題目貼合在哪裡</h2>
+<p><strong>主要對象：</strong>已有手機，但行動網路、電量或現場協助受限的市民，以及協助安排行程的人。經濟弱勢的受益前提，是清楚知道使用服務是否要消費；目前資料沒有這個答案，必須顯示待確認。</p>
+<p><strong>對應方向：</strong>找公共或店家網路資源、提前下載以降低連線依賴，並用大字詢問卡與可列印資訊協助到店詢問。無障礙與廁所是同行需求。這版沒有宣稱解決無手機、偏鄉網路覆蓋或長者所有使用障礙。</p>
+<div class="note">「拿不到」的核心驗證：一個人斷網後，能否仍讀到之前存好的地圖、店家位置與詢問方式？實際改善多少，需與目標族群測試，現在沒有成效數字。</div>
+</section>
+
+<section><h2>五項功能，清楚分開可用與示範</h2><div class="scroll"><table><thead><tr><th>功能</th><th>這版可操作</th><th>正式服務下一步</th></tr></thead><tbody>
+<tr><td><strong>四類資源地圖</strong><br><span class="tag">P0</span></td><td>充電、無障礙、廁所、Wi-Fi；任一符合的多選篩選與店家清單。</td><td>持續更新官方名冊；補上可追溯的消費條件。</td></tr>
+<tr><td><strong>多目的地路線</strong><br><span class="tag">P0</span></td><td>以 GPS 或手動起點，加上多個目的地，計算本地路網方案並確認。</td><td>擴充路網與地址解析，驗證通行限制及實際步行可達性。</td></tr>
+<tr><td><strong>品質與評論</strong><br><span class="tag">正式 P1</span></td><td>本機試填；用「尚無回報／有順利回報／需再確認」呈現數量、日期與原因。</td><td>公開回報後端、身分與重複回報處理、檢舉和維護責任。</td></tr>
+<tr><td><strong>資源範圍與離線</strong><br><span class="tag">P0</span></td><td>沿線距離篩選；保存已選路線、底圖與店家，斷線可回到行程頁。</td><td>在比賽 Android／TownPass WebView 實機驗證保存容量與重開行為。</td></tr>
+<tr><td><strong>附近協助</strong><br><span class="tag">正式 P1</span></td><td>本機雙角色示範；預覽、位置同意、選擇是否分享路線、回應、撤銷與到期。</td><td>多人同步、真正接收確認與通知；參與身分、到期規則與值守責任。</td></tr>
+</tbody></table></div><p><small>P0／P1 是正式產品的開發順序。五項功能都在本次 prototype 的展示範圍。</small></p></section>
+
+<section><h2>資料是真的，未知也保留</h2><ol>
+<li><strong>店家：</strong><a href="https://data.taipei/dataset/detail?id=d807396c-e41f-4005-be42-0160280783a1" target="_blank" rel="noopener">臺北市友善店家清冊</a>繁中 CSV，更新 2026-07-20；原始 993 筆、臺北市地址 986 筆。原型截取信義／大安東側框選範圍的 103 筆。店家資料沿用前版已核對的快照。</li>
+<li><strong>標籤：</strong>1 代表名冊標示；空白是未標示。名冊沒有即時品質、插座空位、免消費規則或結構化營業時間。<a href="https://friendlystore.taipei/public/webads/29_tw_11780538300.pdf" target="_blank" rel="noopener">官方友善項目說明</a>不能推導所有人都可免消費使用。</li>
+<li><strong>底圖：</strong>© OpenStreetMap contributors，採官方開放資料 API 擷取的地方向量快照，依 <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">ODbL</a>提供；<a href="map-data.geojson" download>下載本次底圖資料</a>。不使用 Google Maps／Mapbox 或預抓 OSM 圖磚。</li>
+<li><strong>回報與協助：</strong>不預填虛構評價；使用者操作只在這個瀏覽器示範，沒有通知真人。星等、救援抵達或已驗證品質均不宣稱。</li>
+</ol></section>
+
+<section><h2>值得先做；多人協助留出實作邊界</h2>
+<p><strong>可行性判斷：</strong>名冊已有地點與四種服務，篩選、沿線距離與固定區域離線包都能用開源元件完成。最需要額外工程與營運的，是公開評論及多人互助。這份原型用可操作流程確認需求，不把它們寫成已上線的正式服務。</p>
+<details><summary>評審問：和現有友善店家網站有何不同？</summary><p>「既有網站能查店家。我們讓使用者把需要的店家放進多站行程，在還有網路時完成保存；途中斷網仍能看底圖與詢問方式。品質回報用來揭露資訊依據與未知條件。」</p></details>
+<details><summary>評審問：圈內一定有 Wi-Fi 或一定能獲救？</summary><p>「圈是幾何搜尋範圍，只用來找到附近候選店家。它不是訊號覆蓋、可步行距離或救援保證；實際使用條件仍須向店家確認。」</p></details>
+<details><summary>評審問：這是救援 App 嗎？</summary><p>「此處是非緊急資源互助的本機流程示範。定位不代表同意公開位置；正式多人協助需另外完成接收確認、撤銷到期與通知服務，本版不會向真人發送求救。」</p></details>
+</section>
+<footer>版本：2026-11-07 · App 第二版 · 規格為第二版，含明示假設與未決問題。<br><a href="spec.html">第二版規格</a> · <a href="README.md">資料來源與執行說明</a> · <a href="./">回到 Prototype</a></footer>
+</main></body></html>
