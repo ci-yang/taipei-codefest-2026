@@ -172,3 +172,22 @@ test('non-dialable input is never sent to the shell', async () => {
   assert.equal(await env.api.call(''), 'failed');
   assert.equal(env.sent.length, 0);
 });
+
+test('short emergency codes and 0800 numbers dial through phone_call', async () => {
+  for (const number of ['110', '113', '119', '165', '1925', '1966', '0800030598', '024128518']) {
+    const env = setup();
+    const pending = env.api.call(number);
+    await tick();
+    assert.deepEqual(env.sent, [{ name: 'phone_call', data: number }], number);
+    env.reply('phone_call', true);
+    assert.equal(await pending, 'opened');
+  }
+});
+
+test('numbers off the allowlist are never sent', async () => {
+  const env = setup();
+  for (const number of ['112', '1234', '0912345678', '0204123456', '0809123456', '02-0-', '911']) {
+    assert.equal(await env.api.call(number), 'failed', number);
+  }
+  assert.equal(env.sent.length, 0);
+});

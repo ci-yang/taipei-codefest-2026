@@ -26,12 +26,27 @@
       + `${night ? MOON : SUN}<span>${night ? '晚上／假日' : '白天'}</span><span class="period-swap">切換</span></button>`;
   }
 
-  /* What the home card says under 「現在打」: the same first call the situation card shows. */
+  // Escaped hours text whose "8:30–12:00" ranges never break across lines.
+  function hoursHtml(text) {
+    return esc(text).replace(/(\d{1,2}:\d{2}–\d{1,2}:\d{2})/g, '<span class="nw">$1</span>');
+  }
+
+  // The first call's own hours, and whether now is inside them.
+  function statusText(status) {
+    if (status.pending) return status.hours;
+    if (status.hours === '24 小時') return '24 小時都可以打';
+    return status.open ? `服務時間內：${status.hours}` : `不在服務時間，${status.next}（${status.hours}）`;
+  }
+
+  /* What the home card says under 「現在打」: the same first call the situation card shows, with the
+   * call's short note (e.g. 轉分機 7019) and its own service hours. */
   function nowCall(data, situation, state) {
-    const p = C.plan(data, situation, state.period, state.district);
+    const p = C.plan(data, situation, state.period, state.district, state.moment);
     const f = p.first;
-    if (f.open) return { who: f.who, number: '', hint: '進去選你住的區，就給你電話', entry: f.entry };
-    return { who: f.who, number: f.display, hint: f.aside || '', entry: f.entry };
+    const brief = f.entry.brief || '';
+    const hours = statusText(p.status);
+    if (f.open) return { who: f.who, number: '', hint: '進去選你住的區，就給你電話', brief, hours, open: p.status.open, entry: f.entry };
+    return { who: f.who, number: f.display, hint: f.aside || '', brief, hours, open: p.status.open, entry: f.entry };
   }
 
   function homeCard(data, situation, state) {
@@ -39,11 +54,21 @@
     const number = now.number
       ? `<span class="mini-number">${esc(now.number)}</span>`
       : `<span class="mini-pick">${esc(now.hint)}</span>`;
+    const brief = now.brief ? `<span class="mini-brief">${esc(now.brief)}</span>` : '';
     return `<a class="mini${situation.urgent ? ' is-urgent' : ''}" href="#/${esc(situation.id)}" data-situation="${esc(situation.id)}">`
       + `<span class="mini-band"><span>${esc(situation.title)}</span><span class="mini-go" aria-hidden="true">›</span></span>`
       + `<span class="mini-body"><span class="mini-sub">${esc(situation.subtitle)}</span>`
-      + `<span class="mini-now"><span class="mini-label">現在打</span><span class="mini-who">${esc(now.who)}</span>${number}</span>`
+      + `<span class="mini-now"><span class="mini-label${now.open ? '' : ' is-closed'}">${now.open ? '現在打' : '上班再打'}</span><span class="mini-who">${esc(now.who)}</span>${number}${brief}`
+      + `<span class="mini-hours${now.open ? '' : ' is-closed'}">${hoursHtml(now.hours)}</span></span>`
       + `</span></a>`;
+  }
+
+  /* Always-visible emergency strip (fixed to the bottom on every page). Numbers only, no questions asked,
+   * no promises: the four lines are 24-hour per their official pages (see data emergencyLines). */
+  function emergencyBar(data) {
+    const calls = data.emergencyLines.map((line) => `<a class="sos-call" href="tel:${esc(line.number)}" data-dial="${esc(line.number)}"`
+      + ` aria-label="撥 ${esc(line.number)}，${esc(line.label)}"><b>${esc(line.number)}</b><span>${esc(line.label)}</span></a>`).join('');
+    return `<nav class="sos" aria-label="緊急電話"><p class="sos-head">有危險，直接打（24 小時）</p><div class="sos-row">${calls}</div></nav>`;
   }
 
   /* Home groups: situations marked urgent (110／113／1925 first) go on top, then each category in data order.
@@ -62,19 +87,26 @@
 
   function renderHome(data, state) {
     const night = state.period === 'night';
-    const deck = groups(data).map((g) => `<section class="group${g.urgent ? ' is-urgent' : ''}" aria-labelledby="group-${esc(g.id)}">`
-      + `<h2 class="group-title" id="group-${esc(g.id)}">${esc(g.title)}</h2>`
+    const list = groups(data);
+    const jump = list.map((g) => `<button type="button" class="jump-chip" data-jump="group-${esc(g.id)}">`
+      + `${esc(g.title)}<span class="jump-count">${g.situations.length}</span></button>`).join('');
+    const deck = list.map((g) => `<section class="group${g.urgent ? ' is-urgent' : ''}" aria-labelledby="group-${esc(g.id)}">`
+      + `<h2 class="group-title" id="group-${esc(g.id)}" tabindex="-1">${esc(g.title)}</h2>`
       + `<div class="deck">${g.situations.map((s) => homeCard(data, s, state)).join('')}</div></section>`).join('');
+    const lineSources = [...new Set(data.emergencyLines.flatMap((line) => line.sources))]
+      .map((id) => `<a href="${esc(data.sources[id].url)}" rel="noopener">${esc(data.sources[id].short)}</a>`).join('、');
     return `<header class="top"><h1>我遇到了……</h1>${periodTag(state)}</header>`
       + `<p class="intro">挑最接近你現在狀況的那張卡。每張都寫好現在打給誰、開口怎麼說、要準備什麼。</p>`
+      + `<div class="jump" role="group" aria-label="跳到分類">${jump}</div>`
       + `<nav class="groups" aria-label="選擇情境">${deck}</nav>`
       + `<section class="trust" aria-label="這頁怎麼做的">`
       + `<p class="trust-title">${night ? '現在是晚上或假日' : '現在是平日上班時間'}</p>`
       + `<p class="trust-lead">${night
         ? '社福中心下班了，卡片先給晚上打得通的電話。'
-        : '社福中心有人接，卡片先給你那一區的電話。'}遇到國定假日，按右上角切換。</p>`
+        : '社福中心有人接，卡片先給你那一區的電話。'}每支電話照它自己的服務時段挑；遇到國定假日，按右上角切換。</p>`
       + `<ul class="trust-list">`
-      + `<li>電話、窗口、要帶的東西，都抄自臺北市社會局、勞動局的官方頁面和開放資料，每一條都標了出處。</li>`
+      + `<li>電話、窗口、要帶的東西，都抄自臺北市政府、衛福部、警政署、健保署的官方頁面和開放資料，每一條都標了出處。</li>`
+      + `<li>底下的緊急電話：${lineSources}。</li>`
       + `<li>官方沒寫清楚的，標「待確認」，打電話時再問。</li>`
       + `<li>不用登入。選了哪一區、勾了什麼，只留在這個畫面，重新整理就清空。</li>`
       + `</ul><p class="trust-date">資料查核日 ${esc(data.checkedOn)}，以官方最新公告為準。</p></section>`;
@@ -93,9 +125,10 @@
     const sub = [f.aside, f.note, f.address].filter(Boolean).join('。');
     const more = f.more.map((c) => `<p class="also">同區另有${esc(c.name.replace(/^.*?\(|\)$/g, ''))}：`
       + `<a href="tel:${esc(c.phone.dial)}" data-dial="${esc(c.phone.dial)}">${esc(c.phone.display)}</a></p>`).join('');
+    const hours = `<p class="hours${p.status.open ? '' : ' is-closed'}">${hoursHtml(statusText(p.status))}</p>`;
     return `<p class="who" tabindex="-1" data-focus-after-pick>${esc(f.who)}${area}</p>`
-      + `<p class="number">${esc(f.display)}</p>`
-      + (sub ? `<p class="sub">${esc(sub)}${C.refsHtml(index, f.sources)}</p>` : '')
+      + `<p class="number">${esc(f.display)}</p>${hours}`
+      + (sub ? `<p class="sub with-ref"><span>${esc(sub)}</span>${C.refsHtml(index, f.sources)}</p>` : '')
       + `<a class="dial" href="tel:${esc(f.dial)}" data-dial="${esc(f.dial)}">${PHONE}撥出這支電話</a>${more}`;
   }
 
@@ -119,20 +152,21 @@
 
   function renderCard(data, situation, state, checked) {
     const index = C.sourceIndex(data, situation);
-    const p = C.plan(data, situation, state.period, state.district);
+    const p = C.plan(data, situation, state.period, state.district, state.moment);
     const script = C.splitScript(p.say.text);
-    const timeNote = p.timeNote ? `<p class="time">${esc(p.timeNote.text)}${C.refsHtml(index, p.timeNote.sources)}</p>` : '';
+    const timeNote = p.timeNote ? `<p class="time with-ref"><span>${entryText(p.timeNote)}</span>${C.refsHtml(index, p.timeNote.sources)}</p>` : '';
     const others = p.others.map((c) => (c.open
       ? `<li><strong>${esc(c.who)}</strong><span>選了你住的區就會顯示。</span>${districtPicker(data)}</li>`
       : `<li><strong>${esc(c.who)}</strong>${c.note ? `<span>${esc(c.note)}</span>` : ''}`
-        + `<a class="line-dial" href="tel:${esc(c.dial)}" data-dial="${esc(c.dial)}">${PHONE}${esc(c.display)}</a>${C.refsHtml(index, c.sources)}</li>`)).join('');
+        + `<span>${hoursHtml(C.hoursText(c.entry.hours))}</span>`
+        + `<span class="line-row"><a class="line-dial" href="tel:${esc(c.dial)}" data-dial="${esc(c.dial)}">${PHONE}${esc(c.display)}</a>${C.refsHtml(index, c.sources)}</span></li>`)).join('');
     const sayOthers = p.otherSay.map((e) => {
       const s = C.splitScript(e.text);
-      return `<li><strong>${esc(s.lead || '另一種說法')}</strong><span>「${C.scriptHtml(s.quote, 'blank', state.district)}」${C.refsHtml(index, e.sources)}</span></li>`;
+      return `<li class="with-ref"><span><strong>${esc(s.lead || '另一種說法')}</strong><br>「${C.scriptHtml(s.quote, 'blank', state.district)}」</span>${C.refsHtml(index, e.sources)}</li>`;
     }).join('');
-    const facts = p.facts.map((e) => `<li>${entryText(e)}${C.refsHtml(index, e.sources)}</li>`).join('');
-    const cautions = situation.cautions.map((e) => `<li>${entryText(e)}${C.refsHtml(index, e.sources)}</li>`).join('');
-    const directory = data.directories[situation.directory];
+    const facts = p.facts.map((e) => `<li class="with-ref"><span>${entryText(e)}</span>${C.refsHtml(index, e.sources)}</li>`).join('');
+    const cautions = situation.cautions.map((e) => `<li class="with-ref"><span>${entryText(e)}</span>${C.refsHtml(index, e.sources)}</li>`).join('');
+    const directory = situation.directory ? data.directories[situation.directory] : null;
     const places = situation.directory === 'laborConsult'
       ? row(esc(directory.title), `<ul class="list">${directory.rows.map((r) => `<li><strong>${esc(r.name)}</strong>`
         + `<span>${esc(r.address)}</span><span>${esc(r.hours)}</span></li>`).join('')}</ul>${C.refsHtml(index, directory.sources)}`)
@@ -141,14 +175,15 @@
     return `<header class="top"><a class="back" href="#/" aria-label="回到所有卡片">‹</a>${periodTag(state)}</header>`
       + `<article class="card${situation.urgent ? ' is-urgent' : ''}" aria-labelledby="card-title">`
       + `<div class="band"><h1 id="card-title">${esc(situation.title)}</h1><p class="band-sub">${esc(situation.subtitle)}</p></div>`
-      + `<section class="part call" aria-label="現在打給誰"><p class="label">現在打給</p>${callBlock(data, p, index, state)}${timeNote}</section>`
+      + `<section class="part call" aria-label="現在打給誰"><p class="label">${p.status.open ? '現在打給' : '上班時間打給'}</p>${callBlock(data, p, index, state)}${timeNote}</section>`
       + `<section class="part say" aria-label="接通後照著說"><p class="label">接通後照著說</p>`
-      + `<p class="script">「${C.scriptHtml(script.quote, 'blank', state.district)}」${C.refsHtml(index, p.say.sources)}</p></section>`
+      + `<p class="script">「${C.scriptHtml(script.quote, 'blank', state.district)}」</p>`
+      + `<p class="script-src">空格換成你的情況。${C.refsHtml(index, p.say.sources)}</p></section>`
       + `<section class="part bring" aria-label="要準備的東西"><p class="label label-row"><span>要準備的東西</span>`
       + `<span class="tally" data-tally="${esc(situation.id)}">${tally(situation, checked)}</span></p>`
       + `<ul class="checks">${checklist(situation, index, checked)}</ul></section>`
       + `<section class="part know" aria-label="先知道"><p class="label">先知道</p><ul class="know-list">${cautions}</ul></section>`
-      + `<p class="card-foot">可以截圖，或直接把手機拿給社工看。</p>`
+      + `<p class="card-foot">可以截圖，或直接把手機拿給窗口的人看。</p>`
       + `</article>`
       + `<div class="rows">`
       + (others ? row('其他電話', `<ul class="list">${others}</ul>`) : '')
@@ -161,7 +196,7 @@
 
   function render(data, state, checked) {
     const situation = state.id && C.findSituation(data, state.id);
-    return situation ? renderCard(data, situation, state, checked) : renderHome(data, state);
+    return (situation ? renderCard(data, situation, state, checked) : renderHome(data, state)) + emergencyBar(data);
   }
 
   function titleOf(data, state) {
@@ -169,13 +204,21 @@
     return s ? `${s.title}｜我遇到了……` : '我遇到了……';
   }
 
-  root.SituationApp = Object.freeze({ renderHome, renderCard, render, nowCall, groups, titleOf });
+  root.SituationApp = Object.freeze({ renderHome, renderCard, render, nowCall, groups, titleOf, emergencyBar });
 
   if (root.document) {
     root.document.addEventListener('DOMContentLoaded', () => {
       const checked = new Set(); // page memory only; gone on reload
       const app = root.document.getElementById('app');
       C.start((data, state) => render(data, state, checked), titleOf);
+      app.addEventListener('click', (event) => {
+        const chip = event.target.closest('[data-jump]');
+        if (!chip) return;
+        const heading = root.document.getElementById(chip.dataset.jump);
+        if (!heading) return;
+        heading.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        heading.focus({ preventScroll: true });
+      });
       app.addEventListener('change', (event) => {
         const key = event.target.dataset && event.target.dataset.check;
         if (!key) return;

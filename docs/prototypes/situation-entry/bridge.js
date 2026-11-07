@@ -7,7 +7,8 @@
  *   Because that late `false` could arrive at any time, no new 1999agree is sent while one is unanswered:
  *   a reply could not be told apart from the earlier one. Such a tap dials 1999 through 'phone_call' instead;
  *   its reply is named 'phone_call', so the earlier 1999agree `false` can never settle it.
- * - Other numbers use 'phone_call', which always replies a boolean (canLaunchUrl result).
+ * - Other numbers (short codes such as 110／165, 0800, landlines) use 'phone_call', which always replies a
+ *   boolean (canLaunchUrl result). Only allowlisted numbers are ever sent (see dialable).
  * Outside the app there is no flutterObject: callers fall back to a plain tel: link. */
 (function (root) {
   'use strict';
@@ -21,8 +22,13 @@
     return value && typeof value.postMessage === 'function' && typeof value.addEventListener === 'function' ? value : null;
   }
 
+  // Allowlist: the short codes the situation pages use, 0800 toll-free numbers, and landlines (area code + local
+  // number not starting with 0, so no mobiles, no 0204／0809 premium-rate and no extension strings).
+  const SHORT_CODES = new Set(['110', '113', '119', '165', '1925', '1957', '1966', '1999']);
+
   function dialable(number) {
-    return typeof number === 'string' && /^(1999|0\d{8,9})$/.test(number);
+    if (typeof number !== 'string') return false;
+    return SHORT_CODES.has(number) || /^0800\d{6}$/.test(number) || /^0[2-8][1-9]\d{6,7}$/.test(number);
   }
 
   // Subscribes to boolean replies named `name`; returns the unsubscribe function.

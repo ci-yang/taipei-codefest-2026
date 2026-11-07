@@ -1,7 +1,7 @@
 /* Shared logic for the main page (variant B) and the three design-record variants (BRA-592).
  * Pure helpers over SITUATION_DATA: which call comes first right now, which script to read, source footnotes.
  * No storage, no network: the chosen district lives only in page memory.
- * Preview overrides (read-only, for screenshots): ?t=day|night and ?d=<行政區>. */
+ * Preview overrides (read-only, for screenshots): ?t=day|night, ?at=HHMM and ?d=<行政區>. */
 (function (root) {
   'use strict';
 
@@ -9,10 +9,18 @@
     return String(value).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
   }
 
+  // Short codes (110, 1999 …) stay as dialed; 0800 and Taipei landlines get dashes.
   function formatDial(dial) {
-    if (dial === '1999') return '1999';
-    return `02-${dial.slice(2, 6)}-${dial.slice(6)}`;
+    if (/^\d{3,4}$/.test(dial)) return dial;
+    if (/^0800\d{6}$/.test(dial)) return `0800-${dial.slice(4, 7)}-${dial.slice(7)}`;
+    if (/^02\d{8}$/.test(dial)) return `02-${dial.slice(2, 6)}-${dial.slice(6)}`;
+    if (/^02\d{7}$/.test(dial)) return `02-${dial.slice(2, 5)}-${dial.slice(5)}`;
+    return dial;
   }
+
+  const OFFICE_OPEN = 8 * 60 + 30;
+  const OFFICE_CLOSE = 17 * 60 + 30;
+  const FORCED_DAY_MINUTES = 14 * 60 + 30;
 
   // Office hours used by 社福中心 per the food FAQ: weekdays 8:30–17:30. Public holidays are not known here,
   // which is why every variant also lets the user flip the period by hand.
@@ -20,13 +28,65 @@
     const day = date.getDay();
     const minutes = date.getHours() * 60 + date.getMinutes();
     const weekday = day >= 1 && day <= 5;
-    return weekday && minutes >= 8 * 60 + 30 && minutes < 17 * 60 + 30 ? 'day' : 'night';
+    return weekday && minutes >= OFFICE_OPEN && minutes < OFFICE_CLOSE ? 'day' : 'night';
   }
 
+  /* The moment each number's own hours are checked against: { workday, minutes }.
+   * The period toggle wins over the clock: 'night' during office hours means a public holiday (no weekday
+   * hours apply); 'day' outside office hours means "show me the daytime card" and uses 14:30. */
+  function momentFor(period, date) {
+    const day = date.getDay();
+    const minutes = date.getHours() * 60 + date.getMinutes();
+    const weekday = day >= 1 && day <= 5;
+    const inOffice = weekday && minutes >= OFFICE_OPEN && minutes < OFFICE_CLOSE;
+    if (period === 'day') return { workday: true, minutes: inOffice ? minutes : FORCED_DAY_MINUTES };
+    return { workday: inOffice ? false : weekday, minutes };
+  }
+
+  function toMinutes(hhmm) {
+    const [h, m] = hhmm.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  function clockText(hhmm) {
+    return hhmm.replace(/^0/, '');
+  }
+
+  /* hours: '24h' | { days: 'weekdays', spans: [['09:00', '12:30'], …] } | null (official page does not say). */
+  function isOpen(hours, moment) {
+    if (hours === '24h') return true;
+    if (!hours) return false;
+    return moment.workday && hours.spans.some(([from, to]) => moment.minutes >= toMinutes(from) && moment.minutes < toMinutes(to));
+  }
+
+  function hoursText(hours) {
+    if (hours === '24h') return '24 小時';
+    if (!hours) return '服務時段待確認';
+    return `週一至週五 ${hours.spans.map(([from, to]) => `${clockText(from)}–${clockText(to)}`).join('、')}`;
+  }
+
+  // When a closed number opens again. Holidays are unknown, so tomorrow is "下個上班日".
+  function nextOpenText(hours, moment) {
+    if (!hours || hours === '24h') return '';
+    const later = moment.workday && hours.spans.find(([from]) => toMinutes(from) > moment.minutes);
+    return later ? `今天 ${clockText(later[0])} 起` : `下個上班日 ${clockText(hours.spans[0][0])} 起`;
+  }
+
+  // Preview overrides for screenshots: ?t=day|night picks a fixed Wednesday (14:30 or 21:00); ?at=0915 sets the time.
   function readPreview(search) {
     const params = new URLSearchParams(search || '');
     const t = params.get('t');
-    return { period: t === 'day' || t === 'night' ? t : null, district: params.get('d') || '' };
+    const at = /^(\d{2})(\d{2})$/.exec(params.get('at') || '');
+    return {
+      period: t === 'day' || t === 'night' ? t : null,
+      district: params.get('d') || '',
+      at: at ? Number(at[1]) * 60 + Number(at[2]) : null,
+    };
+  }
+
+  function previewDate(preview) {
+    const minutes = preview.at ?? (preview.period === 'night' ? 21 * 60 : FORCED_DAY_MINUTES);
+    return new Date(2026, 10, 11, Math.floor(minutes / 60), minutes % 60); // a Wednesday
   }
 
   function districts(data) {
@@ -61,35 +121,44 @@
     return { entry, open: false, who: name, aside: aside || '', dial, display: formatDial(dial), note: entry.note, more: [], sources: entry.sources };
   }
 
-  /* The one step to show first.
-   * day: the district 社福中心 when the situation has one, else the first listed number.
-   * night/holiday: 1999 when the situation lists it, else the first listed number. */
-  function plan(data, situation, period, district) {
+  function defaultMoment(period) {
+    return period === 'day' ? { workday: true, minutes: FORCED_DAY_MINUTES } : { workday: false, minutes: 21 * 60 };
+  }
+
+  function forEntry(list, id) {
+    return list.find((entry) => entry.for && entry.for.includes(id)) || null;
+  }
+
+  /* The one step to show first: the first call, in data order, whose own hours are open at `moment`.
+   * Data order is the priority (e.g. district 社福中心 before 1999). When nothing listed is open, the first
+   * call is shown with when it opens next. Scripts and time notes tagged `for` a call id follow that call;
+   * '@closed' tags the note shown when nothing is open. */
+  function plan(data, situation, period, district, moment = defaultMoment(period)) {
     const calls = situation.call;
-    const hotline = calls.find((entry) => entry.number === '1999');
-    const directory = calls.find((entry) => entry.fromDirectory);
-    const firstEntry = period === 'day' ? (directory || calls[0]) : (hotline || calls[0]);
+    const firstEntry = calls.find((entry) => isOpen(entry.hours, moment)) || calls[0];
     const first = resolveCall(data, firstEntry, district);
-    const usesHotline = firstEntry === hotline;
-    const say = (usesHotline && situation.say.find((entry) => entry.text.includes('1999')))
-      || situation.say.find((entry) => !entry.text.includes('1999'))
-      || situation.say[0];
-    const timeNote = period === 'night'
-      ? situation.window.find((entry) => entry.text.includes('晚上')) || null
-      : situation.window.find((entry) => entry.text.includes('上班時間')) || null;
+    const isOpenNow = isOpen(firstEntry.hours, moment);
+    const status = {
+      open: isOpenNow,
+      hours: hoursText(firstEntry.hours),
+      next: isOpenNow ? '' : nextOpenText(firstEntry.hours, moment),
+      pending: !firstEntry.hours,
+    };
+    const say = forEntry(situation.say, firstEntry.id) || situation.say.find((entry) => !entry.for) || situation.say[0];
+    const timeNote = (!isOpenNow && forEntry(situation.window, '@closed')) || forEntry(situation.window, firstEntry.id);
     const others = calls.filter((entry) => entry !== firstEntry).map((entry) => resolveCall(data, entry, district));
     const otherSay = situation.say.filter((entry) => entry !== say);
     const facts = situation.window.filter((entry) => entry !== timeNote);
-    return { first, say, otherSay, timeNote, others, facts };
+    return { first, status, say, otherSay, timeNote, others, facts };
   }
 
   // Footnote numbering: every source a situation cites, in first-use order.
   function sourceIndex(data, situation) {
-    const directory = data.directories[situation.directory];
+    const directory = situation.directory ? data.directories[situation.directory] : null;
     const ids = [];
     const add = (list) => list.forEach((id) => { if (!ids.includes(id)) ids.push(id); });
     ['call', 'say', 'window', 'bring', 'cautions'].forEach((key) => situation[key].forEach((entry) => add(entry.sources)));
-    add(directory.sources);
+    if (directory) add(directory.sources);
     const number = new Map(ids.map((id, index) => [id, index + 1]));
     return {
       list: ids.map((id) => ({ id, n: number.get(id), ...data.sources[id] })),
@@ -117,10 +186,13 @@
     return match ? { lead: match[1], quote: match[2] } : { lead: '', quote: text };
   }
 
-  // Small footnote buttons; they open the page's <details data-sources> and scroll to the entry.
+  // One footnote button per entry (44px to tap), listing every source it cites; it opens the page's
+  // <details data-sources>, scrolls to the first one and flashes them all.
   function refsHtml(index, sourceIds) {
-    return index.refs(sourceIds)
-      .map((n) => `<button type="button" class="ref" data-ref="${n}" aria-label="看來源 ${n}">${n}</button>`).join('');
+    const numbers = [...new Set(index.refs(sourceIds))].sort((a, b) => a - b);
+    if (!numbers.length) return '';
+    const label = numbers.join('、');
+    return `<button type="button" class="ref" data-ref="${numbers.join(' ')}" aria-label="看來源 ${label}"><span>${label}</span></button>`;
   }
 
   function wireRefs(container) {
@@ -128,14 +200,14 @@
       const button = event.target.closest('button[data-ref]');
       if (!button) return;
       const box = container.querySelector('details[data-sources]');
-      const item = container.querySelector(`#src-${button.dataset.ref}`);
+      const items = button.dataset.ref.split(' ').map((n) => container.querySelector(`#src-${n}`)).filter(Boolean);
       if (box) box.open = true;
-      if (item) {
-        item.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (items.length) items[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
+      items.forEach((item) => {
         item.classList.remove('is-flash');
         void item.offsetWidth;
         item.classList.add('is-flash');
-      }
+      });
     });
   }
 
@@ -177,13 +249,15 @@
     const data = root.SITUATION_DATA;
     const app = doc.getElementById('app');
     const preview = readPreview(root.location.search);
-    const state = { id: null, period: preview.period || detectPeriod(new Date()), district: preview.district };
+    const clock = () => (preview.period ? previewDate(preview) : new Date());
+    const state = { id: null, period: preview.period || detectPeriod(clock()), district: preview.district, moment: null };
     const calls = wireCalls(doc, app, doc.getElementById('call-status'), root.SituationBridge);
     wireRefs(app);
 
     function draw(focusSelector) {
       state.id = parseRoute(root.location.hash);
       if (state.id && !findSituation(data, state.id)) state.id = null;
+      state.moment = momentFor(state.period, clock());
       app.innerHTML = render(data, state);
       doc.title = titleOf(data, state);
       doc.documentElement.dataset.period = state.period;
@@ -205,7 +279,7 @@
 
   root.SituationCore = Object.freeze({
     start,
-    esc, formatDial, detectPeriod, readPreview, districts, centersIn, findSituation, needsDistrict,
+    esc, formatDial, detectPeriod, momentFor, isOpen, hoursText, nextOpenText, readPreview, previewDate, districts, centersIn, findSituation, needsDistrict,
     plan, sourceIndex, scriptHtml, periodText, splitScript, refsHtml, wireRefs, sourcesListHtml, wireCalls, parseRoute,
   });
 })(typeof window === 'undefined' ? globalThis : window);

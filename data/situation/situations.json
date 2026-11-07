@@ -89,18 +89,148 @@
       "url": "https://laws.gov.taipei/Law/LawSearch/LawInformation/FL002892",
       "checkedOn": "2026-11-08",
       "note": "民國 110 年 12 月 29 日修正"
+    },
+    "dosw-emergency-contact": {
+      "short": "社會局急難救助洽辦資訊",
+      "title": "臺北市政府社會局：急難救助－洽辦資訊",
+      "publisher": "臺北市政府社會局",
+      "url": "https://dosw.gov.taipei/cp.aspx?n=0BF751F1B9F07AA1&s=3EDF246EE65EE9D5",
+      "note": "電話「1999(外縣市02-27208889)轉6962」；辦公時間星期一至星期五 9:00-17:00（彈性 8:00-9:00、17:00-18:00），12:30-13:30 午休，例假日及國定假日休息。資料更新 115-09-30",
+      "checkedOn": "2026-11-08"
+    },
+    "rdec-1999": {
+      "short": "1999 常見問答（研考會）",
+      "title": "臺北市政府研究發展考核委員會常見問答：半夜打1999，也會有人接聽嗎？",
+      "publisher": "臺北市政府研究發展考核委員會",
+      "url": "https://rdec.gov.taipei/News_Content.aspx?n=9244F59F04B36BF1&s=D1A7933343212BC4&sms=87415A8B9CE81B16",
+      "note": "「本府1999市民熱線為24小時全年無休」；公共電話撥打要付費，1 分鐘 1 元；1999 是非緊急的市政服務。資料更新 114-09-16",
+      "checkedOn": "2026-11-08"
+    },
+    "dlacp-rental": {
+      "short": "法務局：租屋糾紛律師電話諮詢",
+      "title": "法扶會自2024年8月1日起開辦「租屋糾紛承租人電話法律諮詢服務」",
+      "publisher": "臺北市政府法務局",
+      "url": "https://dlacp.gov.taipei/News_Content.aspx?n=CE42298B727C5A5D&s=1A370A4D795FFC1F&sms=AD9E22F6D50E2288",
+      "note": "「412-8518轉2再轉6」，市話直撥、手機加 02；每週一至週五 09:00-12:30、13:30-17:00；對象住宅租賃承租人；每通 20 分鐘；法扶會受內政部委託辦理",
+      "checkedOn": "2026-11-08"
+    },
+    "mohw-hotlines": {
+      "short": "衛福部諮詢服務專線",
+      "title": "衛生福利部：諮詢服務專線（1966、113、1925、健保諮詢等服務時間）",
+      "publisher": "衛生福利部",
+      "url": "https://www.mohw.gov.tw/fp-23-135-1.html",
+      "note": "1966 週一至週五 8:30-12:00、13:30-17:30；113、1925 每日 24 小時；健保諮詢 0800-030-598 週一至週五 8:30-17:30。頁面更新 114-06-23",
+      "checkedOn": "2026-11-08"
+    },
+    "health-discharge": {
+      "short": "衛生局：出院準備銜接長照",
+      "title": "臺北市政府衛生局：出院準備－出院準備銜接長照服務",
+      "publisher": "臺北市政府衛生局",
+      "url": "https://health.gov.taipei/News_Content.aspx?n=26224E50941C912A&s=6209A147738D85D1&sms=88CB8FF290426B1F",
+      "note": "「請與各醫院出院準備小組聯繫，或撥打1966專線諮詢」；服務對象為長照 3.0 個案，住宿式機構住民除外；頁面未列應備文件",
+      "checkedOn": "2026-11-08"
+    },
+    "npa-missing": {
+      "short": "警政署：家人走失應如何報案",
+      "title": "內政部警政署答客問：家人走失應如何報案？",
+      "publisher": "內政部警政署",
+      "url": "https://www.npa.gov.tw/ch/app/data/view?id=1980&module=wg040&serno=01a8ea4d-1a55-49a2-bbe2-3a9b771fbbd4",
+      "note": "就近向警察機關報案、不分管轄隨到隨辦；帶身分證明文件及失蹤人近照；提供穿著、特徵、攜帶物品、走失原因、走失前異常言行、人際網絡資料。更新 114-04-22",
+      "checkedOn": "2026-11-08"
+    },
+    "npa-missing-24h": {
+      "short": "警政署：不用等 24 小時",
+      "title": "內政部警政署警政統計主題專區：有愛無礙 幫助失智長者找到回家的路",
+      "publisher": "內政部警政署",
+      "url": "https://wwwcdn.npa.gov.tw/ch/app/data/view?id=2206&module=wg054&serno=024f92f9-6bdf-4482-b896-5c968d8bc00d",
+      "note": "「親人失蹤無須等超過24小時後才能報案，隨報即辦」。更新 114-05-01",
+      "checkedOn": "2026-11-08"
+    },
+    "gov-safety": {
+      "short": "我的E政府：110、119 報案專線",
+      "title": "我的E政府：危險來臨怎麼辦？臺灣全民安全指引（緊急專線表）",
+      "publisher": "國家發展委員會 我的E政府（資料來源：國防部全民防衛動員署、內政部消防署）",
+      "url": "https://www.gov.tw/News_Content_26_843106",
+      "note": "110 警政專線、119 消防專線，服務時間皆為「週一至週日 24小時」。更新 114-10-14",
+      "checkedOn": "2026-11-08"
+    },
+    "hlhpd-165": {
+      "short": "警政署港務警察總隊常見問答（165）",
+      "title": "內政部警政署花蓮港務警察總隊常見問答（PDF）",
+      "publisher": "內政部警政署花蓮港務警察總隊",
+      "url": "https://www.hlhpd.npa.gov.tw/ch/app/faq/doc?detailNo=1280693537586810880&module=faq&type=s",
+      "note": "「165專線係警方為遏止詐騙案件所設置之專線，24小時均有員警於線上為您服務」；165 會通報銀行將人頭帳戶列為警示帳戶",
+      "checkedOn": "2026-11-08"
+    },
+    "cib-165": {
+      "short": "刑事局：把握黃金時間撥打 165",
+      "title": "內政部警政署刑事警察局：把握黃金時間撥打165 增加攔阻詐騙款項機會",
+      "publisher": "內政部警政署刑事警察局",
+      "url": "https://www.cib.npa.gov.tw/ch/app/news/view?id=1887&module=news&serno=4e55ed31-dba5-475a-9098-b8c1bad1c919",
+      "note": "撥 165 時敘述案情、匯款帳戶及匯款金額；165 傳真銀行圈存款項；撥打後應盡速至派出所完成報案程序，24 小時內未通報為詐騙帳戶則解除圈存。發布 110-05-30",
+      "checkedOn": "2026-11-08"
+    },
+    "npa-165-cost": {
+      "short": "警政署：165 通話費與其他報案方式",
+      "title": "內政部警政署常見問答：撥打165反詐騙諮詢專線需要通話費用嗎？",
+      "publisher": "內政部警政署",
+      "url": "https://www.npa.gov.tw/ch/app/faq/view?module=faq&id=2144&serno=A1078837",
+      "note": "市話免費；行動電話除中華電信門號外每分鐘 1 元；可在 165 網站網路報案。更新 111-11-01",
+      "checkedOn": "2026-11-08"
+    },
+    "tpd-fraud-report": {
+      "short": "北市警局：報案、諮詢及檢舉",
+      "title": "臺北市政府警察局防制詐騙專區：報案、諮詢及檢舉",
+      "publisher": "臺北市政府警察局",
+      "url": "https://md-fraud.police.gov.taipei/cp.aspx?n=CD9002B9355919D1",
+      "note": "已匯款等實際財損適用報案；攜帶匯款單、對話紀錄、轉帳明細到就近派出所或各警察機關完成報案，取得受（處）理案件證明單。資料更新 115-01-05",
+      "checkedOn": "2026-11-08"
+    },
+    "tpd-fraud-lines": {
+      "short": "北市警局：諮詢專線",
+      "title": "臺北市政府警察局防制詐騙專區：諮詢專線",
+      "publisher": "臺北市政府警察局",
+      "url": "https://md-fraud.police.gov.taipei/cp.aspx?n=5C9FB2F12E598D43",
+      "note": "列反詐欺專線 165、全國各地報案電話 110；頁面未寫服務時段",
+      "checkedOn": "2026-11-08"
+    },
+    "nhi-hardship": {
+      "short": "健保署：無力繳納健保費的協助",
+      "title": "衛生福利部中央健康保險署常見問答：無力繳納健保費者，有那些協助措施？",
+      "publisher": "衛生福利部中央健康保險署",
+      "url": "https://www.nhi.gov.tw/ch/cp-3793-e8fe7-3246-1.html",
+      "note": "紓困貸款（一年後開始還款）、愛心轉介代繳、分期繳納；欠費者急重症可持村里長或醫院清寒證明先以健保身分就醫",
+      "checkedOn": "2026-11-08"
+    },
+    "nhi-installment": {
+      "short": "健保署：分期繳納",
+      "title": "衛生福利部中央健康保險署：分期繳納",
+      "publisher": "衛生福利部中央健康保險署",
+      "url": "https://www.nhi.gov.tw/ch/cp-4491-11c56-2652-1.html",
+      "note": "保險對象欠費超過 2 千元可申請；現場帶身分證明文件、印章、第一期款；代辦加委託書及受託人身分證明文件、印章；已移送行政執行要先經執行署同意；可網路或 App 申請簡易分期",
+      "checkedOn": "2026-11-08"
     }
   },
   "categories": [
     {
       "id": "money",
-      "title": "吃飯、生活費",
-      "note": "暫定分類；情境變多後再調整"
+      "title": "錢和吃住"
     },
     {
       "id": "work",
-      "title": "工作、薪水",
-      "note": "暫定分類；情境變多後再調整"
+      "title": "工作出狀況"
+    },
+    {
+      "id": "family",
+      "title": "家人和照顧"
+    },
+    {
+      "id": "safety",
+      "title": "人身安全"
+    },
+    {
+      "id": "health",
+      "title": "健康"
     }
   ],
   "situations": [
@@ -115,6 +245,9 @@
           "text": "上班時間（週一至週五 8:30–17:30）先聯絡你住的那一區的社會福利服務中心，請社工評估。",
           "sources": [
             "dosw-food-faq"
+          ],
+          "for": [
+            "food-center"
           ]
         },
         {
@@ -127,6 +260,9 @@
           "text": "晚上或假日：撥 1999 留下姓名、電話、地址，等到上班時間再由社會局轉介。這不是當天供餐。",
           "sources": [
             "dosw-food-faq"
+          ],
+          "for": [
+            "food-1999"
           ]
         }
       ],
@@ -147,6 +283,7 @@
       ],
       "call": [
         {
+          "id": "food-center",
           "label": "你住那一區的社福中心",
           "fromDirectory": true,
           "note": "上班時間打；在上方「找你那一區」選行政區後顯示電話。",
@@ -154,15 +291,28 @@
             "dosw-welfare-roster",
             "d5-welfare-centers",
             "dosw-food-faq"
-          ]
+          ],
+          "hours": {
+            "days": "weekdays",
+            "spans": [
+              [
+                "08:30",
+                "17:30"
+              ]
+            ]
+          }
         },
         {
+          "id": "food-1999",
           "label": "1999 市民熱線（晚上、假日留資料）",
           "number": "1999",
           "note": "社會局社會工作科分機 1633；外縣市請撥 02-2720-8889。",
+          "brief": "晚上、假日先留資料，上班時間轉介",
           "sources": [
-            "dosw-food-faq"
-          ]
+            "dosw-food-faq",
+            "rdec-1999"
+          ],
+          "hours": "24h"
         }
       ],
       "say": [
@@ -170,12 +320,18 @@
           "text": "白天打給社福中心：「你好，我住在臺北市＿＿區，現在沒有錢買東西吃，想請社工評估能不能申請希望好食堂餐券。我的電話是＿＿。」",
           "sources": [
             "dosw-food-faq"
+          ],
+          "for": [
+            "food-center"
           ]
         },
         {
           "text": "晚上或假日打 1999：「我想留資料請社會局上班後聯絡我。我叫＿＿，電話＿＿，住在＿＿，現在沒有東西吃。」",
           "sources": [
             "dosw-food-faq"
+          ],
+          "for": [
+            "food-1999"
           ]
         }
       ],
@@ -184,6 +340,292 @@
           "text": "這個頁面不發餐券，也不能幫你送出申請。能不能拿到餐券，由社福中心社工評估決定。",
           "sources": [
             "dosw-food-faq"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "emergency",
+      "title": "突然沒錢，繳不出房租或水電",
+      "subtitle": "家裡出事，生活一下子撐不住",
+      "category": "money",
+      "directory": "welfareCenters",
+      "window": [
+        {
+          "text": "急難救助承辦窗口是 1999 轉分機 6962，只在週一至週五 9:00–17:00 上班（12:30–13:30 午休，例假日和國定假日休息）。",
+          "for": [
+            "emg-6962",
+            "emg-center"
+          ],
+          "sources": [
+            "dosw-emergency-contact"
+          ]
+        },
+        {
+          "text": "急難救助：設籍臺北市，因為家人過世、受傷或重病、家裡主要賺錢的人失業或沒辦法工作、帳戶被凍結、等其他福利核准期間，生活陷入困境，可以向戶籍所在地區公所社會課或社福中心申請。",
+          "sources": [
+            "dosw-emergency",
+            "law-emergency"
+          ]
+        },
+        {
+          "text": "急難紓困方案（原馬上關懷）：家人死亡、失蹤、重傷病、失業，或被放無薪假、收入減少，造成生活困難，可以找居住所在地區公所社會課或社福中心。",
+          "sources": [
+            "dosw-relief"
+          ]
+        },
+        {
+          "text": "造成困難的事情，要是最近三個月內發生的。",
+          "sources": [
+            "dosw-emergency",
+            "dosw-relief"
+          ]
+        },
+        {
+          "text": "只是「繳不出房租或水電」能不能申請，官方頁面沒有直接寫：待確認。要看是什麼原因造成，由區公所或社福中心訪視評估。",
+          "pending": true,
+          "sources": [
+            "dosw-emergency",
+            "dosw-relief"
+          ]
+        },
+        {
+          "text": "晚上或假日：1999 話務人員 24 小時接聽，先說明需求、請他登錄並轉辦；急難救助承辦單位要等上班時間才處理，今晚不會核發。",
+          "for": [
+            "emg-1999"
+          ],
+          "sources": [
+            "rdec-1999",
+            "dosw-emergency-contact"
+          ]
+        }
+      ],
+      "bring": [
+        {
+          "text": "申請書 1 份（急難紓困是申請書或通報表），加申請人的身分證或戶籍資料影本 1 份。",
+          "sources": [
+            "dosw-emergency-docs",
+            "dosw-relief-docs"
+          ]
+        },
+        {
+          "text": "生病或受傷：公立或私立財團法人醫療院所開的診斷證明書 1 份，加醫療費用收據（原則上要正本）。",
+          "sources": [
+            "dosw-emergency-docs"
+          ]
+        },
+        {
+          "text": "家人過世、要申請喪葬救助：過世家人的死亡證明文件，加治喪費用單據。",
+          "sources": [
+            "dosw-emergency-docs"
+          ]
+        },
+        {
+          "text": "失業：公立就業輔導機構開的輔導就業證明。",
+          "sources": [
+            "dosw-emergency-docs"
+          ]
+        },
+        {
+          "text": "申請急難紓困：發生什麼事的證明，例如死亡證明、失蹤證明、罹患重傷病證明、失業證明，或其他原因沒辦法工作的證明。",
+          "sources": [
+            "dosw-relief-docs"
+          ]
+        },
+        {
+          "text": "其他跟你狀況有關的證明文件，有就一起帶。",
+          "sources": [
+            "dosw-emergency-docs"
+          ]
+        },
+        {
+          "text": "房租、水電的欠費單據要不要帶：官方應備文件沒有列，待確認。可以先帶著，到窗口再問。",
+          "pending": true,
+          "sources": [
+            "dosw-emergency-docs",
+            "dosw-relief-docs"
+          ]
+        }
+      ],
+      "call": [
+        {
+          "id": "emg-center",
+          "label": "你住那一區的社福中心",
+          "fromDirectory": true,
+          "note": "在上方「找你那一區」選行政區後顯示電話。",
+          "sources": [
+            "dosw-welfare-roster",
+            "d5-welfare-centers",
+            "dosw-emergency"
+          ],
+          "hours": {
+            "days": "weekdays",
+            "spans": [
+              [
+                "08:30",
+                "17:30"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "emg-6962",
+          "label": "社會局急難救助窗口（1999 轉分機 6962）",
+          "number": "1999",
+          "note": "上班時間打，接通後請轉分機 6962。外縣市請撥 02-2720-8889 轉 6962。",
+          "brief": "接通後轉分機 6962",
+          "hours": {
+            "days": "weekdays",
+            "spans": [
+              [
+                "09:00",
+                "12:30"
+              ],
+              [
+                "13:30",
+                "17:00"
+              ]
+            ]
+          },
+          "sources": [
+            "dosw-emergency-contact"
+          ]
+        },
+        {
+          "id": "emg-1999",
+          "label": "1999 市民熱線（晚上、假日先登錄）",
+          "number": "1999",
+          "note": "接通後先說明需求，請話務人員登錄並轉辦。",
+          "brief": "先登錄，上班時間才處理",
+          "hours": "24h",
+          "sources": [
+            "rdec-1999",
+            "dosw-emergency-contact"
+          ]
+        }
+      ],
+      "say": [
+        {
+          "text": "「你好，我設籍在臺北市＿＿區，因為＿＿（例如：失業、生病住院、家人過世），這個月繳不出房租和水電。我想問能不能申請急難救助或急難紓困，要帶什麼資料？」",
+          "sources": [
+            "dosw-emergency",
+            "dosw-relief"
+          ],
+          "for": [
+            "emg-center",
+            "emg-6962"
+          ]
+        },
+        {
+          "text": "晚上或假日打 1999：「我想申請急難救助，請幫我登錄並轉給社會局，上班時間請承辦人聯絡我。我叫＿＿，電話＿＿，設籍在臺北市＿＿區，因為＿＿，這個月繳不出房租和水電。」",
+          "for": [
+            "emg-1999"
+          ],
+          "sources": [
+            "rdec-1999",
+            "dosw-emergency-contact"
+          ]
+        }
+      ],
+      "cautions": [
+        {
+          "text": "能不能領、領多少，由社會局或區公所受理後評估，必要時會派人訪視。這個頁面不能幫你送出申請。",
+          "sources": [
+            "law-emergency",
+            "dosw-relief"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rental",
+      "title": "房東突然要我搬走、押金不退",
+      "subtitle": "租屋糾紛，想先問律師怎麼辦",
+      "category": "money",
+      "window": [
+        {
+          "text": "租屋糾紛承租人電話法律諮詢：週一至週五 9:00–12:30、13:30–17:00，由律師免費接聽（法律扶助基金會受內政部委託辦理）。",
+          "sources": [
+            "dlacp-rental"
+          ]
+        },
+        {
+          "text": "服務對象是住宅租賃的房客。可以問租約引起的糾紛，官方舉的例子有：房東提前終止租約、押金被不當扣除。",
+          "sources": [
+            "dlacp-rental"
+          ]
+        },
+        {
+          "text": "晚上和假日這支專線沒開，下個上班日 9:00 再打。有人威脅你、你有立即危險，打 110。",
+          "for": [
+            "@closed"
+          ],
+          "sources": [
+            "dlacp-rental",
+            "gov-safety"
+          ]
+        }
+      ],
+      "bring": [
+        {
+          "text": "每通電話 20 分鐘，時間到會自動斷線。先寫好：住多久、租約到哪天、押金多少、房東說了什麼。",
+          "sources": [
+            "dlacp-rental"
+          ]
+        },
+        {
+          "text": "官方頁面沒有列要準備什麼：待確認。可以先把租約、付押金的收據或轉帳紀錄、跟房東往來的訊息放在手邊。",
+          "pending": true,
+          "sources": [
+            "dlacp-rental"
+          ]
+        }
+      ],
+      "call": [
+        {
+          "id": "rental-line",
+          "label": "法扶租屋糾紛律師電話諮詢",
+          "number": "02-412-8518",
+          "note": "接通後按 2，再按 6。市話直撥 412-8518，手機要加 02。",
+          "brief": "接通後按 2，再按 6",
+          "hours": {
+            "days": "weekdays",
+            "spans": [
+              [
+                "09:00",
+                "12:30"
+              ],
+              [
+                "13:30",
+                "17:00"
+              ]
+            ]
+          },
+          "sources": [
+            "dlacp-rental"
+          ]
+        }
+      ],
+      "say": [
+        {
+          "text": "「你好，我是租房子的房客。房東＿＿（例如：要我＿＿號前搬走、不退押金），押金是＿＿元，租約到＿＿。我想問可以怎麼處理？」",
+          "sources": [
+            "dlacp-rental"
+          ]
+        }
+      ],
+      "cautions": [
+        {
+          "text": "這是電話法律諮詢，律師給你建議，不會替你去跟房東談。後續要怎麼走，在電話裡問清楚。",
+          "sources": [
+            "dlacp-rental"
+          ]
+        },
+        {
+          "text": "晚上、假日有沒有其他租屋法律窗口：待確認。",
+          "pending": true,
+          "sources": [
+            "dlacp-rental"
           ]
         }
       ]
@@ -251,28 +693,45 @@
       ],
       "call": [
         {
+          "id": "labor-lawyer",
           "label": "勞動局免費律師電話諮詢",
           "number": "02-27208889",
-          "note": "這支是臺北市政府總機，接通後轉分機 7019；週一至週五 14:00–17:00。",
+          "note": "接通後轉分機 7019。這支是臺北市政府總機。",
+          "brief": "接通後轉分機 7019",
           "sources": [
             "d8-labor-lawyer"
-          ]
+          ],
+          "hours": {
+            "days": "weekdays",
+            "spans": [
+              [
+                "14:00",
+                "17:00"
+              ]
+            ]
+          }
         },
         {
+          "id": "labor-center",
           "label": "勞動權益中心（調解）",
           "number": "02-23026355",
           "note": "接通後轉分機 611–614。",
           "sources": [
             "bola-mediation-form"
-          ]
+          ],
+          "hours": null
         },
         {
+          "id": "labor-1999",
           "label": "1999 市民熱線",
           "number": "1999",
-          "note": "限臺北市境內直撥，公共電話及預付卡除外。",
+          "note": "1999 話務人員 24 小時接聽；晚上、假日打，請他登錄並轉給勞動局，承辦單位上班時間才會處理。限臺北市境內直撥，公共電話要付費。",
+          "brief": "先登錄，上班時間才處理",
           "sources": [
-            "bola-mediation"
-          ]
+            "bola-mediation",
+            "rdec-1999"
+          ],
+          "hours": "24h"
         }
       ],
       "say": [
@@ -303,130 +762,436 @@
           "sources": [
             "d8-labor-lawyer"
           ]
+        },
+        {
+          "text": "勞動權益中心（調解）電話的接聽時段，申請書沒有寫：待確認。",
+          "pending": true,
+          "sources": [
+            "bola-mediation-form"
+          ]
         }
       ]
     },
     {
-      "id": "emergency",
-      "title": "突然沒錢，繳不出房租或水電",
-      "subtitle": "家裡出事，生活一下子撐不住",
-      "category": "money",
-      "directory": "welfareCenters",
+      "id": "discharge",
+      "title": "家人快出院了，回家沒人會照顧",
+      "subtitle": "想在出院前把長照接上",
+      "category": "family",
       "window": [
         {
-          "text": "急難救助：設籍臺北市，因為家人過世、受傷或重病、家裡主要賺錢的人失業或沒辦法工作、帳戶被凍結、等其他福利核准期間，生活陷入困境，可以向戶籍所在地區公所社會課或社福中心申請。",
+          "text": "1966 長照專線：週一至週五 8:30–12:00、13:30–17:30。還在住院的話，也可以直接問醫院的出院準備小組。",
           "sources": [
-            "dosw-emergency",
-            "law-emergency"
+            "mohw-hotlines",
+            "health-discharge"
           ]
         },
         {
-          "text": "急難紓困方案（原馬上關懷）：家人死亡、失蹤、重傷病、失業，或被放無薪假、收入減少，造成生活困難，可以找居住所在地區公所社會課或社福中心。",
+          "text": "出院準備銜接長照：住院期間由醫院人員做長照失能評估，先擬好回家第一週最急需的照顧計畫；之後由照管專員和社區整合服務中心個管員擬完整計畫。",
           "sources": [
-            "dosw-relief"
+            "health-discharge"
           ]
         },
         {
-          "text": "造成困難的事情，要是最近三個月內發生的。",
+          "text": "對象是符合長照 3.0 的人，例如 65 歲以上失能、領有身心障礙證明且失能、55 歲以上失能原住民、失智症者。住在住宿式機構的人不在這個計畫裡。",
           "sources": [
-            "dosw-emergency",
-            "dosw-relief"
+            "health-discharge"
           ]
         },
         {
-          "text": "只是「繳不出房租或水電」能不能申請，官方頁面沒有直接寫：待確認。要看是什麼原因造成，由區公所或社福中心訪視評估。",
+          "text": "晚上、假日 1966 沒開。先問病房護理站怎麼聯絡出院準備小組；小組晚上、假日有沒有人在：待確認。",
+          "for": [
+            "@closed"
+          ],
           "pending": true,
           "sources": [
-            "dosw-emergency",
-            "dosw-relief"
+            "mohw-hotlines",
+            "health-discharge"
           ]
         }
       ],
       "bring": [
         {
-          "text": "申請書 1 份（急難紓困是申請書或通報表），加申請人的身分證或戶籍資料影本 1 份。",
+          "text": "先寫下：家人住哪家醫院、哪一床，預計哪天出院，回家後跟誰住、白天有沒有人在家。",
           "sources": [
-            "dosw-emergency-docs",
-            "dosw-relief-docs"
+            "health-discharge"
           ]
         },
         {
-          "text": "生病或受傷：公立或私立財團法人醫療院所開的診斷證明書 1 份，加醫療費用收據（原則上要正本）。",
-          "sources": [
-            "dosw-emergency-docs"
-          ]
-        },
-        {
-          "text": "家人過世、要申請喪葬救助：過世家人的死亡證明文件，加治喪費用單據。",
-          "sources": [
-            "dosw-emergency-docs"
-          ]
-        },
-        {
-          "text": "失業：公立就業輔導機構開的輔導就業證明。",
-          "sources": [
-            "dosw-emergency-docs"
-          ]
-        },
-        {
-          "text": "申請急難紓困：發生什麼事的證明，例如死亡證明、失蹤證明、罹患重傷病證明、失業證明，或其他原因沒辦法工作的證明。",
-          "sources": [
-            "dosw-relief-docs"
-          ]
-        },
-        {
-          "text": "其他跟你狀況有關的證明文件，有就一起帶。",
-          "sources": [
-            "dosw-emergency-docs"
-          ]
-        },
-        {
-          "text": "房租、水電的欠費單據要不要帶：官方應備文件沒有列，待確認。可以先帶著，到窗口再問。",
+          "text": "官方頁面沒有列要準備哪些文件：待確認。先問醫院出院準備小組。",
           "pending": true,
           "sources": [
-            "dosw-emergency-docs",
-            "dosw-relief-docs"
+            "health-discharge"
           ]
         }
       ],
       "call": [
         {
-          "label": "社會局急難救助窗口",
-          "number": "1999",
-          "note": "接通後轉分機 6962；外縣市請撥 02-2720-8889。",
+          "id": "ltc-1966",
+          "label": "衛福部長照專線",
+          "number": "1966",
+          "note": "接通後說家人快出院，想申請長照評估。",
+          "hours": {
+            "days": "weekdays",
+            "spans": [
+              [
+                "08:30",
+                "12:00"
+              ],
+              [
+                "13:30",
+                "17:30"
+              ]
+            ]
+          },
           "sources": [
-            "dosw-emergency",
-            "dosw-relief"
-          ]
-        },
-        {
-          "label": "你住那一區的社福中心",
-          "fromDirectory": true,
-          "note": "在上方「找你那一區」選行政區後顯示電話。",
-          "sources": [
-            "dosw-welfare-roster",
-            "d5-welfare-centers",
-            "dosw-emergency"
+            "mohw-hotlines",
+            "health-discharge"
           ]
         }
       ],
       "say": [
         {
-          "text": "「你好，我設籍在臺北市＿＿區，因為＿＿（例如：失業、生病住院、家人過世），這個月繳不出房租和水電。我想問能不能申請急難救助或急難紓困，要帶什麼資料？」",
+          "text": "「你好，我家人住在＿＿醫院，預計＿＿號出院，回家後沒有人能照顧。我想問怎麼在出院前申請長照評估，要準備什麼？」",
           "sources": [
-            "dosw-emergency",
-            "dosw-relief"
+            "health-discharge"
           ]
         }
       ],
       "cautions": [
         {
-          "text": "能不能領、領多少，由社會局或區公所受理後評估，必要時會派人訪視。這個頁面不能幫你送出申請。",
+          "text": "長照要先評估才排服務，從評估到有人到家要多久：待確認，越早問越好。",
+          "pending": true,
           "sources": [
-            "law-emergency",
-            "dosw-relief"
+            "health-discharge"
+          ]
+        },
+        {
+          "text": "這個頁面不能幫你申請，也不會把資料傳給醫院。",
+          "sources": [
+            "health-discharge"
           ]
         }
+      ]
+    },
+    {
+      "id": "missing",
+      "title": "家人走失了",
+      "subtitle": "找不到人，不用等 24 小時就能報案",
+      "category": "safety",
+      "window": [
+        {
+          "text": "110 報案電話 24 小時都可以打。",
+          "sources": [
+            "gov-safety"
+          ]
+        },
+        {
+          "text": "親人失蹤不用等滿 24 小時才報案，隨報即辦。",
+          "sources": [
+            "npa-missing-24h"
+          ]
+        },
+        {
+          "text": "也可以直接到最近的警察局或派出所，員警受理不分轄區。",
+          "sources": [
+            "npa-missing"
+          ]
+        }
+      ],
+      "bring": [
+        {
+          "text": "你的身分證明文件。",
+          "sources": [
+            "npa-missing"
+          ]
+        },
+        {
+          "text": "走失家人的近照。",
+          "sources": [
+            "npa-missing"
+          ]
+        },
+        {
+          "text": "先想好：走失時穿什麼、身上特徵、帶了什麼東西、怎麼走失的、走失前有沒有反常的言行。",
+          "sources": [
+            "npa-missing"
+          ]
+        },
+        {
+          "text": "他常聯絡的親友、常去的地方（官方說的「人際網絡資料」）。",
+          "sources": [
+            "npa-missing"
+          ]
+        }
+      ],
+      "call": [
+        {
+          "id": "missing-110",
+          "label": "警察報案",
+          "number": "110",
+          "note": "隨時可打；也可以直接到最近的派出所。",
+          "hours": "24h",
+          "sources": [
+            "gov-safety",
+            "npa-missing"
+          ]
+        }
+      ],
+      "say": [
+        {
+          "text": "「我要報案，我的家人走失了。他叫＿＿，＿＿歲，最後在＿＿（地點）、＿＿點左右看到他，那時穿＿＿。」",
+          "sources": [
+            "npa-missing"
+          ]
+        }
+      ],
+      "cautions": [
+        {
+          "text": "官方寫的是「儘速」報案。電話報案之後還要不要到派出所補資料、做筆錄：待確認，電話裡問警察。",
+          "pending": true,
+          "sources": [
+            "npa-missing",
+            "npa-missing-24h"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fraud",
+      "title": "剛轉帳，發現可能被詐騙",
+      "subtitle": "錢剛匯出去，想趕快處理",
+      "category": "safety",
+      "window": [
+        {
+          "text": "165 反詐騙諮詢專線 24 小時都有員警在線上。",
+          "sources": [
+            "hlhpd-165"
+          ]
+        },
+        {
+          "text": "打 165 報案後，警方會通知銀行先圈存那筆錢；24 小時內沒有完成報案、把帳戶通報為詐騙帳戶，圈存會解除。",
+          "sources": [
+            "cib-165"
+          ]
+        },
+        {
+          "text": "用市話打 165 免費；手機除了中華電信，其他每分鐘 1 元。也可以在 165 全民防騙網上網報案。",
+          "sources": [
+            "npa-165-cost"
+          ]
+        }
+      ],
+      "bring": [
+        {
+          "text": "收款的帳戶、匯款金額、什麼時候匯的。打 165 時會問。",
+          "sources": [
+            "cib-165"
+          ]
+        },
+        {
+          "text": "匯款單或轉帳明細（網銀、ATM 的截圖或收據）。",
+          "sources": [
+            "tpd-fraud-report"
+          ]
+        },
+        {
+          "text": "跟對方的對話紀錄，先截圖存好。",
+          "sources": [
+            "tpd-fraud-report"
+          ]
+        },
+        {
+          "text": "到派出所還要帶哪些證件：待確認。打 165 時先問。",
+          "pending": true,
+          "sources": [
+            "tpd-fraud-report"
+          ]
+        }
+      ],
+      "call": [
+        {
+          "id": "fraud-165",
+          "label": "警政署反詐騙諮詢專線",
+          "number": "165",
+          "note": "市話免費；手機（中華電信以外）每分鐘 1 元。",
+          "hours": "24h",
+          "sources": [
+            "hlhpd-165",
+            "npa-165-cost"
+          ]
+        },
+        {
+          "id": "fraud-110",
+          "label": "警察報案",
+          "number": "110",
+          "note": "也可以打 110 報案。",
+          "hours": "24h",
+          "sources": [
+            "tpd-fraud-lines",
+            "gov-safety"
+          ]
+        }
+      ],
+      "say": [
+        {
+          "text": "「我剛剛轉帳後發現可能被騙了。我在＿＿點轉了＿＿元，收款帳戶是＿＿銀行、帳號＿＿。請幫我處理。」",
+          "sources": [
+            "cib-165"
+          ]
+        }
+      ],
+      "cautions": [
+        {
+          "text": "只打電話不算完成報案。打完 165，要盡快到最近的派出所或警察機關完成報案，拿「受（處）理案件證明單」。",
+          "sources": [
+            "tpd-fraud-report",
+            "cib-165"
+          ]
+        },
+        {
+          "text": "錢能不能攔下、拿回多少，要看警方和銀行處理的結果：待確認。這個頁面不能幫你報案或通知銀行。",
+          "pending": true,
+          "sources": [
+            "cib-165"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nhi",
+      "title": "欠健保費，擔心不能看醫生",
+      "subtitle": "想知道還能不能就醫、能不能分期",
+      "category": "health",
+      "window": [
+        {
+          "text": "健保諮詢服務專線 0800-030-598：週一至週五 8:30–17:30。",
+          "sources": [
+            "mohw-hotlines"
+          ]
+        },
+        {
+          "text": "沒加入健保或欠費的人，如果是急重症，可以拿村里長或醫院開的清寒證明，先用健保身分就醫。",
+          "sources": [
+            "nhi-hardship"
+          ]
+        },
+        {
+          "text": "一時沒辦法一次繳清，可以申請分期：欠費超過 2 千元就能申請；可以臨櫃，也可以用電腦或「全民健保行動快易通｜健康存摺」App 申請簡易分期。",
+          "sources": [
+            "nhi-installment"
+          ]
+        },
+        {
+          "text": "符合「全民健康保險經濟困難認定標準」的人，可以向健保紓困基金申請無息貸款，一年後才開始還；健保署各區業務組也會協助轉介公益團體代繳。",
+          "sources": [
+            "nhi-hardship"
+          ]
+        },
+        {
+          "text": "晚上、假日健保專線沒開，下個上班日 8:30 再打。如果現在是急重症，先去醫院，問醫院能不能開清寒證明。",
+          "for": [
+            "@closed"
+          ],
+          "sources": [
+            "mohw-hotlines",
+            "nhi-hardship"
+          ]
+        }
+      ],
+      "bring": [
+        {
+          "text": "臨櫃申請分期：身分證明文件、印章、第一期款，到健保署各分區業務組或聯絡辦公室。",
+          "sources": [
+            "nhi-installment"
+          ]
+        },
+        {
+          "text": "請別人代辦：另外帶委託書，以及受託人的身分證明文件和印章。",
+          "sources": [
+            "nhi-installment"
+          ]
+        },
+        {
+          "text": "打專線諮詢要準備什麼：待確認。先把身分證放在手邊。",
+          "pending": true,
+          "sources": [
+            "mohw-hotlines"
+          ]
+        }
+      ],
+      "call": [
+        {
+          "id": "nhi-line",
+          "label": "健保諮詢服務專線",
+          "number": "0800-030-598",
+          "note": "問能不能就醫、怎麼分期、能不能申請紓困貸款。",
+          "hours": {
+            "days": "weekdays",
+            "spans": [
+              [
+                "08:30",
+                "17:30"
+              ]
+            ]
+          },
+          "sources": [
+            "mohw-hotlines"
+          ]
+        }
+      ],
+      "say": [
+        {
+          "text": "「你好，我欠了健保費，現在需要看病。我想問我還能不能用健保就醫，可以怎麼分期或申請協助？」",
+          "sources": [
+            "nhi-hardship",
+            "nhi-installment"
+          ]
+        }
+      ],
+      "cautions": [
+        {
+          "text": "欠費已經移送行政執行的，要先經執行署同意才能分期。",
+          "sources": [
+            "nhi-installment"
+          ]
+        },
+        {
+          "text": "你的欠費會不會影響看病，要看個人情況：待確認，打專線問清楚。急重症不要拖，先去醫院。",
+          "pending": true,
+          "sources": [
+            "nhi-hardship"
+          ]
+        }
+      ]
+    }
+  ],
+  "emergencyLines": [
+    {
+      "number": "110",
+      "label": "有立即危險",
+      "sources": [
+        "gov-safety"
+      ]
+    },
+    {
+      "number": "119",
+      "label": "受傷、急病",
+      "sources": [
+        "gov-safety"
+      ]
+    },
+    {
+      "number": "113",
+      "label": "家暴、兒少、性侵",
+      "sources": [
+        "mohw-hotlines"
+      ]
+    },
+    {
+      "number": "1925",
+      "label": "心情撐不住",
+      "sources": [
+        "mohw-hotlines"
       ]
     }
   ]
