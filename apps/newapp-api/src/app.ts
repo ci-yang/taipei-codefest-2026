@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import type { ServiceHealth } from '@app/shared';
 import { corsOrigins } from './env';
+import { subsidiesRoutes } from './routes/subsidies';
 
 export const SERVICE_NAME = 'newapp-api';
 
@@ -17,6 +18,7 @@ export function createApp(): Hono {
     const body: ServiceHealth = { ok: true, service: SERVICE_NAME, time: new Date().toISOString() };
     return c.json(body);
   });
+  app.route('/api/v1/subsidies', subsidiesRoutes());
   // 新功能：在這裡加一行 app.route('/api/v1/<feature>', <feature>Routes())
 
   app.notFound((c) => c.json({ error: 'not_found', path: c.req.path }, 404));
