@@ -79,9 +79,11 @@ pnpm platform:rollback --receipt .artifacts/releases/<部署收據>.json
 
 - PR：`CI` 執行 typecheck、lint、原型測試、PostGIS 測試、工具測試、build、local D1 integration 及 Worker dry-run；不取得部署 secret。
 - 合併／push 到 main：`Deploy Cloudflare platform` 先做 main preflight，再呼叫相同的 reusable CI。驗證成功後才執行 `platform:deploy`。main 不另跑重複的 CI workflow。
-- 手動重跑：[Actions 部署流程](https://github.com/ci-yang/taipei-codefest-2026/actions/workflows/deploy-cloudflare.yml) 選 main。其他分支會被拒絕。
+- 手動重新發布：在 [Actions 部署流程](https://github.com/ci-yang/taipei-codefest-2026/actions/workflows/deploy-cloudflare.yml) 按 Run workflow，選 main 重新 dispatch。其他分支會被拒絕。對舊 run 按 Re-run jobs 仍使用舊 SHA；main 已前進時應重新 dispatch。
 - 發布 checkout 固定事件 SHA；GitHub Actions 的 deploy 在開始、建置後 D1 寫入前、Worker upload 前，比對 `GITHUB_SHA`、本機 HEAD 與遠端 main。過期 run 或遠端查詢失敗就停止，不能重跑舊 run 覆蓋新版；真正回退仍使用上方收據指令。
 - 同環境序列部署，不取消正在進行的遠端寫入。Smoke 失敗沿用既有 Worker 回退流程，D1 舊快照保留。
+- main 若在 D1 匯入後才前進，過期 run 會停止 Worker 發布，但已新增的 D1 schema／快照保留，由後續 run 接續。因此 migration 必須維持追加式，並相容仍在線上的舊 Worker；回退程式或改寫 main 歷史都不能當成 D1 回退。
+- 過期 run 會以明確錯誤停止，不能當成部署成功；最新 run 仍須完成 CI 與 smoke 才算上線。main 的 CI 狀態位於部署 workflow 的 verify／ci，PR 的 ci 名稱不變。
 - 成功後 Actions summary 列出網址與 SHA；部署收據 artifact 保存 30 天。`/config` 與 `/healthz` 用來核對實際線上版本。
 
 需要專用 `CLOUDFLARE_API_TOKEN` repository secret，設定在 [Actions secrets](https://github.com/ci-yang/taipei-codefest-2026/settings/secrets/actions)。只授權既有 Cloudflare 帳號所需的 Workers Scripts 與 D1 寫入權限，不能使用 Global API Key；token 不寫入程式、收據或 git。本機 Wrangler OAuth 不複製進 GitHub。缺少 token 時 workflow 明確失敗，不會宣稱已發布。帳號與 D1 ID 是公開設定，沿用 `wrangler.jsonc`。

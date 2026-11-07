@@ -30,7 +30,7 @@ pnpm platform:assets
 pnpm test:platform
 ```
 
-平台入口：[Cloudflare 友善平台](https://taipei-friendly-platform.jason21131.workers.dev)。PR 執行 CI；合併／push 到 main 後，部署 workflow 先跑同一套 CI，通過才自動發布到既有 Worker。也保留 main 手動重跑入口。GitHub 必須設定專用 `CLOUDFLARE_API_TOKEN` secret；未設定會停止發布。
+平台入口：[Cloudflare 友善平台](https://taipei-friendly-platform.jason21131.workers.dev)。PR 執行 CI；合併／push 到 main 後，部署 workflow 先跑同一套 CI，通過才自動發布到既有 Worker。也可在 Actions 重新 dispatch main；舊 run 的 Re-run 沿用舊 SHA，若 main 已前進會被拒絕。GitHub 必須設定專用 `CLOUDFLARE_API_TOKEN` secret；未設定會停止發布。
 
 `test:platform` 使用獨立本機 D1。部署成功會檢查線上 API、資料與資產，保存收據；實際線上 commit 可由 [`/config`](https://taipei-friendly-platform.jason21131.workers.dev/config) 查看。操作方式與限制見 [Cloudflare 手冊](docs/CLOUDFLARE.md)。原型打包使用 `python3 tools/package-friendly-prototype.py /tmp/friendly-app-package`，分享依 `publish-report` 流程。
 
