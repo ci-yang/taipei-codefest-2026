@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { resolve, basename } from 'node:path';
-import { ROOT, readJson } from './platform-tools.mjs';
+import { ROOT, readJson, sha256 } from './platform-tools.mjs';
+import { APP_FILES } from './app-shell-smoke.mjs';
 import { smokePlatform } from './smoke-platform.mjs';
 
 const manifest = await readJson(resolve(ROOT, 'data/friendly/manifest.json'));
@@ -11,7 +12,52 @@ const sha = 'a'.repeat(40);
 const json = (value, status = 200) =>
   new Response(JSON.stringify(value), { status, headers: { 'content-type': 'application/json' } });
 
-function fixtureFetch({ stale = false, fakeStore = false, andServices = false } = {}) {
+const offlineVersion = 'friendly-resource-v6-0123456789abcdef';
+const appBytes = new Map(
+  await Promise.all(
+    APP_FILES.map(async (path) => {
+      let bytes;
+      if (['/_headers', '/_redirects'].includes(path))
+        bytes = Buffer.from('test configuration fixture');
+      else if (path.startsWith('/friendly/'))
+        bytes = await readFile(resolve(ROOT, 'data/friendly', basename(path)));
+      else bytes = await readFile(resolve(ROOT, 'docs/prototypes/friendly-route', path.slice(1)));
+      if (path === '/index.html')
+        bytes = Buffer.from(
+          bytes
+            .toString()
+            .replace('</head>', `<meta name="app-build-sha" content="${sha}"></head>`),
+        );
+      if (['/sw.js', '/offline.js'].includes(path))
+        bytes = Buffer.from(
+          bytes.toString().replaceAll('friendly-resource-v6-20261107', offlineVersion),
+        );
+      return [path, bytes];
+    }),
+  ),
+);
+const appManifest = {
+  schemaVersion: 1,
+  app: 'friendly-resource',
+  sourceSha: sha,
+  offlineVersion,
+  files: [...appBytes].map(([path, bytes]) => ({
+    path,
+    bytes: bytes.length,
+    sha256: sha256(bytes),
+  })),
+};
+function fixtureFetch({
+  stale = false,
+  fakeStore = false,
+  andServices = false,
+  app = false,
+  corruptAsset = false,
+  wrongShell = false,
+  badRedirect = false,
+  htmlAsset = false,
+  missingFallback = false,
+} = {}) {
   return async (input) => {
     const url = new URL(input);
     if (url.pathname === '/healthz')
@@ -33,8 +79,7 @@ function fixtureFetch({ stale = false, fakeStore = false, andServices = false } 
           manifest: '/friendly/manifest.json',
         },
       });
-    if (url.pathname === '/api/v1/sources' || url.pathname === '/friendly/manifest.json')
-      return json(manifest);
+    if (url.pathname === '/api/v1/sources') return json(manifest);
     if (url.pathname === '/api/v1/friendly-stores') {
       if (
         url.searchParams.has('limit') ||
@@ -58,6 +103,42 @@ function fixtureFetch({ stale = false, fakeStore = false, andServices = false } 
       return new Response(await readFile(resolve(ROOT, 'data/friendly', basename(url.pathname))), {
         headers: { 'content-type': 'application/json' },
       });
+    if (app) {
+      if (url.pathname === '/app-manifest.json') return json(appManifest);
+      if (
+        ['/map', '/map/', '/about', '/about/', '/analysis.html', '/spec.html'].includes(
+          url.pathname,
+        )
+      )
+        return new Response(null, {
+          status: 302,
+          headers: { location: badRedirect ? 'https://wrong.example/' : '/' },
+        });
+      const path = url.pathname === '/' ? '/index.html' : url.pathname;
+      const bytes = appBytes.get(path);
+      if (!bytes)
+        return new Response(missingFallback ? appBytes.get('/index.html') : 'Not found', {
+          status: missingFallback ? 200 : 404,
+        });
+      const type = path.endsWith('.js')
+        ? 'application/javascript'
+        : path.endsWith('.css')
+          ? 'text/css'
+          : path.endsWith('.html')
+            ? 'text/html'
+            : 'text/plain';
+      const headers = { 'content-type': htmlAsset && path === '/app.js' ? 'text/html' : type };
+      if (path === '/sw.js')
+        Object.assign(headers, { 'cache-control': 'no-cache', 'service-worker-allowed': '/' });
+      return new Response(
+        wrongShell && path === '/index.html'
+          ? '<div id="app"></div><script src="/assets/old.js"></script>'
+          : corruptAsset && path === '/app.js'
+            ? Buffer.alloc(bytes.length)
+            : bytes,
+        { headers },
+      );
+    }
     if (url.pathname.endsWith('.js'))
       return new Response('/* test asset */', {
         headers: { 'content-type': 'application/javascript' },
@@ -74,6 +155,7 @@ test('smoke validates real canonical count/source/hash and SPA/API separation', 
     url: 'https://example.test',
     expectedSha: sha,
     manifest,
+    allowLegacy: true,
     fetchOptions: { fetchImpl: fixtureFetch(), retries: 0 },
   });
   assert.equal(result.storeCount, snapshot.stores.length);
@@ -86,6 +168,7 @@ test('a stale but healthy deployment cannot pass smoke', async () => {
       url: 'https://example.test',
       expectedSha: sha,
       manifest,
+      allowLegacy: true,
       fetchOptions: { fetchImpl: fixtureFetch({ stale: true }), retries: 0 },
     }),
   );
@@ -97,6 +180,7 @@ test('same count with invented store content cannot pass even without a local st
       url: 'https://example.test',
       expectedSha: sha,
       manifest,
+      allowLegacy: true,
       fetchOptions: { fetchImpl: fixtureFetch({ fakeStore: true }), retries: 0 },
     }),
     /API must match the hashed source snapshot/,
@@ -109,8 +193,55 @@ test('AND semantics for multi-service query cannot pass the OR contract', async 
       url: 'https://example.test',
       expectedSha: sha,
       manifest,
+      allowLegacy: true,
       fetchOptions: { fetchImpl: fixtureFetch({ andServices: true }), retries: 0 },
     }),
     /OR semantics/,
   );
+});
+
+test('App smoke verifies the exact entry, runtime hashes, offline version and canonical redirects', async () => {
+  const result = await smokePlatform({
+    url: 'https://example.test',
+    expectedSha: sha,
+    manifest,
+    appManifest,
+    fetchOptions: { fetchImpl: fixtureFetch({ app: true }), retries: 0 },
+  });
+  assert.equal(result.app, 'friendly-resource');
+  assert.equal(result.offlineVersion, offlineVersion);
+});
+
+test('new frontend smoke cannot silently fall back to the legacy Vue shell', async () => {
+  await assert.rejects(
+    smokePlatform({
+      url: 'https://example.test',
+      expectedSha: sha,
+      manifest,
+      fetchOptions: { fetchImpl: fixtureFetch(), retries: 0 },
+    }),
+    /App manifest is required/,
+  );
+});
+
+test('wrong App entry, corrupt asset, HTML asset and off-origin redirects cannot pass smoke', async () => {
+  for (const failure of [
+    'wrongShell',
+    'corruptAsset',
+    'htmlAsset',
+    'badRedirect',
+    'missingFallback',
+  ]) {
+    await assert.rejects(
+      smokePlatform({
+        url: 'https://example.test',
+        expectedSha: sha,
+        manifest,
+        appManifest,
+        fetchOptions: { fetchImpl: fixtureFetch({ app: true, [failure]: true }), retries: 0 },
+      }),
+      undefined,
+      failure,
+    );
+  }
 });

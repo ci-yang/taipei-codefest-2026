@@ -6,7 +6,7 @@
 
 協助網路或電力受限的市民尋找附近廁所、充電、Wi-Fi 與無障礙資源。依 Ci 的 D6／D7 與凍結規格，作品本體是 `docs/prototypes/friendly-route/` 的純 JavaScript／Leaflet App。
 
-- [操作手機 App v6](https://ci-share.pages.dev/57c6867d600ab5e6/)
+- [開啟友善同行 App](https://taipei-friendly-platform.jason21131.workers.dev)
 - [原型程式、資料來源與離線邊界](docs/prototypes/friendly-route/README.md)
 - [凍結規格](.prospec/changes/enable-friendly-routes/proposal.md)
 
@@ -18,19 +18,21 @@ pnpm test:prototype
 
 需要 Python 3；原型不依賴 API、資料庫或 `.env`。主流程是定位與地圖 → 搜尋目的地 → 四類多選 highlight → 查看來源、更新日與直線距離。首次連線快取全市點位與 app shell；離線底圖限信義／大安東側，範圍外使用點位、方向與距離。導航與撥號需 TownPass bridge；一般瀏覽器會說明限制。
 
-評論、回報、互助及協助者已移除。日期、歷史、多站與路線比較是歷史原型／P1 資產，沒有放入現行主流程。分享頁是 v6 發布快照，後續 main 的變更須另行打包發布。
+評論、回報、互助及協助者已移除。日期、歷史、多站與路線比較是歷史原型／P1 資產，沒有放入現行主流程。Cloudflare 根頁直接開啟 App；舊 `/map`、`/about` 與說明頁入口導回根頁。[先前分享快照](https://ci-share.pages.dev/57c6867d600ab5e6/) 保留作歷史版本。
 
-## 獨立平台與部署基礎
+## App 部署與後端基礎
 
-`apps/web` 的 Vue／MapLibre、`apps/api` 的 Hono 與 Cloudflare Workers + Static Assets + D1 一併保留，供 API、資料版本、部署與回退工作使用。這個平台仍使用 103 筆地方名冊及舊路線頁，**不是上方 App 原型的發布產物**。`platform:deploy` 與既有 APK 指向平台網址，不會因本次合併自動變成 v6。
+`platform:build` 只將 App runtime 打包到乾淨的 `dist/app`，由既有 Cloudflare Worker 發布。產物不包含 Vue 首頁、規格或分析頁；每版包含來源 SHA、內容 hash 與對應離線版本。
+
+`apps/api` 的 Hono／D1 API 繼續保留 103 筆地方版本快照；App 自己使用 5,948 筆全市資源，兩者不混用。`apps/web` Vue／MapLibre 保留為歷史開發基礎，已不作 Cloudflare 頁面入口。既有 APK 若指向相同 Cloudflare 根網址，連線時會取得新 App；本輪未重建 APK，也不宣稱 TownPass 實機驗證完成。
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm platform:assets
+pnpm app:build
 pnpm test:platform
 ```
 
-平台入口：[Cloudflare 友善平台](https://taipei-friendly-platform.jason21131.workers.dev)。PR 執行 CI；合併／push 到 main 後，部署 workflow 先跑同一套 CI，通過才自動發布到既有 Worker。也可在 Actions 重新 dispatch main；舊 run 的 Re-run 沿用舊 SHA，若 main 已前進會被拒絕。GitHub 必須設定專用 `CLOUDFLARE_API_TOKEN` secret；未設定會停止發布。
+App 入口：[Cloudflare 友善同行](https://taipei-friendly-platform.jason21131.workers.dev)。PR 執行 CI；合併／push 到 main 後，部署 workflow 先跑同一套 CI，通過才自動發布同一份 App 到既有 Worker。也可在 Actions 重新 dispatch main；舊 run 的 Re-run 沿用舊 SHA，若 main 已前進會被拒絕。GitHub 必須設定專用 `CLOUDFLARE_API_TOKEN` secret；未設定會停止發布。
 
 `test:platform` 使用獨立本機 D1。部署成功會檢查線上 API、資料與資產，保存收據；實際線上 commit 可由 [`/config`](https://taipei-friendly-platform.jason21131.workers.dev/config) 查看。操作方式與限制見 [Cloudflare 手冊](docs/CLOUDFLARE.md)。原型打包使用 `python3 tools/package-friendly-prototype.py /tmp/friendly-app-package`，分享依 `publish-report` 流程。
 

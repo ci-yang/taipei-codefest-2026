@@ -50,7 +50,7 @@ jobs:
         with:
           name: friendly-platform-${{ github.sha }}
           path: |
-            apps/web/dist/
+            dist/app/
             .artifacts/worker/
             data/friendly/manifest.json
           include-hidden-files: true

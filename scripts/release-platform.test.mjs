@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { releasePlatform } from './release-platform.mjs';
 import { readVersion } from './platform-release-state.mjs';
+import { APP_FILES } from './app-shell-smoke.mjs';
 
 const prior = '11111111-1111-1111-1111-111111111111';
 const next = '22222222-2222-2222-2222-222222222222';
@@ -24,6 +25,13 @@ const config = {
   origin: 'https://test-platform.example.workers.dev',
 };
 const manifest = { version: 'fixture-v1', files: { snapshot: { sha256: 'b'.repeat(64) } } };
+const appManifest = {
+  schemaVersion: 1,
+  app: 'friendly-resource',
+  sourceSha,
+  offlineVersion: 'friendly-resource-v6-0123456789abcdef',
+  files: APP_FILES.map((path) => ({ path, sha256: 'd'.repeat(64), bytes: 1 })),
+};
 
 async function setup(context, { first = false, onBuild, onImport, smoke, env = {} } = {}) {
   const directory = await mkdtemp(resolve(tmpdir(), 'release-test-'));
@@ -39,6 +47,7 @@ async function setup(context, { first = false, onBuild, onImport, smoke, env = {
     env,
     config,
     manifest,
+    appManifest,
     snapshot: { version: manifest.version, stores: [] },
     lockPath: resolve(directory, 'lock'),
     save: async (receipt) => {
@@ -110,6 +119,8 @@ test('deploy records precise source/version, scopes build, imports remotely only
   const build = state.calls.find((call) => call.command === 'pnpm');
   assert.deepEqual(build.args, ['run', 'platform:build']);
   assert.equal(build.options.env.VITE_API_BASE, '');
+  assert.equal(build.options.env.APP_BUILD_SHA, sourceSha);
+  assert.deepEqual(result.receipt.appManifest, appManifest);
   assert.ok(
     state.calls.find((call) => call.args[0] === 'deploy').args.includes(`BUILD_SHA:${sourceSha}`),
   );
@@ -118,7 +129,10 @@ test('deploy records precise source/version, scopes build, imports remotely only
       .find((call) => call.args[0] === 'scripts/import-friendly.ts')
       .args.includes('--remote'),
   );
-  assert.equal(state.calls.some((call) => call.args[0] === 'ls-remote'), false);
+  assert.equal(
+    state.calls.some((call) => call.args[0] === 'ls-remote'),
+    false,
+  );
 });
 
 test('CI deploy checks the same checkout and current main before each mutation phase', async (context) => {
@@ -213,6 +227,8 @@ test('failed smoke restores captured previous Worker and verifies it, never down
     smoke: (state, args) => {
       if (state.smokeCalls === 1) throw new Error('Bad new asset');
       assert.equal(args.expectedSha, 'old-source');
+      assert.equal(args.allowLegacy, true);
+      assert.equal(args.appManifest, undefined);
       return { passed: true };
     },
   });
@@ -286,7 +302,10 @@ test('manual rollback requires receipt current version and retained snapshot', a
     state.calls.some((call) => call.command === 'pnpm' || call.args.includes('migrations')),
     false,
   );
-  assert.equal(state.calls.some((call) => call.args[0] === 'ls-remote'), false);
+  assert.equal(
+    state.calls.some((call) => call.args[0] === 'ls-remote'),
+    false,
+  );
 });
 
 test('authentication errors cannot masquerade as the first deployment', async () => {
@@ -333,4 +352,69 @@ test('receipt for a different origin cannot trigger rollback or a remote lookup'
   );
   assert.equal(state.calls.length, 0);
   assert.equal(state.receipts.length, 0);
+});
+
+test('new deployments reject missing or stale App manifests before D1 writes', async (context) => {
+  for (const value of [null, { ...appManifest, sourceSha: 'b'.repeat(40) }]) {
+    const { state, dependencies } = await setup(context);
+    dependencies.appManifest = value;
+    await assert.rejects(
+      releasePlatform('deploy', { url: config.origin }, dependencies),
+      /App manifest/,
+    );
+    assert.equal(
+      state.calls.some((call) => ['d1', 'deploy'].includes(call.args[0])),
+      false,
+    );
+  }
+});
+
+test('failed App release rollback verifies the captured previous App manifest', async (context) => {
+  const oldApp = { ...appManifest, sourceSha: 'b'.repeat(40) };
+  const { state, dependencies } = await setup(context, {
+    smoke: (state, args) => {
+      if (state.smokeCalls === 1) {
+        assert.deepEqual(args.appManifest, appManifest);
+        assert.notEqual(args.allowLegacy, true);
+        throw new Error('Bad new App asset');
+      }
+      assert.deepEqual(args.appManifest, oldApp);
+      assert.equal(args.allowLegacy, false);
+      assert.equal(args.expectedSha, oldApp.sourceSha);
+      return { passed: true };
+    },
+  });
+  dependencies.capture = async () => ({
+    versionId: prior,
+    sourceSha: oldApp.sourceSha,
+    manifest,
+    appManifest: oldApp,
+  });
+  await assert.rejects(
+    releasePlatform('deploy', { url: config.origin }, dependencies),
+    /previous Worker restored/,
+  );
+  assert.equal(state.version, prior);
+});
+
+test('manual App rollback forwards its manifest without enabling legacy smoke', async (context) => {
+  const oldApp = { ...appManifest, sourceSha: 'b'.repeat(40) };
+  const { state, dependencies } = await setup(context, {
+    smoke: (_, args) => {
+      assert.deepEqual(args.appManifest, oldApp);
+      assert.equal(args.allowLegacy, false);
+      return { passed: true };
+    },
+  });
+  state.version = next;
+  dependencies.receipt = {
+    action: 'deploy',
+    accountId: config.accountId,
+    workerName: config.name,
+    url: config.origin,
+    deployedVersion: next,
+    previous: { versionId: prior, sourceSha: oldApp.sourceSha, manifest, appManifest: oldApp },
+  };
+  await releasePlatform('rollback', { receipt: 'ignored.json' }, dependencies);
+  assert.equal(state.version, prior);
 });

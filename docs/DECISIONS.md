@@ -3,11 +3,17 @@
 > 「之後還會再問一次」的結論寫在這裡，最新的放最上面。一條三段：決定、理由、影響／何時重議。
 > 聊天訊息會被洗掉，這裡不會。值以 `.env`／程式碼為準，這裡記的是「為什麼」。
 
+## 2026-11-07 ｜ Cloudflare 根網址直接呈現 App 本體
+
+- **決定**：Ci 明確要求「我要直接是 app 本身，不要有其他畫面」。Cloudflare 根頁直接發布 D7 指定的純 JS App，`dist/app` 只含 runtime 與必要資料、授權及版本資訊；Vue 首頁與分析／規格頁不列入產物，舊入口導回 `/`。
+- **理由**：使用者拿到的網址必須直接進入產品，發布產物應與既定作品本體一致。
+- **影響／重議**：沿用既有 Worker／D1／HTTPS 與回退機制，改發布來源及 smoke 驗收；CI/CD 同步發布 App。App 內部主流程、凍結 proposal、API 契約與 APK 本輪不變。這是修正 D7 既定本體的部署接線，不另改產品規格。自動部署的專用 token 確認仍獨立處理；既有本機 Wrangler 登入可執行本輪已授權部署。
+
 ## 2026-11-07 ｜ Cloudflare CI/CD 自動部署
 
 - **決定**：Ci 要求提供 Cloudflare 入口並完成 CI/CD。沿用既有 `taipei-friendly-platform` Worker 與 D1；PR 只測試，main push／手動 main dispatch 先跑相同 CI，成功才發布。憑證只放 GitHub Actions secret。
 - **理由**：讓成員合併後能更新平台，不依賴某台電腦的 Wrangler OAuth；重用已驗證的部署、smoke 與回退腳本。
-- **影響／重議**：checkout 與發布固定同一 SHA，遠端 main 前進就拒絕過期 run，發布序列化且不取消遠端寫入。範圍仍是 Vue／Hono／D1 平台；原型分享與 APK 另行發布，D6／D7 產品方向不變。此設定改動不新增產品 API 或 demo 主流程，未另開 Prospec change。
+- **影響／重議**：checkout 與發布固定同一 SHA，遠端 main 前進就拒絕過期 run，發布序列化且不取消遠端寫入。依上方後續決定，發布範圍為純 JS App／Hono／D1；APK 另行發布，D6／D7 產品方向不變。此設定改動不新增產品 API 或 demo 主流程，未另開 Prospec change。
 
 ## 2026-11-07 ｜ 分支整合狀態
 
@@ -111,6 +117,6 @@ Ci 本輪授權整理分支、取得最新 main、經 Claude Code review 後合�
 
 - 題目官方原文尚未入檔（方向見 D6，只有 Ci 轉述）
 - demo 主機＋備用機各是哪一支（平台已定 Android，見 D4）
-- 原型（v4）的部署目標與 APK 內建網址如何對齊（見 D7）
+- APK 內建網址是否均指向 Cloudflare App 根頁，與 TownPass 實機離線重開驗證
 - 多站行程、日期與歷史是完全移除還是留第二層（見 D6）
 - 分工確認（`docs/TEAM-PROTOCOL.md` §1）；GitHub 帳號已確認：bboyyan／shimo23333／hohshen／imthe71，邀請待接受

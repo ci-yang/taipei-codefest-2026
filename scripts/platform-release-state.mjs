@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ROOT, WRANGLER, currentVersion, readJson, validateOrigin } from './platform-tools.mjs';
-import { fetchJson } from './smoke-platform.mjs';
+import { fetchJson, fetchResource } from './smoke-platform.mjs';
+import { assertAppHtml, assertLegacyHtml, validateAppManifest } from './app-shell-smoke.mjs';
 
 export async function loadReleaseConfig(path = resolve(ROOT, 'wrangler.jsonc')) {
   const config = await readJson(path);
@@ -17,11 +18,8 @@ export async function loadReleaseConfig(path = resolve(ROOT, 'wrangler.jsonc')) 
     throw new Error('Release only supports the configured standalone workers.dev environment.');
   if (config.d1_databases?.length !== 1 || config.d1_databases[0].binding !== 'FRIENDLY_DB')
     throw new Error('Expected the dedicated FRIENDLY_DB binding.');
-  if (
-    config.assets?.directory !== './apps/web/dist' &&
-    config.assets?.directory !== 'apps/web/dist'
-  )
-    throw new Error('Release assets must be scoped to apps/web/dist.');
+  if (config.assets?.directory !== './dist/app' && config.assets?.directory !== 'dist/app')
+    throw new Error('Release assets must be scoped to dist/app.');
   const origin = validateOrigin(config.vars?.PUBLIC_ORIGIN);
   const target = new URL(origin);
   const labels = target.hostname.split('.');
@@ -60,6 +58,13 @@ export async function loadReleaseData(config, dependencies = {}) {
   return { manifest, snapshot };
 }
 
+export async function loadReleaseApp(sourceSha, dependencies = {}) {
+  const manifest = Object.hasOwn(dependencies, 'appManifest')
+    ? dependencies.appManifest
+    : await readJson(resolve(ROOT, 'dist/app/app-manifest.json'));
+  return validateAppManifest(manifest, sourceSha);
+}
+
 export async function readVersion(run, config, allowMissing = false) {
   try {
     const { stdout } = await run(WRANGLER, [
@@ -85,12 +90,12 @@ export async function assertVersion(run, config, expected) {
     throw new Error('Worker version changed externally; refusing mutation or automatic rollback.');
 }
 
-export async function capturePrevious(url, versionId) {
+export async function capturePrevious(url, versionId, fetchOptions = {}) {
   if (!versionId) return null;
   const [config, health, manifest] = await Promise.all([
-    fetchJson(url + '/config'),
-    fetchJson(url + '/healthz'),
-    fetchJson(url + '/api/v1/sources'),
+    fetchJson(url + '/config', fetchOptions),
+    fetchJson(url + '/healthz', fetchOptions),
+    fetchJson(url + '/api/v1/sources', fetchOptions),
   ]);
   if (
     !health.ok ||
@@ -100,7 +105,28 @@ export async function capturePrevious(url, versionId) {
     manifest.version !== health.dataVersion
   )
     throw new Error('Previous Worker is not data-ready; cannot record a safe rollback target.');
-  return { versionId, sourceSha: config.version, manifest };
+  const [root, app] = await Promise.all([
+    fetchResource(url + '/', fetchOptions),
+    fetchResource(url + '/app-manifest.json', fetchOptions),
+  ]);
+  assert.equal(root.status, 200, 'Previous frontend is unavailable.');
+  assert.match(root.headers.get('content-type') || '', /text\/html/);
+  const html = root.bytes.toString();
+  let appManifest = null;
+  if (app.status === 200 && /application\/json/.test(app.headers.get('content-type') || '')) {
+    appManifest = validateAppManifest(JSON.parse(app.bytes.toString()), config.version);
+    assertAppHtml(html, config.version);
+  } else {
+    assertLegacyHtml(html);
+    assert.ok(
+      app.status === 404 ||
+        (app.status === 200 &&
+          /text\/html/.test(app.headers.get('content-type') || '') &&
+          app.bytes.equals(root.bytes)),
+      'Previous App manifest is not safely classifiable.',
+    );
+  }
+  return { versionId, sourceSha: config.version, manifest, appManifest };
 }
 
 export async function assertRollbackData(run, config, previous) {
@@ -179,6 +205,8 @@ export async function rollbackRelease({ run, config, receipt, deployed, smoke, s
     url: receipt.url,
     expectedSha: deployed.previous.sourceSha,
     manifest: deployed.previous.manifest,
+    appManifest: deployed.previous.appManifest,
+    allowLegacy: !deployed.previous.appManifest,
   });
   await assertVersion(run, config, deployed.previous.versionId);
   receipt.status = 'rolled-back';

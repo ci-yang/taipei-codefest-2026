@@ -1,10 +1,12 @@
-# 整合後入口說明
+# App 發布入口
 
-本文件描述獨立的 Vue／Hono／D1 平台；`platform:deploy` 發布 `apps/web/dist`，不是目前 D6／D7 的純 JS App 原型。App 本體與打包入口見 [`prototypes/friendly-route/README.md`](prototypes/friendly-route/README.md)。main 現由部署 workflow 先驗 CI，再發布既有 Worker 並套追加式 D1 migration；不更新原型分享或 APK。
+Ci 已指定 Cloudflare 網址直接呈現 App 本體。`platform:build` 從 `docs/prototypes/friendly-route` 的 allowlist 打包乾淨 `dist/app`，`platform:deploy` 發布此目錄，根頁直接顯示地圖、搜尋與四類資源。舊 `/map`、`/about`、分析／規格入口導回 `/`；不發布 Vue 首頁或說明頁。App 功能與離線邊界見 [`prototypes/friendly-route/README.md`](prototypes/friendly-route/README.md)。
+
+產物附 `app-manifest.json`，記錄來源 SHA、離線版本及每個檔案 SHA-256。部署 smoke 會驗根頁是 App、runtime 檔案與 manifest 一致、舊入口 redirect 與缺檔 404。回退至先前 App 依收據核對該版 manifest；舊 Vue 版只作明確標示的歷史回退目標，不可讓新部署因 manifest 缺失降級成 Vue 驗證。
 
 # Cloudflare 友善平台
 
-平台採 Workers + Static Assets + D1；Vue、API 與地方圖資同源。入口為 [Cloudflare 友善平台](https://taipei-friendly-platform.jason21131.workers.dev)。既有 GCP 及 Node/PostGIS 留作基線，不執行舊 `deploy/release.sh`。本手冊描述平台的 readonly 名冊與裝置端路由；產品 App 依 D6／D7，沒有評論或互助。
+部署採 Workers + Static Assets + D1；App 與保留的 API 同源。入口為 [友善同行 App](https://taipei-friendly-platform.jason21131.workers.dev)。App 使用全市資源靜態快照；下面 API／地方路網契約仍為 103 筆既有後端資料，不冒稱與全市 App 等同。既有 GCP 及 Node/PostGIS 留作基線，不執行舊 `deploy/release.sh`。產品 App 依 D6／D7，沒有評論或互助。
 
 ## 本機
 
@@ -26,7 +28,7 @@ pnpm platform:dev
 # http://localhost:8791
 ```
 
-`platform:dev` 先建前端再開 Worker，修改 Vue 後需重新建置；需要 HMR 可用 `pnpm dev` 的既有 Node + Vite 流程。Node 新增同一 friendly 契約，舊 health／places／opendata 仍維持 PostGIS 基線。
+`platform:dev` 先打包 App 再開 Worker，修改 App 後需重新建置；可用 `pnpm prototype` 直接開原始 App 開發。`pnpm dev` 仍是歷史 Node + Vue/Vite 流程，不是正式 App 入口。Node 新增同一 friendly 契約，舊 health／places／opendata 仍維持 PostGIS 基線。
 
 ## API 契約
 
@@ -55,13 +57,13 @@ D1 使用單列 immutable snapshot，version 為主鍵。名冊、manifest 與�
 
 匯入 SQL 使用 Wrangler `--file`；驗證讀回使用 `--command`。遠端 `--file` 的 stdout 可能混有進度文字與統計，即使指定 JSON 也不能把它當查詢結果。匯入器先確認子程序成功結束，再由 `--command` 的完整資料列、hash 與 schema 判斷匯入結果。本機與遠端的這個差異已有回歸測試。
 
-MapLibre 使用本地 OSM GeoJSON；不使用 Google Maps、Mapbox 或雲端路由。shared routing 對固定站序求最短路徑，資源較多是有限候選比較；虛線接線、現場通行及無障礙未驗證。正式 Vue 尚無完整離線保存包，需要網路載入；不能引用 prototype 的離線結果當作正式 Vue 的驗證。
+上述 MapLibre／shared routing 是保留的歷史平台契約。正式 App 使用 Leaflet 與既有 OSM 地方底圖、全市點位；卡片距離是明示的直線距離。App 的全市點位與 shell 快取、缺底圖導引都來自同一份 App 程式。WebView 重開、native GPS 與飛航模式仍須在 TownPass 實機驗證。
 
 ## 部署與回退
 
 帳號、Worker、D1 ID 與相容日期在 `wrangler.jsonc`，都不是 secret。首次資源已由 Ci 授權建立；其他成員不需另建資料庫。登入用 `pnpm exec wrangler login`；自動化 token 只放環境或 GitHub Actions secrets。
 
-發布前先完成 `pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm test:tooling`、`pnpm build`、`pnpm test:platform`，再提交明確 commit。
+發布前先完成 `pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm test:prototype`、`pnpm test:tooling`、`pnpm build`、`pnpm test:platform`，再提交明確 commit。
 
 ```bash
 pnpm platform:deploy --url https://taipei-friendly-platform.jason21131.workers.dev
@@ -100,7 +102,7 @@ TownPass 在獨立 repo；使用其 `scripts/build-codefest.sh`，本 repo wrapp
 | 組員：產品 UX 與規格 | `docs/prototypes/friendly-route`、`.prospec/changes/enable-friendly-routes` |
 | App 殼 | 獨立 `ci-yang/TownPass` repo，本輪隔離分支 `feat/codefest-platform` |
 
-不直接改組員原型來接後端；正式 Vue 透過 shared 契約與 adapter，產品畫面確定後再整合。
+App 本體直接沿用組員維護的原型 runtime，發布管線不另寫一套 Vue 畫面；原型來源修正經 PR 驗證後由同一個建置入口打包。APK 內嵌 URL 若不同，仍需在 TownPass repo 明確調整與重建。
 
 ## 來源與授權
 

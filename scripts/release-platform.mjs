@@ -21,6 +21,7 @@ import {
   capturePrevious,
   loadReleaseConfig,
   loadReleaseData,
+  loadReleaseApp,
   readVersion,
   requireReleaseOrigin,
   rollbackRelease,
@@ -72,7 +73,8 @@ export async function releasePlatform(action, options, dependencies = {}) {
     if (action === 'rollback') {
       await rollbackRelease({ run, config, receipt, deployed, smoke, save });
     } else {
-      const assertSource = () => assertCiDeploySource(sourceSha, run, dependencies.env ?? process.env);
+      const assertSource = () =>
+        assertCiDeploySource(sourceSha, run, dependencies.env ?? process.env);
       await assertSource();
       const priorVersion = await readVersion(run, config, Boolean(options['first-deploy']));
       if (priorVersion === null && !options['first-deploy'])
@@ -82,10 +84,17 @@ export async function releasePlatform(action, options, dependencies = {}) {
       receipt.previous = await capture(receipt.url, priorVersion);
       await run('pnpm', ['run', 'platform:build'], {
         timeoutMs: 300_000,
-        env: { ...process.env, VITE_API_BASE: '', VITE_BUILD_SHA: sourceSha },
+        env: {
+          ...process.env,
+          VITE_API_BASE: '',
+          VITE_BUILD_SHA: sourceSha,
+          APP_BUILD_SHA: sourceSha,
+        },
       });
       await assertCleanHead(run, sourceSha);
       const { manifest, snapshot } = await loadReleaseData(config, dependencies);
+      const appManifest = await loadReleaseApp(sourceSha, dependencies);
+      receipt.appManifest = appManifest;
       receipt.dataVersion = manifest.version;
       receipt.snapshotSha256 = manifest.files.snapshot.sha256;
       receiptPath = await save(receipt);
@@ -141,6 +150,7 @@ export async function releasePlatform(action, options, dependencies = {}) {
           expectedSha: sourceSha,
           manifest,
           stores: snapshot.stores,
+          appManifest,
         });
         await assertVersion(run, config, versionId);
         receipt.status = 'deployed';
@@ -163,6 +173,8 @@ export async function releasePlatform(action, options, dependencies = {}) {
           url: receipt.url,
           expectedSha: receipt.previous.sourceSha,
           manifest: receipt.previous.manifest,
+          appManifest: receipt.previous.appManifest,
+          allowLegacy: !receipt.previous.appManifest,
         });
         await assertVersion(run, config, receipt.previous.versionId);
         receipt.status = 'failed-and-rolled-back';

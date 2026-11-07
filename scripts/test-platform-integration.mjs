@@ -7,19 +7,20 @@ import { fetchJson, smokePlatform } from './smoke-platform.mjs';
 import { startWorker, waitForPathnameLog } from './platform-local-worker.mjs';
 
 export async function testPlatformIntegration({ build = true } = {}) {
+  const sourceSha = (await runCommand('git', ['rev-parse', 'HEAD'])).stdout.trim();
   if (build)
     await runCommand('pnpm', ['run', 'platform:build'], {
       timeoutMs: 300_000,
-      env: { ...process.env, VITE_API_BASE: '' },
+      env: { ...process.env, VITE_API_BASE: '', APP_BUILD_SHA: sourceSha },
     });
   const directory = await mkdtemp(resolve(tmpdir(), 'friendly-platform-integration-'));
   const persist = resolve(directory, 'd1');
-  const sourceSha = (await runCommand('git', ['rev-parse', 'HEAD'])).stdout.trim();
   const sourceTreeDirty = Boolean(
     (await runCommand('git', ['status', '--porcelain=v1', '--untracked-files=all', '-z'])).stdout,
   );
   const manifest = await readJson(resolve(ROOT, 'data/friendly/manifest.json'));
   const snapshot = await readJson(resolve(ROOT, 'data/friendly/snapshot.json'));
+  const appManifest = await readJson(resolve(ROOT, 'dist/app/app-manifest.json'));
   const importerArgs = [
     'scripts/import-friendly.ts',
     '--local',
@@ -89,6 +90,7 @@ export async function testPlatformIntegration({ build = true } = {}) {
       expectedSha: sourceSha,
       manifest,
       stores: snapshot.stores,
+      appManifest,
       fetchOptions: { retries: 0 },
     });
     const nearby = '/api/v1/friendly-stores?lat=25.044321&lng=121.529876&radius=123';
@@ -114,7 +116,9 @@ export async function testPlatformIntegration({ build = true } = {}) {
       repeatedImport: 'passed',
       immutableConflict: 'passed',
       missingVersion: 'passed',
-      spaFallback: 'passed',
+      appEntry: 'passed',
+      legacyRedirects: 'passed',
+      missingAssets404: 'passed',
       remoteWrites: false,
     };
   } finally {
