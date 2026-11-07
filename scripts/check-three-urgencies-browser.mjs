@@ -71,6 +71,29 @@ await page.click('#result-back'); await page.waitForTimeout(300);
 await page.click('[data-urgency="wifi"]'); await page.waitForSelector('[data-result-id]'); await shot('13-result-wifi');
 ok('wifi note', /不保證訊號/.test(await page.locator('#result-body').textContent()));
 await page.click('#result-back'); await page.waitForTimeout(300);
+// 審查情境 1：導引中從「附近資源」換地點，必須整筆換成新目標的導引。
+const g = await ctx.newPage(); g.on('pageerror', e => errors.push(e.message));
+await g.goto(base); await g.waitForFunction(() => /±/.test(document.querySelector('#home-location').textContent));
+await g.click('[data-urgency="toilet"]'); await g.waitForSelector('[data-result-id]'); await g.click('[data-action="go"]');
+await g.waitForFunction(() => !document.querySelector('#guide-walk').hidden, null, { timeout: 30000 });
+const firstStore = await g.evaluate(() => history.state.storeId);
+await g.click('#guidance-resources'); await g.waitForSelector('#sheet-body .resource-row'); await g.locator('#sheet-body .resource-row').nth(2).click();
+await g.waitForTimeout(300);
+const switched = await g.evaluate(() => ({ view: document.querySelector('#app').dataset.view, storeId: history.state.storeId, sheet: document.querySelector('#app-sheet').open, heading: document.querySelector('#guidance-heading').textContent, walkHidden: document.querySelector('#guide-walk').hidden }));
+ok('guide switch records the new target', switched.view === 'guide' && switched.storeId !== firstStore && !switched.sheet, JSON.stringify(switched));
+ok('guide switch heading is not "nearest"', switched.heading === '前往選取的資源', switched.heading);
+await g.screenshot({ path: `${out}/15-guide-switched-target.png` });
+await g.goBack(); await g.waitForTimeout(500);
+ok('back returns to the first guide target', await g.evaluate(() => history.state.storeId) === firstStore);
+// 審查情境 2：雷達殘留不得蓋掉從結果卡帶去的卡片。
+const r = await ctx.newPage(); r.on('pageerror', e => errors.push(e.message));
+await r.goto(base); await r.waitForFunction(() => /±/.test(document.querySelector('#home-location').textContent));
+await r.click('#home-map'); await r.waitForTimeout(300); await r.click('#highlight-map-launch'); await r.waitForTimeout(300);
+await r.click('#home-button'); await r.waitForTimeout(400);
+await r.click('[data-urgency="charge"]'); await r.waitForSelector('[data-result-id]'); await r.click('#result-body [data-action="map"]'); await r.waitForTimeout(600);
+const radar = await r.evaluate(() => ({ hl: document.body.classList.contains('hl-active'), card: Boolean(document.querySelector('#selected-card').getClientRects().length), filters: Boolean(document.querySelector('#category-filters').getClientRects().length) }));
+ok('result → map after radar shows filters and selected card', !radar.hl && radar.card && radar.filters, JSON.stringify(radar));
+await r.screenshot({ path: `${out}/16-map-after-radar-from-result.png` });
 // no location
 const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: 'zh-TW', serviceWorkers: 'block' });
 await ctx2.route('**/*', r => new URL(r.request().url()).host !== origin.host ? r.abort() : r.continue());

@@ -153,7 +153,7 @@ function runtime(options = {}) {
     document, URL, AbortController, Date: FixedDate, console, innerWidth: 390, structuredClone,
     FRIENDLY_DATA: actualBasemap, FRIENDLY_RESOURCES: options.resources || actualData, L: leaflet.L,
     history: makeHistory(listeners, options.historyState || null), FriendlySpeakCard: makeSpeakCard(speakCalls),
-    FriendlyHighlights: options.highlightCalls ? { create: () => ({ update() {}, open() {}, handleResource: () => false, openToilet: (store, route) => options.highlightCalls.push({ method: 'openToilet', id: String(store.id), route }), pauseGuide: () => options.highlightCalls.push({ method: 'pauseGuide' }) }) } : undefined,
+    FriendlyHighlights: options.highlightCalls ? { create: () => ({ update() {}, open() {}, handleResource: () => false, openToilet: (store, route) => options.highlightCalls.push({ method: 'openToilet', id: String(store.id), route }), pauseGuide: () => options.highlightCalls.push({ method: 'pauseGuide' }), close: () => options.highlightCalls.push({ method: 'close' }) }) } : undefined,
     location: new URL('https://example.test/friendly/index.html'),
     navigator: { onLine: options.offline !== true, clipboard: { async writeText(text) { copied.push(text); } } },
     FriendlyIcons: { icon: name => `<svg data-test-icon="${name}"></svg>` },
@@ -165,7 +165,7 @@ function runtime(options = {}) {
     FriendlySearch: { createClient: () => ({ async search(query, args) { searchCalls.push({ query, ...args }); return options.search ? options.search(query, args) : []; } }) },
     FriendlyRouteClient: options.noRouter ? undefined : { createClient: () => ({ route(input) { return new Promise((resolve, reject) => routeRequests.push({ input, resolve, reject })); }, cancel() { routeCancels.push(true); } }) },
     FriendlyOffline: { async initialize(callback) { cacheCalls.push(callback); const status = options.cacheStatus || { state: 'ready', savedAt: fixedTime, failures: [] }; callback(status); return status; } },
-    localStorage: options.storageThrows ? { getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); } } : { getItem: key => options.storage?.[key] ?? null, setItem: (key, value) => storageWrites.push([key, value]) },
+    localStorage: options.storageThrows ? { getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); } } : { getItem: key => options.storage?.[key] ?? null, setItem: (key, value) => storageWrites.push([key, value]), removeItem: key => storageWrites.push([key, null]) },
     requestAnimationFrame(callback) { queueMicrotask(() => callback(0)); return 1; }, cancelAnimationFrame() {},
     ResizeObserver: class { constructor(callback) { this.callback = callback; } observe(target) { observed.push({ target, callback: this.callback }); } disconnect() {} },
     setTimeout() { return 1; }, clearTimeout() {},
@@ -646,7 +646,8 @@ test('each urgency button shows the straight-line nearest record and next walks 
     const body = app.element('#result-body').innerHTML; const store = actualData.stores.find(s => String(s.id) === expected[0]);
     assert(body.includes(store.sourceName) && body.includes(store.updatedAt.slice(0, 10)), category);
     assert.match(body, /直線 \d/); assert.doesNotMatch(body, /約 \d/); assert.match(body, /在您的.+方 · 正北基準/); assert.match(body, /無障礙 · (有標示|未標示)/);
-    for (const action of ['go', 'speak', 'map', 'next']) assert.match(body, new RegExp(`data-action="${action}"`), `${category} ${action}`);
+    for (const action of ['go', 'map', 'next']) assert.match(body, new RegExp(`data-action="${action}"`), `${category} ${action}`);
+    assert.equal(/data-action="speak"/.test(body), store.sourceId !== 'wifi', `${category} speak card only where staff exist`);
     assert.equal(/data-action="phone"/.test(body), /^\+?\d{8,15}$/.test(store.normalizedPhone || ''), `${category} phone only with a number`);
     assert.equal(/免費 Wi-Fi 熱點，不保證訊號/.test(body), category === 'wifi');
     const pushes = app.history.calls.filter(([kind]) => kind === 'push').length;
@@ -723,9 +724,9 @@ test('nested back: home → result → map → speak card unwinds one screen per
 
 test('closing the speak card returns to its source: result card from results, selected map card from the map', async () => {
   const app = runtime(); await app.fix(0, { ...cityHall });
-  await app.click('[data-urgency="wifi"]'); await app.click('[data-action="next"]'); const id = resultId(app);
+  await app.click('[data-urgency="charge"]'); await app.click('[data-action="next"]'); const id = resultId(app);
   await app.element('#result-body').querySelector('[data-action="speak"]').dispatch('click');
-  assert.equal(app.state.view, 'card'); assert.equal(app.element('#app').dataset.view, 'result'); assert.equal(app.speakCalls.at(-1).category, 'wifi');
+  assert.equal(app.state.view, 'card'); assert.equal(app.element('#app').dataset.view, 'result'); assert.equal(app.speakCalls.at(-1).category, 'charge');
   app.speakCard.closeSpeakCard(); await settle();
   assert.equal(app.state.view, 'result'); assert.equal(resultId(app), id, 'the same next-ranked record is still shown');
   await app.click('[data-action="map"]'); await app.element('#selected-card').querySelector('[data-action="speak"]').dispatch('click');
@@ -786,7 +787,7 @@ test('preferences are local only: invalid stored language falls back to Chinese 
   await app.click('#home-settings'); assert.equal(app.element('#app-sheet').open, true);
   assert.match(app.element('#sheet-body').innerHTML, /已改用中文單面/); assert.match(app.element('#sheet-body').innerHTML, /data-lang-choice="zh-TW"/); assert.doesNotMatch(app.element('#sheet-body').innerHTML, /data-lang-choice="vi"/);
   await app.click('[data-step-free-choice="1"]'); await app.click('[data-lang-choice="zh-TW"]');
-  assert.deepEqual(app.storageWrites, [['friendly-step-free-v1', '1'], ['friendly-native-language-v1', 'zh-TW']]);
+  assert.deepEqual(app.storageWrites, [['friendly-native-language-v1', null], ['friendly-step-free-v1', '1'], ['friendly-native-language-v1', 'zh-TW']]);
   assert.equal(app.state.prefs.stepFree, true);
   const broken = runtime({ storageThrows: true }); await broken.fix(0, { ...cityHall });
   assert.equal(broken.state.prefs.lang, 'zh-TW'); await broken.click('#home-settings'); await broken.click('[data-step-free-choice="1"]');
@@ -815,4 +816,52 @@ test('toilet guide hands the countdown its walking route only after success and 
   await app.click('#result-back'); await app.click('[data-urgency="charge"]'); await app.click('[data-action="go"]');
   app.routeRequests.at(-1).resolve(routeResult()); await settle();
   assert.equal(calls.filter(call => call.method === 'openToilet').length, 1, 'charge guidance has no toilet countdown');
+});
+
+test('review #1: picking another resource during guide pushes a new guide for it instead of mixing two places', async () => {
+  const app = runtime(); await app.fix(0, { ...cityHall });
+  await app.click('[data-urgency="toilet"]'); const first = resultId(app); await app.click('[data-action="go"]');
+  app.routeRequests.at(-1).resolve(routeResult()); await settle();
+  assert.equal(app.element('#guide-walk').hidden, false);
+  const other = actualData.stores.find(s => hasCoordinates(s) && String(s.id) !== first && s.sourceId === 'wifi' && !s.services.includes('toilet'));
+  const depth = app.history.state.depth; const requests = app.routeRequests.length;
+  await app.click('#guidance-resources'); app.r.document.querySelector('#sheet-body').innerHTML = `<button class="resource-row" data-resource="${other.id}"></button>`;
+  await app.element(`[data-resource="${other.id}"]`).dispatch('click');
+  assert.equal(app.state.view, 'guide'); assert.equal(app.state.selectedId, String(other.id));
+  assert.equal(app.history.state.storeId, String(other.id), 'history records the new target'); assert.equal(app.history.state.depth, depth + 1);
+  assert.equal(app.routeRequests.length, requests + 1, 'a walking route is requested for the new target');
+  assert.equal(String(app.routeRequests.at(-1).input.points[1].lat), String(other.lat));
+  assert.equal(app.state.guideRoute, null); assert.equal(app.element('#guide-walk').hidden, true, 'the old walking number is gone');
+  assert.match(app.element('#guide-timer-status').textContent, /非廁所/); assert.equal(app.element('#app-sheet').open, false);
+  app.history.back(); await settle();
+  assert.equal(app.state.view, 'guide'); assert.equal(app.state.selectedId, first); assert.equal(String(app.routeRequests.at(-1).input.points[1].lat), String(actualData.stores.find(s => String(s.id) === first).lat));
+});
+
+test('review #2: opening the map from a result card closes any radar mode left open', async () => {
+  const calls = []; const app = runtime({ highlightCalls: calls }); await app.fix(0, { ...cityHall });
+  await app.click('[data-urgency="charge"]'); await app.click('[data-action="map"]');
+  assert.equal(app.state.view, 'map'); assert(calls.some(call => call.method === 'close'), 'radar closed before showing the selected card');
+  const before = calls.filter(call => call.method === 'close').length; await app.click('#home-button'); await app.click('#home-map');
+  assert.equal(calls.filter(call => call.method === 'close').length, before, 'plain home → map keeps whatever radar mode the user chose');
+});
+
+test('review #3: guide says "nearest" only for the result-card record, otherwise "selected resource"', async () => {
+  const app = runtime(); await app.fix(0, { ...cityHall });
+  await app.click('[data-urgency="toilet"]'); await app.click('[data-action="go"]');
+  assert.equal(app.element('#guidance-heading').textContent, '最近的廁所');
+  await app.click('#exit-guidance'); await app.click('[data-action="map"]');
+  const other = actualData.stores.find(s => hasCoordinates(s) && s.services.includes('toilet') && String(s.id) !== app.state.selectedId);
+  app.r.__test.selectResource(other.id); await app.click('#start-guidance');
+  assert.equal(app.state.view, 'guide'); assert.equal(app.element('#guidance-heading').textContent, '前往選取的資源');
+});
+
+test('review small items: no speak card for public Wi-Fi hotspots, guide filters to the urgency, unlisted language is cleared once', async () => {
+  const app = runtime(); await app.fix(0, { ...cityHall });
+  const hotspot = actualData.stores.find(s => hasCoordinates(s) && s.sourceId === 'wifi');
+  assert.equal(app.r.__test.speakCategory(hotspot), null);
+  await app.click('#home-map'); app.r.__test.selectResource(hotspot.id); assert.doesNotMatch(app.element('#selected-card').innerHTML, /data-action="speak"/);
+  await app.click('#map-back'); await app.click('[data-urgency="charge"]'); await app.click('[data-action="go"]');
+  assert.deepEqual([...app.state.filters], ['charge']);
+  const stale = runtime({ storage: { 'friendly-native-language-v1': 'vi' } }); await settle();
+  assert.equal(stale.state.prefs.lang, 'zh-TW'); assert(stale.storageWrites.some(([key, value]) => key === 'friendly-native-language-v1' && value === null), 'the unlisted value is removed');
 });

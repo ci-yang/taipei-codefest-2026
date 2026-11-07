@@ -186,7 +186,7 @@
     renderMapLayout(); syncHighlights();
     requestAnimationFrame(() => { map.invalidateSize({ animate: false }); if (state.route) fitDestinationRoute(); });
   }
-  function openResource(id) { if (!byId.has(String(id))) return; selectResource(id); const store = byId.get(state.selectedId); if (!highlights?.handleResource(store)) showDetails(store); }
+  function openResource(id) { if (!byId.has(String(id))) return; if (state.screen === 'guide') { startGuide(byId.get(String(id))); return; } selectResource(id); const store = byId.get(state.selectedId); if (!highlights?.handleResource(store)) showDetails(store); }
   function renderMarkers() {
     renderResourceLine();
     const colors = palette();
@@ -264,7 +264,7 @@
     const store = state.mode === 'resource' ? byId.get(state.selectedId) : null; const position = state.position;
     const pointing = Boolean(store && valid(store) && position); const arrow = $('#guide-arrow');
     if (arrow) { arrow.style.transform = pointing ? `rotate(${arrowRotation(position, store)}deg)` : 'rotate(0deg)'; arrow.dataset.ready = String(pointing); }
-    setText('#guidance-heading', store ? URGENCIES[state.urgency]?.title || '前往選取的資源' : '身邊的友善導引');
+    setText('#guidance-heading', store ? (resultStore()?.id === store.id && URGENCIES[state.urgency]?.title) || '前往選取的資源' : '身邊的友善導引');
     setText('#guidance-title', store ? store.name : '探索附近資源');
     setText('#guidance-distance', store ? !valid(store) ? '未提供座標' : position ? `直線 ${approx()}${distanceLabel(distance(position, store))}` : '需要定位' : `視窗內 ${visibleStores().length} 筆`);
     setText('#guidance-bearing', store ? !valid(store) ? '無法計算方向，請選擇有座標的資源' : position ? `${directionName(bearing(position, store))}方 · 正北基準 · ${state.orientationEnabled ? state.orientationMessage : '未使用方位感測'}` : '需要定位才能顯示方向' : '點選資源查看資訊；未規劃行走路線');
@@ -273,7 +273,7 @@
     if ($('#guide-retry')) $('#guide-retry').hidden = !(store && state.guideStatus === 'error');
     if ($('#guide-orientation')) $('#guide-orientation').hidden = !pointing || state.orientationEnabled;
     const toiletGuide = Boolean(store && state.urgency === 'toilet' && store.services.includes('toilet'));
-    const timerText = !toiletGuide || state.guideStatus === 'ready' ? '' : ['error', 'unavailable'].includes(state.guideStatus) ? '需要步行路線才能倒數' : state.guideStatus === 'waiting-location' ? '需要步行路線才能倒數 · 等待定位' : '步行路線計算中，完成後可倒數';
+    const timerText = store && state.urgency === 'toilet' && !toiletGuide ? '此地點非廁所，不提供步行倒數' : !toiletGuide || state.guideStatus === 'ready' ? '' : ['error', 'unavailable'].includes(state.guideStatus) ? '需要步行路線才能倒數' : state.guideStatus === 'waiting-location' ? '需要步行路線才能倒數 · 等待定位' : '步行路線計算中，完成後可倒數';
     if ($('#guide-timer-status')) { $('#guide-timer-status').hidden = !timerText; $('#guide-timer-status').textContent = timerText; }
     setText('#guidance-location', position?.source === 'demo' ? '展示位置 · 非您的 GPS' : position ? `${position.accuracy > 100 ? '精度不足 · ' : ''}定位${position.accuracy !== null ? ` ±${Math.round(position.accuracy)} m` : '精度未知'} · ${timeText(position.capturedAt)}` : state.gpsPending ? '正在定位…' : state.gpsMessage || '尚未取得位置，請使用定位按鈕重試');
     if ($('#guidance-detail')) $('#guidance-detail').hidden = !store;
@@ -355,7 +355,7 @@
   function applyScreen(entry) {
     const next = entry && VIEWS.includes(entry.view) ? entry : { view: 'home', depth: 0 };
     window.FriendlySpeakCard?.closeSpeakCard({ silent: true });
-    if (state.screen === 'guide' && next.view !== 'guide') leaveGuide();
+    if (state.screen === 'guide') leaveGuide();
     state.urgency = Object.hasOwn(URGENCIES, next.urgency || '') ? next.urgency : null;
     const store = byId.get(String(next.storeId ?? ''));
     if (next.view === 'home') { setView('home'); renderHome(); return; }
@@ -414,23 +414,24 @@
     const store = resultStore();
     if (!store) { body.innerHTML = `<section class="result-empty" data-result="empty"><h2>名冊內沒有${esc(meta.label)}點位</h2><p>可改從地圖查看其他資源。</p><div class="result-actions"><button class="secondary-button" data-action="map">${icon('compass', 19)}看地圖</button></div></section>`; return; }
     const total = state.result.items.length; const angle = bearing(state.position, store); const accessible = store.services.includes('accessible'); const hasNext = state.resultIndex + 1 < total;
-    body.innerHTML = `<article class="result-card" data-result-id="${esc(store.id)}"><p class="result-rank">直線第 ${state.resultIndex + 1} 近 · 共 ${total} 筆候選</p><h2 class="result-name">${esc(store.name)}</h2><p class="result-address">${esc(store.address || '地址待確認')}</p><div class="result-metric"><span class="result-arrow" style="transform:rotate(${angle}deg)">${icon('arrowNorth', 30)}</span><div><strong id="result-distance">直線 ${approx()}${distanceLabel(distance(state.position, store))}</strong><span>在您的${directionName(angle)}方 · 正北基準，非步行路線</span></div></div><div class="result-tags"><span class="service-tag ${accessible ? 'available' : 'unknown'}">${icon('accessible', 16)}無障礙 · ${accessible ? '有標示' : '未標示'}</span>${state.urgency === 'wifi' ? `<span class="service-tag unknown">${icon('wifi', 16)}免費 Wi-Fi 熱點，不保證訊號</span>` : ''}</div>${state.prefs.stepFree && state.result.stepFreeFallback ? `<p class="result-warning" role="status">無障礙資料不足：名冊中沒有標示無障礙的${esc(meta.label)}，先顯示最近一筆。</p>` : ''}${state.position.accuracy > 100 ? '<p class="field-note">定位精度不足，距離與方向可能有偏差。</p>' : ''}${sourceHtml(store)}<div class="result-actions"><button class="primary-button" data-action="go" ${valid(store) ? '' : 'disabled'}>${icon('navigation', 19)}帶我去</button><button class="secondary-button" data-action="speak">開口卡</button><button class="secondary-button" data-action="map">${icon('compass', 19)}看地圖</button>${phoneFor(store) ? `<button class="secondary-button" data-action="phone">${icon('phone', 19)}撥號</button>` : ''}</div><button class="text-button result-next" data-action="next" ${hasNext ? '' : 'disabled'}>${hasNext ? `換下一家（直線第 ${state.resultIndex + 2} 近）` : '已是最後一筆候選'}${icon('chevron', 16)}</button></article>`;
+    body.innerHTML = `<article class="result-card" data-result-id="${esc(store.id)}"><p class="result-rank">直線第 ${state.resultIndex + 1} 近 · 共 ${total} 筆候選</p><h2 class="result-name">${esc(store.name)}</h2><p class="result-address">${esc(store.address || '地址待確認')}</p><div class="result-metric"><span class="result-arrow" style="transform:rotate(${angle}deg)">${icon('arrowNorth', 30)}</span><div><strong id="result-distance">直線 ${approx()}${distanceLabel(distance(state.position, store))}</strong><span>在您的${directionName(angle)}方 · 正北基準，非步行路線</span></div></div><div class="result-tags"><span class="service-tag ${accessible ? 'available' : 'unknown'}">${icon('accessible', 16)}無障礙 · ${accessible ? '有標示' : '未標示'}</span>${state.urgency === 'wifi' ? `<span class="service-tag unknown">${icon('wifi', 16)}免費 Wi-Fi 熱點，不保證訊號</span>` : ''}</div>${state.prefs.stepFree && state.result.stepFreeFallback ? `<p class="result-warning" role="status">無障礙資料不足：名冊中沒有標示無障礙的${esc(meta.label)}，先顯示最近一筆。</p>` : ''}${state.position.accuracy > 100 ? '<p class="field-note">定位精度不足，距離與方向可能有偏差。</p>' : ''}${sourceHtml(store)}<div class="result-actions"><button class="primary-button" data-action="go" ${valid(store) ? '' : 'disabled'}>${icon('navigation', 19)}帶我去</button>${speakCategory(store) ? '<button class="secondary-button" data-action="speak">開口卡</button>' : ''}<button class="secondary-button" data-action="map">${icon('compass', 19)}看地圖</button>${phoneFor(store) ? `<button class="secondary-button" data-action="phone">${icon('phone', 19)}撥號</button>` : ''}</div><button class="text-button result-next" data-action="next" ${hasNext ? '' : 'disabled'}>${hasNext ? `換下一家（直線第 ${state.resultIndex + 2} 近）` : '已是最後一筆候選'}${icon('chevron', 16)}</button></article>`;
   }
   function refreshUrgencyScreens() {
     if (state.view === 'result' && state.urgency) { state.result = rankFor(state.urgency); state.resultIndex = 0; replaceScreen({ index: 0 }); renderResult(); }
     const store = guideStore(); if (store && state.guideStatus === 'waiting-location' && state.position) scheduleGuideRoute(store);
   }
-  function startGuide(store) { if (!valid(store)) return; selectResource(store.id); pushScreen({ view: 'guide', urgency: state.urgency, storeId: store.id }); }
+  function startGuide(store) { if (!valid(store)) return; if (state.urgency) { state.filters = new Set([state.urgency]); renderFilters(); } selectResource(store.id); pushScreen({ view: 'guide', urgency: state.urgency, storeId: store.id }); }
   function openMap() {
     if (state.screen === 'result' && state.urgency) {
-      const store = resultStore(); state.filters = new Set([state.urgency]); renderFilters();
+      highlights?.close?.(); const store = resultStore(); state.filters = new Set([state.urgency]); renderFilters();
       if (store) selectResource(store.id);
       pushScreen({ view: 'map', urgency: state.urgency, storeId: store?.id ?? null });
     } else pushScreen({ view: 'map', urgency: state.urgency });
   }
   // 開口卡類別：有急用類別且店家具備就用它，否則取店家第一個三急類別；三類都沒有就不出開口卡。
   function speakCategory(store) {
-    if (!store || !window.FriendlySpeakCard) return null;
+    // 公眾 Wi-Fi 熱點名冊沒有店員可出示，不出開口卡。
+    if (!store || !window.FriendlySpeakCard || store.sourceId === 'wifi') return null;
     if (state.urgency && store.services.includes(state.urgency)) return state.urgency;
     return store.services.find(service => Object.hasOwn(URGENCIES, service)) || null;
   }
@@ -453,7 +454,7 @@
     try {
       const stored = localStorage.getItem(LANG_KEY);
       if (stored && availableLangs().some(item => item.code === stored)) lang = stored;
-      else if (stored) notice = '先前選的母語尚未校對或無法使用，已改用中文單面。';
+      else if (stored) { notice = '先前選的母語尚未校對或無法使用，已改用中文單面。'; localStorage.removeItem(LANG_KEY); }
       stepFree = localStorage.getItem(STEP_FREE_KEY) === '1';
     } catch { /* Optional. */ }
     state.prefs = { lang, stepFree }; state.prefsNotice = notice;

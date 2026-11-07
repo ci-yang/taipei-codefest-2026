@@ -13,7 +13,7 @@
     const host = document.querySelector('#highlight-host');
     const launch = document.querySelector('#highlight-launch');
     const guideHost = guideHostOption || document.querySelector('#guide-timer');
-    if (!host || !window.FriendlyHighlightMath) return { update() {}, open() {}, openToilet() {}, pauseGuide() {}, handleResource() { return false; }, destroy() {} };
+    if (!host || !window.FriendlyHighlightMath) return { update() {}, open() {}, close() {}, openToilet() {}, pauseGuide() {}, handleResource() { return false; }, destroy() {} };
     const math = window.FriendlyHighlightMath;
     const byId = new Map(stores.map(store => [String(store.id), store]));
     const toilets = stores.filter(store => valid(store) && store.services.includes('toilet'));
@@ -347,6 +347,7 @@
         renderGuide(); syncAnimation();
       },
       open,
+      close,
       openToilet,
       pauseGuide,
       handleResource(store) { if (active() && (mode === 'toilet' || mode === 'gold') && store?.services.includes('toilet')) { selectToilet(store); return true; } return false; },
