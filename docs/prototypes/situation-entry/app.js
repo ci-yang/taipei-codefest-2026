@@ -37,6 +37,14 @@
     return esc(text).replace(/(\d{1,2}:\d{2}–\d{1,2}:\d{2})/g, '<span class="nw">$1</span>');
   }
 
+  /* The night strip on a card follows the number it shows: open -> say so; closed -> say when it opens.
+   * plan() shows the first open call, so a closed number means no call on this card is open now. */
+  function callNightText(status) {
+    if (status.open) return '現在是晚上或假日，先給晚上打得通的電話';
+    if (status.next) return `現在是晚上或假日，這支電話${status.next}才有人接`;
+    return '現在是晚上或假日，這支電話的服務時段待確認，打之前先看下面的時段';
+  }
+
   // The first call's own hours, and whether now is inside them.
   function statusText(status) {
     if (status.pending) return status.hours;
@@ -205,7 +213,7 @@
     const lineSources = [...new Set(data.emergencyLines.flatMap((line) => line.sources))]
       .map((id) => `<a href="${esc(data.sources[id].url)}" rel="noopener">${esc(data.sources[id].short)}</a>`).join('、');
     return `<header class="top"><h1>我遇到了……</h1>${periodTag(state)}</header>`
-      + nightNote(state, '現在是晚上或假日，卡片先給晚上打得通的電話')
+      + nightNote(state, '現在是晚上或假日，卡片會標出哪些電話現在打得通')
       + searchBox(filter)
       + `<div class="cats" role="group" aria-label="依分類篩選" data-cats>${categoryChips(data, filter)}</div>`
       + `<p class="sr-only" role="status" aria-live="polite" data-result-count>${esc(resultCountText(data, filter))}</p>`
@@ -213,7 +221,7 @@
       + `<section class="trust" aria-label="這頁怎麼做的">`
       + `<p class="trust-title">${night ? '現在是晚上或假日' : '現在是平日上班時間'}</p>`
       + `<p class="trust-lead">${night
-        ? '社福中心下班了，卡片先給晚上打得通的電話。'
+        ? '社福中心下班了，卡片會標出哪些電話現在打得通，打不通的寫幾點起有人接。'
         : '社福中心有人接，卡片先給你那一區的電話。'}每支電話照它自己的服務時段挑；遇到國定假日，按右上角切換。</p>`
       + `<ul class="trust-list">`
       + `<li>電話、窗口、要帶的東西，都抄自臺北市政府、衛福部、警政署、健保署的官方頁面和開放資料，每一條都標了出處。</li>`
@@ -294,7 +302,7 @@
     return `<header class="top"><a class="back" href="#/" aria-label="回到所有卡片">‹</a>${periodTag(state)}</header>`
       + `<article class="card${situation.urgent ? ' is-urgent' : ''}" aria-labelledby="card-title">`
       + `<div class="band"><h1 id="card-title">${esc(situation.title)}</h1><p class="band-sub">${esc(situation.subtitle)}</p></div>`
-      + `<section class="part call" aria-label="現在打給誰">${nightNote(state, '現在是晚上或假日，先給晚上打得通的電話')}<p class="label">${p.status.open ? '現在打給' : '上班時間打給'}</p>${callBlock(data, p, index, state)}${timeNote}</section>`
+      + `<section class="part call" aria-label="現在打給誰">${nightNote(state, callNightText(p.status))}<p class="label">${p.status.open ? '現在打給' : '上班時間打給'}</p>${callBlock(data, p, index, state)}${timeNote}</section>`
       + `<section class="part say" aria-label="接通後照著說"><p class="label">接通後照著說</p>`
       + `<p class="script">「${C.scriptHtml(script.quote, 'blank', state.district)}」</p>`
       + `<p class="script-src">空格換成你的情況。${C.refsHtml(index, p.say.sources)}</p></section>`
