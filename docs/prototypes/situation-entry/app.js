@@ -161,10 +161,12 @@
       event.preventDefault();
       const dial = link.dataset.dial;
       showStatus(`正在撥打 ${formatDial(dial)}…`);
-      const result = await bridge.call(dial);
+      const failed = () => showStatus(`這台裝置沒辦法直接撥號，請手動撥打 ${formatDial(dial)}。`);
+      const result = await bridge.call(dial, failed);
       if (result === 'opened') showStatus('');
+      else if (result === 'unconfirmed') showStatus(`若沒有跳出撥號畫面，請直接撥 ${formatDial(dial)}。`);
       else if (result === 'busy') showStatus('上一通撥號還在處理，請稍等。');
-      else showStatus(`這台裝置沒辦法直接撥號，請手動撥打 ${formatDial(dial)}。`);
+      else failed();
     });
 
     render();

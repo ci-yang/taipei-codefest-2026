@@ -61,13 +61,13 @@ test('phone_call false or no reply is reported as failed', async () => {
   assert.equal(await silent, 'failed');
 });
 
-test('1999 uses the shell 1999agree flow; silence means the dial dialog is shown', async () => {
+test('1999 uses the shell 1999agree flow; silence is never reported as dialed', async () => {
   const env = setup();
   const pending = env.api.call('1999');
   await tick();
   assert.deepEqual(env.sent, [{ name: '1999agree', data: true }]);
   env.fireTimeout();
-  assert.equal(await pending, 'opened');
+  assert.equal(await pending, 'unconfirmed');
 });
 
 test('1999agree replying false is reported as failed', async () => {
@@ -76,6 +76,35 @@ test('1999agree replying false is reported as failed', async () => {
   await tick();
   env.reply('1999agree', false);
   assert.equal(await pending, 'failed');
+  assert.equal(env.listeners.size, 0);
+});
+
+test('1999agree false arriving after the user reads the terms is still reported', async () => {
+  const env = setup();
+  const late = [];
+  const pending = env.api.call('1999', (result) => late.push(result));
+  await tick();
+  env.fireTimeout();
+  assert.equal(await pending, 'unconfirmed');
+  env.reply('1999agree', false);
+  assert.deepEqual(late, ['failed']);
+  assert.equal(env.listeners.size, 0);
+});
+
+test('a new call stops listening for an earlier 1999 reply', async () => {
+  const env = setup();
+  const late = [];
+  const first = env.api.call('1999', (result) => late.push(result));
+  await tick();
+  env.fireTimeout();
+  await first;
+  const second = env.api.call('0227208889');
+  await tick();
+  env.reply('1999agree', false);
+  env.reply('phone_call', true);
+  assert.equal(await second, 'opened');
+  assert.deepEqual(late, []);
+  assert.equal(env.listeners.size, 0);
 });
 
 test('replies for other handlers are ignored', async () => {
