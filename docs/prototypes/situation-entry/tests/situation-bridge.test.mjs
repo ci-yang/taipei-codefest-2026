@@ -174,7 +174,7 @@ test('non-dialable input is never sent to the shell', async () => {
 });
 
 test('short emergency codes and 0800 numbers dial through phone_call', async () => {
-  for (const number of ['110', '113', '119', '165', '1925', '1966', '0800030598', '024128518']) {
+  for (const number of ['110', '113', '119', '165', '1925', '1966', '0800030598', '024128518', '024128678']) {
     const env = setup();
     const pending = env.api.call(number);
     await tick();

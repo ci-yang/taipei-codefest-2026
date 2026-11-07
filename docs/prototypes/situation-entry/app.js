@@ -117,6 +117,14 @@
     return `<div class="pick"><p class="pick-q">你住哪一區？</p><p class="pick-hint">點一下，就給你那一區社福中心的電話。</p><div class="chips">${chips}</div></div>`;
   }
 
+  // A second number for the same line (健保：用手機打改撥 02-4128-678), shown right under the main dial
+  // and written exactly as the official page prints it.
+  function altLine(entry) {
+    if (!entry.alt) return '';
+    const dial = entry.alt.number.replace(/\D/g, '');
+    return `<p class="also">${esc(entry.alt.label)}：<a href="tel:${esc(dial)}" data-dial="${esc(dial)}" data-show="${esc(entry.alt.number)}">${esc(entry.alt.number)}</a></p>`;
+  }
+
   function callBlock(data, p, index, state) {
     const f = p.first;
     if (f.open) return districtPicker(data);
@@ -129,7 +137,7 @@
     return `<p class="who" tabindex="-1" data-focus-after-pick>${esc(f.who)}${area}</p>`
       + `<p class="number">${esc(f.display)}</p>${hours}`
       + (sub ? `<p class="sub with-ref"><span>${esc(sub)}</span>${C.refsHtml(index, f.sources)}</p>` : '')
-      + `<a class="dial" href="tel:${esc(f.dial)}" data-dial="${esc(f.dial)}">${PHONE}撥出這支電話</a>${more}`;
+      + `<a class="dial" href="tel:${esc(f.dial)}" data-dial="${esc(f.dial)}">${PHONE}撥出這支電話</a>${altLine(f.entry)}${more}`;
   }
 
   function checklist(situation, index, checked) {
@@ -159,7 +167,7 @@
       ? `<li><strong>${esc(c.who)}</strong><span>選了你住的區就會顯示。</span>${districtPicker(data)}</li>`
       : `<li><strong>${esc(c.who)}</strong>${c.note ? `<span>${esc(c.note)}</span>` : ''}`
         + `<span>${hoursHtml(C.hoursText(c.entry.hours))}</span>`
-        + `<span class="line-row"><a class="line-dial" href="tel:${esc(c.dial)}" data-dial="${esc(c.dial)}">${PHONE}${esc(c.display)}</a>${C.refsHtml(index, c.sources)}</span></li>`)).join('');
+        + `<span class="line-row"><a class="line-dial" href="tel:${esc(c.dial)}" data-dial="${esc(c.dial)}">${PHONE}${esc(c.display)}</a>${C.refsHtml(index, c.sources)}</span>${altLine(c.entry)}</li>`)).join('');
     const sayOthers = p.otherSay.map((e) => {
       const s = C.splitScript(e.text);
       return `<li class="with-ref"><span><strong>${esc(s.lead || '另一種說法')}</strong><br>「${C.scriptHtml(s.quote, 'blank', state.district)}」</span>${C.refsHtml(index, e.sources)}</li>`;

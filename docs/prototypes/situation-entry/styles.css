@@ -23,6 +23,7 @@
   --urgent-soft: #fdecea;
   --sos-bg: #ffffff;
   --closed: #8a5a12;        /* "不在服務時間" text on tint, 6.5:1 */
+  --desk-link: #22474e;     /* links sitting on the desk (home footer, card foot) */
 }
 :root[data-period="night"] {
   --desk: #13262b;
@@ -33,6 +34,7 @@
   --band-ink: #ffffff;
   --band-sub: #d7eef2;
   --sos-bg: #0b1a1e;
+  --desk-link: #9fdbe6;     /* 10:1 on the night desk */
 }
 
 * { box-sizing: border-box; }
@@ -68,12 +70,8 @@ a { color: var(--go); }
 
 .intro { margin: 2px 0 14px; color: var(--on-desk-muted); font-size: 17px; }
 
-/* home: jump to a category */
-.jump {
-  display: flex; gap: 8px; margin: 0 -16px 22px; padding: 2px 16px 4px; overflow-x: auto; scrollbar-width: none;
-  scroll-padding-inline: 16px;
-}
-.jump::-webkit-scrollbar { display: none; }
+/* home: jump to a category — wraps so every category stays in view (no sideways scroll) */
+.jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; padding: 2px 0 4px; }
 .jump-chip {
   flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 7px 0 13px; white-space: nowrap;
   border: 2px solid var(--on-desk); border-radius: 999px; background: transparent; color: var(--on-desk);
@@ -140,6 +138,7 @@ a { color: var(--go); }
   content: ""; position: absolute; left: 2px; top: 0.6em; width: 8px; height: 8px; border-radius: 2px; background: var(--band);
 }
 :root[data-period="night"] .trust-list li::before { background: #5ab4c5; }
+.trust a, .foot a { color: var(--desk-link); }
 .trust-date { margin: 14px 0 0; font-size: 14px; color: var(--on-desk-muted); }
 
 /* the card */

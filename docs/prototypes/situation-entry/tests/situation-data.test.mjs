@@ -307,7 +307,7 @@ test('hours: a holiday (night toggle during office hours) closes weekday lines b
   const nhi = firstCall('nhi', holiday, 'night');
   assert.equal(nhi.status.open, false);
   assert.equal(nhi.status.next, '下個上班日 8:30 起');
-  assert.match(nhi.timeNote.text, /晚上、假日健保專線沒開/);
+  assert.match(nhi.timeNote.text, /健保專線現在沒開/);
   assert.equal(firstCall('fraud', holiday, 'night').first.display, '165');
   assert.equal(firstCall('missing', holiday, 'night').first.display, '110');
   assert.equal(firstCall('food', holiday, 'night').first.display, '1999');
@@ -380,4 +380,114 @@ test('source buttons: one per entry, never two side by side', () => {
 
 test('ticked items keep readable text (no strike-through)', () => {
   assert.ok(!readFileSync(join(pageDir, 'styles.css'), 'utf8').includes('line-through'));
+});
+
+const plainText = (html) => html.replace(/<[^>]+>/g, '');
+
+test('nhi: the card gives the landline 0800-030-598 and the mobile 02-4128-678, and says which is which', () => {
+  const { app } = loadApp();
+  const html = app.renderCard(data, find('nhi'), { id: 'nhi', period: 'day', district: '', moment: at('day', '10:00') }, new Set());
+  const call = html.slice(html.indexOf('現在打給'), html.indexOf('接通後照著說'));
+  assert.ok(call.includes('<p class="number">0800-030-598</p>'));
+  assert.ok(call.includes('href="tel:024128678" data-dial="024128678" data-show="02-4128-678"'), 'no dial link for the mobile number');
+  assert.match(plainText(call), /市話打這支，免付費/);
+  assert.match(plainText(call), /用手機打，改撥：02-4128-678/);
+  const home = app.renderHome(data, { id: null, period: 'day', district: '', moment: at('day', '10:00') });
+  const start = home.indexOf('data-situation="nhi"');
+  assert.match(plainText(home.slice(start, home.indexOf('</a>', start))), /手機改撥 02-4128-678/);
+});
+
+test('nhi: the mobile number is on the bridge allowlist', () => {
+  const alt = find('nhi').call[0].alt;
+  assert.equal(alt.number, '02-4128-678');
+  assert.ok(alt.sources.every((id) => data.sources[id]?.url));
+  assert.ok(bridge.dialable(alt.number.replace(/\D/g, '')));
+});
+
+test('nhi: insured people in arrears are told plainly that care is not affected; the uninsured get their own path', () => {
+  const s = find('nhi');
+  const text = [s.title, s.subtitle, ...allEntries(s).map((e) => e.text)].join('\n');
+  assert.match(s.subtitle, /目前不影響看病/);
+  assert.match(text, /「目前健保欠費也不會導致民眾被鎖卡或影響就醫權利」/);
+  assert.match(text, /還沒有加入健保的人：如果是急重症/);
+  const insured = allEntries(s).filter((e) => /已經有健保/.test(e.text));
+  assert.ok(insured.length > 0 && insured.every((e) => !e.pending && !/待確認/.test(e.text)), 'insured-in-arrears care is still 待確認');
+  const pending = [...s.window, ...s.cautions].filter((e) => e.pending);
+  assert.ok(pending.length && pending.every((e) => /還沒有健保/.test(e.text)), 'only the uninsured, non-urgent case stays 待確認');
+});
+
+// Rendered call section for a situation at a given clock (weekday by default).
+function closedHint(id, date) {
+  const { app, core } = loadApp();
+  const view = core.viewAt(null, date);
+  const html = app.renderCard(data, find(id), { id, period: view.period, district: '', moment: view.moment }, new Set());
+  return plainText(html.slice(html.indexOf('aria-label="現在打給誰"'), html.indexOf('接通後照著說')));
+}
+
+test('closed lines give one reopening hint that matches why they are closed', () => {
+  const wed = (h, m) => new Date(2026, 10, 11, h, m);
+  const lunch = closedHint('rental', wed(12, 45));
+  assert.match(lunch, /今天 13:30 起/);
+  assert.ok(!/下個上班日|明天|晚上|假日/.test(lunch), `lunch hint contradicts itself: ${lunch}`);
+  const discharge = closedHint('discharge', wed(12, 45));
+  assert.match(discharge, /今天 13:30 起/);
+  assert.ok(!/晚上|假日|下個上班日/.test(discharge), `1966 lunch says 晚上假日: ${discharge}`);
+  assert.match(closedHint('rental', wed(18, 0)), /明天 9:00 起/);
+  assert.match(closedHint('rental', new Date(2026, 10, 13, 18, 0)), /週一 9:00 起/); // Friday evening
+  assert.match(closedHint('nhi', new Date(2026, 10, 14, 10, 0)), /週一 8:30 起/); // Saturday
+  assert.match(closedHint('rental', wed(8, 0)), /今天 9:00 起/);
+});
+
+test('period: the clock is re-read for each view, a manual pick sticks', () => {
+  const { core } = loadApp();
+  const afternoon = core.viewAt(null, new Date(2026, 10, 11, 14, 30));
+  const evening = core.viewAt(null, new Date(2026, 10, 11, 17, 45));
+  assert.equal(afternoon.period, 'day');
+  assert.equal(firstCall('labor', afternoon.moment).first.entry.id, 'labor-lawyer');
+  assert.equal(evening.period, 'night');
+  assert.notEqual(firstCall('labor', evening.moment, 'night').first.entry.id, 'labor-lawyer');
+  const pinned = core.viewAt('day', new Date(2026, 10, 11, 17, 45));
+  assert.equal(pinned.period, 'day');
+  assert.equal(pinned.moment.minutes, 14 * 60 + 30);
+});
+
+// Runs core.start() against a minimal fake page whose clock the test moves.
+function startPage(hash) {
+  let now = new Date(2026, 10, 11, 14, 30);
+  class FakeDate extends Date { constructor(...args) { super(...(args.length ? args : [now.getTime()])); } }
+  const listeners = {};
+  const on = (target) => (type, fn) => { (listeners[`${target}:${type}`] ||= []).push(fn); };
+  const app = { innerHTML: '', addEventListener: on('app'), querySelector: () => null };
+  const doc = {
+    visibilityState: 'visible', documentElement: { dataset: {} }, title: '',
+    getElementById: (id) => (id === 'app' ? app : { hidden: true, textContent: '' }),
+    querySelector: () => null, addEventListener: on('doc'),
+  };
+  const win = { document: doc, location: { search: '', hash }, addEventListener: on('win'), scrollTo() {} };
+  win.window = win;
+  const context = { window: win, Date: FakeDate, URLSearchParams };
+  vm.runInNewContext(readFileSync(join(pageDir, 'core.js'), 'utf8'), context);
+  win.SITUATION_DATA = data;
+  win.SituationBridge = { available: () => false, call: async () => 'unsupported' };
+  const seen = [];
+  win.SituationCore.start((d, state) => { seen.push({ ...state }); return ''; }, () => '');
+  const fire = (key, event = {}) => (listeners[key] || []).forEach((fn) => fn(event));
+  return { seen, fire, setNow: (date) => { now = date; } };
+}
+
+test('page: redraw, route change and coming back all re-read the clock; the manual toggle survives them', () => {
+  const page = startPage('#/labor');
+  assert.equal(page.seen.at(-1).period, 'day');
+  page.setNow(new Date(2026, 10, 11, 17, 45));
+  page.fire('doc:visibilitychange');
+  assert.equal(page.seen.at(-1).period, 'night', 'coming back at 17:45 still shows the 14:30 card');
+  assert.notEqual(firstCall('labor', page.seen.at(-1).moment, 'night').first.entry.id, 'labor-lawyer');
+  page.setNow(new Date(2026, 10, 11, 14, 30));
+  page.fire('win:hashchange');
+  assert.equal(page.seen.at(-1).period, 'day');
+  page.fire('app:click', { target: { closest: (sel) => (sel === '[data-flip-period]' ? {} : null) } });
+  assert.equal(page.seen.at(-1).period, 'night');
+  page.setNow(new Date(2026, 10, 11, 15, 0));
+  page.fire('doc:visibilitychange');
+  assert.equal(page.seen.at(-1).period, 'night', 'the manual pick was dropped on redraw');
 });

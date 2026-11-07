@@ -31,7 +31,8 @@
     return weekday && minutes >= OFFICE_OPEN && minutes < OFFICE_CLOSE ? 'day' : 'night';
   }
 
-  /* The moment each number's own hours are checked against: { workday, minutes }.
+  /* The moment each number's own hours are checked against: { workday, minutes, day } (day: 0 = Sunday).
+   * `day` only words the reopening hint (明天／週一); `workday` decides whether weekday hours apply.
    * The period toggle wins over the clock: 'night' during office hours means a public holiday (no weekday
    * hours apply); 'day' outside office hours means "show me the daytime card" and uses 14:30. */
   function momentFor(period, date) {
@@ -39,8 +40,8 @@
     const minutes = date.getHours() * 60 + date.getMinutes();
     const weekday = day >= 1 && day <= 5;
     const inOffice = weekday && minutes >= OFFICE_OPEN && minutes < OFFICE_CLOSE;
-    if (period === 'day') return { workday: true, minutes: inOffice ? minutes : FORCED_DAY_MINUTES };
-    return { workday: inOffice ? false : weekday, minutes };
+    if (period === 'day') return { workday: true, minutes: inOffice ? minutes : FORCED_DAY_MINUTES, day: weekday ? day : 3 };
+    return { workday: inOffice ? false : weekday, minutes, day };
   }
 
   function toMinutes(hhmm) {
@@ -65,11 +66,19 @@
     return `週一至週五 ${hours.spans.map(([from, to]) => `${clockText(from)}–${clockText(to)}`).join('、')}`;
   }
 
-  // When a closed number opens again. Holidays are unknown, so tomorrow is "下個上班日".
+  /* When a closed number opens again, worded by why it is closed: lunch break or before opening -> 今天,
+   * after hours Mon–Thu -> 明天, Friday evening or the weekend -> 週一, a holiday (night toggle on a weekday
+   * during office hours) -> 下個上班日. Public holidays are not known, hence the manual toggle. */
   function nextOpenText(hours, moment) {
     if (!hours || hours === '24h') return '';
-    const later = moment.workday && hours.spans.find(([from]) => toMinutes(from) > moment.minutes);
-    return later ? `今天 ${clockText(later[0])} 起` : `下個上班日 ${clockText(hours.spans[0][0])} 起`;
+    const first = clockText(hours.spans[0][0]);
+    if (!moment.workday) {
+      const weekend = moment.day === 0 || moment.day === 6;
+      return weekend ? `週一 ${first} 起` : `下個上班日 ${first} 起`;
+    }
+    const later = hours.spans.find(([from]) => toMinutes(from) > moment.minutes);
+    if (later) return `今天 ${clockText(later[0])} 起`;
+    return moment.day === 5 ? `週一 ${first} 起` : `明天 ${first} 起`;
   }
 
   // Preview overrides for screenshots: ?t=day|night picks a fixed Wednesday (14:30 or 21:00); ?at=0915 sets the time.
@@ -122,7 +131,14 @@
   }
 
   function defaultMoment(period) {
-    return period === 'day' ? { workday: true, minutes: FORCED_DAY_MINUTES } : { workday: false, minutes: 21 * 60 };
+    return period === 'day' ? { workday: true, minutes: FORCED_DAY_MINUTES, day: 3 } : { workday: true, minutes: 21 * 60, day: 3 };
+  }
+
+  /* Period and moment for one draw. Without a manual pick the period follows the clock, read anew on every
+   * draw; a manual pick (the 白天／晚上 toggle, or ?t= in a preview) stays until the user flips it again. */
+  function viewAt(manualPeriod, date) {
+    const period = manualPeriod || detectPeriod(date);
+    return { period, moment: momentFor(period, date) };
   }
 
   function forEntry(list, id) {
@@ -225,11 +241,12 @@
       if (!link || !bridge.available()) return; // plain browser: let tel: open the dialer
       event.preventDefault();
       const dial = link.dataset.dial;
-      show(`正在撥打 ${formatDial(dial)}…`);
-      const failed = () => show(`這台裝置沒辦法直接撥號，請手動撥打 ${formatDial(dial)}。`);
+      const shown = link.dataset.show || formatDial(dial); // data-show: the number as the agency prints it
+      show(`正在撥打 ${shown}…`);
+      const failed = () => show(`這台裝置沒辦法直接撥號，請手動撥打 ${shown}。`);
       const result = await bridge.call(dial, failed);
       if (result === 'opened') show('');
-      else if (result === 'unconfirmed') show(`若沒有跳出撥號畫面，請直接撥 ${formatDial(dial)}。`);
+      else if (result === 'unconfirmed') show(`若沒有跳出撥號畫面，請直接撥 ${shown}。`);
       else if (result === 'busy') show('上一通撥號還在處理，請稍等。');
       else failed();
     });
@@ -241,7 +258,7 @@
     return match ? match[1] : null;
   }
 
-  /* Page state lives in memory only: { id, period, district }.
+  /* Page state lives in memory only: { id, manualPeriod, period, district, moment }.
    * Markup hooks: [data-district="X"] picks a district, [data-clear-district] asks again,
    * [data-flip-period] switches day/night, [data-dial] dials, button[data-ref] opens a source. */
   function start(render, titleOf) {
@@ -249,15 +266,15 @@
     const data = root.SITUATION_DATA;
     const app = doc.getElementById('app');
     const preview = readPreview(root.location.search);
-    const clock = () => (preview.period ? previewDate(preview) : new Date());
-    const state = { id: null, period: preview.period || detectPeriod(clock()), district: preview.district, moment: null };
+    const clock = () => (preview.period || preview.at !== null ? previewDate(preview) : new Date());
+    const state = { id: null, manualPeriod: preview.period, period: null, district: preview.district, moment: null };
     const calls = wireCalls(doc, app, doc.getElementById('call-status'), root.SituationBridge);
     wireRefs(app);
 
     function draw(focusSelector) {
       state.id = parseRoute(root.location.hash);
       if (state.id && !findSituation(data, state.id)) state.id = null;
-      state.moment = momentFor(state.period, clock());
+      Object.assign(state, viewAt(state.manualPeriod, clock()));
       app.innerHTML = render(data, state);
       doc.title = titleOf(data, state);
       doc.documentElement.dataset.period = state.period;
@@ -272,14 +289,16 @@
       const pick = event.target.closest('[data-district]');
       if (pick) { state.district = pick.dataset.district; draw('[data-focus-after-pick]'); return; }
       if (event.target.closest('[data-clear-district]')) { state.district = ''; draw('[data-district]'); return; }
-      if (event.target.closest('[data-flip-period]')) { state.period = state.period === 'day' ? 'night' : 'day'; draw('[data-flip-period]'); }
+      if (event.target.closest('[data-flip-period]')) { state.manualPeriod = state.period === 'day' ? 'night' : 'day'; draw('[data-flip-period]'); }
     });
+    // Coming back to the page (app switch, screen unlock) re-reads the clock, like a redraw or a route change.
+    doc.addEventListener('visibilitychange', () => { if (doc.visibilityState === 'visible') draw(); });
     draw();
   }
 
   root.SituationCore = Object.freeze({
     start,
-    esc, formatDial, detectPeriod, momentFor, isOpen, hoursText, nextOpenText, readPreview, previewDate, districts, centersIn, findSituation, needsDistrict,
+    esc, formatDial, detectPeriod, momentFor, viewAt, isOpen, hoursText, nextOpenText, readPreview, previewDate, districts, centersIn, findSituation, needsDistrict,
     plan, sourceIndex, scriptHtml, periodText, splitScript, refsHtml, wireRefs, sourcesListHtml, wireCalls, parseRoute,
   });
 })(typeof window === 'undefined' ? globalThis : window);
