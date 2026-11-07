@@ -10,7 +10,7 @@
 
 ## 畫面規則
 
-- 時段：平日 8:30–17:30 算白天（希望好食堂常見問答寫的社福中心上班時間），其他算晚上或假日。國定假日判斷不出來，右上角可以手動切換。晚上整頁換成深色桌面、卡面變深灰藍、黃色卡頭調暗成琥珀色、撥號鍵亮成淺藍綠，一眼看得出時段；晚上沒有純白表面，文字對比都過 WCAG AA（`tests/situation-night.test.mjs` 直接從 `styles.css` 算）。
+- 時段：平日 8:30–17:30 算白天（希望好食堂常見問答寫的社福中心上班時間），其他算晚上或假日。國定假日判斷不出來，右上角可以手動切換。介面照城市通服務頁的語言：白天白底、卡頭淺藍綠底配深藍綠標題、撥號鍵藍綠、1px 淺灰細框加 8–12px 圓角，不用黑粗框與硬陰影；黃色只當點綴（待確認、範本填空、勾選完成）。晚上同一套語言換到深藍綠底（primary-950），卡面 primary-900、撥號鍵亮成淺藍綠，一眼看得出時段；晚上沒有純白表面，文字對比都過 WCAG AA（`tests/situation-night.test.mjs` 直接從 `styles.css` 算）。
 - **每支電話照自己的服務時段挑**：`call` 每一筆有 `hours`（`"24h"`、`{ "days": "weekdays", "spans": [["09:00","12:30"], …] }`，官方沒寫就 `null`＝時段待確認）。`core.js` 的 `plan` 依資料順序，挑第一支「現在在服務時段內」的電話；全部沒開就顯示第一支，標「不在服務時間，X 起」，X 照閉線原因只給一個：午休或還沒開→「今天」、平日下班後→「明天」、週五晚上和週末→「週一」、手動切成假日→「下個上班日」；卡上的「現在打給」改成「上班時間打給」。沒手動切換時，每次重繪、換頁、回到頁面（`visibilitychange`）都重讀現在時間；手動切的白天／晚上會一直保留。例：勞動局律師電話只在 14:00–17:00，平日 09:15、13:15 不會推薦；1966 中午 12:00–13:30 休息。
 - 切換鈕的意思：上班時間內切到「晚上／假日」＝當作國定假日（平日時段的電話都不算開）；下班後切到「白天」＝看白天的卡，用 14:30 計算。
 - 白天：食援、急難救助先問「你住哪一區？」，點一下就給那一區社福中心的電話，範本裡的「臺北市＿＿區」自動填入。
@@ -92,10 +92,12 @@ TownPass 分支 `feat/situation-entry` 有獨立服務「我遇到了」，網�
 
 三個設計方向的比較截圖在 `variants/` 子資料夾，保留不動。
 
-2026-11-08 改用城市通色票後重拍的是：首頁（白天／晚上）、`main-sos-bar`、搜尋「被騙」（白天／晚上）、搜不到（白天／晚上）、食援選區、走失（白天／晚上）、勾選清單。表裡其他截圖還是舊配色，版面一樣。
+2026-11-08 城市通化（白底藍綠、細框）後重拍的是：首頁（白天／晚上）、`main-sos-bar`、搜尋「被騙」（白天／晚上）、搜不到（白天／晚上）、食援選區、走失（白天／晚上）、勾選清單。表裡其他截圖還是上一版配色（黃卡頭、黑粗框），版面一樣。`main-home-day-vs-townpass.png` 左邊是城市通服務頁（`docs/screenshots/e2e-ios-02-service-tab.png`），右邊是本頁首頁第一屏，方便比對。
 
 ## 色票與字級
 
-- 顏色全部來自 TownPass `lib/util/tp_colors.dart`（TPColors），在 `styles.css` 開頭照抄成 `--tp-primary-500` 這類變數；其他規則只引用變數。`tests/situation-tokens.test.mjs` 讀 Dart 檔比對（找不到 TownPass checkout 時跳過這一條，可用 `TP_COLORS_DART` 指定路徑），並擋下色票外的色值、規範外的字級與字重，以及白天／晚上的 AA 對比。
+- 顏色全部來自 TownPass `lib/util/tp_colors.dart`（TPColors），在 `styles.css` 開頭照抄成 `--tp-primary-500` 這類變數；其他規則只引用變數。色票快照固定在 `tests/fixtures/tp_colors.json`（記來源檔、commit、抓取日期），`styles.css` 必須跟它一致；有 TownPass checkout 時另外比對 Dart 檔，找不到就明示跳過（可用 `TP_COLORS_DART` 指定路徑）。
+- `tests/css-audit.mjs` 把 CSS 拆成宣告逐條檢查：color、background、border、outline、box-shadow、fill 等顏色屬性和自訂變數只能是 `var(--…)`（且變數有定義）或底色在色票裡的 `rgba()`；其他屬性出現色值也擋；`font`、`font-size` 只能是 TPTextStyles 字級，字重只能 400／600。測試另外把具名色、`color()`、`font: 900 23px` 等寫法注入，確認會失敗。
+- 主要 token：白天 `--desk`/`--paper` white、`--band` primary-50 配 `--band-ink` primary-800、`--go` primary-700 配 white、`--line` grayscale-200；晚上 `--desk` primary-950、`--paper` primary-900、`--band` primary-800 配 primary-50、`--go` primary-300 配 primary-950、`--line` grayscale-700。
 - 字級只用 TPTextStyles：36／24／18／16／14／12，字重 400／600。主要閱讀字用 h3 16 而不是 body 14（390px 上給長輩讀，14 太小），次要說明 14，註解 12。大號電話 36、緊急列號碼 24、「接通後照著說」24。
-- 字體：`"Roboto", "PingFang TC", …`，Roboto 從 Google Fonts 載入（Apache-2.0），中文用系統的蘋方。
+- 字體：系統字 `system-ui, -apple-system, "PingFang TC", "Noto Sans TC", Roboto, …`，不載網路字型，頁面零外部請求（測試會擋 index.html 的外部資源與 CSS 的外部 `url()`）。城市通 App 本身用蘋方（TPTextStyles 指定 PingFangTC），iOS 系統字就是蘋方；Android 系統字是 Roboto＋Noto Sans TC，跟 App 的拉丁字 Roboto 一致。自帶 Roboto woff2 只影響數字和英文，還要多帶授權檔和約 70 KB，換不到差別。

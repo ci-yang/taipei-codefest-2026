@@ -16,9 +16,20 @@ test('night: no text token is pure white either', () => {
   }
 });
 
-test('night: the action-card band stays yellow (amber hue), only dimmed', () => {
-  const hex = resolve(night, '--band');
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-  assert.ok(r > g && g > b && r - b > 100, `${hex} no longer reads as yellow`);
-  assert.ok(luminance(hex) < luminance(resolve(day, '--band')), 'night band should be dimmer than day');
+test('day: the page is white, as in the TownPass service tab', () => {
+  assert.equal(resolve(day, '--desk'), '#ffffff');
+  assert.equal(resolve(day, '--paper'), '#ffffff');
+});
+
+test('both periods: card heads and buttons are TownPass primary teal, not yellow', () => {
+  for (const set of [day, night]) {
+    for (const name of ['--band', '--go', '--cat-on-bg']) {
+      assert.match(set[name], /^var\(--tp-primary-\d+\)$/, `${name} is ${set[name]}`);
+    }
+  }
+});
+
+test('night: the desk is deep teal and darker than the card face', () => {
+  assert.equal(night['--desk'], 'var(--tp-primary-950)');
+  assert.ok(luminance(resolve(night, '--desk')) < luminance(resolve(night, '--paper')));
 });
