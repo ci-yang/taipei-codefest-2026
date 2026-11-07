@@ -61,6 +61,7 @@ function makeDocument(markup) {
       await settle();
     }
     focus() { document.activeElement = this; }
+    blur() { if (document.activeElement === this) document.activeElement = document.body; }
     showModal() { this.open = true; this.querySelector('button')?.focus(); }
     close() { this.open = false; }
     getBoundingClientRect() { return { top: 200, left: 0, right: 390, bottom: 600, width: 390, height: this.id === 'bottom-panel' ? 260 : 400 }; }
@@ -118,7 +119,7 @@ function makeLeaflet() {
 }
 
 function runtime(options = {}) {
-  const document = makeDocument(html); const leaflet = makeLeaflet(); const gpsRequests = []; const storageWrites = []; const bridgeCalls = []; const searchCalls = []; const copied = []; const listeners = new Map(); const cacheCalls = [];
+  const document = makeDocument(html); const leaflet = makeLeaflet(); const gpsRequests = []; const storageWrites = []; const bridgeCalls = []; const searchCalls = []; const copied = []; const listeners = new Map(); const cacheCalls = []; const routeRequests = []; const routeCancels = []; const observed = [];
   class FixedDate extends Date { constructor(...args) { super(...(args.length ? args : [fixedTime])); } static now() { return fixedTime; } }
   const r = {
     document, URL, AbortController, Date: FixedDate, console, innerWidth: 390,
@@ -132,10 +133,11 @@ function runtime(options = {}) {
       async callPhone(phone) { bridgeCalls.push({ method: 'phone', value: phone }); return options.externalResult ?? 'opened'; },
     },
     FriendlySearch: { createClient: () => ({ async search(query, args) { searchCalls.push({ query, ...args }); return options.search ? options.search(query, args) : []; } }) },
+    FriendlyRouteClient: options.noRouter ? undefined : { createClient: () => ({ route(input) { return new Promise((resolve, reject) => routeRequests.push({ input, resolve, reject })); }, cancel() { routeCancels.push(true); } }) },
     FriendlyOffline: { async initialize(callback) { cacheCalls.push(callback); const status = options.cacheStatus || { state: 'ready', savedAt: fixedTime, failures: [] }; callback(status); return status; } },
     localStorage: { getItem: () => null, setItem: (key, value) => storageWrites.push([key, value]) },
     requestAnimationFrame(callback) { queueMicrotask(() => callback(0)); return 1; }, cancelAnimationFrame() {},
-    ResizeObserver: class { observe() {} disconnect() {} },
+    ResizeObserver: class { constructor(callback) { this.callback = callback; } observe(target) { observed.push({ target, callback: this.callback }); } disconnect() {} },
     setTimeout() { return 1; }, clearTimeout() {},
     addEventListener(name, callback) { (listeners.get(name) || listeners.set(name, []).get(name)).push(callback); },
     DeviceOrientationEvent: options.orientation,
@@ -147,7 +149,7 @@ function runtime(options = {}) {
   vm.runInContext(source.replace(/\}\)\(\);\s*$/, `${seam}\n})();`), r, { filename: 'app.js' });
   const element = selector => { const el = document.querySelector(selector); assert(el, `Missing test element: ${selector}`); return el; };
   return {
-    r, state: r.__test.state, gpsRequests, storageWrites, bridgeCalls, searchCalls, copied, cacheCalls, ...leaflet,
+    r, state: r.__test.state, gpsRequests, storageWrites, bridgeCalls, searchCalls, copied, cacheCalls, routeRequests, routeCancels, observed, ...leaflet,
     element, click: selector => element(selector).dispatch('click'),
     async input(selector, value) { const el = element(selector); el.value = value; await el.dispatch('input'); },
     async fix(index = gpsRequests.length - 1, values = {}) { gpsRequests[index].resolve({ lat: 25.034, lng: 121.561, accuracy: 15, capturedAt: fixedTime, source: 'browser', ...values }); await settle(); },
@@ -457,7 +459,7 @@ test('detail overlay closes from the side backdrop and escaped source names stay
   app.r.__test.selectResource(resource.id); app.r.__test.showDetails({ ...resource, name: '<img src=x onerror=alert(1)>長名稱測試', address: '<b>測試地址</b>' });
   assert.match(app.element('#sheet-body').innerHTML, /&lt;img/); assert.doesNotMatch(app.element('#sheet-body').innerHTML, /<img|<b>/);
   const dialog = app.element('#app-sheet'); await dialog.dispatch('pointerdown', { clientX: 400, clientY: 300 }); await dialog.dispatch('click', { clientX: 400, clientY: 300 });
-  assert.equal(dialog.open, false); assert.equal(app.state.activeSheet, null); assert.equal(app.r.document.activeElement, app.element('#search-trigger'));
+  assert.equal(dialog.open, false); assert.equal(app.state.activeSheet, null); assert.notEqual(app.r.document.activeElement.id, 'search-trigger', 'Pointer close must not force focus onto search');
 });
 
 test('offline outside cached basemap coverage shows a map notice, clearing online or on return', async () => {
@@ -487,4 +489,114 @@ test('compact cards expose address, complete source and update date as separate 
   assert.match(preview, /class="resource-card-source"/);
   assert.match(preview, /class="resource-card-updated">更新 \d{4}-\d{2}-\d{2}/);
   assert.doesNotMatch(preview, /resource-card-meta">[^<]/);
+});
+
+// Synthetic route results exercise the controller contract; geometry is verified by router tests.
+const routeResult = (ids = []) => ({ coordinates: [[25.034, 121.561], [25.035, 121.562], [25.036, 121.563]], roadSegments: [[[25.0341, 121.5611], [25.0359, 121.5629]]], connectors: [[[25.034, 121.561], [25.0341, 121.5611]], [[25.0359, 121.5629], [25.036, 121.563]]], distanceM: 310, connectorDistanceM: 30, estimateMinutes: 5, storeIds: ids, basis: 'OSM 本機步行路網' });
+
+test('destination waits for real GPS, then draws distinct road and estimated connectors', async () => {
+  const app = runtime(); const destination = actualData.stores.find(hasCoordinates);
+  app.r.__test.setDestination(destination);
+  assert.equal(app.state.routeStatus, 'waiting-location'); assert.equal(app.routeRequests.length, 0);
+  assert.match(app.element('#destination-route-message').textContent, /定位/);
+  await app.fix(); assert.equal(app.state.routeStatus, 'loading'); assert.equal(app.routeRequests.length, 1);
+  assert.equal(app.routeRequests[0].input.points[0].lat, app.state.position.lat);
+  assert.equal(app.routeRequests[0].input.points[1].lat, destination.lat);
+  assert.equal(app.routeRequests[0].input.radius, 250);
+  assert.equal(app.routeRequests[0].input.stores.length, actualData.stores.length);
+  const route = routeResult([destination.id]); app.routeRequests[0].resolve(route); await settle();
+  assert.equal(app.state.routeStatus, 'ready'); assert.equal(app.state.route, route);
+  const lines = [...app.layers].filter(layer => layer.kind === 'polyline');
+  assert.equal(lines.length, 3); assert.equal(lines.filter(line => !line.options.dashArray).length, 1);
+  assert.equal(lines.filter(line => line.options.dashArray).length, 2);
+  assert.match(app.element('#destination-route-message').textContent, /步行.*310 公尺/);
+  assert.match(app.element('#destination-route-note').textContent, /250m.*非可達保證/);
+  assert.equal(app.storageWrites.length, 0); assert.equal(app.searchCalls.length, 0);
+});
+
+test('replacement, clear and GPS failure invalidate old destination requests and clear geometry', async () => {
+  const app = runtime(); const [first, second] = actualData.stores.filter(hasCoordinates); await app.fix();
+  app.r.__test.setDestination(first); app.r.__test.setDestination(second);
+  app.routeRequests[0].resolve(routeResult([first.id])); await settle();
+  assert.equal(app.state.route, null); assert.equal(app.state.routeStatus, 'loading');
+  const current = routeResult([second.id]); app.routeRequests[1].resolve(current); await settle();
+  assert.equal(app.state.route, current);
+  await app.click('[data-service="wifi"]'); app.r.__test.setDestination(first);
+  assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 0);
+  await app.click('#destination-clear'); app.routeRequests[2].resolve(routeResult([first.id])); await settle();
+  assert.equal(app.state.route, null); assert.equal(app.state.routeStatus, 'idle'); assert.equal(app.state.destination, null);
+  assert(app.state.filters.has('wifi')); assert.match(app.element('#visible-count').textContent, /視窗內/);
+  app.r.__test.setDestination(second); await app.click('#gps-button'); await app.fail('GEO_DENIED');
+  app.routeRequests[3].resolve(current); await settle();
+  assert.equal(app.state.position, null); assert.equal(app.state.route, null); assert.equal(app.state.routeStatus, 'waiting-location');
+  assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 0);
+  assert(app.routeCancels.length >= 4);
+});
+
+test('route IDs and OR categories drive one list, count and highlight even outside viewport', async () => {
+  const app = runtime(); await app.fix(); const routeStores = actualData.stores.filter(hasCoordinates).slice(0, 40);
+  app.r.__test.setDestination(routeStores[0]); app.routeRequests[0].resolve(routeResult(routeStores.map(s => s.id))); await settle();
+  await app.click('[data-service="wifi"]'); await app.click('[data-service="charge"]');
+  const wanted = routeStores.filter(s => s.services.includes('wifi') || s.services.includes('charge')); assert(wanted.length > 0);
+  await app.setBounds([[0, 0], [1, 1]]);
+  assert.equal(app.routeRequests.length, 1, 'Category and viewport changes must not recompute a route');
+  assert.deepEqual([...app.r.__test.visibleStores()].map(s => s.id).sort(), Array.from(wanted, s => s.id).sort());
+  assert.equal(app.element('#visible-count').textContent, `沿線 ${wanted.length} 筆`);
+  await app.click('#list-button'); assert.equal(app.element('#sheet-body').querySelectorAll('[data-resource]').length, wanted.length);
+  const expected = new Set(wanted.map(s => s.id));
+  for (const [id, marker] of app.r.__test.markers) assert.equal(marker.styles.opacity, expected.has(id) ? .9 : .2);
+  assert.equal(app.storageWrites.length, 0);
+});
+
+test('resource selection and repeated renders preserve destination layers without duplication', async () => {
+  const app = runtime(); await app.fix(); const resources = actualData.stores.filter(hasCoordinates);
+  app.r.__test.setDestination(resources[0]); const route = routeResult([resources[1].id]); app.routeRequests[0].resolve(route); await settle();
+  const destinationLines = [...app.layers].filter(layer => layer.kind === 'polyline');
+  app.r.__test.markers.get(resources[1].id).handlers.click(); assert.equal(app.state.activeSheet, 'details');
+  app.r.__test.renderAll(); app.r.__test.renderAll();
+  destinationLines.forEach(layer => assert(app.layers.has(layer)));
+  assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 4);
+  assert.equal(app.state.route, route); assert.equal(app.routeRequests.length, 1);
+  await app.click('#mode-toggle'); destinationLines.forEach(layer => assert(app.layers.has(layer)));
+  assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 3);
+});
+
+test('routing errors remain actionable and retry uses current real GPS', async () => {
+  const app = runtime(); await app.fix(); app.r.__test.setDestination(actualData.stores.find(hasCoordinates));
+  app.routeRequests[0].reject(new Error('目的地超出目前路網範圍')); await settle();
+  assert.equal(app.state.routeStatus, 'error'); assert.match(app.element('#destination-route-message').textContent, /超出目前路網/);
+  assert.equal(app.element('#route-retry').hidden, false); assert.equal(app.element('#route-retry').disabled, false);
+  assert.equal([...app.layers].filter(layer => layer.kind === 'polyline').length, 0);
+  await app.click('#route-retry'); assert.equal(app.routeRequests.length, 2); assert.equal(app.state.routeStatus, 'loading');
+  const missing = runtime({ noRouter: true }); await missing.fix(); missing.r.__test.setDestination(actualData.stores.find(hasCoordinates)); await settle();
+  assert.equal(missing.state.routeStatus, 'error'); assert.match(missing.element('#destination-route-message').textContent, /路由.*載入/);
+});
+
+test('map expansion and panel collapse are independent and preserve the map and route state', async () => {
+  const app = runtime(); await app.fix(); await app.click('#enter-app');
+  const resource = actualData.stores.find(hasCoordinates); app.r.__test.setDestination(resource); app.routeRequests[0].resolve(routeResult([resource.id])); await settle();
+  app.r.__test.selectResource(resource.id); await app.click('[data-service="wifi"]');
+  const snapshot = { position: app.state.position, route: app.state.route, destination: app.state.destination, selectedId: app.state.selectedId };
+  await app.click('#map-expand'); assert.equal(app.state.mapExpanded, true);
+  assert.equal(app.element('#map-expand').getAttribute('aria-expanded'), 'true');
+  await app.click('#panel-toggle'); assert.equal(app.state.panelCollapsed, true); assert.equal(app.element('#panel-content').hidden, true);
+  assert.equal(app.element('#panel-toggle').getAttribute('aria-expanded'), 'false');
+  await app.click('#map-expand'); assert.equal(app.state.mapExpanded, false); assert.equal(app.state.panelCollapsed, true);
+  await app.click('#panel-toggle'); assert.equal(app.element('#panel-content').hidden, false);
+  for (const [key, value] of Object.entries(snapshot)) assert.equal(app.state[key], value);
+  assert(app.state.filters.has('wifi')); assert.equal(app.routeRequests.length, 1);
+  const stageObserver = app.observed.find(item => item.target.id === 'map-stage'); assert(stageObserver);
+  const invalidations = app.invalidations.length; stageObserver.callback(); assert.equal(app.invalidations.length, invalidations + 1);
+  assert(app.fittedBounds.some(fit => fit.options.paddingTopLeft && fit.options.paddingBottomRight));
+});
+
+test('pointer entry and sheet close do not focus search, keyboard entry restores a visible focus target', async () => {
+  const app = runtime(); await settle(); await app.element('#enter-app').dispatch('pointerdown'); await app.click('#enter-app');
+  assert.notEqual(app.r.document.activeElement, app.element('#search-trigger'));
+  await app.click('#search-trigger'); await app.element('#sheet-close').dispatch('pointerdown'); await app.click('#sheet-close');
+  assert.notEqual(app.r.document.activeElement, app.element('#search-trigger'));
+  await app.click('#home-button'); await app.r.document.dispatch('keydown', { key: 'Tab' }); await app.click('#enter-app');
+  assert.equal(app.r.document.activeElement, app.element('#search-trigger'));
+  await app.click('#search-trigger'); await app.element('#app-sheet').dispatch('cancel');
+  assert.equal(app.r.document.activeElement, app.element('#search-trigger'));
 });

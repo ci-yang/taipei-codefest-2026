@@ -1,0 +1,81 @@
+{
+  "recordedAt": "2026-11-07T14:35:47.328Z",
+  "baseURL": "https://taipei-friendly-platform.jason21131.workers.dev/",
+  "sourceSha": "2016b035c315d4df51b0ecd1bb9831a74e8e4d0b",
+  "manifestEqualsBuildArtifact": true,
+  "buildArtifactDirectory": "/Users/ciyang/Documents/repos/tcf-route-experience-20261107/dist/app",
+  "builder": "scripts/build-friendly-app.mjs",
+  "files": [
+    {
+      "name": "index.html",
+      "remoteBytes": 11085,
+      "remoteSha256": "43d1fc41c600d3dc5eb33e1fceee03e6a1fb96207ee4bf733e751ab79707bf48",
+      "buildSha256": "43d1fc41c600d3dc5eb33e1fceee03e6a1fb96207ee4bf733e751ab79707bf48",
+      "rawSha256": "b970be73cc2139c4123adaab91542ff21ea109c44945788529a7579146370e08",
+      "manifestMatch": true,
+      "buildMatch": true,
+      "rawMatch": false
+    },
+    {
+      "name": "app.js",
+      "remoteBytes": 48409,
+      "remoteSha256": "4779c20f6e79969e692c3d77f8a7c61e3a9ce7ee3f4ba0cc6d7e72667dafd0d8",
+      "buildSha256": "4779c20f6e79969e692c3d77f8a7c61e3a9ce7ee3f4ba0cc6d7e72667dafd0d8",
+      "rawSha256": "4779c20f6e79969e692c3d77f8a7c61e3a9ce7ee3f4ba0cc6d7e72667dafd0d8",
+      "manifestMatch": true,
+      "buildMatch": true,
+      "rawMatch": true
+    },
+    {
+      "name": "app-ui.css",
+      "remoteBytes": 43399,
+      "remoteSha256": "f780f18043b05465b2b64679842891989f46d7682d670a04c94285b91ef51d3c",
+      "buildSha256": "f780f18043b05465b2b64679842891989f46d7682d670a04c94285b91ef51d3c",
+      "rawSha256": "f780f18043b05465b2b64679842891989f46d7682d670a04c94285b91ef51d3c",
+      "manifestMatch": true,
+      "buildMatch": true,
+      "rawMatch": true
+    },
+    {
+      "name": "route-client.js",
+      "remoteBytes": 2856,
+      "remoteSha256": "49011fc0c7789f745ce4ebcc51cb9a31133aa3793673d00c7cc92e1aa8e95407",
+      "buildSha256": "49011fc0c7789f745ce4ebcc51cb9a31133aa3793673d00c7cc92e1aa8e95407",
+      "rawSha256": "49011fc0c7789f745ce4ebcc51cb9a31133aa3793673d00c7cc92e1aa8e95407",
+      "manifestMatch": true,
+      "buildMatch": true,
+      "rawMatch": true
+    },
+    {
+      "name": "routing-worker.js",
+      "remoteBytes": 766,
+      "remoteSha256": "062637a788346249dfd9b12e76d0b9d260af2b91860ee8ef52d3f38b3e544b74",
+      "buildSha256": "062637a788346249dfd9b12e76d0b9d260af2b91860ee8ef52d3f38b3e544b74",
+      "rawSha256": "062637a788346249dfd9b12e76d0b9d260af2b91860ee8ef52d3f38b3e544b74",
+      "manifestMatch": true,
+      "buildMatch": true,
+      "rawMatch": true
+    },
+    {
+      "name": "routing.js",
+      "remoteBytes": 13690,
+      "remoteSha256": "2019738e91962b069ac16d0d89b4d2c9dbc348eec0a34c272db4f581019ba235",
+      "buildSha256": "2019738e91962b069ac16d0d89b4d2c9dbc348eec0a34c272db4f581019ba235",
+      "rawSha256": "2019738e91962b069ac16d0d89b4d2c9dbc348eec0a34c272db4f581019ba235",
+      "manifestMatch": true,
+      "buildMatch": true,
+      "rawMatch": true
+    },
+    {
+      "name": "routing-data.js",
+      "remoteBytes": 20758759,
+      "remoteSha256": "1afe78ce7135dcbbc09ac908b85cf9ea74a5fb1eab4a3bc2fd40677f47d5070c",
+      "buildSha256": "1afe78ce7135dcbbc09ac908b85cf9ea74a5fb1eab4a3bc2fd40677f47d5070c",
+      "rawSha256": "1afe78ce7135dcbbc09ac908b85cf9ea74a5fb1eab4a3bc2fd40677f47d5070c",
+      "manifestMatch": true,
+      "buildMatch": true,
+      "rawMatch": true
+    }
+  ],
+  "note": "index.html stamped by build; raw source hash difference expected. Initial Python urllib received HTTP 403; Node fetch succeeded."
+}

@@ -1,0 +1,6545 @@
+{
+  "startedAt": "2026-11-07T14:09:08.874Z",
+  "baseURL": "http://127.0.0.1:8883/",
+  "geolocation": {
+    "latitude": 25.0375,
+    "longitude": 121.5637,
+    "accuracy": 10
+  },
+  "browser": "Chromium",
+  "scope": "Desktop browser emulation; not physical device or native TownPass validation.",
+  "seam": "Only the served app.js response receives a read-only observer closure. No production file changes, state writes, route mocks, or Worker replacement. Service Workers blocked to isolate current source; offline cache persistence is not tested. The large-text check doubles computed font size/line height in this browser only; it is not OS Dynamic Type.",
+  "networkPolicy": "External requests blocked; local public graph and real dedicated Worker allowed. Photon is not used; destination is selected from local resources.",
+  "checks": [
+    {
+      "name": "320x568: no horizontal overflow",
+      "pass": true,
+      "details": 320
+    },
+    {
+      "name": "320x568: description and START remain one line",
+      "pass": true,
+      "details": {
+        "descriptionLines": 1,
+        "startLines": 1,
+        "button": {
+          "x": 208.46875,
+          "y": 766.6875,
+          "width": 86.53125,
+          "height": 44,
+          "right": 295,
+          "bottom": 810.6875,
+          "scrollWidth": 87,
+          "clientWidth": 87
+        }
+      }
+    },
+    {
+      "name": "320x568: pointer entry does not focus search",
+      "pass": true
+    },
+    {
+      "name": "320x568: entry starts at map top",
+      "pass": true,
+      "details": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 360,
+        "right": 320,
+        "bottom": 360,
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    {
+      "name": "320x568: Tab has visible focus",
+      "pass": true,
+      "details": {
+        "active": "map",
+        "outline": "1px"
+      }
+    },
+    {
+      "name": "320x568: expanded map fills available viewport",
+      "pass": true,
+      "details": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 568,
+        "right": 320,
+        "bottom": 568,
+        "scrollWidth": 320,
+        "clientWidth": 320
+      }
+    },
+    {
+      "name": "320x568: expanded route fits outside floating panel and status",
+      "pass": true,
+      "details": {
+        "points": [
+          {
+            "x": 160,
+            "y": 199
+          },
+          {
+            "x": 157,
+            "y": 205
+          },
+          {
+            "x": 156,
+            "y": 237
+          },
+          {
+            "x": 156,
+            "y": 241
+          },
+          {
+            "x": 157,
+            "y": 244
+          },
+          {
+            "x": 156,
+            "y": 274
+          },
+          {
+            "x": 164,
+            "y": 289
+          }
+        ],
+        "statusBottom": 175,
+        "panel": {
+          "left": 12,
+          "top": 296.734375,
+          "right": 308,
+          "bottom": 556
+        },
+        "width": 320,
+        "height": 568
+      }
+    },
+    {
+      "name": "320x568: collapsed panel hides descendants and updates aria",
+      "pass": true,
+      "details": {
+        "hidden": true,
+        "aria": "false",
+        "controls": "panel-content",
+        "renderedFocusables": 0
+      }
+    },
+    {
+      "name": "320x568: collapsed panel frees map area",
+      "pass": true,
+      "details": 62
+    },
+    {
+      "name": "320x568: Tab does not enter hidden content",
+      "pass": true
+    },
+    {
+      "name": "320x568: restore retains map dimensions",
+      "pass": true
+    },
+    {
+      "name": "320x568: actual restored state equals initial state",
+      "pass": true
+    },
+    {
+      "name": "390x844: no horizontal overflow",
+      "pass": true,
+      "details": 390
+    },
+    {
+      "name": "390x844: description and START remain one line",
+      "pass": true,
+      "details": {
+        "descriptionLines": 1,
+        "startLines": 1,
+        "button": {
+          "x": 270.46875,
+          "y": 728.140625,
+          "width": 90.53125,
+          "height": 44,
+          "right": 361,
+          "bottom": 772.140625,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        }
+      }
+    },
+    {
+      "name": "390x844: pointer entry does not focus search",
+      "pass": true
+    },
+    {
+      "name": "390x844: entry starts at map top",
+      "pass": true,
+      "details": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 360,
+        "right": 390,
+        "bottom": 360,
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "390x844: Tab has visible focus",
+      "pass": true,
+      "details": {
+        "active": "map",
+        "outline": "1px"
+      }
+    },
+    {
+      "name": "390x844: expanded map fills available viewport",
+      "pass": true,
+      "details": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844,
+        "right": 390,
+        "bottom": 844,
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "390x844: expanded route fits outside floating panel and status",
+      "pass": true,
+      "details": {
+        "points": [
+          {
+            "x": 193,
+            "y": 227
+          },
+          {
+            "x": 187,
+            "y": 239
+          },
+          {
+            "x": 187,
+            "y": 302
+          },
+          {
+            "x": 187,
+            "y": 309
+          },
+          {
+            "x": 188,
+            "y": 315
+          },
+          {
+            "x": 187,
+            "y": 375
+          },
+          {
+            "x": 202,
+            "y": 405
+          }
+        ],
+        "statusBottom": 175,
+        "panel": {
+          "left": 12,
+          "top": 445.765625,
+          "right": 378,
+          "bottom": 832
+        },
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "390x844: collapsed panel hides descendants and updates aria",
+      "pass": true,
+      "details": {
+        "hidden": true,
+        "aria": "false",
+        "controls": "panel-content",
+        "renderedFocusables": 0
+      }
+    },
+    {
+      "name": "390x844: collapsed panel frees map area",
+      "pass": true,
+      "details": 62
+    },
+    {
+      "name": "390x844: Tab does not enter hidden content",
+      "pass": true
+    },
+    {
+      "name": "390x844: restore retains map dimensions",
+      "pass": true
+    },
+    {
+      "name": "390x844: actual restored state equals initial state",
+      "pass": true
+    },
+    {
+      "name": "430x932: no horizontal overflow",
+      "pass": true,
+      "details": 430
+    },
+    {
+      "name": "430x932: description and START remain one line",
+      "pass": true,
+      "details": {
+        "descriptionLines": 1,
+        "startLines": 1,
+        "button": {
+          "x": 310.46875,
+          "y": 728.140625,
+          "width": 90.53125,
+          "height": 44,
+          "right": 401,
+          "bottom": 772.140625,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        }
+      }
+    },
+    {
+      "name": "430x932: pointer entry does not focus search",
+      "pass": true
+    },
+    {
+      "name": "430x932: entry starts at map top",
+      "pass": true,
+      "details": {
+        "x": 0,
+        "y": 0,
+        "width": 430,
+        "height": 360,
+        "right": 430,
+        "bottom": 360,
+        "scrollWidth": 430,
+        "clientWidth": 430
+      }
+    },
+    {
+      "name": "430x932: Tab has visible focus",
+      "pass": true,
+      "details": {
+        "active": "map",
+        "outline": "1px"
+      }
+    },
+    {
+      "name": "430x932: expanded map fills available viewport",
+      "pass": true,
+      "details": {
+        "x": 0,
+        "y": 0,
+        "width": 430,
+        "height": 932,
+        "right": 430,
+        "bottom": 932,
+        "scrollWidth": 430,
+        "clientWidth": 430
+      }
+    },
+    {
+      "name": "430x932: expanded route fits outside floating panel and status",
+      "pass": true,
+      "details": {
+        "points": [
+          {
+            "x": 213,
+            "y": 250
+          },
+          {
+            "x": 207,
+            "y": 262
+          },
+          {
+            "x": 207,
+            "y": 325
+          },
+          {
+            "x": 207,
+            "y": 332
+          },
+          {
+            "x": 208,
+            "y": 338
+          },
+          {
+            "x": 207,
+            "y": 398
+          },
+          {
+            "x": 222,
+            "y": 428
+          }
+        ],
+        "statusBottom": 175,
+        "panel": {
+          "left": 12,
+          "top": 493.28125,
+          "right": 418,
+          "bottom": 920
+        },
+        "width": 430,
+        "height": 932
+      }
+    },
+    {
+      "name": "430x932: collapsed panel hides descendants and updates aria",
+      "pass": true,
+      "details": {
+        "hidden": true,
+        "aria": "false",
+        "controls": "panel-content",
+        "renderedFocusables": 0
+      }
+    },
+    {
+      "name": "430x932: collapsed panel frees map area",
+      "pass": true,
+      "details": 62
+    },
+    {
+      "name": "430x932: Tab does not enter hidden content",
+      "pass": true
+    },
+    {
+      "name": "430x932: restore retains map dimensions",
+      "pass": true
+    },
+    {
+      "name": "430x932: actual restored state equals initial state",
+      "pass": true
+    },
+    {
+      "name": "768x1024: no horizontal overflow",
+      "pass": true,
+      "details": 768
+    },
+    {
+      "name": "768x1024: description and START remain one line",
+      "pass": true,
+      "details": {
+        "descriptionLines": 1,
+        "startLines": 1,
+        "button": {
+          "x": 504.46875,
+          "y": 728.140625,
+          "width": 90.53125,
+          "height": 44,
+          "right": 595,
+          "bottom": 772.140625,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        }
+      }
+    },
+    {
+      "name": "768x1024: pointer entry does not focus search",
+      "pass": true
+    },
+    {
+      "name": "768x1024: entry starts at map top",
+      "pass": true,
+      "details": {
+        "x": 144,
+        "y": 0,
+        "width": 480,
+        "height": 360,
+        "right": 624,
+        "bottom": 360,
+        "scrollWidth": 480,
+        "clientWidth": 480
+      }
+    },
+    {
+      "name": "768x1024: Tab has visible focus",
+      "pass": true,
+      "details": {
+        "active": "map",
+        "outline": "1px"
+      }
+    },
+    {
+      "name": "768x1024: expanded map fills available viewport",
+      "pass": true,
+      "details": {
+        "x": 0,
+        "y": 0,
+        "width": 768,
+        "height": 1024,
+        "right": 768,
+        "bottom": 1024,
+        "scrollWidth": 768,
+        "clientWidth": 768
+      }
+    },
+    {
+      "name": "768x1024: expanded route fits outside floating panel and status",
+      "pass": true,
+      "details": {
+        "points": [
+          {
+            "x": 382,
+            "y": 274
+          },
+          {
+            "x": 376,
+            "y": 286
+          },
+          {
+            "x": 376,
+            "y": 349
+          },
+          {
+            "x": 376,
+            "y": 356
+          },
+          {
+            "x": 377,
+            "y": 362
+          },
+          {
+            "x": 376,
+            "y": 422
+          },
+          {
+            "x": 391,
+            "y": 452
+          }
+        ],
+        "statusBottom": 175,
+        "panel": {
+          "left": 156,
+          "top": 542.96875,
+          "right": 612,
+          "bottom": 1012
+        },
+        "width": 768,
+        "height": 1024
+      }
+    },
+    {
+      "name": "768x1024: collapsed panel hides descendants and updates aria",
+      "pass": true,
+      "details": {
+        "hidden": true,
+        "aria": "false",
+        "controls": "panel-content",
+        "renderedFocusables": 0
+      }
+    },
+    {
+      "name": "768x1024: collapsed panel frees map area",
+      "pass": true,
+      "details": 62
+    },
+    {
+      "name": "768x1024: Tab does not enter hidden content",
+      "pass": true
+    },
+    {
+      "name": "768x1024: restore retains map dimensions",
+      "pass": true
+    },
+    {
+      "name": "768x1024: actual restored state equals initial state",
+      "pass": true
+    },
+    {
+      "name": "844x390: no horizontal overflow",
+      "pass": true,
+      "details": 844
+    },
+    {
+      "name": "844x390: description and START remain one line",
+      "pass": true,
+      "details": {
+        "descriptionLines": 1,
+        "startLines": 1,
+        "button": {
+          "x": 542.46875,
+          "y": 728.140625,
+          "width": 90.53125,
+          "height": 44,
+          "right": 633,
+          "bottom": 772.140625,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        }
+      }
+    },
+    {
+      "name": "844x390: pointer entry does not focus search",
+      "pass": true
+    },
+    {
+      "name": "844x390: entry starts at map top",
+      "pass": true,
+      "details": {
+        "x": 182,
+        "y": 0,
+        "width": 480,
+        "height": 360,
+        "right": 662,
+        "bottom": 360,
+        "scrollWidth": 480,
+        "clientWidth": 480
+      }
+    },
+    {
+      "name": "844x390: Tab has visible focus",
+      "pass": true,
+      "details": {
+        "active": "map",
+        "outline": "1px"
+      }
+    },
+    {
+      "name": "844x390: expanded map fills available viewport",
+      "pass": true,
+      "details": {
+        "x": 0,
+        "y": 0,
+        "width": 844,
+        "height": 390,
+        "right": 844,
+        "bottom": 390,
+        "scrollWidth": 844,
+        "clientWidth": 844
+      }
+    },
+    {
+      "name": "844x390: expanded route fits outside floating panel and status",
+      "pass": true,
+      "details": {
+        "points": [
+          {
+            "x": 268,
+            "y": 179
+          },
+          {
+            "x": 262,
+            "y": 191
+          },
+          {
+            "x": 262,
+            "y": 254
+          },
+          {
+            "x": 262,
+            "y": 261
+          },
+          {
+            "x": 263,
+            "y": 267
+          },
+          {
+            "x": 262,
+            "y": 327
+          },
+          {
+            "x": 277,
+            "y": 357
+          }
+        ],
+        "statusBottom": 159,
+        "panel": {
+          "left": 532,
+          "top": 12,
+          "right": 832,
+          "bottom": 378
+        },
+        "width": 844,
+        "height": 390
+      }
+    },
+    {
+      "name": "844x390: collapsed panel hides descendants and updates aria",
+      "pass": true,
+      "details": {
+        "hidden": true,
+        "aria": "false",
+        "controls": "panel-content",
+        "renderedFocusables": 0
+      }
+    },
+    {
+      "name": "844x390: collapsed panel frees map area",
+      "pass": true,
+      "details": 62
+    },
+    {
+      "name": "844x390: Tab does not enter hidden content",
+      "pass": true
+    },
+    {
+      "name": "844x390: restore retains map dimensions",
+      "pass": true
+    },
+    {
+      "name": "844x390: actual restored state equals initial state",
+      "pass": true
+    },
+    {
+      "name": "real local Worker returns road geometry and distance",
+      "pass": true,
+      "details": {
+        "distanceM": 398,
+        "roadPoints": 5,
+        "connectorDistanceM": 102
+      }
+    },
+    {
+      "name": "road and estimated connectors use distinct line styles",
+      "pass": true,
+      "details": [
+        {
+          "dashArray": null,
+          "points": 5
+        },
+        {
+          "dashArray": "4 7",
+          "points": 2
+        },
+        {
+          "dashArray": "4 7",
+          "points": 2
+        }
+      ]
+    },
+    {
+      "name": "category all: highlight/count/list match same route set",
+      "pass": true,
+      "details": {
+        "categories": [],
+        "expected": 287,
+        "highlighted": 287,
+        "listed": 287,
+        "countText": "沿線 287 筆"
+      }
+    },
+    {
+      "name": "category wifi: highlight/count/list match same route set",
+      "pass": true,
+      "details": {
+        "categories": [
+          "wifi"
+        ],
+        "expected": 278,
+        "highlighted": 278,
+        "listed": 278,
+        "countText": "沿線 278 筆"
+      }
+    },
+    {
+      "name": "category toilet: highlight/count/list match same route set",
+      "pass": true,
+      "details": {
+        "categories": [
+          "toilet"
+        ],
+        "expected": 11,
+        "highlighted": 11,
+        "listed": 11,
+        "countText": "沿線 11 筆"
+      }
+    },
+    {
+      "name": "category charge: highlight/count/list match same route set",
+      "pass": true,
+      "details": {
+        "categories": [
+          "charge"
+        ],
+        "expected": 2,
+        "highlighted": 2,
+        "listed": 2,
+        "countText": "沿線 2 筆"
+      }
+    },
+    {
+      "name": "category accessible: highlight/count/list match same route set",
+      "pass": true,
+      "details": {
+        "categories": [
+          "accessible"
+        ],
+        "expected": 8,
+        "highlighted": 8,
+        "listed": 8,
+        "countText": "沿線 8 筆"
+      }
+    },
+    {
+      "name": "category wifi+charge: highlight/count/list match same route set",
+      "pass": true,
+      "details": {
+        "categories": [
+          "wifi",
+          "charge"
+        ],
+        "expected": 278,
+        "highlighted": 278,
+        "listed": 278,
+        "countText": "沿線 278 筆"
+      }
+    },
+    {
+      "name": "category filters do not create new route Workers",
+      "pass": true
+    },
+    {
+      "name": "resource details preserve destination route and show provenance",
+      "pass": true
+    },
+    {
+      "name": "two expand/collapse/restore cycles preserve GPS/destination/route/category/selected resource/map instance",
+      "pass": true
+    },
+    {
+      "name": "clear removes route layers/IDs and preserves categories",
+      "pass": true
+    },
+    {
+      "name": "touch entry does not create search focus outline",
+      "pass": true
+    },
+    {
+      "name": "200% computed text remains readable without document overflow",
+      "pass": true,
+      "details": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "documentWidth": 320,
+        "map": {
+          "x": 0,
+          "y": -690,
+          "width": 320,
+          "height": 360,
+          "right": 320,
+          "bottom": -330,
+          "scrollWidth": 1069,
+          "clientWidth": 320
+        },
+        "stage": {
+          "x": 0,
+          "y": -690,
+          "width": 320,
+          "height": 360,
+          "right": 320,
+          "bottom": -330,
+          "scrollWidth": 320,
+          "clientWidth": 320
+        },
+        "button": {
+          "x": 166.46875,
+          "y": 257.296875,
+          "width": 128.53125,
+          "height": 53,
+          "right": 295,
+          "bottom": 310.296875,
+          "scrollWidth": 129,
+          "clientWidth": 129
+        },
+        "description": {
+          "x": 56,
+          "y": 284.59375,
+          "width": 103.46875,
+          "height": 72,
+          "right": 159.46875,
+          "bottom": 356.59375,
+          "scrollWidth": 103,
+          "clientWidth": 103
+        },
+        "descriptionLines": 2,
+        "startLines": 1,
+        "searchFocusVisible": false,
+        "active": "BODY",
+        "activeFocusVisible": false,
+        "activeOutline": "3px",
+        "mapSize": {
+          "x": 320,
+          "y": 360
+        },
+        "overflowNodes": []
+      }
+    },
+    {
+      "name": "touch and reduced-motion can expand and collapse",
+      "pass": true,
+      "details": {
+        "preference": true,
+        "expanded": "true",
+        "collapsed": true
+      }
+    },
+    {
+      "name": "large text touch actually restores map",
+      "pass": true
+    },
+    {
+      "name": "public cross-district Taipei Main to City Hall route succeeds",
+      "pass": true,
+      "details": {
+        "status": "ready",
+        "distanceM": 5195,
+        "roadPoints": 156,
+        "graphLoadAndComputeWallMs": 303
+      }
+    },
+    {
+      "name": "fixed GPS is not sent to external routing or search requests",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "external request attempts are only basemap tiles, never routing/search APIs",
+      "pass": true,
+      "details": {
+        "attempts": 199,
+        "hosts": [
+          "tile.openstreetmap.org"
+        ]
+      }
+    },
+    {
+      "name": "real Worker loads bundled graph and router",
+      "pass": true
+    },
+    {
+      "name": "no uncaught browser application errors",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "runtime source files remain stable during browser verification",
+      "pass": true
+    }
+  ],
+  "screenshots": [
+    "/tmp/tcf-route-qa-city-fixed/320x568-normal.png",
+    "/tmp/tcf-route-qa-city-fixed/320x568-expanded-collapsed.png",
+    "/tmp/tcf-route-qa-city-fixed/390x844-normal.png",
+    "/tmp/tcf-route-qa-city-fixed/390x844-expanded-collapsed.png",
+    "/tmp/tcf-route-qa-city-fixed/430x932-normal.png",
+    "/tmp/tcf-route-qa-city-fixed/430x932-expanded-collapsed.png",
+    "/tmp/tcf-route-qa-city-fixed/768x1024-normal.png",
+    "/tmp/tcf-route-qa-city-fixed/768x1024-expanded-collapsed.png",
+    "/tmp/tcf-route-qa-city-fixed/844x390-normal.png",
+    "/tmp/tcf-route-qa-city-fixed/844x390-expanded-collapsed.png",
+    "/tmp/tcf-route-qa-city-fixed/route-ready.png",
+    "/tmp/tcf-route-qa-city-fixed/route-resource-details.png",
+    "/tmp/tcf-route-qa-city-fixed/route-selected-restored.png",
+    "/tmp/tcf-route-qa-city-fixed/route-cleared.png",
+    "/tmp/tcf-route-qa-city-fixed/320x568-text-200-percent.png"
+  ],
+  "viewports": [
+    {
+      "label": "320x568",
+      "normal": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "documentWidth": 320,
+        "map": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 360,
+          "right": 320,
+          "bottom": 360,
+          "scrollWidth": 993,
+          "clientWidth": 320
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 360,
+          "right": 320,
+          "bottom": 360,
+          "scrollWidth": 320,
+          "clientWidth": 320
+        },
+        "button": {
+          "x": 208.46875,
+          "y": 766.6875,
+          "width": 86.53125,
+          "height": 44,
+          "right": 295,
+          "bottom": 810.6875,
+          "scrollWidth": 87,
+          "clientWidth": 87
+        },
+        "description": {
+          "x": 56,
+          "y": 790.390625,
+          "width": 96,
+          "height": 18,
+          "right": 152,
+          "bottom": 808.390625,
+          "scrollWidth": 96,
+          "clientWidth": 96
+        },
+        "descriptionLines": 1,
+        "startLines": 1,
+        "searchFocusVisible": false,
+        "active": "BODY",
+        "activeFocusVisible": false,
+        "activeOutline": "3px",
+        "mapSize": {
+          "x": 320,
+          "y": 360
+        },
+        "overflowNodes": []
+      },
+      "expanded": {
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "documentWidth": 320,
+        "map": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 568,
+          "right": 320,
+          "bottom": 568,
+          "scrollWidth": 480,
+          "clientWidth": 320
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 568,
+          "right": 320,
+          "bottom": 568,
+          "scrollWidth": 320,
+          "clientWidth": 320
+        },
+        "button": {
+          "x": 193.46875,
+          "y": 886.59375,
+          "width": 86.53125,
+          "height": 44,
+          "right": 280,
+          "bottom": 930.59375,
+          "scrollWidth": 87,
+          "clientWidth": 87
+        },
+        "description": {
+          "x": 71,
+          "y": 910.296875,
+          "width": 96,
+          "height": 18,
+          "right": 167,
+          "bottom": 928.296875,
+          "scrollWidth": 96,
+          "clientWidth": 96
+        },
+        "descriptionLines": 1,
+        "startLines": 1,
+        "searchFocusVisible": false,
+        "active": "map-expand",
+        "activeFocusVisible": false,
+        "activeOutline": "3px",
+        "mapSize": {
+          "x": 320,
+          "y": 568
+        },
+        "overflowNodes": []
+      }
+    },
+    {
+      "label": "390x844",
+      "normal": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "map": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 360,
+          "right": 390,
+          "bottom": 360,
+          "scrollWidth": 1028,
+          "clientWidth": 390
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 360,
+          "right": 390,
+          "bottom": 360,
+          "scrollWidth": 390,
+          "clientWidth": 390
+        },
+        "button": {
+          "x": 270.46875,
+          "y": 728.140625,
+          "width": 90.53125,
+          "height": 44,
+          "right": 361,
+          "bottom": 772.140625,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        },
+        "description": {
+          "x": 63,
+          "y": 753.296875,
+          "width": 96,
+          "height": 18,
+          "right": 159,
+          "bottom": 771.296875,
+          "scrollWidth": 96,
+          "clientWidth": 96
+        },
+        "descriptionLines": 1,
+        "startLines": 1,
+        "searchFocusVisible": false,
+        "active": "BODY",
+        "activeFocusVisible": false,
+        "activeOutline": "3px",
+        "mapSize": {
+          "x": 390,
+          "y": 360
+        },
+        "overflowNodes": []
+      },
+      "expanded": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "map": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "right": 390,
+          "bottom": 844,
+          "scrollWidth": 585,
+          "clientWidth": 390
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "right": 390,
+          "bottom": 844,
+          "scrollWidth": 390,
+          "clientWidth": 390
+        },
+        "button": {
+          "x": 259.46875,
+          "y": 1014.6875,
+          "width": 90.53125,
+          "height": 44,
+          "right": 350,
+          "bottom": 1058.6875,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        },
+        "description": {
+          "x": 74,
+          "y": 1039.84375,
+          "width": 96,
+          "height": 18,
+          "right": 170,
+          "bottom": 1057.84375,
+          "scrollWidth": 96,
+          "clientWidth": 96
+        },
+        "descriptionLines": 1,
+        "startLines": 1,
+        "searchFocusVisible": false,
+        "active": "map-expand",
+        "activeFocusVisible": false,
+        "activeOutline": "3px",
+        "mapSize": {
+          "x": 390,
+          "y": 844
+        },
+        "overflowNodes": []
+      }
+    },
+    {
+      "label": "430x932",
+      "normal": {
+        "viewport": {
+          "width": 430,
+          "height": 932
+        },
+        "documentWidth": 430,
+        "map": {
+          "x": 0,
+          "y": 0,
+          "width": 430,
+          "height": 360,
+          "right": 430,
+          "bottom": 360,
+          "scrollWidth": 1048,
+          "clientWidth": 430
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 430,
+          "height": 360,
+          "right": 430,
+          "bottom": 360,
+          "scrollWidth": 430,
+          "clientWidth": 430
+        },
+        "button": {
+          "x": 310.46875,
+          "y": 728.140625,
+          "width": 90.53125,
+          "height": 44,
+          "right": 401,
+          "bottom": 772.140625,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        },
+        "description": {
+          "x": 63,
+          "y": 753.296875,
+          "width": 96,
+          "height": 18,
+          "right": 159,
+          "bottom": 771.296875,
+          "scrollWidth": 96,
+          "clientWidth": 96
+        },
+        "descriptionLines": 1,
+        "startLines": 1,
+        "searchFocusVisible": false,
+        "active": "BODY",
+        "activeFocusVisible": false,
+        "activeOutline": "3px",
+        "mapSize": {
+          "x": 430,
+          "y": 360
+        },
+        "overflowNodes": []
+      },
+      "expanded": {
+        "viewport": {
+          "width": 430,
+          "height": 932
+        },
+        "documentWidth": 430,
+        "map": {
+          "x": 0,
+          "y": 0,
+          "width": 430,
+          "height": 932,
+          "right": 430,
+          "bottom": 932,
+          "scrollWidth": 645,
+          "clientWidth": 430
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 430,
+          "height": 932,
+          "right": 430,
+          "bottom": 932,
+          "scrollWidth": 430,
+          "clientWidth": 430
+        },
+        "button": {
+          "x": 299.46875,
+          "y": 1042.40625,
+          "width": 90.53125,
+          "height": 44,
+          "right": 390,
+          "bottom": 1086.40625,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        },
+        "description": {
+          "x": 74,
+          "y": 1067.5625,
+          "width": 96,
+          "height": 18,
+          "right": 170,
+          "bottom": 1085.5625,
+          "scrollWidth": 96,
+          "clientWidth": 96
+        },
+        "descriptionLines": 1,
+        "startLines": 1,
+        "searchFocusVisible": false,
+        "active": "map-expand",
+        "activeFocusVisible": false,
+        "activeOutline": "3px",
+        "mapSize": {
+          "x": 430,
+          "y": 932
+        },
+        "overflowNodes": []
+      }
+    },
+    {
+      "label": "768x1024",
+      "normal": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "documentWidth": 768,
+        "map": {
+          "x": 144,
+          "y": 0,
+          "width": 480,
+          "height": 360,
+          "right": 624,
+          "bottom": 360,
+          "scrollWidth": 1073,
+          "clientWidth": 480
+        },
+        "stage": {
+          "x": 144,
+          "y": 0,
+          "width": 480,
+          "height": 360,
+          "right": 624,
+          "bottom": 360,
+          "scrollWidth": 480,
+          "clientWidth": 480
+        },
+        "button": {
+          "x": 504.46875,
+          "y": 728.140625,
+          "width": 90.53125,
+          "height": 44,
+          "right": 595,
+          "bottom": 772.140625,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        },
+        "description": {
+          "x": 207,
+          "y": 753.296875,
+          "width": 96,
+          "height": 18,
+          "right": 303,
+          "bottom": 771.296875,
+          "scrollWidth": 96,
+          "clientWidth": 96
+        },
+        "descriptionLines": 1,
+        "startLines": 1,
+        "searchFocusVisible": false,
+        "active": "BODY",
+        "activeFocusVisible": false,
+        "activeOutline": "3px",
+        "mapSize": {
+          "x": 480,
+          "y": 360
+        },
+        "overflowNodes": []
+      },
+      "expanded": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "documentWidth": 768,
+        "map": {
+          "x": 0,
+          "y": 0,
+          "width": 768,
+          "height": 1024,
+          "right": 768,
+          "bottom": 1024,
+          "scrollWidth": 1152,
+          "clientWidth": 768
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 768,
+          "height": 1024,
+          "right": 768,
+          "bottom": 1024,
+          "scrollWidth": 768,
+          "clientWidth": 768
+        },
+        "button": {
+          "x": 493.46875,
+          "y": 1092.09375,
+          "width": 90.53125,
+          "height": 44,
+          "right": 584,
+          "bottom": 1136.09375,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        },
+        "description": {
+          "x": 218,
+          "y": 1117.25,
+          "width": 96,
+          "height": 18,
+          "right": 314,
+          "bottom": 1135.25,
+          "scrollWidth": 96,
+          "clientWidth": 96
+        },
+        "descriptionLines": 1,
+        "startLines": 1,
+        "searchFocusVisible": false,
+        "active": "map-expand",
+        "activeFocusVisible": false,
+        "activeOutline": "3px",
+        "mapSize": {
+          "x": 768,
+          "y": 1024
+        },
+        "overflowNodes": []
+      }
+    },
+    {
+      "label": "844x390",
+      "normal": {
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "documentWidth": 844,
+        "map": {
+          "x": 182,
+          "y": 0,
+          "width": 480,
+          "height": 360,
+          "right": 662,
+          "bottom": 360,
+          "scrollWidth": 1073,
+          "clientWidth": 480
+        },
+        "stage": {
+          "x": 182,
+          "y": 0,
+          "width": 480,
+          "height": 360,
+          "right": 662,
+          "bottom": 360,
+          "scrollWidth": 480,
+          "clientWidth": 480
+        },
+        "button": {
+          "x": 542.46875,
+          "y": 728.140625,
+          "width": 90.53125,
+          "height": 44,
+          "right": 633,
+          "bottom": 772.140625,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        },
+        "description": {
+          "x": 245,
+          "y": 753.296875,
+          "width": 96,
+          "height": 18,
+          "right": 341,
+          "bottom": 771.296875,
+          "scrollWidth": 96,
+          "clientWidth": 96
+        },
+        "descriptionLines": 1,
+        "startLines": 1,
+        "searchFocusVisible": false,
+        "active": "BODY",
+        "activeFocusVisible": false,
+        "activeOutline": "3px",
+        "mapSize": {
+          "x": 480,
+          "y": 360
+        },
+        "overflowNodes": []
+      },
+      "expanded": {
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "documentWidth": 844,
+        "map": {
+          "x": 0,
+          "y": 0,
+          "width": 844,
+          "height": 390,
+          "right": 844,
+          "bottom": 390,
+          "scrollWidth": 1266,
+          "clientWidth": 844
+        },
+        "stage": {
+          "x": 0,
+          "y": 0,
+          "width": 844,
+          "height": 390,
+          "right": 844,
+          "bottom": 390,
+          "scrollWidth": 844,
+          "clientWidth": 844
+        },
+        "button": {
+          "x": 713.46875,
+          "y": 603.3125,
+          "width": 90.53125,
+          "height": 44,
+          "right": 804,
+          "bottom": 647.3125,
+          "scrollWidth": 91,
+          "clientWidth": 91
+        },
+        "description": {
+          "x": 594,
+          "y": 628.46875,
+          "width": 96,
+          "height": 18,
+          "right": 690,
+          "bottom": 646.46875,
+          "scrollWidth": 96,
+          "clientWidth": 96
+        },
+        "descriptionLines": 1,
+        "startLines": 1,
+        "searchFocusVisible": false,
+        "active": "map-expand",
+        "activeFocusVisible": false,
+        "activeOutline": "3px",
+        "mapSize": {
+          "x": 844,
+          "y": 390
+        },
+        "overflowNodes": []
+      }
+    }
+  ],
+  "categories": [
+    {
+      "categories": [],
+      "expected": 287,
+      "highlighted": 287,
+      "listed": 287,
+      "countText": "沿線 287 筆"
+    },
+    {
+      "categories": [
+        "wifi"
+      ],
+      "expected": 278,
+      "highlighted": 278,
+      "listed": 278,
+      "countText": "沿線 278 筆"
+    },
+    {
+      "categories": [
+        "toilet"
+      ],
+      "expected": 11,
+      "highlighted": 11,
+      "listed": 11,
+      "countText": "沿線 11 筆"
+    },
+    {
+      "categories": [
+        "charge"
+      ],
+      "expected": 2,
+      "highlighted": 2,
+      "listed": 2,
+      "countText": "沿線 2 筆"
+    },
+    {
+      "categories": [
+        "accessible"
+      ],
+      "expected": 8,
+      "highlighted": 8,
+      "listed": 8,
+      "countText": "沿線 8 筆"
+    },
+    {
+      "categories": [
+        "wifi",
+        "charge"
+      ],
+      "expected": 278,
+      "highlighted": 278,
+      "listed": 278,
+      "countText": "沿線 278 筆"
+    }
+  ],
+  "requests": [
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.css",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app-ui.css",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/data.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/resources-data.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/icons.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/search.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/bridge.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/offline.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/route-client.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-worker.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing.js",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14030.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14030.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28057.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28057.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28056.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28056.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28058.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28058.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14030.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14030.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "320x568",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.css",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app-ui.css",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/data.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/resources-data.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/icons.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/search.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/bridge.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/offline.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/route-client.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-worker.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing.js",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28058.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28058.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28057.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28057.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28059.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28059.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28056.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28056.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28060.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28060.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "390x844",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.css",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app-ui.css",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/data.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/resources-data.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/icons.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/search.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/bridge.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/offline.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/route-client.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-worker.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing.js",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28058.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28058.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28057.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28057.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28059.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28059.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28056.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28056.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28060.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28060.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "430x932",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.css",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app-ui.css",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/data.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/resources-data.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/icons.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/search.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/bridge.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/offline.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/route-client.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-worker.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing.js",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28058.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28058.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28057.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28057.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28059.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28059.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28058.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28058.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28057.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28057.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28059.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28059.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28056.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28056.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28060.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28060.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28056.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28056.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28060.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28060.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109795/56115.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109796/56115.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109795/56114.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109796/56114.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109795/56116.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109796/56116.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109794/56115.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109797/56115.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109794/56114.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109797/56114.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109794/56116.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109797/56116.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109795/56113.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109796/56113.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109795/56117.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109796/56117.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109794/56113.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109797/56113.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109794/56117.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109797/56117.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28058.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28058.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28057.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28057.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28059.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28059.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28058.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28058.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28057.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28057.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28059.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28059.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28056.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28056.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28060.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28060.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28056.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28056.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28060.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28060.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "768x1024",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.css",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app-ui.css",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/data.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/resources-data.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/icons.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/search.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/bridge.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/offline.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/route-client.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-worker.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing.js",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28057.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28056.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28057.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28057.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28058.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28056.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28056.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28058.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54899/28058.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28057.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54900/28057.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28056.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54900/28056.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54896/28058.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54900/28058.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "844x390",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.css",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app-ui.css",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/data.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/resources-data.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/icons.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/search.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/bridge.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/offline.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/route-client.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-worker.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing.js",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109795/56115.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109796/56115.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109795/56114.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109796/56114.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109795/56116.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/17/109796/56116.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28058.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28058.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28057.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28057.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28059.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28059.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28056.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28056.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54897/28060.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/16/54898/28060.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14028.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14028.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14027.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14027.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27448/14029.png",
+      "body": null
+    },
+    {
+      "label": "route",
+      "method": "GET",
+      "url": "https://tile.openstreetmap.org/15/27449/14029.png",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.css",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app-ui.css",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.js",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/data.js",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/resources-data.js",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/icons.js",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/search.js",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/bridge.js",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/offline.js",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/route-client.js",
+      "body": null
+    },
+    {
+      "label": "touch-large-text",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.css",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app-ui.css",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/vendor/leaflet.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/data.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/resources-data.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/icons.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/search.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/bridge.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/offline.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/route-client.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/app.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-worker.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "body": null
+    },
+    {
+      "label": "cross-district",
+      "method": "GET",
+      "url": "http://127.0.0.1:8883/routing.js",
+      "body": null
+    }
+  ],
+  "workers": [
+    {
+      "label": "320x568",
+      "url": "http://127.0.0.1:8883/routing-worker.js"
+    },
+    {
+      "label": "390x844",
+      "url": "http://127.0.0.1:8883/routing-worker.js"
+    },
+    {
+      "label": "430x932",
+      "url": "http://127.0.0.1:8883/routing-worker.js"
+    },
+    {
+      "label": "768x1024",
+      "url": "http://127.0.0.1:8883/routing-worker.js"
+    },
+    {
+      "label": "844x390",
+      "url": "http://127.0.0.1:8883/routing-worker.js"
+    },
+    {
+      "label": "route",
+      "url": "http://127.0.0.1:8883/routing-worker.js"
+    },
+    {
+      "label": "cross-district",
+      "url": "http://127.0.0.1:8883/routing-worker.js"
+    }
+  ],
+  "pageErrors": [],
+  "graphLoads": [
+    {
+      "label": "320x568",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "requestWallMs": 207
+    },
+    {
+      "label": "390x844",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "requestWallMs": 163
+    },
+    {
+      "label": "430x932",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "requestWallMs": 164
+    },
+    {
+      "label": "768x1024",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "requestWallMs": 159
+    },
+    {
+      "label": "844x390",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "requestWallMs": 180
+    },
+    {
+      "label": "route",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "requestWallMs": 161
+    },
+    {
+      "label": "cross-district",
+      "url": "http://127.0.0.1:8883/routing-data.js",
+      "requestWallMs": 179
+    }
+  ],
+  "routeTimings": [
+    {
+      "destination": "新東陽101專櫃",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "status": "ready",
+      "uiSelectionThroughWorkerResultWallMs": 633
+    },
+    {
+      "destination": "新東陽101專櫃",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "ready",
+      "uiSelectionThroughWorkerResultWallMs": 581
+    },
+    {
+      "destination": "新東陽101專櫃",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "status": "ready",
+      "uiSelectionThroughWorkerResultWallMs": 596
+    },
+    {
+      "destination": "新東陽101專櫃",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "status": "ready",
+      "uiSelectionThroughWorkerResultWallMs": 584
+    },
+    {
+      "destination": "新東陽101專櫃",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "status": "ready",
+      "uiSelectionThroughWorkerResultWallMs": 599
+    },
+    {
+      "destination": "新東陽101專櫃",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "ready",
+      "uiSelectionThroughWorkerResultWallMs": 586
+    }
+  ],
+  "sourceBefore": {
+    "index.html": {
+      "bytes": 11004,
+      "sha256": "b970be73cc2139c4123adaab91542ff21ea109c44945788529a7579146370e08"
+    },
+    "app.js": {
+      "bytes": 48433,
+      "sha256": "74106fc30a73f1b7ec83ba8ad6ca212f781fd3ca927e33a8be087c9ace820f96"
+    },
+    "app-ui.css": {
+      "bytes": 43399,
+      "sha256": "f780f18043b05465b2b64679842891989f46d7682d670a04c94285b91ef51d3c"
+    },
+    "route-client.js": {
+      "bytes": 2856,
+      "sha256": "49011fc0c7789f745ce4ebcc51cb9a31133aa3793673d00c7cc92e1aa8e95407"
+    },
+    "routing-worker.js": {
+      "bytes": 766,
+      "sha256": "062637a788346249dfd9b12e76d0b9d260af2b91860ee8ef52d3f38b3e544b74"
+    },
+    "routing.js": {
+      "bytes": 13690,
+      "sha256": "2019738e91962b069ac16d0d89b4d2c9dbc348eec0a34c272db4f581019ba235"
+    },
+    "routing-data.js": {
+      "bytes": 20758759,
+      "sha256": "1afe78ce7135dcbbc09ac908b85cf9ea74a5fb1eab4a3bc2fd40677f47d5070c"
+    }
+  },
+  "browserVersion": "157.0.8103.38",
+  "route": {
+    "position": {
+      "lat": 25.0375,
+      "lng": 121.5637
+    },
+    "destination": {
+      "name": "新東陽101專櫃",
+      "lat": 25.034026,
+      "lng": 121.563903
+    },
+    "selectedId": null,
+    "filters": [],
+    "routeStatus": "ready",
+    "route": {
+      "id": "shortest",
+      "label": "最短路徑",
+      "coordinates": [
+        [
+          25.0375,
+          121.5637
+        ],
+        [
+          25.0372648,
+          121.5635734
+        ],
+        [
+          25.0360392,
+          121.5635613
+        ],
+        [
+          25.0358947,
+          121.5635646
+        ],
+        [
+          25.0357732,
+          121.5635978
+        ],
+        [
+          25.0346119,
+          121.5635679
+        ],
+        [
+          25.034026,
+          121.563903
+        ]
+      ],
+      "distanceM": 398,
+      "connectorDistanceM": 102,
+      "connectors": [
+        [
+          [
+            25.0375,
+            121.5637
+          ],
+          [
+            25.0372648,
+            121.5635734
+          ]
+        ],
+        [
+          [
+            25.0346119,
+            121.5635679
+          ],
+          [
+            25.034026,
+            121.563903
+          ]
+        ]
+      ],
+      "roadSegments": [
+        [
+          [
+            25.0372648,
+            121.5635734
+          ],
+          [
+            25.0360392,
+            121.5635613
+          ],
+          [
+            25.0358947,
+            121.5635646
+          ],
+          [
+            25.0357732,
+            121.5635978
+          ],
+          [
+            25.0346119,
+            121.5635679
+          ]
+        ]
+      ],
+      "resourceCount": 287,
+      "storeIds": [
+        "friendly-0007",
+        "friendly-0650",
+        "toilets-1213",
+        "toilets-1221",
+        "toilets-1227",
+        "toilets-1236",
+        "toilets-1271",
+        "toilets-1276",
+        "toilets-1292",
+        "toilets-1317",
+        "mrt-84",
+        "wifi-TPEE000171-155",
+        "wifi-TPEE000175-158",
+        "wifi-TPEE000574-520",
+        "wifi-TPEE001044-812",
+        "wifi-TPEE001153-886",
+        "wifi-TPEE002001-1086",
+        "wifi-TPEE002002-1087",
+        "wifi-TPEE002003-1088",
+        "wifi-TPEE002004-1089",
+        "wifi-TPEE002005-1090",
+        "wifi-TPEE002006-1091",
+        "wifi-TPEE002007-1092",
+        "wifi-TPEE002008-1093",
+        "wifi-TPEE002009-1094",
+        "wifi-TPEE002010-1095",
+        "wifi-TPEE002011-1096",
+        "wifi-TPEE002012-1097",
+        "wifi-TPEE002013-1098",
+        "wifi-TPEE002014-1099",
+        "wifi-TPEE002015-1100",
+        "wifi-TPEE002016-1101",
+        "wifi-TPEE002017-1102",
+        "wifi-TPEE002018-1103",
+        "wifi-TPEE002019-1104",
+        "wifi-TPEE002020-1105",
+        "wifi-TPEE002021-1106",
+        "wifi-TPEE002022-1107",
+        "wifi-TPEE002023-1108",
+        "wifi-TPEE002024-1109",
+        "wifi-TPEE002025-1110",
+        "wifi-TPEE002026-1111",
+        "wifi-TPEE002027-1112",
+        "wifi-TPEE002028-1113",
+        "wifi-TPEE002029-1114",
+        "wifi-TPEE002030-1115",
+        "wifi-TPEE002031-1116",
+        "wifi-TPEE002032-1117",
+        "wifi-TPEE002033-1118",
+        "wifi-TPEE002034-1119",
+        "wifi-TPEE002035-1120",
+        "wifi-TPEE002036-1121",
+        "wifi-TPEE002037-1122",
+        "wifi-TPEE002038-1123",
+        "wifi-TPEE002039-1124",
+        "wifi-TPEE002040-1125",
+        "wifi-TPEE002041-1126",
+        "wifi-TPEE002042-1127",
+        "wifi-TPEE002043-1128",
+        "wifi-TPEE002044-1129",
+        "wifi-TPEE002045-1130",
+        "wifi-TPEE002046-1131",
+        "wifi-TPEE002047-1132",
+        "wifi-TPEE002048-1133",
+        "wifi-TPEE002049-1134",
+        "wifi-TPEE002050-1135",
+        "wifi-TPEE002051-1136",
+        "wifi-TPEE002052-1137",
+        "wifi-TPEE002053-1138",
+        "wifi-TPEE002054-1139",
+        "wifi-TPEE002055-1140",
+        "wifi-TPEE002056-1141",
+        "wifi-TPEE002057-1142",
+        "wifi-TPEE002058-1143",
+        "wifi-TPEE002059-1144",
+        "wifi-TPEE002060-1145",
+        "wifi-TPEE002061-1146",
+        "wifi-TPEE002062-1147",
+        "wifi-TPEE002063-1148",
+        "wifi-TPEE002064-1149",
+        "wifi-TPEE002065-1150",
+        "wifi-TPEE002066-1151",
+        "wifi-TPEE002067-1152",
+        "wifi-TPEE002068-1153",
+        "wifi-TPEE002070-1154",
+        "wifi-TPEE002071-1155",
+        "wifi-TPEE002072-1156",
+        "wifi-TPEE002074-1157",
+        "wifi-TPEE002075-1158",
+        "wifi-TPEE002076-1159",
+        "wifi-TPEE002077-1160",
+        "wifi-TPEE002078-1161",
+        "wifi-TPEE002079-1162",
+        "wifi-TPEE002080-1163",
+        "wifi-TPEE002081-1164",
+        "wifi-TPEE002082-1165",
+        "wifi-TPEE002083-1166",
+        "wifi-TPEE002084-1167",
+        "wifi-TPEE002085-1168",
+        "wifi-TPEE002086-1169",
+        "wifi-TPEE002087-1170",
+        "wifi-TPEE002088-1171",
+        "wifi-TPEE002089-1172",
+        "wifi-TPEE002090-1173",
+        "wifi-TPEE002091-1174",
+        "wifi-TPEE002092-1175",
+        "wifi-TPEE002093-1176",
+        "wifi-TPEE002094-1177",
+        "wifi-TPEE002095-1178",
+        "wifi-TPEE002096-1179",
+        "wifi-TPEE002097-1180",
+        "wifi-TPEE002098-1181",
+        "wifi-TPEE002099-1182",
+        "wifi-TPEE002100-1183",
+        "wifi-TPEE002101-1184",
+        "wifi-TPEE002102-1185",
+        "wifi-TPEE002103-1186",
+        "wifi-TPEE002105-1187",
+        "wifi-TPEE002106-1188",
+        "wifi-TPEE002107-1189",
+        "wifi-TPEE002108-1190",
+        "wifi-TPEE002109-1191",
+        "wifi-TPEE002110-1192",
+        "wifi-TPEE002111-1193",
+        "wifi-TPEE002112-1194",
+        "wifi-TPEE002113-1195",
+        "wifi-TPEE002114-1196",
+        "wifi-TPEE002115-1197",
+        "wifi-TPEE002116-1198",
+        "wifi-TPEE002117-1199",
+        "wifi-TPEE002118-1200",
+        "wifi-TPEE002119-1201",
+        "wifi-TPEE002120-1202",
+        "wifi-TPEE002121-1203",
+        "wifi-TPEE002122-1204",
+        "wifi-TPEE002125-1205",
+        "wifi-TPEE002126-1206",
+        "wifi-TPEE002127-1207",
+        "wifi-TPEE002128-1208",
+        "wifi-TPEE002129-1209",
+        "wifi-TPEE002130-1210",
+        "wifi-TPEE002131-1211",
+        "wifi-TPEE002132-1212",
+        "wifi-TPEE002133-1213",
+        "wifi-TPEE002134-1214",
+        "wifi-TPEE002135-1215",
+        "wifi-TPEE002136-1216",
+        "wifi-TPEE002137-1217",
+        "wifi-TPEE002138-1218",
+        "wifi-TPEE002139-1219",
+        "wifi-TPEE002140-1220",
+        "wifi-TPEE002141-1221",
+        "wifi-TPEE002142-1222",
+        "wifi-TPEE002143-1223",
+        "wifi-TPEE002144-1224",
+        "wifi-TPEE002145-1225",
+        "wifi-TPEE002146-1226",
+        "wifi-TPEE002147-1227",
+        "wifi-TPEE002148-1228",
+        "wifi-TPEE002149-1229",
+        "wifi-TPEE002150-1230",
+        "wifi-TPEE002151-1231",
+        "wifi-TPEE002152-1232",
+        "wifi-TPEE002153-1233",
+        "wifi-TPEE002154-1234",
+        "wifi-TPEE002155-1235",
+        "wifi-TPEE002156-1236",
+        "wifi-TPEE002157-1237",
+        "wifi-TPEE002158-1238",
+        "wifi-TPEE002159-1239",
+        "wifi-TPEE002160-1240",
+        "wifi-TPEE002161-1241",
+        "wifi-TPEE002162-1242",
+        "wifi-TPEE002163-1243",
+        "wifi-TPEE002164-1244",
+        "wifi-TPEE002165-1245",
+        "wifi-TPEE002166-1246",
+        "wifi-TPEE002167-1247",
+        "wifi-TPEE002168-1248",
+        "wifi-TPEE002169-1249",
+        "wifi-TPEE002170-1250",
+        "wifi-TPEE002171-1251",
+        "wifi-TPEE002172-1252",
+        "wifi-TPEE002173-1253",
+        "wifi-TPEE002174-1254",
+        "wifi-TPEE002175-1255",
+        "wifi-TPEE002176-1256",
+        "wifi-TPEE002177-1257",
+        "wifi-TPEE002178-1258",
+        "wifi-TPEE002179-1259",
+        "wifi-TPEE002180-1260",
+        "wifi-TPEE002181-1261",
+        "wifi-TPEE002182-1262",
+        "wifi-TPEE002183-1263",
+        "wifi-TPEE002184-1264",
+        "wifi-TPEE002185-1265",
+        "wifi-TPEE002186-1266",
+        "wifi-TPEE002187-1267",
+        "wifi-TPEE002188-1268",
+        "wifi-TPEE002189-1269",
+        "wifi-TPEE002190-1270",
+        "wifi-TPEE002191-1271",
+        "wifi-TPEE002192-1272",
+        "wifi-TPEE002193-1273",
+        "wifi-TPEE002194-1274",
+        "wifi-TPEE002195-1275",
+        "wifi-TPEE002196-1276",
+        "wifi-TPEE002197-1277",
+        "wifi-TPEE002198-1278",
+        "wifi-TPEE002199-1279",
+        "wifi-TPEE002200-1280",
+        "wifi-TPEE002201-1281",
+        "wifi-TPEE002202-1282",
+        "wifi-TPEE002203-1283",
+        "wifi-TPEE002204-1284",
+        "wifi-TPEE002205-1285",
+        "wifi-TPEE002206-1286",
+        "wifi-TPEE002207-1287",
+        "wifi-TPEE002208-1288",
+        "wifi-TPEE002209-1289",
+        "wifi-TPEE002210-1290",
+        "wifi-TPEE002211-1291",
+        "wifi-TPEE002212-1292",
+        "wifi-TPEE002213-1293",
+        "wifi-TPEE002214-1294",
+        "wifi-TPEE002215-1295",
+        "wifi-TPEE002216-1296",
+        "wifi-TPEE002217-1297",
+        "wifi-TPEE002218-1298",
+        "wifi-TPEE002219-1299",
+        "wifi-TPEE002220-1300",
+        "wifi-TPEE002221-1301",
+        "wifi-TPEE002222-1302",
+        "wifi-TPEE002223-1303",
+        "wifi-TPEE002224-1304",
+        "wifi-TPEE002225-1305",
+        "wifi-TPEE002226-1306",
+        "wifi-TPEE002227-1307",
+        "wifi-TPEE002228-1308",
+        "wifi-TPEE002229-1309",
+        "wifi-TPEE002230-1310",
+        "wifi-TPEE002231-1311",
+        "wifi-TPEE002232-1312",
+        "wifi-TPEE002233-1313",
+        "wifi-TPEE002234-1314",
+        "wifi-TPEE002235-1315",
+        "wifi-TPEE002236-1316",
+        "wifi-TPEE002237-1317",
+        "wifi-TPEE002238-1318",
+        "wifi-TPEE002239-1319",
+        "wifi-TPEE002240-1320",
+        "wifi-TPEE002241-1321",
+        "wifi-TPEE002446-1526",
+        "wifi-TPEE002447-1527",
+        "wifi-TPEE002582-1659",
+        "wifi-TPEE002583-1660",
+        "wifi-TPEE002881-1943",
+        "wifi-TPEE002883-1945",
+        "wifi-TPEE003429-2468",
+        "wifi-TPEE003450-2489",
+        "wifi-TPEE003658-2693",
+        "wifi-TPEE003659-2694",
+        "wifi-TPEE003660-2695",
+        "wifi-TPEE003661-2696",
+        "wifi-TPEE003662-2697",
+        "wifi-TPEE003663-2698",
+        "wifi-TPEE003664-2699",
+        "wifi-TPEE003665-2700",
+        "wifi-TPEE003666-2701",
+        "wifi-TPEE003667-2702",
+        "wifi-TPEE003681-2716",
+        "wifi-TPEE003724-2755",
+        "wifi-TPEE003725-2756",
+        "wifi-TPEE003747-2776",
+        "wifi-TPEE003748-2777",
+        "wifi-TPEE003985-2974",
+        "wifi-TPEE003986-2975",
+        "wifi-TPEE003987-2976",
+        "wifi-TPEE003988-2977",
+        "wifi-TPEE003989-2978",
+        "wifi-TPEE003990-2979",
+        "wifi-TPEE003991-2980",
+        "wifi-TPEE004095-3063",
+        "wifi-TPEE004096-3064",
+        "wifi-TPEE004097-3065",
+        "wifi-TPEE004099-3067",
+        "wifi-TPEE004281-3242"
+      ],
+      "estimateMinutes": 6,
+      "viaLabel": "",
+      "basis": "本地 OSM 候選路網；起終點與路網接線為估計，未驗證實際入口。"
+    },
+    "expectedIds": [
+      "friendly-0007",
+      "friendly-0650",
+      "mrt-84",
+      "toilets-1213",
+      "toilets-1221",
+      "toilets-1227",
+      "toilets-1236",
+      "toilets-1271",
+      "toilets-1276",
+      "toilets-1292",
+      "toilets-1317",
+      "wifi-TPEE000171-155",
+      "wifi-TPEE000175-158",
+      "wifi-TPEE000574-520",
+      "wifi-TPEE001044-812",
+      "wifi-TPEE001153-886",
+      "wifi-TPEE002001-1086",
+      "wifi-TPEE002002-1087",
+      "wifi-TPEE002003-1088",
+      "wifi-TPEE002004-1089",
+      "wifi-TPEE002005-1090",
+      "wifi-TPEE002006-1091",
+      "wifi-TPEE002007-1092",
+      "wifi-TPEE002008-1093",
+      "wifi-TPEE002009-1094",
+      "wifi-TPEE002010-1095",
+      "wifi-TPEE002011-1096",
+      "wifi-TPEE002012-1097",
+      "wifi-TPEE002013-1098",
+      "wifi-TPEE002014-1099",
+      "wifi-TPEE002015-1100",
+      "wifi-TPEE002016-1101",
+      "wifi-TPEE002017-1102",
+      "wifi-TPEE002018-1103",
+      "wifi-TPEE002019-1104",
+      "wifi-TPEE002020-1105",
+      "wifi-TPEE002021-1106",
+      "wifi-TPEE002022-1107",
+      "wifi-TPEE002023-1108",
+      "wifi-TPEE002024-1109",
+      "wifi-TPEE002025-1110",
+      "wifi-TPEE002026-1111",
+      "wifi-TPEE002027-1112",
+      "wifi-TPEE002028-1113",
+      "wifi-TPEE002029-1114",
+      "wifi-TPEE002030-1115",
+      "wifi-TPEE002031-1116",
+      "wifi-TPEE002032-1117",
+      "wifi-TPEE002033-1118",
+      "wifi-TPEE002034-1119",
+      "wifi-TPEE002035-1120",
+      "wifi-TPEE002036-1121",
+      "wifi-TPEE002037-1122",
+      "wifi-TPEE002038-1123",
+      "wifi-TPEE002039-1124",
+      "wifi-TPEE002040-1125",
+      "wifi-TPEE002041-1126",
+      "wifi-TPEE002042-1127",
+      "wifi-TPEE002043-1128",
+      "wifi-TPEE002044-1129",
+      "wifi-TPEE002045-1130",
+      "wifi-TPEE002046-1131",
+      "wifi-TPEE002047-1132",
+      "wifi-TPEE002048-1133",
+      "wifi-TPEE002049-1134",
+      "wifi-TPEE002050-1135",
+      "wifi-TPEE002051-1136",
+      "wifi-TPEE002052-1137",
+      "wifi-TPEE002053-1138",
+      "wifi-TPEE002054-1139",
+      "wifi-TPEE002055-1140",
+      "wifi-TPEE002056-1141",
+      "wifi-TPEE002057-1142",
+      "wifi-TPEE002058-1143",
+      "wifi-TPEE002059-1144",
+      "wifi-TPEE002060-1145",
+      "wifi-TPEE002061-1146",
+      "wifi-TPEE002062-1147",
+      "wifi-TPEE002063-1148",
+      "wifi-TPEE002064-1149",
+      "wifi-TPEE002065-1150",
+      "wifi-TPEE002066-1151",
+      "wifi-TPEE002067-1152",
+      "wifi-TPEE002068-1153",
+      "wifi-TPEE002070-1154",
+      "wifi-TPEE002071-1155",
+      "wifi-TPEE002072-1156",
+      "wifi-TPEE002074-1157",
+      "wifi-TPEE002075-1158",
+      "wifi-TPEE002076-1159",
+      "wifi-TPEE002077-1160",
+      "wifi-TPEE002078-1161",
+      "wifi-TPEE002079-1162",
+      "wifi-TPEE002080-1163",
+      "wifi-TPEE002081-1164",
+      "wifi-TPEE002082-1165",
+      "wifi-TPEE002083-1166",
+      "wifi-TPEE002084-1167",
+      "wifi-TPEE002085-1168",
+      "wifi-TPEE002086-1169",
+      "wifi-TPEE002087-1170",
+      "wifi-TPEE002088-1171",
+      "wifi-TPEE002089-1172",
+      "wifi-TPEE002090-1173",
+      "wifi-TPEE002091-1174",
+      "wifi-TPEE002092-1175",
+      "wifi-TPEE002093-1176",
+      "wifi-TPEE002094-1177",
+      "wifi-TPEE002095-1178",
+      "wifi-TPEE002096-1179",
+      "wifi-TPEE002097-1180",
+      "wifi-TPEE002098-1181",
+      "wifi-TPEE002099-1182",
+      "wifi-TPEE002100-1183",
+      "wifi-TPEE002101-1184",
+      "wifi-TPEE002102-1185",
+      "wifi-TPEE002103-1186",
+      "wifi-TPEE002105-1187",
+      "wifi-TPEE002106-1188",
+      "wifi-TPEE002107-1189",
+      "wifi-TPEE002108-1190",
+      "wifi-TPEE002109-1191",
+      "wifi-TPEE002110-1192",
+      "wifi-TPEE002111-1193",
+      "wifi-TPEE002112-1194",
+      "wifi-TPEE002113-1195",
+      "wifi-TPEE002114-1196",
+      "wifi-TPEE002115-1197",
+      "wifi-TPEE002116-1198",
+      "wifi-TPEE002117-1199",
+      "wifi-TPEE002118-1200",
+      "wifi-TPEE002119-1201",
+      "wifi-TPEE002120-1202",
+      "wifi-TPEE002121-1203",
+      "wifi-TPEE002122-1204",
+      "wifi-TPEE002125-1205",
+      "wifi-TPEE002126-1206",
+      "wifi-TPEE002127-1207",
+      "wifi-TPEE002128-1208",
+      "wifi-TPEE002129-1209",
+      "wifi-TPEE002130-1210",
+      "wifi-TPEE002131-1211",
+      "wifi-TPEE002132-1212",
+      "wifi-TPEE002133-1213",
+      "wifi-TPEE002134-1214",
+      "wifi-TPEE002135-1215",
+      "wifi-TPEE002136-1216",
+      "wifi-TPEE002137-1217",
+      "wifi-TPEE002138-1218",
+      "wifi-TPEE002139-1219",
+      "wifi-TPEE002140-1220",
+      "wifi-TPEE002141-1221",
+      "wifi-TPEE002142-1222",
+      "wifi-TPEE002143-1223",
+      "wifi-TPEE002144-1224",
+      "wifi-TPEE002145-1225",
+      "wifi-TPEE002146-1226",
+      "wifi-TPEE002147-1227",
+      "wifi-TPEE002148-1228",
+      "wifi-TPEE002149-1229",
+      "wifi-TPEE002150-1230",
+      "wifi-TPEE002151-1231",
+      "wifi-TPEE002152-1232",
+      "wifi-TPEE002153-1233",
+      "wifi-TPEE002154-1234",
+      "wifi-TPEE002155-1235",
+      "wifi-TPEE002156-1236",
+      "wifi-TPEE002157-1237",
+      "wifi-TPEE002158-1238",
+      "wifi-TPEE002159-1239",
+      "wifi-TPEE002160-1240",
+      "wifi-TPEE002161-1241",
+      "wifi-TPEE002162-1242",
+      "wifi-TPEE002163-1243",
+      "wifi-TPEE002164-1244",
+      "wifi-TPEE002165-1245",
+      "wifi-TPEE002166-1246",
+      "wifi-TPEE002167-1247",
+      "wifi-TPEE002168-1248",
+      "wifi-TPEE002169-1249",
+      "wifi-TPEE002170-1250",
+      "wifi-TPEE002171-1251",
+      "wifi-TPEE002172-1252",
+      "wifi-TPEE002173-1253",
+      "wifi-TPEE002174-1254",
+      "wifi-TPEE002175-1255",
+      "wifi-TPEE002176-1256",
+      "wifi-TPEE002177-1257",
+      "wifi-TPEE002178-1258",
+      "wifi-TPEE002179-1259",
+      "wifi-TPEE002180-1260",
+      "wifi-TPEE002181-1261",
+      "wifi-TPEE002182-1262",
+      "wifi-TPEE002183-1263",
+      "wifi-TPEE002184-1264",
+      "wifi-TPEE002185-1265",
+      "wifi-TPEE002186-1266",
+      "wifi-TPEE002187-1267",
+      "wifi-TPEE002188-1268",
+      "wifi-TPEE002189-1269",
+      "wifi-TPEE002190-1270",
+      "wifi-TPEE002191-1271",
+      "wifi-TPEE002192-1272",
+      "wifi-TPEE002193-1273",
+      "wifi-TPEE002194-1274",
+      "wifi-TPEE002195-1275",
+      "wifi-TPEE002196-1276",
+      "wifi-TPEE002197-1277",
+      "wifi-TPEE002198-1278",
+      "wifi-TPEE002199-1279",
+      "wifi-TPEE002200-1280",
+      "wifi-TPEE002201-1281",
+      "wifi-TPEE002202-1282",
+      "wifi-TPEE002203-1283",
+      "wifi-TPEE002204-1284",
+      "wifi-TPEE002205-1285",
+      "wifi-TPEE002206-1286",
+      "wifi-TPEE002207-1287",
+      "wifi-TPEE002208-1288",
+      "wifi-TPEE002209-1289",
+      "wifi-TPEE002210-1290",
+      "wifi-TPEE002211-1291",
+      "wifi-TPEE002212-1292",
+      "wifi-TPEE002213-1293",
+      "wifi-TPEE002214-1294",
+      "wifi-TPEE002215-1295",
+      "wifi-TPEE002216-1296",
+      "wifi-TPEE002217-1297",
+      "wifi-TPEE002218-1298",
+      "wifi-TPEE002219-1299",
+      "wifi-TPEE002220-1300",
+      "wifi-TPEE002221-1301",
+      "wifi-TPEE002222-1302",
+      "wifi-TPEE002223-1303",
+      "wifi-TPEE002224-1304",
+      "wifi-TPEE002225-1305",
+      "wifi-TPEE002226-1306",
+      "wifi-TPEE002227-1307",
+      "wifi-TPEE002228-1308",
+      "wifi-TPEE002229-1309",
+      "wifi-TPEE002230-1310",
+      "wifi-TPEE002231-1311",
+      "wifi-TPEE002232-1312",
+      "wifi-TPEE002233-1313",
+      "wifi-TPEE002234-1314",
+      "wifi-TPEE002235-1315",
+      "wifi-TPEE002236-1316",
+      "wifi-TPEE002237-1317",
+      "wifi-TPEE002238-1318",
+      "wifi-TPEE002239-1319",
+      "wifi-TPEE002240-1320",
+      "wifi-TPEE002241-1321",
+      "wifi-TPEE002446-1526",
+      "wifi-TPEE002447-1527",
+      "wifi-TPEE002582-1659",
+      "wifi-TPEE002583-1660",
+      "wifi-TPEE002881-1943",
+      "wifi-TPEE002883-1945",
+      "wifi-TPEE003429-2468",
+      "wifi-TPEE003450-2489",
+      "wifi-TPEE003658-2693",
+      "wifi-TPEE003659-2694",
+      "wifi-TPEE003660-2695",
+      "wifi-TPEE003661-2696",
+      "wifi-TPEE003662-2697",
+      "wifi-TPEE003663-2698",
+      "wifi-TPEE003664-2699",
+      "wifi-TPEE003665-2700",
+      "wifi-TPEE003666-2701",
+      "wifi-TPEE003667-2702",
+      "wifi-TPEE003681-2716",
+      "wifi-TPEE003724-2755",
+      "wifi-TPEE003725-2756",
+      "wifi-TPEE003747-2776",
+      "wifi-TPEE003748-2777",
+      "wifi-TPEE003985-2974",
+      "wifi-TPEE003986-2975",
+      "wifi-TPEE003987-2976",
+      "wifi-TPEE003988-2977",
+      "wifi-TPEE003989-2978",
+      "wifi-TPEE003990-2979",
+      "wifi-TPEE003991-2980",
+      "wifi-TPEE004095-3063",
+      "wifi-TPEE004096-3064",
+      "wifi-TPEE004097-3065",
+      "wifi-TPEE004099-3067",
+      "wifi-TPEE004281-3242"
+    ],
+    "highlightedIds": [
+      "friendly-0007",
+      "friendly-0650",
+      "mrt-84",
+      "toilets-1213",
+      "toilets-1221",
+      "toilets-1227",
+      "toilets-1236",
+      "toilets-1271",
+      "toilets-1276",
+      "toilets-1292",
+      "toilets-1317",
+      "wifi-TPEE000171-155",
+      "wifi-TPEE000175-158",
+      "wifi-TPEE000574-520",
+      "wifi-TPEE001044-812",
+      "wifi-TPEE001153-886",
+      "wifi-TPEE002001-1086",
+      "wifi-TPEE002002-1087",
+      "wifi-TPEE002003-1088",
+      "wifi-TPEE002004-1089",
+      "wifi-TPEE002005-1090",
+      "wifi-TPEE002006-1091",
+      "wifi-TPEE002007-1092",
+      "wifi-TPEE002008-1093",
+      "wifi-TPEE002009-1094",
+      "wifi-TPEE002010-1095",
+      "wifi-TPEE002011-1096",
+      "wifi-TPEE002012-1097",
+      "wifi-TPEE002013-1098",
+      "wifi-TPEE002014-1099",
+      "wifi-TPEE002015-1100",
+      "wifi-TPEE002016-1101",
+      "wifi-TPEE002017-1102",
+      "wifi-TPEE002018-1103",
+      "wifi-TPEE002019-1104",
+      "wifi-TPEE002020-1105",
+      "wifi-TPEE002021-1106",
+      "wifi-TPEE002022-1107",
+      "wifi-TPEE002023-1108",
+      "wifi-TPEE002024-1109",
+      "wifi-TPEE002025-1110",
+      "wifi-TPEE002026-1111",
+      "wifi-TPEE002027-1112",
+      "wifi-TPEE002028-1113",
+      "wifi-TPEE002029-1114",
+      "wifi-TPEE002030-1115",
+      "wifi-TPEE002031-1116",
+      "wifi-TPEE002032-1117",
+      "wifi-TPEE002033-1118",
+      "wifi-TPEE002034-1119",
+      "wifi-TPEE002035-1120",
+      "wifi-TPEE002036-1121",
+      "wifi-TPEE002037-1122",
+      "wifi-TPEE002038-1123",
+      "wifi-TPEE002039-1124",
+      "wifi-TPEE002040-1125",
+      "wifi-TPEE002041-1126",
+      "wifi-TPEE002042-1127",
+      "wifi-TPEE002043-1128",
+      "wifi-TPEE002044-1129",
+      "wifi-TPEE002045-1130",
+      "wifi-TPEE002046-1131",
+      "wifi-TPEE002047-1132",
+      "wifi-TPEE002048-1133",
+      "wifi-TPEE002049-1134",
+      "wifi-TPEE002050-1135",
+      "wifi-TPEE002051-1136",
+      "wifi-TPEE002052-1137",
+      "wifi-TPEE002053-1138",
+      "wifi-TPEE002054-1139",
+      "wifi-TPEE002055-1140",
+      "wifi-TPEE002056-1141",
+      "wifi-TPEE002057-1142",
+      "wifi-TPEE002058-1143",
+      "wifi-TPEE002059-1144",
+      "wifi-TPEE002060-1145",
+      "wifi-TPEE002061-1146",
+      "wifi-TPEE002062-1147",
+      "wifi-TPEE002063-1148",
+      "wifi-TPEE002064-1149",
+      "wifi-TPEE002065-1150",
+      "wifi-TPEE002066-1151",
+      "wifi-TPEE002067-1152",
+      "wifi-TPEE002068-1153",
+      "wifi-TPEE002070-1154",
+      "wifi-TPEE002071-1155",
+      "wifi-TPEE002072-1156",
+      "wifi-TPEE002074-1157",
+      "wifi-TPEE002075-1158",
+      "wifi-TPEE002076-1159",
+      "wifi-TPEE002077-1160",
+      "wifi-TPEE002078-1161",
+      "wifi-TPEE002079-1162",
+      "wifi-TPEE002080-1163",
+      "wifi-TPEE002081-1164",
+      "wifi-TPEE002082-1165",
+      "wifi-TPEE002083-1166",
+      "wifi-TPEE002084-1167",
+      "wifi-TPEE002085-1168",
+      "wifi-TPEE002086-1169",
+      "wifi-TPEE002087-1170",
+      "wifi-TPEE002088-1171",
+      "wifi-TPEE002089-1172",
+      "wifi-TPEE002090-1173",
+      "wifi-TPEE002091-1174",
+      "wifi-TPEE002092-1175",
+      "wifi-TPEE002093-1176",
+      "wifi-TPEE002094-1177",
+      "wifi-TPEE002095-1178",
+      "wifi-TPEE002096-1179",
+      "wifi-TPEE002097-1180",
+      "wifi-TPEE002098-1181",
+      "wifi-TPEE002099-1182",
+      "wifi-TPEE002100-1183",
+      "wifi-TPEE002101-1184",
+      "wifi-TPEE002102-1185",
+      "wifi-TPEE002103-1186",
+      "wifi-TPEE002105-1187",
+      "wifi-TPEE002106-1188",
+      "wifi-TPEE002107-1189",
+      "wifi-TPEE002108-1190",
+      "wifi-TPEE002109-1191",
+      "wifi-TPEE002110-1192",
+      "wifi-TPEE002111-1193",
+      "wifi-TPEE002112-1194",
+      "wifi-TPEE002113-1195",
+      "wifi-TPEE002114-1196",
+      "wifi-TPEE002115-1197",
+      "wifi-TPEE002116-1198",
+      "wifi-TPEE002117-1199",
+      "wifi-TPEE002118-1200",
+      "wifi-TPEE002119-1201",
+      "wifi-TPEE002120-1202",
+      "wifi-TPEE002121-1203",
+      "wifi-TPEE002122-1204",
+      "wifi-TPEE002125-1205",
+      "wifi-TPEE002126-1206",
+      "wifi-TPEE002127-1207",
+      "wifi-TPEE002128-1208",
+      "wifi-TPEE002129-1209",
+      "wifi-TPEE002130-1210",
+      "wifi-TPEE002131-1211",
+      "wifi-TPEE002132-1212",
+      "wifi-TPEE002133-1213",
+      "wifi-TPEE002134-1214",
+      "wifi-TPEE002135-1215",
+      "wifi-TPEE002136-1216",
+      "wifi-TPEE002137-1217",
+      "wifi-TPEE002138-1218",
+      "wifi-TPEE002139-1219",
+      "wifi-TPEE002140-1220",
+      "wifi-TPEE002141-1221",
+      "wifi-TPEE002142-1222",
+      "wifi-TPEE002143-1223",
+      "wifi-TPEE002144-1224",
+      "wifi-TPEE002145-1225",
+      "wifi-TPEE002146-1226",
+      "wifi-TPEE002147-1227",
+      "wifi-TPEE002148-1228",
+      "wifi-TPEE002149-1229",
+      "wifi-TPEE002150-1230",
+      "wifi-TPEE002151-1231",
+      "wifi-TPEE002152-1232",
+      "wifi-TPEE002153-1233",
+      "wifi-TPEE002154-1234",
+      "wifi-TPEE002155-1235",
+      "wifi-TPEE002156-1236",
+      "wifi-TPEE002157-1237",
+      "wifi-TPEE002158-1238",
+      "wifi-TPEE002159-1239",
+      "wifi-TPEE002160-1240",
+      "wifi-TPEE002161-1241",
+      "wifi-TPEE002162-1242",
+      "wifi-TPEE002163-1243",
+      "wifi-TPEE002164-1244",
+      "wifi-TPEE002165-1245",
+      "wifi-TPEE002166-1246",
+      "wifi-TPEE002167-1247",
+      "wifi-TPEE002168-1248",
+      "wifi-TPEE002169-1249",
+      "wifi-TPEE002170-1250",
+      "wifi-TPEE002171-1251",
+      "wifi-TPEE002172-1252",
+      "wifi-TPEE002173-1253",
+      "wifi-TPEE002174-1254",
+      "wifi-TPEE002175-1255",
+      "wifi-TPEE002176-1256",
+      "wifi-TPEE002177-1257",
+      "wifi-TPEE002178-1258",
+      "wifi-TPEE002179-1259",
+      "wifi-TPEE002180-1260",
+      "wifi-TPEE002181-1261",
+      "wifi-TPEE002182-1262",
+      "wifi-TPEE002183-1263",
+      "wifi-TPEE002184-1264",
+      "wifi-TPEE002185-1265",
+      "wifi-TPEE002186-1266",
+      "wifi-TPEE002187-1267",
+      "wifi-TPEE002188-1268",
+      "wifi-TPEE002189-1269",
+      "wifi-TPEE002190-1270",
+      "wifi-TPEE002191-1271",
+      "wifi-TPEE002192-1272",
+      "wifi-TPEE002193-1273",
+      "wifi-TPEE002194-1274",
+      "wifi-TPEE002195-1275",
+      "wifi-TPEE002196-1276",
+      "wifi-TPEE002197-1277",
+      "wifi-TPEE002198-1278",
+      "wifi-TPEE002199-1279",
+      "wifi-TPEE002200-1280",
+      "wifi-TPEE002201-1281",
+      "wifi-TPEE002202-1282",
+      "wifi-TPEE002203-1283",
+      "wifi-TPEE002204-1284",
+      "wifi-TPEE002205-1285",
+      "wifi-TPEE002206-1286",
+      "wifi-TPEE002207-1287",
+      "wifi-TPEE002208-1288",
+      "wifi-TPEE002209-1289",
+      "wifi-TPEE002210-1290",
+      "wifi-TPEE002211-1291",
+      "wifi-TPEE002212-1292",
+      "wifi-TPEE002213-1293",
+      "wifi-TPEE002214-1294",
+      "wifi-TPEE002215-1295",
+      "wifi-TPEE002216-1296",
+      "wifi-TPEE002217-1297",
+      "wifi-TPEE002218-1298",
+      "wifi-TPEE002219-1299",
+      "wifi-TPEE002220-1300",
+      "wifi-TPEE002221-1301",
+      "wifi-TPEE002222-1302",
+      "wifi-TPEE002223-1303",
+      "wifi-TPEE002224-1304",
+      "wifi-TPEE002225-1305",
+      "wifi-TPEE002226-1306",
+      "wifi-TPEE002227-1307",
+      "wifi-TPEE002228-1308",
+      "wifi-TPEE002229-1309",
+      "wifi-TPEE002230-1310",
+      "wifi-TPEE002231-1311",
+      "wifi-TPEE002232-1312",
+      "wifi-TPEE002233-1313",
+      "wifi-TPEE002234-1314",
+      "wifi-TPEE002235-1315",
+      "wifi-TPEE002236-1316",
+      "wifi-TPEE002237-1317",
+      "wifi-TPEE002238-1318",
+      "wifi-TPEE002239-1319",
+      "wifi-TPEE002240-1320",
+      "wifi-TPEE002241-1321",
+      "wifi-TPEE002446-1526",
+      "wifi-TPEE002447-1527",
+      "wifi-TPEE002582-1659",
+      "wifi-TPEE002583-1660",
+      "wifi-TPEE002881-1943",
+      "wifi-TPEE002883-1945",
+      "wifi-TPEE003429-2468",
+      "wifi-TPEE003450-2489",
+      "wifi-TPEE003658-2693",
+      "wifi-TPEE003659-2694",
+      "wifi-TPEE003660-2695",
+      "wifi-TPEE003661-2696",
+      "wifi-TPEE003662-2697",
+      "wifi-TPEE003663-2698",
+      "wifi-TPEE003664-2699",
+      "wifi-TPEE003665-2700",
+      "wifi-TPEE003666-2701",
+      "wifi-TPEE003667-2702",
+      "wifi-TPEE003681-2716",
+      "wifi-TPEE003724-2755",
+      "wifi-TPEE003725-2756",
+      "wifi-TPEE003747-2776",
+      "wifi-TPEE003748-2777",
+      "wifi-TPEE003985-2974",
+      "wifi-TPEE003986-2975",
+      "wifi-TPEE003987-2976",
+      "wifi-TPEE003988-2977",
+      "wifi-TPEE003989-2978",
+      "wifi-TPEE003990-2979",
+      "wifi-TPEE003991-2980",
+      "wifi-TPEE004095-3063",
+      "wifi-TPEE004096-3064",
+      "wifi-TPEE004097-3065",
+      "wifi-TPEE004099-3067",
+      "wifi-TPEE004281-3242"
+    ],
+    "mapId": 2,
+    "mapSize": {
+      "x": 390,
+      "y": 360
+    },
+    "mapExpanded": false,
+    "routePixels": [
+      {
+        "x": 195,
+        "y": 216
+      },
+      {
+        "x": 192,
+        "y": 222
+      },
+      {
+        "x": 191,
+        "y": 254
+      },
+      {
+        "x": 191,
+        "y": 258
+      },
+      {
+        "x": 192,
+        "y": 261
+      },
+      {
+        "x": 191,
+        "y": 291
+      },
+      {
+        "x": 199,
+        "y": 306
+      }
+    ],
+    "panelCollapsed": false,
+    "routeLayers": [
+      {
+        "dashArray": null,
+        "points": 5
+      },
+      {
+        "dashArray": "4 7",
+        "points": 2
+      },
+      {
+        "dashArray": "4 7",
+        "points": 2
+      }
+    ]
+  },
+  "largeText": {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "documentWidth": 320,
+    "map": {
+      "x": 0,
+      "y": -690,
+      "width": 320,
+      "height": 360,
+      "right": 320,
+      "bottom": -330,
+      "scrollWidth": 1069,
+      "clientWidth": 320
+    },
+    "stage": {
+      "x": 0,
+      "y": -690,
+      "width": 320,
+      "height": 360,
+      "right": 320,
+      "bottom": -330,
+      "scrollWidth": 320,
+      "clientWidth": 320
+    },
+    "button": {
+      "x": 166.46875,
+      "y": 257.296875,
+      "width": 128.53125,
+      "height": 53,
+      "right": 295,
+      "bottom": 310.296875,
+      "scrollWidth": 129,
+      "clientWidth": 129
+    },
+    "description": {
+      "x": 56,
+      "y": 284.59375,
+      "width": 103.46875,
+      "height": 72,
+      "right": 159.46875,
+      "bottom": 356.59375,
+      "scrollWidth": 103,
+      "clientWidth": 103
+    },
+    "descriptionLines": 2,
+    "startLines": 1,
+    "searchFocusVisible": false,
+    "active": "BODY",
+    "activeFocusVisible": false,
+    "activeOutline": "3px",
+    "mapSize": {
+      "x": 320,
+      "y": 360
+    },
+    "overflowNodes": []
+  },
+  "crossDistrict": {
+    "status": "ready",
+    "points": [
+      {
+        "lat": 25.0478,
+        "lng": 121.517
+      },
+      {
+        "lat": 25.0375,
+        "lng": 121.5637
+      }
+    ],
+    "route": {
+      "id": "shortest",
+      "label": "最短路徑",
+      "coordinates": [
+        [
+          25.0478,
+          121.517
+        ],
+        [
+          25.047161,
+          121.5179283
+        ],
+        [
+          25.0471505,
+          121.5179517
+        ],
+        [
+          25.0471388,
+          121.5179786
+        ],
+        [
+          25.0471205,
+          121.5179675
+        ],
+        [
+          25.0470238,
+          121.5180556
+        ],
+        [
+          25.04698,
+          121.5180851
+        ],
+        [
+          25.0469343,
+          121.5181158
+        ],
+        [
+          25.0468009,
+          121.5189037
+        ],
+        [
+          25.0467764,
+          121.5189385
+        ],
+        [
+          25.0466957,
+          121.5189334
+        ],
+        [
+          25.0465138,
+          121.5189135
+        ],
+        [
+          25.0463889,
+          121.5189047
+        ],
+        [
+          25.0460394,
+          121.5187979
+        ],
+        [
+          25.0459718,
+          121.5187773
+        ],
+        [
+          25.0458469,
+          121.5192634
+        ],
+        [
+          25.0457875,
+          121.5195271
+        ],
+        [
+          25.0456107,
+          121.5194481
+        ],
+        [
+          25.0455956,
+          121.5195799
+        ],
+        [
+          25.0455801,
+          121.5197151
+        ],
+        [
+          25.0455572,
+          121.5198306
+        ],
+        [
+          25.0455054,
+          121.5200622
+        ],
+        [
+          25.0452394,
+          121.5212516
+        ],
+        [
+          25.0451901,
+          121.5214723
+        ],
+        [
+          25.0451844,
+          121.5214959
+        ],
+        [
+          25.0451743,
+          121.521537
+        ],
+        [
+          25.045158,
+          121.521611
+        ],
+        [
+          25.0451375,
+          121.5216952
+        ],
+        [
+          25.0450818,
+          121.5219161
+        ],
+        [
+          25.0449918,
+          121.52231
+        ],
+        [
+          25.0448968,
+          121.5227231
+        ],
+        [
+          25.0448017,
+          121.5231145
+        ],
+        [
+          25.0447874,
+          121.5231735
+        ],
+        [
+          25.044749,
+          121.5233288
+        ],
+        [
+          25.0447102,
+          121.5234862
+        ],
+        [
+          25.0446285,
+          121.5238368
+        ],
+        [
+          25.0445267,
+          121.5242559
+        ],
+        [
+          25.0443757,
+          121.5248772
+        ],
+        [
+          25.044361,
+          121.524939
+        ],
+        [
+          25.0443285,
+          121.525087
+        ],
+        [
+          25.0443006,
+          121.5251858
+        ],
+        [
+          25.044116,
+          121.5259465
+        ],
+        [
+          25.0440026,
+          121.5264131
+        ],
+        [
+          25.0439473,
+          121.5266397
+        ],
+        [
+          25.0439289,
+          121.5267154
+        ],
+        [
+          25.043902,
+          121.5268271
+        ],
+        [
+          25.0438685,
+          121.5269515
+        ],
+        [
+          25.0438261,
+          121.5270995
+        ],
+        [
+          25.0437768,
+          121.5272715
+        ],
+        [
+          25.043386,
+          121.5286587
+        ],
+        [
+          25.0433029,
+          121.528966
+        ],
+        [
+          25.0432929,
+          121.5290085
+        ],
+        [
+          25.0432018,
+          121.5293589
+        ],
+        [
+          25.0431698,
+          121.5294822
+        ],
+        [
+          25.0431411,
+          121.5295926
+        ],
+        [
+          25.0431272,
+          121.5296461
+        ],
+        [
+          25.0431016,
+          121.5297445
+        ],
+        [
+          25.0430502,
+          121.5299523
+        ],
+        [
+          25.0430242,
+          121.5300491
+        ],
+        [
+          25.0428672,
+          121.5306186
+        ],
+        [
+          25.0428366,
+          121.5307233
+        ],
+        [
+          25.0428003,
+          121.5308455
+        ],
+        [
+          25.0427105,
+          121.5311667
+        ],
+        [
+          25.0424414,
+          121.5321009
+        ],
+        [
+          25.042376,
+          121.5323462
+        ],
+        [
+          25.0423526,
+          121.532434
+        ],
+        [
+          25.0423222,
+          121.5325479
+        ],
+        [
+          25.0423013,
+          121.5326264
+        ],
+        [
+          25.0422648,
+          121.5327726
+        ],
+        [
+          25.0422422,
+          121.5329138
+        ],
+        [
+          25.0422061,
+          121.53314
+        ],
+        [
+          25.0421321,
+          121.5336552
+        ],
+        [
+          25.0420517,
+          121.5342061
+        ],
+        [
+          25.0419781,
+          121.5347012
+        ],
+        [
+          25.0418932,
+          121.5353251
+        ],
+        [
+          25.0418752,
+          121.5354526
+        ],
+        [
+          25.041835,
+          121.5357234
+        ],
+        [
+          25.0417036,
+          121.5366055
+        ],
+        [
+          25.0416674,
+          121.5368542
+        ],
+        [
+          25.0416553,
+          121.5369629
+        ],
+        [
+          25.0416279,
+          121.5373088
+        ],
+        [
+          25.0416224,
+          121.5374029
+        ],
+        [
+          25.0416214,
+          121.5374999
+        ],
+        [
+          25.0416146,
+          121.5381872
+        ],
+        [
+          25.0416034,
+          121.5393265
+        ],
+        [
+          25.0416003,
+          121.5396354
+        ],
+        [
+          25.0415996,
+          121.5397074
+        ],
+        [
+          25.0415999,
+          121.5397947
+        ],
+        [
+          25.0415955,
+          121.5401251
+        ],
+        [
+          25.0415859,
+          121.5410857
+        ],
+        [
+          25.0415836,
+          121.5413218
+        ],
+        [
+          25.0415809,
+          121.5415952
+        ],
+        [
+          25.0415805,
+          121.5416396
+        ],
+        [
+          25.0415792,
+          121.5417611
+        ],
+        [
+          25.0415714,
+          121.5424752
+        ],
+        [
+          25.0415598,
+          121.543546
+        ],
+        [
+          25.041558,
+          121.5437139
+        ],
+        [
+          25.0415558,
+          121.5438379
+        ],
+        [
+          25.0415533,
+          121.5439714
+        ],
+        [
+          25.0415449,
+          121.5444504
+        ],
+        [
+          25.0415407,
+          121.5446678
+        ],
+        [
+          25.0415289,
+          121.5452408
+        ],
+        [
+          25.0415238,
+          121.5460347
+        ],
+        [
+          25.0415216,
+          121.5461208
+        ],
+        [
+          25.0415166,
+          121.5462547
+        ],
+        [
+          25.041514,
+          121.5463481
+        ],
+        [
+          25.0414998,
+          121.5471396
+        ],
+        [
+          25.0414992,
+          121.5472106
+        ],
+        [
+          25.0414965,
+          121.5472795
+        ],
+        [
+          25.041495,
+          121.5473385
+        ],
+        [
+          25.0414883,
+          121.5475951
+        ],
+        [
+          25.0414733,
+          121.548333
+        ],
+        [
+          25.0414721,
+          121.548374
+        ],
+        [
+          25.0414704,
+          121.548434
+        ],
+        [
+          25.0414689,
+          121.5484885
+        ],
+        [
+          25.0414665,
+          121.5486159
+        ],
+        [
+          25.0414575,
+          121.5488759
+        ],
+        [
+          25.0414462,
+          121.5491111
+        ],
+        [
+          25.0413212,
+          121.5491102
+        ],
+        [
+          25.0412687,
+          121.5491103
+        ],
+        [
+          25.0412013,
+          121.5491097
+        ],
+        [
+          25.0404246,
+          121.5491029
+        ],
+        [
+          25.0404226,
+          121.5491917
+        ],
+        [
+          25.0402183,
+          121.5491884
+        ],
+        [
+          25.0398042,
+          121.5496335
+        ],
+        [
+          25.0397681,
+          121.5496726
+        ],
+        [
+          25.0394887,
+          121.5499762
+        ],
+        [
+          25.0387708,
+          121.5507495
+        ],
+        [
+          25.0385366,
+          121.5510214
+        ],
+        [
+          25.0380986,
+          121.5514965
+        ],
+        [
+          25.0380687,
+          121.5515322
+        ],
+        [
+          25.0380587,
+          121.551558
+        ],
+        [
+          25.0380557,
+          121.551769
+        ],
+        [
+          25.038051,
+          121.5528414
+        ],
+        [
+          25.0380609,
+          121.5528483
+        ],
+        [
+          25.0380624,
+          121.5529402
+        ],
+        [
+          25.038061,
+          121.55302
+        ],
+        [
+          25.0380212,
+          121.5530467
+        ],
+        [
+          25.0380051,
+          121.5540707
+        ],
+        [
+          25.0379766,
+          121.5552972
+        ],
+        [
+          25.0379214,
+          121.5553229
+        ],
+        [
+          25.0379194,
+          121.555401
+        ],
+        [
+          25.0379153,
+          121.5556164
+        ],
+        [
+          25.0378666,
+          121.5574182
+        ],
+        [
+          25.0378611,
+          121.5575276
+        ],
+        [
+          25.037798,
+          121.5576448
+        ],
+        [
+          25.0377938,
+          121.5577485
+        ],
+        [
+          25.0377084,
+          121.5606536
+        ],
+        [
+          25.0376924,
+          121.5612655
+        ],
+        [
+          25.0376904,
+          121.5613417
+        ],
+        [
+          25.0376847,
+          121.5614823
+        ],
+        [
+          25.037565,
+          121.5615996
+        ],
+        [
+          25.0375643,
+          121.5616263
+        ],
+        [
+          25.0375554,
+          121.5619882
+        ],
+        [
+          25.0375521,
+          121.5621426
+        ],
+        [
+          25.0375517,
+          121.5621666
+        ],
+        [
+          25.0375267,
+          121.5633562
+        ],
+        [
+          25.0375,
+          121.5637
+        ]
+      ],
+      "distanceM": 5195,
+      "connectorDistanceM": 152,
+      "connectors": [
+        [
+          [
+            25.0478,
+            121.517
+          ],
+          [
+            25.047161,
+            121.5179283
+          ]
+        ],
+        [
+          [
+            25.0375267,
+            121.5633562
+          ],
+          [
+            25.0375,
+            121.5637
+          ]
+        ]
+      ],
+      "roadSegments": [
+        [
+          [
+            25.047161,
+            121.5179283
+          ],
+          [
+            25.0471505,
+            121.5179517
+          ],
+          [
+            25.0471388,
+            121.5179786
+          ],
+          [
+            25.0471205,
+            121.5179675
+          ],
+          [
+            25.0470238,
+            121.5180556
+          ],
+          [
+            25.04698,
+            121.5180851
+          ],
+          [
+            25.0469343,
+            121.5181158
+          ],
+          [
+            25.0468009,
+            121.5189037
+          ],
+          [
+            25.0467764,
+            121.5189385
+          ],
+          [
+            25.0466957,
+            121.5189334
+          ],
+          [
+            25.0465138,
+            121.5189135
+          ],
+          [
+            25.0463889,
+            121.5189047
+          ],
+          [
+            25.0460394,
+            121.5187979
+          ],
+          [
+            25.0459718,
+            121.5187773
+          ],
+          [
+            25.0458469,
+            121.5192634
+          ],
+          [
+            25.0457875,
+            121.5195271
+          ],
+          [
+            25.0456107,
+            121.5194481
+          ],
+          [
+            25.0455956,
+            121.5195799
+          ],
+          [
+            25.0455801,
+            121.5197151
+          ],
+          [
+            25.0455572,
+            121.5198306
+          ],
+          [
+            25.0455054,
+            121.5200622
+          ],
+          [
+            25.0452394,
+            121.5212516
+          ],
+          [
+            25.0451901,
+            121.5214723
+          ],
+          [
+            25.0451844,
+            121.5214959
+          ],
+          [
+            25.0451743,
+            121.521537
+          ],
+          [
+            25.045158,
+            121.521611
+          ],
+          [
+            25.0451375,
+            121.5216952
+          ],
+          [
+            25.0450818,
+            121.5219161
+          ],
+          [
+            25.0449918,
+            121.52231
+          ],
+          [
+            25.0448968,
+            121.5227231
+          ],
+          [
+            25.0448017,
+            121.5231145
+          ],
+          [
+            25.0447874,
+            121.5231735
+          ],
+          [
+            25.044749,
+            121.5233288
+          ],
+          [
+            25.0447102,
+            121.5234862
+          ],
+          [
+            25.0446285,
+            121.5238368
+          ],
+          [
+            25.0445267,
+            121.5242559
+          ],
+          [
+            25.0443757,
+            121.5248772
+          ],
+          [
+            25.044361,
+            121.524939
+          ],
+          [
+            25.0443285,
+            121.525087
+          ],
+          [
+            25.0443006,
+            121.5251858
+          ],
+          [
+            25.044116,
+            121.5259465
+          ],
+          [
+            25.0440026,
+            121.5264131
+          ],
+          [
+            25.0439473,
+            121.5266397
+          ],
+          [
+            25.0439289,
+            121.5267154
+          ],
+          [
+            25.043902,
+            121.5268271
+          ],
+          [
+            25.0438685,
+            121.5269515
+          ],
+          [
+            25.0438261,
+            121.5270995
+          ],
+          [
+            25.0437768,
+            121.5272715
+          ],
+          [
+            25.043386,
+            121.5286587
+          ],
+          [
+            25.0433029,
+            121.528966
+          ],
+          [
+            25.0432929,
+            121.5290085
+          ],
+          [
+            25.0432018,
+            121.5293589
+          ],
+          [
+            25.0431698,
+            121.5294822
+          ],
+          [
+            25.0431411,
+            121.5295926
+          ],
+          [
+            25.0431272,
+            121.5296461
+          ],
+          [
+            25.0431016,
+            121.5297445
+          ],
+          [
+            25.0430502,
+            121.5299523
+          ],
+          [
+            25.0430242,
+            121.5300491
+          ],
+          [
+            25.0428672,
+            121.5306186
+          ],
+          [
+            25.0428366,
+            121.5307233
+          ],
+          [
+            25.0428003,
+            121.5308455
+          ],
+          [
+            25.0427105,
+            121.5311667
+          ],
+          [
+            25.0424414,
+            121.5321009
+          ],
+          [
+            25.042376,
+            121.5323462
+          ],
+          [
+            25.0423526,
+            121.532434
+          ],
+          [
+            25.0423222,
+            121.5325479
+          ],
+          [
+            25.0423013,
+            121.5326264
+          ],
+          [
+            25.0422648,
+            121.5327726
+          ],
+          [
+            25.0422422,
+            121.5329138
+          ],
+          [
+            25.0422061,
+            121.53314
+          ],
+          [
+            25.0421321,
+            121.5336552
+          ],
+          [
+            25.0420517,
+            121.5342061
+          ],
+          [
+            25.0419781,
+            121.5347012
+          ],
+          [
+            25.0418932,
+            121.5353251
+          ],
+          [
+            25.0418752,
+            121.5354526
+          ],
+          [
+            25.041835,
+            121.5357234
+          ],
+          [
+            25.0417036,
+            121.5366055
+          ],
+          [
+            25.0416674,
+            121.5368542
+          ],
+          [
+            25.0416553,
+            121.5369629
+          ],
+          [
+            25.0416279,
+            121.5373088
+          ],
+          [
+            25.0416224,
+            121.5374029
+          ],
+          [
+            25.0416214,
+            121.5374999
+          ],
+          [
+            25.0416146,
+            121.5381872
+          ],
+          [
+            25.0416034,
+            121.5393265
+          ],
+          [
+            25.0416003,
+            121.5396354
+          ],
+          [
+            25.0415996,
+            121.5397074
+          ],
+          [
+            25.0415999,
+            121.5397947
+          ],
+          [
+            25.0415955,
+            121.5401251
+          ],
+          [
+            25.0415859,
+            121.5410857
+          ],
+          [
+            25.0415836,
+            121.5413218
+          ],
+          [
+            25.0415809,
+            121.5415952
+          ],
+          [
+            25.0415805,
+            121.5416396
+          ],
+          [
+            25.0415792,
+            121.5417611
+          ],
+          [
+            25.0415714,
+            121.5424752
+          ],
+          [
+            25.0415598,
+            121.543546
+          ],
+          [
+            25.041558,
+            121.5437139
+          ],
+          [
+            25.0415558,
+            121.5438379
+          ],
+          [
+            25.0415533,
+            121.5439714
+          ],
+          [
+            25.0415449,
+            121.5444504
+          ],
+          [
+            25.0415407,
+            121.5446678
+          ],
+          [
+            25.0415289,
+            121.5452408
+          ],
+          [
+            25.0415238,
+            121.5460347
+          ],
+          [
+            25.0415216,
+            121.5461208
+          ],
+          [
+            25.0415166,
+            121.5462547
+          ],
+          [
+            25.041514,
+            121.5463481
+          ],
+          [
+            25.0414998,
+            121.5471396
+          ],
+          [
+            25.0414992,
+            121.5472106
+          ],
+          [
+            25.0414965,
+            121.5472795
+          ],
+          [
+            25.041495,
+            121.5473385
+          ],
+          [
+            25.0414883,
+            121.5475951
+          ],
+          [
+            25.0414733,
+            121.548333
+          ],
+          [
+            25.0414721,
+            121.548374
+          ],
+          [
+            25.0414704,
+            121.548434
+          ],
+          [
+            25.0414689,
+            121.5484885
+          ],
+          [
+            25.0414665,
+            121.5486159
+          ],
+          [
+            25.0414575,
+            121.5488759
+          ],
+          [
+            25.0414462,
+            121.5491111
+          ],
+          [
+            25.0413212,
+            121.5491102
+          ],
+          [
+            25.0412687,
+            121.5491103
+          ],
+          [
+            25.0412013,
+            121.5491097
+          ],
+          [
+            25.0404246,
+            121.5491029
+          ],
+          [
+            25.0404226,
+            121.5491917
+          ],
+          [
+            25.0402183,
+            121.5491884
+          ],
+          [
+            25.0398042,
+            121.5496335
+          ],
+          [
+            25.0397681,
+            121.5496726
+          ],
+          [
+            25.0394887,
+            121.5499762
+          ],
+          [
+            25.0387708,
+            121.5507495
+          ],
+          [
+            25.0385366,
+            121.5510214
+          ],
+          [
+            25.0380986,
+            121.5514965
+          ],
+          [
+            25.0380687,
+            121.5515322
+          ],
+          [
+            25.0380587,
+            121.551558
+          ],
+          [
+            25.0380557,
+            121.551769
+          ],
+          [
+            25.038051,
+            121.5528414
+          ],
+          [
+            25.0380609,
+            121.5528483
+          ],
+          [
+            25.0380624,
+            121.5529402
+          ],
+          [
+            25.038061,
+            121.55302
+          ],
+          [
+            25.0380212,
+            121.5530467
+          ],
+          [
+            25.0380051,
+            121.5540707
+          ],
+          [
+            25.0379766,
+            121.5552972
+          ],
+          [
+            25.0379214,
+            121.5553229
+          ],
+          [
+            25.0379194,
+            121.555401
+          ],
+          [
+            25.0379153,
+            121.5556164
+          ],
+          [
+            25.0378666,
+            121.5574182
+          ],
+          [
+            25.0378611,
+            121.5575276
+          ],
+          [
+            25.037798,
+            121.5576448
+          ],
+          [
+            25.0377938,
+            121.5577485
+          ],
+          [
+            25.0377084,
+            121.5606536
+          ],
+          [
+            25.0376924,
+            121.5612655
+          ],
+          [
+            25.0376904,
+            121.5613417
+          ],
+          [
+            25.0376847,
+            121.5614823
+          ],
+          [
+            25.037565,
+            121.5615996
+          ],
+          [
+            25.0375643,
+            121.5616263
+          ],
+          [
+            25.0375554,
+            121.5619882
+          ],
+          [
+            25.0375521,
+            121.5621426
+          ],
+          [
+            25.0375517,
+            121.5621666
+          ],
+          [
+            25.0375267,
+            121.5633562
+          ]
+        ]
+      ],
+      "resourceCount": 473,
+      "storeIds": [
+        "friendly-0242",
+        "friendly-0252",
+        "friendly-0256",
+        "friendly-0260",
+        "friendly-0262",
+        "friendly-0263",
+        "friendly-0271",
+        "friendly-0272",
+        "friendly-0276",
+        "friendly-0279",
+        "friendly-0280",
+        "friendly-0283",
+        "friendly-0284",
+        "friendly-0295",
+        "friendly-0345",
+        "friendly-0352",
+        "friendly-0355",
+        "friendly-0362",
+        "friendly-0365",
+        "friendly-0370",
+        "friendly-0372",
+        "friendly-0377",
+        "friendly-0378",
+        "friendly-0389",
+        "friendly-0395",
+        "friendly-0396",
+        "friendly-0399",
+        "friendly-0400",
+        "friendly-0401",
+        "friendly-0420",
+        "friendly-0424",
+        "friendly-0427",
+        "friendly-0552",
+        "friendly-0559",
+        "friendly-0560",
+        "friendly-0575",
+        "friendly-0583",
+        "friendly-0616",
+        "friendly-0783",
+        "friendly-0808",
+        "friendly-0810",
+        "friendly-0823",
+        "friendly-0832",
+        "friendly-0873",
+        "friendly-0875",
+        "friendly-0877",
+        "friendly-0882",
+        "friendly-0893",
+        "friendly-0894",
+        "friendly-0990",
+        "toilets-240",
+        "toilets-273",
+        "toilets-276",
+        "toilets-308",
+        "toilets-322",
+        "toilets-327",
+        "toilets-329",
+        "toilets-335",
+        "toilets-339",
+        "toilets-350",
+        "toilets-354",
+        "toilets-359",
+        "toilets-362",
+        "toilets-363",
+        "toilets-378",
+        "toilets-380",
+        "toilets-384",
+        "toilets-385",
+        "toilets-386",
+        "toilets-387",
+        "toilets-401",
+        "toilets-405",
+        "toilets-418",
+        "toilets-420",
+        "toilets-421",
+        "toilets-422",
+        "toilets-459",
+        "toilets-566",
+        "toilets-569",
+        "toilets-571",
+        "toilets-573",
+        "toilets-598",
+        "toilets-604",
+        "toilets-606",
+        "toilets-612",
+        "toilets-618",
+        "toilets-622",
+        "toilets-625",
+        "toilets-629",
+        "toilets-630",
+        "toilets-633",
+        "toilets-635",
+        "toilets-646",
+        "toilets-654",
+        "toilets-655",
+        "toilets-659",
+        "toilets-661",
+        "toilets-665",
+        "toilets-666",
+        "toilets-667",
+        "toilets-668",
+        "toilets-678",
+        "toilets-679",
+        "toilets-680",
+        "toilets-682",
+        "toilets-689",
+        "toilets-698",
+        "toilets-701",
+        "toilets-1218",
+        "toilets-1227",
+        "toilets-1292",
+        "toilets-1316",
+        "mrt-4",
+        "mrt-42",
+        "mrt-73",
+        "mrt-74",
+        "mrt-75",
+        "wifi-TPEE000171-155",
+        "wifi-TPEE000175-158",
+        "wifi-TPEE000294-265",
+        "wifi-TPEE000295-266",
+        "wifi-TPEE000296-267",
+        "wifi-TPEE000299-269",
+        "wifi-TPEE000574-520",
+        "wifi-TPEE000681-614",
+        "wifi-TPEE000799-724",
+        "wifi-TPEE001043-811",
+        "wifi-TPEE001146-879",
+        "wifi-TPEE001149-882",
+        "wifi-TPEE001153-886",
+        "wifi-TPEE001205-922",
+        "wifi-TPEE001206-923",
+        "wifi-TPEE001214-930",
+        "wifi-TPEE001235-951",
+        "wifi-TPEE001236-952",
+        "wifi-TPEE001313-992",
+        "wifi-TPEE001314-993",
+        "wifi-TPEE001316-994",
+        "wifi-TPEE001328-999",
+        "wifi-TPEE001367-1009",
+        "wifi-TPEE001386-1016",
+        "wifi-TPEE001429-1033",
+        "wifi-TPEE001512-1062",
+        "wifi-TPEE001847-1079",
+        "wifi-TPEE002001-1086",
+        "wifi-TPEE002002-1087",
+        "wifi-TPEE002003-1088",
+        "wifi-TPEE002004-1089",
+        "wifi-TPEE002005-1090",
+        "wifi-TPEE002006-1091",
+        "wifi-TPEE002007-1092",
+        "wifi-TPEE002008-1093",
+        "wifi-TPEE002009-1094",
+        "wifi-TPEE002010-1095",
+        "wifi-TPEE002011-1096",
+        "wifi-TPEE002012-1097",
+        "wifi-TPEE002013-1098",
+        "wifi-TPEE002014-1099",
+        "wifi-TPEE002015-1100",
+        "wifi-TPEE002016-1101",
+        "wifi-TPEE002017-1102",
+        "wifi-TPEE002018-1103",
+        "wifi-TPEE002019-1104",
+        "wifi-TPEE002020-1105",
+        "wifi-TPEE002021-1106",
+        "wifi-TPEE002022-1107",
+        "wifi-TPEE002023-1108",
+        "wifi-TPEE002024-1109",
+        "wifi-TPEE002025-1110",
+        "wifi-TPEE002026-1111",
+        "wifi-TPEE002027-1112",
+        "wifi-TPEE002028-1113",
+        "wifi-TPEE002029-1114",
+        "wifi-TPEE002030-1115",
+        "wifi-TPEE002031-1116",
+        "wifi-TPEE002032-1117",
+        "wifi-TPEE002033-1118",
+        "wifi-TPEE002034-1119",
+        "wifi-TPEE002035-1120",
+        "wifi-TPEE002036-1121",
+        "wifi-TPEE002037-1122",
+        "wifi-TPEE002038-1123",
+        "wifi-TPEE002039-1124",
+        "wifi-TPEE002040-1125",
+        "wifi-TPEE002041-1126",
+        "wifi-TPEE002042-1127",
+        "wifi-TPEE002043-1128",
+        "wifi-TPEE002044-1129",
+        "wifi-TPEE002045-1130",
+        "wifi-TPEE002046-1131",
+        "wifi-TPEE002047-1132",
+        "wifi-TPEE002048-1133",
+        "wifi-TPEE002049-1134",
+        "wifi-TPEE002050-1135",
+        "wifi-TPEE002051-1136",
+        "wifi-TPEE002052-1137",
+        "wifi-TPEE002053-1138",
+        "wifi-TPEE002054-1139",
+        "wifi-TPEE002055-1140",
+        "wifi-TPEE002056-1141",
+        "wifi-TPEE002057-1142",
+        "wifi-TPEE002058-1143",
+        "wifi-TPEE002059-1144",
+        "wifi-TPEE002060-1145",
+        "wifi-TPEE002061-1146",
+        "wifi-TPEE002062-1147",
+        "wifi-TPEE002063-1148",
+        "wifi-TPEE002064-1149",
+        "wifi-TPEE002065-1150",
+        "wifi-TPEE002066-1151",
+        "wifi-TPEE002067-1152",
+        "wifi-TPEE002068-1153",
+        "wifi-TPEE002070-1154",
+        "wifi-TPEE002071-1155",
+        "wifi-TPEE002072-1156",
+        "wifi-TPEE002074-1157",
+        "wifi-TPEE002075-1158",
+        "wifi-TPEE002076-1159",
+        "wifi-TPEE002077-1160",
+        "wifi-TPEE002078-1161",
+        "wifi-TPEE002079-1162",
+        "wifi-TPEE002080-1163",
+        "wifi-TPEE002081-1164",
+        "wifi-TPEE002082-1165",
+        "wifi-TPEE002083-1166",
+        "wifi-TPEE002084-1167",
+        "wifi-TPEE002085-1168",
+        "wifi-TPEE002086-1169",
+        "wifi-TPEE002087-1170",
+        "wifi-TPEE002088-1171",
+        "wifi-TPEE002089-1172",
+        "wifi-TPEE002090-1173",
+        "wifi-TPEE002091-1174",
+        "wifi-TPEE002092-1175",
+        "wifi-TPEE002093-1176",
+        "wifi-TPEE002094-1177",
+        "wifi-TPEE002095-1178",
+        "wifi-TPEE002096-1179",
+        "wifi-TPEE002097-1180",
+        "wifi-TPEE002098-1181",
+        "wifi-TPEE002099-1182",
+        "wifi-TPEE002100-1183",
+        "wifi-TPEE002101-1184",
+        "wifi-TPEE002102-1185",
+        "wifi-TPEE002103-1186",
+        "wifi-TPEE002105-1187",
+        "wifi-TPEE002106-1188",
+        "wifi-TPEE002107-1189",
+        "wifi-TPEE002108-1190",
+        "wifi-TPEE002109-1191",
+        "wifi-TPEE002110-1192",
+        "wifi-TPEE002111-1193",
+        "wifi-TPEE002112-1194",
+        "wifi-TPEE002113-1195",
+        "wifi-TPEE002114-1196",
+        "wifi-TPEE002115-1197",
+        "wifi-TPEE002116-1198",
+        "wifi-TPEE002117-1199",
+        "wifi-TPEE002118-1200",
+        "wifi-TPEE002119-1201",
+        "wifi-TPEE002120-1202",
+        "wifi-TPEE002121-1203",
+        "wifi-TPEE002122-1204",
+        "wifi-TPEE002125-1205",
+        "wifi-TPEE002126-1206",
+        "wifi-TPEE002127-1207",
+        "wifi-TPEE002128-1208",
+        "wifi-TPEE002129-1209",
+        "wifi-TPEE002130-1210",
+        "wifi-TPEE002131-1211",
+        "wifi-TPEE002132-1212",
+        "wifi-TPEE002133-1213",
+        "wifi-TPEE002134-1214",
+        "wifi-TPEE002135-1215",
+        "wifi-TPEE002136-1216",
+        "wifi-TPEE002137-1217",
+        "wifi-TPEE002138-1218",
+        "wifi-TPEE002139-1219",
+        "wifi-TPEE002140-1220",
+        "wifi-TPEE002141-1221",
+        "wifi-TPEE002142-1222",
+        "wifi-TPEE002143-1223",
+        "wifi-TPEE002144-1224",
+        "wifi-TPEE002145-1225",
+        "wifi-TPEE002146-1226",
+        "wifi-TPEE002147-1227",
+        "wifi-TPEE002148-1228",
+        "wifi-TPEE002149-1229",
+        "wifi-TPEE002150-1230",
+        "wifi-TPEE002151-1231",
+        "wifi-TPEE002152-1232",
+        "wifi-TPEE002153-1233",
+        "wifi-TPEE002154-1234",
+        "wifi-TPEE002155-1235",
+        "wifi-TPEE002156-1236",
+        "wifi-TPEE002157-1237",
+        "wifi-TPEE002158-1238",
+        "wifi-TPEE002159-1239",
+        "wifi-TPEE002160-1240",
+        "wifi-TPEE002161-1241",
+        "wifi-TPEE002162-1242",
+        "wifi-TPEE002163-1243",
+        "wifi-TPEE002164-1244",
+        "wifi-TPEE002165-1245",
+        "wifi-TPEE002166-1246",
+        "wifi-TPEE002167-1247",
+        "wifi-TPEE002168-1248",
+        "wifi-TPEE002169-1249",
+        "wifi-TPEE002170-1250",
+        "wifi-TPEE002171-1251",
+        "wifi-TPEE002172-1252",
+        "wifi-TPEE002173-1253",
+        "wifi-TPEE002174-1254",
+        "wifi-TPEE002175-1255",
+        "wifi-TPEE002176-1256",
+        "wifi-TPEE002177-1257",
+        "wifi-TPEE002178-1258",
+        "wifi-TPEE002179-1259",
+        "wifi-TPEE002180-1260",
+        "wifi-TPEE002181-1261",
+        "wifi-TPEE002182-1262",
+        "wifi-TPEE002183-1263",
+        "wifi-TPEE002184-1264",
+        "wifi-TPEE002185-1265",
+        "wifi-TPEE002186-1266",
+        "wifi-TPEE002187-1267",
+        "wifi-TPEE002188-1268",
+        "wifi-TPEE002189-1269",
+        "wifi-TPEE002190-1270",
+        "wifi-TPEE002191-1271",
+        "wifi-TPEE002192-1272",
+        "wifi-TPEE002193-1273",
+        "wifi-TPEE002194-1274",
+        "wifi-TPEE002195-1275",
+        "wifi-TPEE002196-1276",
+        "wifi-TPEE002197-1277",
+        "wifi-TPEE002198-1278",
+        "wifi-TPEE002199-1279",
+        "wifi-TPEE002200-1280",
+        "wifi-TPEE002201-1281",
+        "wifi-TPEE002202-1282",
+        "wifi-TPEE002203-1283",
+        "wifi-TPEE002204-1284",
+        "wifi-TPEE002205-1285",
+        "wifi-TPEE002206-1286",
+        "wifi-TPEE002207-1287",
+        "wifi-TPEE002208-1288",
+        "wifi-TPEE002209-1289",
+        "wifi-TPEE002210-1290",
+        "wifi-TPEE002211-1291",
+        "wifi-TPEE002212-1292",
+        "wifi-TPEE002213-1293",
+        "wifi-TPEE002214-1294",
+        "wifi-TPEE002215-1295",
+        "wifi-TPEE002216-1296",
+        "wifi-TPEE002217-1297",
+        "wifi-TPEE002218-1298",
+        "wifi-TPEE002219-1299",
+        "wifi-TPEE002220-1300",
+        "wifi-TPEE002221-1301",
+        "wifi-TPEE002222-1302",
+        "wifi-TPEE002223-1303",
+        "wifi-TPEE002224-1304",
+        "wifi-TPEE002225-1305",
+        "wifi-TPEE002226-1306",
+        "wifi-TPEE002227-1307",
+        "wifi-TPEE002228-1308",
+        "wifi-TPEE002229-1309",
+        "wifi-TPEE002230-1310",
+        "wifi-TPEE002231-1311",
+        "wifi-TPEE002232-1312",
+        "wifi-TPEE002233-1313",
+        "wifi-TPEE002234-1314",
+        "wifi-TPEE002235-1315",
+        "wifi-TPEE002236-1316",
+        "wifi-TPEE002237-1317",
+        "wifi-TPEE002238-1318",
+        "wifi-TPEE002239-1319",
+        "wifi-TPEE002240-1320",
+        "wifi-TPEE002241-1321",
+        "wifi-TPEE002446-1526",
+        "wifi-TPEE002447-1527",
+        "wifi-TPEE002582-1659",
+        "wifi-TPEE002583-1660",
+        "wifi-TPEE002831-1895",
+        "wifi-TPEE002832-1896",
+        "wifi-TPEE002833-1897",
+        "wifi-TPEE002847-1909",
+        "wifi-TPEE002851-1913",
+        "wifi-TPEE002852-1914",
+        "wifi-TPEE002853-1915",
+        "wifi-TPEE002862-1924",
+        "wifi-TPEE002863-1925",
+        "wifi-TPEE002881-1943",
+        "wifi-TPEE002883-1945",
+        "wifi-TPEE002903-1963",
+        "wifi-TPEE002969-2026",
+        "wifi-TPEE002970-2027",
+        "wifi-TPEE002971-2028",
+        "wifi-TPEE002972-2029",
+        "wifi-TPEE002973-2030",
+        "wifi-TPEE003429-2468",
+        "wifi-TPEE003430-2469",
+        "wifi-TPEE003431-2470",
+        "wifi-TPEE003432-2471",
+        "wifi-TPEE003433-2472",
+        "wifi-TPEE003450-2489",
+        "wifi-TPEE003658-2693",
+        "wifi-TPEE003659-2694",
+        "wifi-TPEE003660-2695",
+        "wifi-TPEE003661-2696",
+        "wifi-TPEE003662-2697",
+        "wifi-TPEE003663-2698",
+        "wifi-TPEE003664-2699",
+        "wifi-TPEE003665-2700",
+        "wifi-TPEE003666-2701",
+        "wifi-TPEE003667-2702",
+        "wifi-TPEE003681-2716",
+        "wifi-TPEE003697-2729",
+        "wifi-TPEE003724-2755",
+        "wifi-TPEE003725-2756",
+        "wifi-TPEE003747-2776",
+        "wifi-TPEE003748-2777",
+        "wifi-TPEE003765-2794",
+        "wifi-TPEE003877-2876",
+        "wifi-TPEE003879-2878",
+        "wifi-TPEE003880-2879",
+        "wifi-TPEE003881-2880",
+        "wifi-TPEE003882-2881",
+        "wifi-TPEE003883-2882",
+        "wifi-TPEE003884-2883",
+        "wifi-TPEE003885-2884",
+        "wifi-TPEE003886-2885",
+        "wifi-TPEE003887-2886",
+        "wifi-TPEE003888-2887",
+        "wifi-TPEE003889-2888",
+        "wifi-TPEE003890-2889",
+        "wifi-TPEE003891-2890",
+        "wifi-TPEE003892-2891",
+        "wifi-TPEE003893-2892",
+        "wifi-TPEE003894-2893",
+        "wifi-TPEE003895-2894",
+        "wifi-TPEE003896-2895",
+        "wifi-TPEE003897-2896",
+        "wifi-TPEE003898-2897",
+        "wifi-TPEE003899-2898",
+        "wifi-TPEE003900-2899",
+        "wifi-TPEE003901-2900",
+        "wifi-TPEE003982-2971",
+        "wifi-TPEE003985-2974",
+        "wifi-TPEE003986-2975",
+        "wifi-TPEE003987-2976",
+        "wifi-TPEE003988-2977",
+        "wifi-TPEE003989-2978",
+        "wifi-TPEE003990-2979",
+        "wifi-TPEE003991-2980",
+        "wifi-TPEE004024-3009",
+        "wifi-TPEE004025-3010",
+        "wifi-TPEE004095-3063",
+        "wifi-TPEE004096-3064",
+        "wifi-TPEE004097-3065",
+        "wifi-TPEE004099-3067",
+        "wifi-TPEE004117-3085",
+        "wifi-TPEE004118-3086",
+        "wifi-TPEE004122-3090",
+        "wifi-TPEE004153-3121",
+        "wifi-TPEE004154-3122",
+        "wifi-TPEE004155-3123",
+        "wifi-TPEE004156-3124",
+        "wifi-TPEE004157-3125",
+        "wifi-TPEE004158-3126",
+        "wifi-TPEE004159-3127",
+        "wifi-TPEE004281-3242"
+      ],
+      "estimateMinutes": 78,
+      "viaLabel": "",
+      "basis": "本地 OSM 候選路網；起終點與路網接線為估計，未驗證實際入口。"
+    },
+    "graphLoadAndComputeWallMs": 303,
+    "from": "台北車站",
+    "to": "臺北市政府",
+    "method": "Public FriendlyRouteClient API; new real Worker; default production timeout; fresh browser context with HTTP cache and Service Workers disabled.",
+    "timingScope": "Desktop Chrome on this host against local HTTP; wall time includes Worker startup, static graph download/evaluation, route computation and message delivery. Not a mobile performance measurement."
+  },
+  "sourceAfter": {
+    "index.html": {
+      "bytes": 11004,
+      "sha256": "b970be73cc2139c4123adaab91542ff21ea109c44945788529a7579146370e08"
+    },
+    "app.js": {
+      "bytes": 48433,
+      "sha256": "74106fc30a73f1b7ec83ba8ad6ca212f781fd3ca927e33a8be087c9ace820f96"
+    },
+    "app-ui.css": {
+      "bytes": 43399,
+      "sha256": "f780f18043b05465b2b64679842891989f46d7682d670a04c94285b91ef51d3c"
+    },
+    "route-client.js": {
+      "bytes": 2856,
+      "sha256": "49011fc0c7789f745ce4ebcc51cb9a31133aa3793673d00c7cc92e1aa8e95407"
+    },
+    "routing-worker.js": {
+      "bytes": 766,
+      "sha256": "062637a788346249dfd9b12e76d0b9d260af2b91860ee8ef52d3f38b3e544b74"
+    },
+    "routing.js": {
+      "bytes": 13690,
+      "sha256": "2019738e91962b069ac16d0d89b4d2c9dbc348eec0a34c272db4f581019ba235"
+    },
+    "routing-data.js": {
+      "bytes": 20758759,
+      "sha256": "1afe78ce7135dcbbc09ac908b85cf9ea74a5fb1eab4a3bc2fd40677f47d5070c"
+    }
+  },
+  "finishedAt": "2026-11-07T14:09:20.564Z",
+  "passed": 82,
+  "failed": 0
+}

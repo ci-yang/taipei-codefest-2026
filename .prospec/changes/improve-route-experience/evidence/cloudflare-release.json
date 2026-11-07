@@ -1,0 +1,23 @@
+{
+  "id": "2026-11-07T14-34-32.629Z-3cbded2f-9905-4853-be19-e2898f5e7f31",
+  "action": "deploy",
+  "status": "deployed",
+  "workerName": "taipei-friendly-platform",
+  "sourceSha": "2016b035c315d4df51b0ecd1bb9831a74e8e4d0b",
+  "startedAt": "2026-11-07T14:34:32.629Z",
+  "completedAt": "2026-11-07T14:35:01.261Z",
+  "url": "https://taipei-friendly-platform.jason21131.workers.dev",
+  "databaseRollback": false,
+  "deployedVersion": "c0c9590b-07fe-419d-8427-b24963fd663a",
+  "smoke": {
+    "url": "https://taipei-friendly-platform.jason21131.workers.dev",
+    "sourceSha": "2016b035c315d4df51b0ecd1bb9831a74e8e4d0b",
+    "dataVersion": "friendly-route-2026-11-07-v1",
+    "storeCount": 103,
+    "snapshotSha256": "eec6fd8f52e815942c58c377e53d7c8b691df545f934f01c6ad7d622f96076f3",
+    "checkedAt": "2026-11-07T14:35:00.254Z",
+    "app": "friendly-resource",
+    "offlineVersion": "friendly-resource-v6-f94826c25dcda402",
+    "appAssetCount": 25
+  }
+}

@@ -1,0 +1,45 @@
+# 發布與安裝收據
+
+## 原生 App
+
+- TownPass commit：`8f106f6ba082bf8f66f266c87ca7a0c1f819a0c6`，分支 `feat/townpass-friendly-entry`，PR：https://github.com/ci-yang/TownPass/pull/2。
+- Android APK：`friendly-taipei-routes-20261107.apk`，116,052,352 bytes，SHA-256 `b3e6026fc94a501a563e224cca7ad633c1e08e058760ac2e0dc5b50ab2871f25`。沿用測試簽章，未做 Android 實機操作。
+- iOS：Release 簽署建置與 codesign 驗證通過；兩支既有授權 iPhone 皆已安裝 `com.ciyang.friendlytaipei` 並收到 devicectl 啟動成功回覆。裝置識別碼、個人憑證與截圖不入庫。
+- 原生人工點按首頁→友善同行→返回仍待確認；不得把 install／launch 當成點按通過。離線快取限制見交接。
+
+## 平台首次發布及自動回退
+
+- 平台 PR：https://github.com/ci-yang/taipei-codefest-2026/pull/7，以原 Stitch 分支為 base。
+- 2026-11-07 首次發布來源：`b7b2c437c0d6f29ce33c8a4c48878bc55d14ad35`；Worker version `d0c4acd6-3ebf-45c6-b3f9-7d98872f8874`。
+- 發布後 smoke 讀取 20,758,759 bytes 全市路網時觸發既有 8,000,000 bytes 上限：`Response exceeds output limit.`。
+- Wrapper 回報 `failed-and-rolled-back`，已還原 Worker `19bdf1ef-5b55-4f78-a208-b92cd2386ea9`／來源 `40360b60a8ac24c9669d11fcd9464efeb7712101`，完成時間 `2026-11-07T14:22:57.785Z`。
+- 這是發布檢查器不支援新增合法資產大小的問題。後續修正 App 資產讀取上限，以 manifest 宣告大小、25 MiB 硬上限及 caller 較低上限共同限制；API／manifest 通用讀取限制、timeout、hash 驗證維持。
+
+## 最終網頁操作證據
+
+`evidence/browser-final.json` 是獨立設計核對重跑結果，82 項通過、0 失敗，七個 runtime source hash 與本輪最終 App 程式相同。它仍是桌面 Chromium 模擬；不涵蓋實機點按、iOS離線或外部圖磚。
+
+發布檢查器回歸：`node --test --test-name-pattern='App asset limits' scripts/smoke-platform.test.mjs` 修正前7 pass／13 fail，修後20/20通過；完整 `pnpm test:tooling` 為77/77。API與manifest預設8 MB、timeout、hash保持；新增合法邊界、超宣告、超25 MiB、caller更低界線及historical測試。
+
+獨立審查收據：`evidence/release-review.json`。真實本機 Worker／D1 整合完整通過（25 個 App 資產、20,758,759 bytes 路網與逐檔 hash）；沒有 remote writes。累計差異第二輪 review 為 0 critical／0 major，更新後驗證等級 A；保留 acceptance late-capture 與原生實機點按待確認兩項限制。
+
+## 修正後正式發布
+
+- 部署來源：`2016b035c315d4df51b0ecd1bb9831a74e8e4d0b`；Worker version：`c0c9590b-07fe-419d-8427-b24963fd663a`。
+- 發布完成：`2026-11-07T14:35:01.261Z`；wrapper exit 0、status `deployed`。
+- 正式入口：https://taipei-friendly-platform.jason21131.workers.dev。
+- 正式 smoke 核對 25 個 App 資產、來源 SHA、各檔大小／hash、API 與資料快照通過；資料庫未回退。
+- 精簡收據：`evidence/cloudflare-release.json`。初次發布失敗後的修正與成功皆保留，不覆蓋回退紀錄。
+
+## 正式站瀏覽器操作
+
+- 獨立執行者直接對正式 HTTPS 網址執行原 `scripts/check-friendly-route-browser.mjs`：82/82 通過，pageErrors 為空。
+- 七個線上 runtime 檔案與 manifest／build artifact hash 一致；index.html 的 build stamp 與 raw source 差異符合預期。
+- 證據：`evidence/browser-production.json`、`evidence/production-source.json`。路線使用正式站真 Worker，僅注入唯讀狀態觀察器，沒有替換路由實作。
+- 仍為桌面 Chromium 模擬；外部圖磚被測試腳本阻擋，Service Worker 停用，不代表實機 GPS、離線快取或手機效能通過。腳本內 timingScope 仍是既有 localhost 文字，這次實際執行網址以 report 的 baseURL 為準，不拿此數字宣稱本機效能。
+
+## Ci 實機操作回覆
+
+Ci 在安裝兩支 iPhone 後，回覆實機驗收問題「可以進入並返回首頁」，確認 TownPass 首頁→友善同行→返回台北通的操作通過。問題包含兩支裝置，但回覆未逐支標記結果，因此僅記為使用者實機操作確認，不宣稱已分別取得兩支裝置的畫面證據。T20 已完成。
+
+此為先前獨立驗證後補上的人工驗收證據；既有 verify.md 的 design WARN 保留當時紀錄，不改寫成測試者已親自操作或取得原生截圖。iOS 離線限制仍未處理。
