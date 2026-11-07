@@ -26,6 +26,12 @@
       + `${night ? MOON : SUN}<span>${night ? '晚上／假日' : '白天'}</span><span class="period-swap">切換</span></button>`;
   }
 
+  /* Night keeps the daytime colours (TownPass has no dark theme); this one light strip says the content switched. */
+  function nightNote(state, text) {
+    if (state.period !== 'night') return '';
+    return `<p class="night-note" data-night-note>${MOON}<span>${text}</span></p>`;
+  }
+
   // Escaped hours text whose "8:30–12:00" ranges never break across lines.
   function hoursHtml(text) {
     return esc(text).replace(/(\d{1,2}:\d{2}–\d{1,2}:\d{2})/g, '<span class="nw">$1</span>');
@@ -199,6 +205,7 @@
     const lineSources = [...new Set(data.emergencyLines.flatMap((line) => line.sources))]
       .map((id) => `<a href="${esc(data.sources[id].url)}" rel="noopener">${esc(data.sources[id].short)}</a>`).join('、');
     return `<header class="top"><h1>我遇到了……</h1>${periodTag(state)}</header>`
+      + nightNote(state, '現在是晚上或假日，卡片先給晚上打得通的電話')
       + searchBox(filter)
       + `<div class="cats" role="group" aria-label="依分類篩選" data-cats>${categoryChips(data, filter)}</div>`
       + `<p class="sr-only" role="status" aria-live="polite" data-result-count>${esc(resultCountText(data, filter))}</p>`
@@ -287,7 +294,7 @@
     return `<header class="top"><a class="back" href="#/" aria-label="回到所有卡片">‹</a>${periodTag(state)}</header>`
       + `<article class="card${situation.urgent ? ' is-urgent' : ''}" aria-labelledby="card-title">`
       + `<div class="band"><h1 id="card-title">${esc(situation.title)}</h1><p class="band-sub">${esc(situation.subtitle)}</p></div>`
-      + `<section class="part call" aria-label="現在打給誰"><p class="label">${p.status.open ? '現在打給' : '上班時間打給'}</p>${callBlock(data, p, index, state)}${timeNote}</section>`
+      + `<section class="part call" aria-label="現在打給誰">${nightNote(state, '現在是晚上或假日，先給晚上打得通的電話')}<p class="label">${p.status.open ? '現在打給' : '上班時間打給'}</p>${callBlock(data, p, index, state)}${timeNote}</section>`
       + `<section class="part say" aria-label="接通後照著說"><p class="label">接通後照著說</p>`
       + `<p class="script">「${C.scriptHtml(script.quote, 'blank', state.district)}」</p>`
       + `<p class="script-src">空格換成你的情況。${C.refsHtml(index, p.say.sources)}</p></section>`

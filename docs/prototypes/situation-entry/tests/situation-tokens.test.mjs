@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { audit, declarations } from './css-audit.mjs';
-import { contrast, css, day, night, pageDir, palette, resolve } from './css-tokens.mjs';
+import { contrast, css, day, pageDir, palette, resolve } from './css-tokens.mjs';
 
 // Pinned TPColors snapshot (source file, commit and date inside). Required: the palette check never skips.
 const SNAPSHOT_PATH = join(pageDir, 'tests/fixtures/tp_colors.json');
@@ -96,14 +96,11 @@ for (const [name, rule] of Object.entries(ACCEPTED)) {
   });
 }
 
-test('the browser theme colour in index.html is a TPColors value for day and night', () => {
+test('the browser theme colour in index.html is the white page colour, with no night variant', () => {
   const html = readFileSync(join(pageDir, 'index.html'), 'utf8');
   const meta = html.match(/<meta name="theme-color"[^>]*>/)[0];
-  const values = [...meta.matchAll(/(content|data-day|data-night)="([^"]+)"/g)].map((m) => m[2].toLowerCase());
-  assert.equal(values.length, 3);
-  for (const v of values) assert.ok(paletteHexes.has(v), `${v} is not a TPColors value`);
-  assert.equal(values[1], resolve(day, '--desk'));
-  assert.equal(values[2], resolve(night, '--desk'));
+  assert.equal(meta.match(/content="([^"]+)"/)[1].toLowerCase(), resolve(day, '--desk'));
+  assert.doesNotMatch(meta, /data-(day|night)/);
 });
 
 test('text uses the system UI font (PingFang TC on iOS, Roboto + Noto Sans TC on Android); no web font', () => {
@@ -132,20 +129,19 @@ const PAIRS = [
   ['--closed', '--paper'], ['--closed', '--tint'], ['--closed', '--blank'], ['--ink', '--blank'], ['--pending-ink', '--blank'],
   ['--cat-ink', '--cat-bg'], ['--cat-count-ink', '--cat-count-bg'], ['--cat-on-ink', '--cat-on-bg'],
   ['--cat-on-count-ink', '--cat-on-count-bg'], ['--cat-empty-ink', '--cat-bg'], ['--cat-empty-ink', '--cat-count-bg'],
-  ['--on-done', '--done'],
+  ['--on-done', '--done'], ['--note-ink', '--note-bg'],
 ];
 
-for (const [period, set] of [['day', day], ['night', night]]) {
-  for (const [fg, bg] of PAIRS) {
-    test(`${period}: ${fg} on ${bg} meets WCAG AA (4.5:1)`, () => {
-      const ratio = contrast(resolve(set, fg), resolve(set, bg));
-      assert.ok(ratio >= 4.5, `${fg} on ${bg} is ${ratio.toFixed(2)}:1`);
-    });
-  }
-  test(`${period}: focus ring stands out from desk and paper (3:1, non-text)`, () => {
-    for (const bg of ['--desk', '--paper']) {
-      const ratio = contrast(resolve(set, '--focus'), resolve(set, bg));
-      assert.ok(ratio >= 3, `--focus on ${bg} is ${ratio.toFixed(2)}:1`);
-    }
+// One token set for day and night (see situation-night.test.mjs), so each pair is checked once.
+for (const [fg, bg] of PAIRS) {
+  test(`${fg} on ${bg} meets WCAG AA (4.5:1)`, () => {
+    const ratio = contrast(resolve(day, fg), resolve(day, bg));
+    assert.ok(ratio >= 4.5, `${fg} on ${bg} is ${ratio.toFixed(2)}:1`);
   });
 }
+test('focus ring stands out from desk and paper (3:1, non-text)', () => {
+  for (const bg of ['--desk', '--paper']) {
+    const ratio = contrast(resolve(day, '--focus'), resolve(day, bg));
+    assert.ok(ratio >= 3, `--focus on ${bg} is ${ratio.toFixed(2)}:1`);
+  }
+});

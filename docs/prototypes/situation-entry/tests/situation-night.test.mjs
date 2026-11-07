@@ -1,35 +1,75 @@
+// Night keeps the daytime TownPass colours (TownPass ships only a light ThemeData, no darkTheme).
+// Only the content changes after hours, and one light strip (.night-note) says so.
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { test } from 'node:test';
-import { day, luminance, night, resolve } from './css-tokens.mjs';
+import vm from 'node:vm';
+import { buildData } from '../build-data.mjs';
+import { declarations } from './css-audit.mjs';
+import { contrast, css, day, pageDir, resolve } from './css-tokens.mjs';
 
-// Contrast for both periods lives in situation-tokens.test.mjs.
+const data = buildData();
+const app = (() => {
+  const context = { window: {} };
+  context.window.window = context.window;
+  for (const file of ['core.js', 'app.js']) vm.runInNewContext(readFileSync(join(pageDir, file), 'utf8'), context);
+  return context.window.SituationApp;
+})();
+const pages = (period, district = '') => [
+  ['home', app.render(data, { id: null, period, district }, new Set())],
+  ...data.situations.map((s) => [s.id, app.render(data, { id: s.id, period, district }, new Set())]),
+];
+const classes = (html) => new Set([...html.matchAll(/class="([^"]*)"/g)].flatMap((m) => m[1].split(/\s+/)).filter(Boolean));
 
-test('night: no surface is pure white', () => {
-  for (const name of ['--paper', '--tint', '--sos-bg', '--cat-bg', '--cat-on-bg', '--blank', '--urgent-soft', '--urgent', '--closed-fill']) {
-    assert.notEqual(resolve(night, name), '#ffffff', `${name} is pure white at night`);
-  }
+test('night and day use the same colour tokens: every custom property is declared under plain :root only', () => {
+  const owners = new Set(declarations(css).filter((d) => d.prop.startsWith('--')).map((d) => d.selector));
+  assert.deepEqual([...owners], [':root']);
 });
 
-test('night: no text token is pure white either', () => {
-  for (const name of ['--ink', '--on-desk', '--on-go', '--on-urgent', '--on-closed']) {
-    assert.notEqual(resolve(night, name), '#ffffff', `${name} is pure white at night`);
-  }
+test('no stylesheet rule switches on the period or the OS dark mode', () => {
+  assert.doesNotMatch(css, /data-period|prefers-color-scheme|\.is-night|\.night(?!-note)/i);
 });
 
-test('day: the page is white, as in the TownPass service tab', () => {
+test('the page stays white day and night, as in the TownPass service tab', () => {
   assert.equal(resolve(day, '--desk'), '#ffffff');
   assert.equal(resolve(day, '--paper'), '#ffffff');
 });
 
-test('both periods: card heads and buttons are TownPass primary teal, not yellow', () => {
-  for (const set of [day, night]) {
-    for (const name of ['--band', '--go', '--cat-on-bg']) {
-      assert.match(set[name], /^var\(--tp-primary-\d+\)$/, `${name} is ${set[name]}`);
-    }
+test('card heads and buttons are TownPass primary teal, not yellow', () => {
+  for (const name of ['--band', '--go', '--cat-on-bg']) assert.match(day[name], /^var\(--tp-primary-\d+\)$/, `${name} is ${day[name]}`);
+});
+
+test('night: home and every situation card show the night strip; day shows none', () => {
+  for (const [page, html] of pages('night')) assert.match(html, /<p class="night-note" data-night-note><svg[^>]*>.*?<\/svg><span>現在是晚上或假日，/, `${page} at night has no strip`);
+  for (const [page, html] of pages('day')) assert.doesNotMatch(html, /night-note/, `${page} by day shows the night strip`);
+});
+
+test('night: on a card the strip sits right above 「現在打給」, inside the call part', () => {
+  const html = app.renderCard(data, data.situations.find((s) => s.id === 'food'), { id: 'food', period: 'night', district: '' }, new Set());
+  const call = html.slice(html.indexOf('<section class="part call"'), html.indexOf('</section>'));
+  assert.ok(call.indexOf('data-night-note') >= 0 && call.indexOf('data-night-note') < call.indexOf('<p class="label">'));
+});
+
+test('night uses no class that the day pages lack, except the strip: only content changes, never the look', () => {
+  const dayClasses = classes([...pages('day'), ...pages('day', '中正區')].map(([, html]) => html).join(''));
+  for (const [page, html] of pages('night')) {
+    // is-closed marks a line outside its hours; day shows it too (12:45 lunch, see situation-data tests).
+    const extra = [...classes(html)].filter((c) => !dayClasses.has(c) && c !== 'night-note' && c !== 'is-closed');
+    assert.deepEqual(extra, [], `${page} at night adds ${extra}`);
   }
 });
 
-test('night: the desk is deep teal and darker than the card face', () => {
-  assert.equal(night['--desk'], 'var(--tp-primary-950)');
-  assert.ok(luminance(resolve(night, '--desk')) < luminance(resolve(night, '--paper')));
+test('the night strip text meets WCAG AA (4.5:1) and its moon icon 3:1 on the strip', () => {
+  const ratio = contrast(resolve(day, '--note-ink'), resolve(day, '--note-bg'));
+  assert.ok(ratio >= 4.5, `--note-ink on --note-bg is ${ratio.toFixed(2)}:1`);
+  const icon = contrast(resolve(day, '--note-mark'), resolve(day, '--note-bg'));
+  assert.ok(icon >= 3, `--note-mark on --note-bg is ${icon.toFixed(2)}:1`);
+});
+
+test('the night strip is a light TPColors tint with a hairline edge, not a filled colour block', () => {
+  assert.equal(day['--note-bg'], 'var(--tp-secondary-50)');
+  const rule = declarations(css).filter((d) => d.selector === '.night-note');
+  assert.ok(rule.some((d) => d.prop === 'background' && d.value === 'var(--note-bg)'));
+  assert.ok(rule.some((d) => d.prop === 'border' && /^1px solid var\(--note-edge\)$/.test(d.value)));
 });

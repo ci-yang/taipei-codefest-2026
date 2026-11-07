@@ -20,9 +20,8 @@ function tokens(text) {
   return Object.fromEntries([...text.matchAll(/(--[\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]));
 }
 
+/** The one token set. Night uses it too: TownPass has no dark theme, so only the content changes after hours. */
 export const day = tokens(blocks(':root'));
-export const night = { ...day, ...tokens(blocks(':root[data-period="night"]')) };
-export const nightOnly = tokens(blocks(':root[data-period="night"]'));
 /** --tp-* custom properties: the TPColors palette as styles.css declares it. */
 export const palette = Object.fromEntries(Object.entries(day).filter(([name]) => name.startsWith('--tp-')));
 

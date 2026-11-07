@@ -1,7 +1,8 @@
 /* 行動卡（設計方向 B），城市通化: the card structure stays (huge number, call button, script, checklist,
  * perforated parts), drawn in the TownPass service-tab language — white page, primary teal for headings,
  * buttons and links, 1px light-grey hairlines with 8–12px corners, no hard shadows. Yellow is only an
- * accent: 待確認 tags, template blanks, ticked boxes. Night is the same language on deep teal.
+ * accent: 待確認 tags, template blanks, ticked boxes, and the night strip. Night keeps these exact colours —
+ * TownPass ships only a light ThemeData — and only the content changes, flagged by .night-note.
  *
  * Every colour comes from TownPass TPColors (lib/util/tp_colors.dart), copied below under the same names
  * (primary500 → --tp-primary-500). Rules and semantic tokens only reference these; tests/situation-tokens
@@ -116,57 +117,12 @@
   --cat-on-count-bg: var(--tp-white);
   --cat-on-count-ink: var(--tp-primary-800);
   --cat-empty-ink: var(--tp-grayscale-600);
+  /* night strip: the one visible sign that the cards switched to after-hours numbers */
+  --note-bg: var(--tp-secondary-50);
+  --note-edge: var(--tp-secondary-200);
+  --note-ink: var(--tp-grayscale-900);
+  --note-mark: var(--tp-secondary-700);
 }
-/* Night tokens: the same language on deep teal. No surface or text is pure white. */
-:root[data-period="night"] {
-  --desk: var(--tp-primary-950);
-  --on-desk: var(--tp-grayscale-50);
-  --on-desk-muted: var(--tp-grayscale-300);
-  --paper: var(--tp-primary-900);
-  --ink: var(--tp-grayscale-50);
-  --muted: var(--tp-grayscale-300);
-  --rule: var(--tp-grayscale-700);
-  --line: var(--tp-grayscale-700);
-  --tint: var(--tp-primary-950);
-  --lift: none;
-  --band: var(--tp-primary-800);
-  --band-ink: var(--tp-primary-50);
-  --band-sub: var(--tp-primary-200);
-  --band-mark: var(--tp-primary-600);
-  --go: var(--tp-primary-300);
-  --go-press: var(--tp-primary-400);
-  --on-go: var(--tp-primary-950);
-  --tick: var(--tp-primary-300);
-  --done: var(--tp-secondary-400);
-  --done-edge: var(--tp-secondary-300);
-  --on-done: var(--tp-secondary-950);
-  --blank: var(--tp-secondary-900);
-  --blank-edge: var(--tp-secondary-600);
-  --urgent: var(--tp-red-700);
-  --on-urgent: var(--tp-red-50);
-  --on-urgent-sub: var(--tp-red-100);
-  --urgent-soft: var(--tp-red-900);
-  --urgent-text: var(--tp-red-300);
-  --urgent-line: var(--tp-red-700);
-  --sos-bg: var(--tp-primary-950);
-  --closed: var(--tp-secondary-300);
-  --closed-fill: var(--tp-secondary-300);
-  --on-closed: var(--tp-secondary-950);
-  --pending-ink: var(--tp-secondary-200);
-  --desk-link: var(--tp-primary-200);
-  --focus: var(--tp-primary-400);
-  --cat-bg: var(--tp-primary-900);
-  --cat-edge: var(--tp-grayscale-700);
-  --cat-ink: var(--tp-grayscale-200);
-  --cat-count-bg: var(--tp-primary-950);
-  --cat-count-ink: var(--tp-grayscale-200);
-  --cat-on-bg: var(--tp-primary-300);
-  --cat-on-ink: var(--tp-primary-950);
-  --cat-on-count-bg: var(--tp-primary-950);
-  --cat-on-count-ink: var(--tp-primary-200);
-  --cat-empty-ink: var(--tp-grayscale-400);
-}
-
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; background: var(--desk); }
 body {
@@ -176,7 +132,6 @@ body {
   font-family: system-ui, -apple-system, "PingFang TC", "Noto Sans TC", Roboto, "Microsoft JhengHei", sans-serif;
   font-size: 16px;
   line-height: 1.6;
-  transition: background-color 0.25s ease;
 }
 .app { max-width: 480px; margin: 0 auto; padding: 8px 16px calc(140px + env(safe-area-inset-bottom)); }
 button { font: inherit; color: inherit; }
@@ -203,6 +158,14 @@ a { color: var(--go); }
 .period-swap { padding: 3px 10px; border-radius: 999px; background: var(--go); color: var(--on-go); font-size: 12px; font-weight: 600; }
 
 .intro { margin: 0 0 16px; color: var(--on-desk-muted); font-size: 16px; }
+
+/* night: same white page; one light strip says the numbers are the after-hours ones */
+.night-note {
+  display: flex; align-items: center; gap: 8px; margin: 0 0 12px; padding: 8px 12px;
+  border: 1px solid var(--note-edge); border-radius: 8px; background: var(--note-bg); color: var(--note-ink);
+  font-size: 14px; font-weight: 600; line-height: 1.4; text-wrap: pretty;
+}
+.night-note svg { flex: none; color: var(--note-mark); }
 
 /* home: the search slip finishes the title's sentence 「我遇到了……」. Same hairline and corner as the cards. */
 .search { position: relative; margin: 4px 0 14px; }
@@ -478,6 +441,5 @@ a { color: var(--go); }
   font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(17, 38, 41, 0.16);
 }
 @media (prefers-reduced-motion: reduce) {
-  body { transition: none; }
   .is-flash { animation: none; }
 }

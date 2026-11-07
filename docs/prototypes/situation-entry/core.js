@@ -277,9 +277,6 @@
       Object.assign(state, viewAt(state.manualPeriod, clock()));
       app.innerHTML = render(data, state);
       doc.title = titleOf(data, state);
-      doc.documentElement.dataset.period = state.period;
-      const tint = doc.querySelector('meta[name="theme-color"]');
-      if (tint && tint.dataset[state.period]) tint.content = tint.dataset[state.period];
       const focus = focusSelector && app.querySelector(focusSelector);
       if (focus) focus.focus({ preventScroll: false });
     }
