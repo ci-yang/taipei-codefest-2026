@@ -37,4 +37,4 @@ TownPass 分支 `feat/situation-entry` 有獨立服務「我遇到了」，網�
 
 ## 截圖
 
-`docs/screenshots/situation-entry/`。`browser-390-*.png` 是桌面 Chrome 以 390px 寬 iframe 截的，**不是** iOS 模擬器截圖。
+`docs/screenshots/situation-entry/`。`browser-390-*.png` 與 `walk-*.png` 是 headless Chrome 以 390px 寬、2 倍像素的行動裝置模擬截的（2026-11-08 重拍），**不是** iOS／Android 模擬器截圖。`walk-6-emergency-bring-section.png` 是急難救助「要帶什麼」。
