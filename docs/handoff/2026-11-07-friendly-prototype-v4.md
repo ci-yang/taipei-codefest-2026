@@ -2,6 +2,10 @@
 
 2026-11-07。Ci 確認採用 A：搜尋目的地只作參考標記；路線只從目前位置到點選的資源。本輪沿用 `feat/prototype-resource-map`，更新獨立 prototype，規格與正式 `apps/` 待後續討論。
 
+- [操作分享版 v4](https://ci-share.pages.dev/2e476acde4b35345/)
+- [Draft PR #3](https://github.com/ci-yang/taipei-codefest-2026/pull/3)，實作 commit `6e3a2c4`，尚未合併。
+- 此為可轉傳的分享連結；收回指令：`bash ~/.claude/skills/publish-report/scripts/share.sh --revoke 2e476acde4b35345`。
+
 ## 操作基準
 
 1. 取得目前位置，呈現友善資源與四類篩選。定位不可用時明示問題；示範位置必須自行選擇。
