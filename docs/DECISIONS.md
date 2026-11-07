@@ -3,6 +3,12 @@
 > 「之後還會再問一次」的結論寫在這裡，最新的放最上面。一條三段：決定、理由、影響／何時重議。
 > 聊天訊息會被洗掉，這裡不會。值以 `.env`／程式碼為準，這裡記的是「為什麼」。
 
+## 2026-11-08 ｜ D9 ｜ 第二組前後端骨架（暫名 newapp）
+
+- **決定**：monorepo 新增 `apps/newapp-api`（`@app/newapp-api`，Hono，port 8788）與 `apps/newapp-web`（`@app/newapp-web`，Vue 3 + Vite + vue-router，port 5174），共用 `packages/shared`（新增 `newapp.ts`）。環境變數一律 `NEWAPP_*`／`VITE_NEWAPP_*` 前綴。名稱是暫名，定案後全域替換 `newapp`。
+- **理由**：新專案要跟既有 `@app/api`／`@app/web` 同時在本機跑，port 與 env 錯開才不會互撞；stack 照 D2 精簡版，DB、MapLibre、TownPass bridge、Dockerfile 等需要時再加，避免先複製用不到的東西。
+- **影響／重議**：根目錄指令 `pnpm dev:newapp`。不動既有 app、docker compose 與 `deploy/`。要部署或接 DB 時再另議。
+
 ## 2026-11-07 ｜ D8 ｜ 先上前端 prototype，後端暫不實作
 
 - **決定**：Ci 說明規格尚未完全確定，本輪收斂為將目前手機前端 prototype、討論規格與協作說明放進既有 GitHub 專案。以獨立分支和 PR 交接，讓成員操作並認領前端工作。
