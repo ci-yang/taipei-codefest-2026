@@ -5,3 +5,4 @@
 export * from './places';
 export * from './opendata';
 export * from './health';
+export * from './newapp';
