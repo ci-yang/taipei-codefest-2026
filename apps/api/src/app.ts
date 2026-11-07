@@ -36,7 +36,14 @@ export function createApp(
   );
 
   app.notFound((c) => c.json({ error: 'not_found', path: c.req.path }, 404));
-  app.onError((_err, c) => c.json({ error: 'internal_error' }, 500));
+  app.onError((err, c) => {
+    // Do not log the raw error: its message, stack, or custom name can contain request data.
+    const type = err instanceof TypeError ? 'TypeError'
+      : err instanceof RangeError ? 'RangeError'
+      : err instanceof SyntaxError ? 'SyntaxError' : 'Error';
+    console.error('api_unhandled_error', { type });
+    return c.json({ error: 'internal_error' }, 500);
+  });
 
   return app;
 }

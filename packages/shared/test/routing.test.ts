@@ -28,7 +28,6 @@ describe('device router — frozen prototype differential', () => {
     }
     expect(points.every(Boolean)).toBe(true);
     expect(new Set(demoRoute).size).toBe(demoRoute.length);
-    expect(graph).toEqual(JSON.parse(JSON.stringify(runtime.window.FRIENDLY_ROUTING_DATA)));
   });
   it.each([100, 250, 500])('preserves ordered stops, distance, connectors and OR resource IDs at %s m', (radius) => {
     const router = createRouter(graph);

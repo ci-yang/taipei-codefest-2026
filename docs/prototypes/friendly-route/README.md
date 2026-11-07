@@ -27,6 +27,8 @@ python3 -m http.server 8776 --bind 127.0.0.1 --directory /tmp/friendly-app-packa
 
 `package-friendly-prototype.py` 只輸出執行用的 14 個檔案（含 SW），不包含舊提案頁、分析頁或歷史路由資產。快取清單含入口的兩種 URL，計 14 項。整合成員的 `data.js` 後，公開資料與頁面約 8.3 MB；最終大小以打包指令實測輸出為準。
 
+`pnpm prototype` 直接使用原始碼的固定 Service Worker 版本。第一次快取後，修改 JS／資料可能仍看到舊內容；請先在瀏覽器開發工具清除該 localhost 網站的 Service Worker 與快取，再重開頁面。要驗證版本更新，先重新打包到預覽目錄再啟動 HTTP server；打包版本會依內容雜湊更新。設定頁的「重新檢查與下載」只補齊目前版本，不等於清除開發快取。
+
 部署／分享沿用 `publish-report`，先發布到私有主台，再由 `share.sh` 產生隔離連結。正式部署網址及 APK 本輪不變。
 
 ## 開放資料
