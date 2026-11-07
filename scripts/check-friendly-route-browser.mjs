@@ -77,9 +77,9 @@ async function session(browser, viewport, label, extra = {}) {
   page.on('worker', worker => report.workers.push({ label, url: worker.url() }));
   page.on('pageerror', error => report.pageErrors.push({ label, message: error.message }));
   await page.goto(baseURL, { waitUntil: 'load' });
-  if (extra.hasTouch) await page.locator('#enter-app').tap();
-  else await page.locator('#enter-app').click();
-  await page.waitForFunction(() => window.__friendlyRouteQA?.snapshot().position && document.querySelector('#app').dataset.view === 'explore');
+  if (extra.hasTouch) await page.locator('#home-map').tap();
+  else await page.locator('#home-map').click();
+  await page.waitForFunction(() => window.__friendlyRouteQA?.snapshot().position && document.querySelector('#app').dataset.view === 'map');
   return { context, page };
 }
 

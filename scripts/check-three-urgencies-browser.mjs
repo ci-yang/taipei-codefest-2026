@@ -1,0 +1,70 @@
+// 三急主流程 390px 走查：首頁 → 結果卡 → 帶我去（倒數）→ 開口卡 → 看地圖 → 連按返回；另測無定位與充電生存圈。
+// 對已啟動的 `pnpm prototype` 執行，不安裝依賴、不改程式：
+// NODE_PATH=/path/to/node_modules node scripts/check-three-urgencies-browser.mjs
+// 定位固定為臺北市政府附近的公開座標，不是測試者的 GPS；外部請求一律阻擋，Service Worker 停用。
+import { createRequire } from 'node:module';
+import { mkdir } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+const { chromium } = createRequire(import.meta.url)('playwright');
+const base = process.env.URGENCY_QA_URL || 'http://127.0.0.1:8766/';
+const out = process.env.URGENCY_QA_OUTPUT || fileURLToPath(new URL('../docs/prototypes/screenshots/three-urgencies', import.meta.url));
+const origin = new URL(base);
+await mkdir(out, { recursive: true });
+const log = [];
+const ok = (name, cond, extra = '') => { log.push(`${cond ? 'PASS' : 'FAIL'} ${name}${extra ? ' · ' + extra : ''}`); };
+const browser = await chromium.launch();
+const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, geolocation: { latitude: 25.0375, longitude: 121.5637, accuracy: 10 }, permissions: ['geolocation'], locale: 'zh-TW', serviceWorkers: 'block' });
+const external = [];
+await ctx.route('**/*', r => { const u = new URL(r.request().url()); if (u.host !== origin.host) { external.push(u.href); return r.abort(); } return r.continue(); });
+const page = await ctx.newPage(); const errors = []; page.on('pageerror', e => errors.push(e.message));
+const view = () => page.evaluate(() => document.querySelector('#app').dataset.view);
+const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+const shot = async n => page.screenshot({ path: `${out}/${n}.png` });
+await page.goto(base, { waitUntil: 'load' });
+await page.waitForFunction(() => /±/.test(document.querySelector('#home-location').textContent));
+ok('first screen is home', await view() === 'home'); ok('three buttons', (await page.locator('[data-urgency]').count()) === 3);
+ok('home no overflow', await overflow() <= 0, String(await overflow())); await shot('01-home');
+const t0 = Date.now(); await page.click('[data-urgency="toilet"]'); await page.waitForSelector('[data-result-id]');
+ok('result within 3s', Date.now() - t0 < 3000, `${Date.now() - t0} ms`); ok('result view', await view() === 'result');
+ok('result no overflow', await overflow() <= 0); await shot('02-result-toilet');
+await page.click('[data-action="go"]'); await page.waitForFunction(() => document.querySelector('#app').dataset.view === 'guide');
+ok('arrow rotated immediately', /rotate/.test(await page.locator('#guide-arrow').getAttribute('style')));
+ok('straight label', /^直線 /.test(await page.locator('#guidance-distance').textContent()));
+await page.waitForFunction(() => !document.querySelector('#guide-walk').hidden || document.querySelector('#guide-timer-status').textContent.includes('需要'), null, { timeout: 30000 }).catch(() => {});
+ok('walk route', await page.locator('#guide-walk').isVisible(), await page.locator('#guide-walk').textContent());
+ok('countdown in guide', await page.locator('#guide-timer [data-hl-countdown]').isVisible().catch(() => false));
+ok('guide no overflow', await overflow() <= 0); await shot('03-guide-toilet-countdown');
+await page.locator('#guide-timer [data-hl-action="start-timer"]').click().catch(() => {}); await page.waitForTimeout(1500); await shot('04-guide-toilet-running');
+await page.click('#exit-guidance'); await page.waitForFunction(() => document.querySelector('#app').dataset.view === 'result');
+ok('back to result', true);
+await page.click('#result-body [data-action="speak"]'); await page.waitForSelector('.speak-card'); await page.waitForTimeout(500);
+ok('card overlay over result', await view() === 'result'); ok('card no overflow', await overflow() <= 0); await shot('05-speak-card');
+await page.click('.speak-card-close'); await page.waitForSelector('.speak-card', { state: 'detached' });
+ok('card closed back to result', await view() === 'result');
+await page.click('#result-body [data-action="map"]'); await page.waitForFunction(() => document.querySelector('#app').dataset.view === 'map');
+await page.waitForTimeout(500);
+ok('map has radar entry', await page.locator('#highlight-map-launch').isVisible()); ok('selected card open', await page.locator('#selected-card').isVisible());
+ok('map no overflow', await overflow() <= 0); await shot('06-map-from-result');
+await page.click('#selected-card [data-action="speak"]'); await page.waitForSelector('.speak-card'); await page.waitForTimeout(500); await shot('07-map-speak-card');
+const back = async () => { await page.goBack({ waitUntil: 'commit' }).catch(() => {}); await page.waitForTimeout(400); };
+await back(); ok('back1 -> map, card closed', await view() === 'map' && (await page.locator('.speak-card').count()) === 0); await shot('08-back1-map');
+await back(); ok('back2 -> result', await view() === 'result'); await shot('09-back2-result');
+await back(); ok('back3 -> home', await view() === 'home'); await shot('10-back3-home');
+// charge guide with manual survival circle
+await page.click('[data-urgency="charge"]'); await page.waitForSelector('[data-result-id]'); await shot('11-result-charge');
+await page.click('[data-action="go"]'); await page.waitForTimeout(800);
+await page.locator('#guide-timer [data-hl-action="manual-battery"]').click().catch(() => {}); await page.waitForTimeout(600); await shot('12-guide-charge-circle');
+await page.click('#exit-guidance'); await page.waitForTimeout(300); await page.click('#result-back'); await page.waitForTimeout(300);
+await page.click('[data-urgency="wifi"]'); await page.waitForSelector('[data-result-id]'); await shot('13-result-wifi');
+ok('wifi note', /不保證訊號/.test(await page.locator('#result-body').textContent()));
+await page.click('#result-back'); await page.waitForTimeout(300);
+// no location
+const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: 'zh-TW', serviceWorkers: 'block' });
+await ctx2.route('**/*', r => new URL(r.request().url()).host !== origin.host ? r.abort() : r.continue());
+const p2 = await ctx2.newPage(); await p2.goto(base); await p2.waitForFunction(() => /無法取得|尚未/.test(document.querySelector('#home-location').textContent), null, { timeout: 20000 }).catch(() => {});
+await p2.click('[data-urgency="toilet"]'); await p2.waitForTimeout(400);
+ok('no-location message', /需要定位才能找最近/.test(await p2.locator('#result-body').textContent())); ok('no card without location', (await p2.locator('[data-result-id]').count()) === 0);
+await p2.screenshot({ path: `${out}/14-result-need-location.png` });
+log.push(`pageErrors: ${JSON.stringify(errors)}`); log.push(`external blocked: ${external.length}`);
+console.log(log.join('\n')); await browser.close();
+if (log.some(line => line.startsWith('FAIL')) || errors.length) process.exitCode = 1;
