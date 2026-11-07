@@ -27,6 +27,8 @@ Ci 2026-11-08 01:20 左右授權「直接做完，醒來要看到成果 APK 與�
 
 ## 沒做到、沒驗到（照實）
 
+- **正式站的 Service Worker 快取**：之前開過舊版正式站的瀏覽器（含 Ci 的桌機 Chrome）第一次會先看到舊歡迎頁，伺服器端已是新版（curl 首頁有「現在最急的是」、sw 版本 `friendly-resource-v6-0bae9aaca0eab5c9`）。重新整理一到兩次或清站台資料即可；分享頁是新 token 沒有這問題。
+
 - **Android 實機零驗證**：沒有 adb 與手機。系統返回鍵是否觸發 `popstate`、開口卡全螢幕、`getBattery`、真 GPS、真斷網，全部只有桌機 Chromium 證據。tasks T25 `[M]` 未勾。
 - **翻譯未校對**：`speak-card-strings.js` 的 en／id／vi 是 AI 擬的，`reviewed: false` 不上架；中文句子也沒有校對人與日期，README 校對表寫「待補」。要雙語 demo 必須先找母語者。
 - **prospec 尾巴**：review 第三輪觸發 CLI 的 round cap（max_rounds_exceeded）escalation event，狀態顯示 HALT；verify 仍以 grade A 進 verified。break-glass 只能由人給（`prospec change log --skill prospec-review --result WARN --warning "Manual override: <reason>"`），要不要處理由 Ci 定。d50e0f4 只動部署腳本，未重跑 record-review／verify，`review-provenance` 可能顯示 stale。
