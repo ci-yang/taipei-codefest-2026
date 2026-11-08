@@ -175,7 +175,7 @@ function runtime(options = {}) {
     DeviceOrientationEvent: options.orientation,
   };
   r.window = r; vm.createContext(r);
-  vm.runInContext(fs.readFileSync(path.join(base, 'urgency.js'), 'utf8'), r, { filename: 'urgency.js' });
+  for (const filename of ['i18n.js', 'urgency.js']) vm.runInContext(fs.readFileSync(path.join(base, filename), 'utf8'), r, { filename });
   if (options.realHighlights) {
     const panes = new Map();
     Object.assign(leaflet.map, { getPane: name => panes.get(name), createPane: name => panes.set(name, { style: {} }).get(name), off() { return this; }, panTo() { return this; } });
@@ -234,7 +234,7 @@ test('accuracy above 100 m remains valid and prominently warns about uncertainty
 test('late location success or failure cannot overwrite a newer request', async () => {
   const app = runtime(); const latest = app.r.__test.requestPosition();
   await app.fix(1, { lat: 25.06, lng: 121.57 }); await latest; await app.fail('GEO_DENIED', 0);
-  assert.equal(app.state.position.lat, 25.06); assert.equal(app.state.gpsMessage, '');
+  assert.equal(app.state.position.lat, 25.06); assert.equal(app.state.gpsError, null);
   const third = app.r.__test.requestPosition(); const fourth = app.r.__test.requestPosition();
   await app.fix(3, { lat: 25.08 }); await fourth; await app.fix(2, { lat: 24.8 }); await third;
   assert.equal(app.state.position.lat, 25.08); assert.equal(app.state.gpsPending, false);
@@ -784,7 +784,7 @@ test('nested back: home → result → map → speak card unwinds one screen per
   await app.element('#selected-card').querySelector('[data-action="speak"]').dispatch('click');
   assert.equal(app.state.view, 'card'); assert.equal(app.element('#app').dataset.view, 'map', 'the card overlays the map without a relayout');
   const open = app.speakCalls.filter(call => call.method === 'open').at(-1);
-  assert.equal(open.category, 'toilet'); assert.equal(open.lang, 'zh-TW'); assert.equal(open.includeUnreviewed, undefined);
+  assert.equal(open.category, 'toilet'); assert.equal(open.lang, 'zh-TW'); assert.equal(open.includeUnreviewed, true);
   app.history.back(); await settle();
   assert.equal(app.state.view, 'map'); assert.equal(app.state.selectedId, id); assert.equal(app.speakCard.isOpen, false);
   assert(app.speakCalls.some(call => call.method === 'close' && call.silent), 'system back closes the card silently');
@@ -891,7 +891,7 @@ test('toilet guide shows the walking distance instead of a countdown, with pendi
 
 test('preferences are local only: invalid stored language falls back to Chinese with a notice; storage failures are tolerated', async () => {
   const app = runtime({ storage: { 'friendly-native-language-v1': 'vi' } }); await settle();
-  assert.equal(app.state.prefs.lang, 'zh-TW'); assert.match(app.state.prefsNotice, /已改用中文單面/);
+  assert.equal(app.state.prefs.lang, 'zh-TW');
   await app.click('#home-settings'); assert.equal(app.element('#app-sheet').open, true);
   assert.match(app.element('#sheet-body').innerHTML, /已改用中文單面/); assert.match(app.element('#sheet-body').innerHTML, /data-lang-choice="zh-TW"/); assert.doesNotMatch(app.element('#sheet-body').innerHTML, /data-lang-choice="vi"/);
   await app.click('[data-step-free-choice="1"]'); await app.click('[data-lang-choice="zh-TW"]');

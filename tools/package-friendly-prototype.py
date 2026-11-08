@@ -16,6 +16,7 @@ ASSETS = (
     "highlights.js",
     "highlight-math.js",
     "urgency.js",
+    "i18n.js",
     "speak-card-strings.js",
     "speak-card.js",
     "speak-card.css",

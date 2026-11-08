@@ -14,6 +14,7 @@ export const APP_FILES = [
   '/resources-data.js',
   '/search.js',
   '/urgency.js',
+  '/i18n.js',
   '/speak-card-strings.js',
   '/speak-card.js',
   '/speak-card.css',

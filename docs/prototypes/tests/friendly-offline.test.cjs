@@ -88,12 +88,12 @@ test('canonical entry handling does not accept response URLs outside the app sco
   assert.equal(state.savedAt, null);
 });
 
-test('initial download reports progress and ready only after all 26 same-scope files are present', async () => {
+test('initial download reports progress and ready only after all 27 same-scope files are present', async () => {
   const env = worker(); const messages = await env.message(); const state = result(messages);
-  assert.equal(state.state, 'ready'); assert.equal(state.completed, 26); assert.equal(state.total, 26); assert(state.savedAt > 0);
-  assert.equal(state.failures.length, 0); assert(messages.filter((message) => message.type === 'progress').length >= 26);
+  assert.equal(state.state, 'ready'); assert.equal(state.completed, 27); assert.equal(state.total, 27); assert(state.savedAt > 0);
+  assert.equal(state.failures.length, 0); assert(messages.filter((message) => message.type === 'progress').length >= 27);
   assert(messages.filter((message) => message.type === 'progress').every((message) => message.status.state === 'downloading' && message.status.savedAt === null));
-  assert.equal(env.requests.length, 26); assert(env.requests.every(({ url }) => url.startsWith(SCOPE)));
+  assert.equal(env.requests.length, 27); assert(env.requests.every(({ url }) => url.startsWith(SCOPE)));
   assert(env.requests.some(({ url }) => url.endsWith('resources-data.js')));
   for (const asset of ['highlights.js', 'highlights.css', 'highlight-math.js', 'price-data.js', 'urgency.js', 'speak-card-strings.js', 'speak-card.js', 'speak-card.css']) assert(env.requests.some(({ url }) => url.endsWith(asset)), asset);
   assert(!env.requests.some(({ url }) => /tile.openstreetmap|latitude|longitude|[?]/.test(url)));
@@ -104,7 +104,7 @@ test('initial download reports progress and ready only after all 26 same-scope f
 });
 test('one missing component stays partial; downloaded app shell remains readable offline', async () => {
   const env = worker({ fail: ['resources-data.js'] }); const state = result(await env.message());
-  assert.equal(state.state, 'partial'); assert.equal(state.savedAt, null); assert.equal(state.completed, 25);
+  assert.equal(state.state, 'partial'); assert.equal(state.savedAt, null); assert.equal(state.completed, 26);
   assert(state.failures.some((failure) => failure.asset === 'resources-data.js' && failure.label === '全市資源與類別'));
   env.setOffline(true);
   assert.equal((await env.fetch(`${SCOPE}index.html`, { mode: 'navigate' })).status, 200);

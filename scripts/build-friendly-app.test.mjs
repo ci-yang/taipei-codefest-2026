@@ -167,10 +167,10 @@ test('the original share packager still works without a build SHA and includes L
     /BSD 2-Clause License/,
   );
   assert.ok(!(await artifactPaths(output)).includes('/app-manifest.json'));
-  // 打包白名單 27 項 = sw.js 離線清單 26 項 − 首頁別名 '.' ＋ sw.js 本身 ＋ vendor/LICENSE-leaflet.txt；兩份清單的差異是刻意的。
+  // 打包白名單 28 項 = sw.js 離線清單 27 項 − 首頁別名 '.' ＋ sw.js 本身 ＋ vendor/LICENSE-leaflet.txt；兩份清單的差異是刻意的。
   const packaged = await artifactPaths(output);
-  assert.equal(packaged.length, 27);
-  for (const path of ['/urgency.js', '/speak-card-strings.js', '/speak-card.js', '/speak-card.css']) assert.ok(packaged.includes(path), path);
+  assert.equal(packaged.length, 28);
+  for (const path of ['/urgency.js', '/i18n.js', '/speak-card-strings.js', '/speak-card.js', '/speak-card.css']) assert.ok(packaged.includes(path), path);
   assert.ok(!packaged.includes('/speak-card-demo.html'));
   const sw = await readFile(join(output, 'sw.js'), 'utf8');
   await runCommand('python3', args, { cwd: root });
