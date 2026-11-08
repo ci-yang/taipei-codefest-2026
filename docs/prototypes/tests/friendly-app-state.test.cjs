@@ -136,10 +136,10 @@ function makeHistory(listeners, initialState = null) {
 }
 
 // Records calls only; the real overlay is covered by friendly-speak-card.test.cjs and the browser script.
-function makeSpeakCard(calls) {
+function makeSpeakCard(calls, langs = [{ code: 'zh-TW', label: '中文', reviewed: true }]) {
   let current = null;
   return {
-    getAvailableLangs: () => [{ code: 'zh-TW', label: '中文', reviewed: true }],
+    getAvailableLangs: () => langs,
     openSpeakCard(options) { calls.push({ method: 'open', ...options }); current = options; return { layout: 'single', fellBack: false }; },
     closeSpeakCard({ silent = false } = {}) { calls.push({ method: 'close', silent }); if (!current) return false; const { onClose } = current; current = null; if (!silent) onClose?.(); return true; },
     get isOpen() { return Boolean(current); },
@@ -152,10 +152,10 @@ function runtime(options = {}) {
   const r = {
     document, URL, AbortController, Date: FixedDate, console, innerWidth: 390, structuredClone,
     FRIENDLY_DATA: actualBasemap, FRIENDLY_RESOURCES: options.resources || actualData, L: leaflet.L,
-    history: makeHistory(listeners, options.historyState || null), FriendlySpeakCard: makeSpeakCard(speakCalls),
+    history: makeHistory(listeners, options.historyState || null), FriendlySpeakCard: makeSpeakCard(speakCalls, options.speakLangs),
     FriendlyHighlights: options.highlightCalls ? { create: () => ({ update() {}, open() {}, handleResource: () => false, openToilet: (store, route) => options.highlightCalls.push({ method: 'openToilet', id: String(store.id), route }), pauseGuide: () => options.highlightCalls.push({ method: 'pauseGuide' }), close: () => options.highlightCalls.push({ method: 'close' }) }) } : undefined,
     location: new URL('https://example.test/friendly/index.html'),
-    navigator: { onLine: options.offline !== true, clipboard: { async writeText(text) { copied.push(text); } } },
+    navigator: { onLine: options.offline !== true, language: options.language, clipboard: { async writeText(text) { copied.push(text); } } },
     FriendlyIcons: { icon: name => `<svg data-test-icon="${name}"></svg>` },
     FriendlyBridge: {
       getLocation: () => new Promise((resolve, reject) => gpsRequests.push({ resolve, reject })),
@@ -1015,4 +1015,56 @@ test('review F-10: switching guide targets cleans up the old guide before the ne
   assert.equal(app.state.guideRoute, null, 'the old target route is ignored'); assert.equal(calls.filter(call => call.method === 'openToilet').length, 0);
   app.routeRequests.at(-1).resolve(routeResult()); await settle();
   assert.equal(calls.filter(call => call.method === 'openToilet').at(-1).id, String(other.id));
+});
+
+test('interface language: switching to English re-renders home, result card and guide HUD; switching back restores Chinese', async () => {
+  const { STRINGS } = require('../friendly-route/i18n.js'); const en = STRINGS.en; const zh = STRINGS['zh-TW'];
+  const cjk = /[㐀-鿿]/;
+  const speakLangs = [{ code: 'zh-TW', label: '中文', reviewed: true }, { code: 'en', label: 'English', reviewed: false }, { code: 'ja', label: '日本語', reviewed: false }];
+  const app = runtime({ speakLangs }); await app.fix(0, { ...cityHall });
+  assert.equal(app.element('#home-heading').textContent, zh['home.title']);
+  await app.click('#home-settings'); await app.click('[data-ui-lang="en"]');
+  assert.equal(app.r.document.documentElement.lang, 'en');
+  assert(app.storageWrites.some(([key, value]) => key === 'friendly.uiLang' && value === 'en'), 'the choice is stored');
+  assert.equal(app.state.prefs.lang, 'en', 'the ask card language follows the interface language');
+  assert.match(app.element('#sheet-body').innerHTML, new RegExp(en['speak.machine']), 'unreviewed languages are labelled machine translated');
+  assert.match(app.element('#sheet-body').innerHTML, new RegExp(en['settings.ui.lang.note']));
+  assert.equal(app.element('#home-heading').textContent, en['home.title']);
+  for (const key of ['toilet', 'charge', 'wifi']) {
+    const label = app.element(`[data-urgency="${key}"]`).textContent;
+    assert.equal(label, `${en[`urgency.${key}.button`]}${en[`urgency.${key}.hint`]}`, key); assert.doesNotMatch(label, cjk, key);
+  }
+  await app.click('[data-urgency="toilet"]');
+  assert.equal(app.element('#result-title').textContent, en['urgency.toilet.title']);
+  const card = app.element('#result-body').textContent;
+  assert.match(card, /^No\. 1 by straight line · \d candidates/); assert.match(card, new RegExp(en['common.go'])); assert.match(card, /Straight \d+ m/);
+  await app.element('#result-body').querySelector('[data-action="go"]').dispatch('click');
+  assert.equal(app.state.view, 'guide');
+  assert.equal(app.element('#guidance-heading').textContent, en['urgency.toilet.title']);
+  assert.match(app.element('#guidance-distance').textContent, /^Straight \d+ m$/);
+  assert.match(app.element('#guidance-bearing').textContent, /^To the (north|northeast|east|southeast|south|southwest|west|northwest) · north-up · Compass not used$/);
+  for (const selector of ['#guidance-heading', '#guidance-distance', '#guidance-bearing', '#guidance-location', '#guidance-end', '#guidance-resources']) assert.doesNotMatch(app.element(selector).textContent, cjk, selector);
+  await app.click('#settings-button'); await app.click('[data-ui-lang="zh-TW"]');
+  assert.equal(app.r.document.documentElement.lang, 'zh-Hant-TW');
+  assert.equal(app.state.prefs.lang, 'en', 'back to Chinese keeps the chosen ask card language');
+  assert.equal(app.element('#guidance-heading').textContent, zh['urgency.toilet.title']);
+  assert.match(app.element('#guidance-distance').textContent, /^直線 \d+ 公尺$/);
+  assert.match(app.element('#guidance-bearing').textContent, /方 · 正北基準 · 未使用方位感測$/);
+  assert.equal(app.element('#guidance-end').textContent, zh['guide.end']);
+  assert.equal(app.element('#home-heading').textContent, zh['home.title']);
+  assert.equal(app.element('[data-urgency="toilet"]').textContent, `${zh['urgency.toilet.button']}${zh['urgency.toilet.hint']}`);
+});
+
+test('interface language from navigator.language: a Japanese device opens in Japanese with the ask card in Japanese', async () => {
+  const { STRINGS } = require('../friendly-route/i18n.js');
+  const speakLangs = [{ code: 'zh-TW', label: '中文', reviewed: true }, { code: 'ja', label: '日本語', reviewed: false }];
+  const app = runtime({ speakLangs, language: 'ja-JP' }); await app.fix(0, { ...cityHall });
+  assert.equal(app.r.document.documentElement.lang, 'ja');
+  assert.equal(app.element('#home-heading').textContent, STRINGS.ja['home.title']);
+  assert.equal(app.element('[data-urgency="wifi"]').textContent, `${STRINGS.ja['urgency.wifi.button']}${STRINGS.ja['urgency.wifi.hint']}`);
+  assert.equal(app.state.prefs.lang, 'ja');
+  assert.equal(app.storageWrites.length, 0, 'opening does not write storage');
+  const stored = runtime({ speakLangs, language: 'ja-JP', storage: { 'friendly.uiLang': 'zh-TW', 'friendly-native-language-v1': 'zh-TW' } }); await settle();
+  assert.equal(stored.element('#home-heading').textContent, STRINGS['zh-TW']['home.title'], 'a stored choice wins over the device language');
+  assert.equal(stored.state.prefs.lang, 'zh-TW');
 });

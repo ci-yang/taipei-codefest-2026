@@ -1,4 +1,4 @@
-// 三急主流程 390px 走查：首頁 → 結果卡 → 帶我去（步行距離）→ 開口卡 → 看地圖 → 連按返回；另測無定位、充電生存圈與地圖第二層的類別與 pin。
+// 三急主流程 390px 走查：首頁 → 結果卡 → 帶我去（步行距離）→ 開口卡 → 看地圖 → 連按返回；另測無定位、充電生存圈、地圖第二層的類別與 pin，以及日英韓介面。
 // 對已啟動的 `pnpm prototype` 執行，不安裝依賴、不改程式：
 // NODE_PATH=/path/to/node_modules node scripts/check-three-urgencies-browser.mjs
 // 定位固定為臺北市政府附近的公開座標，不是測試者的 GPS；外部請求一律阻擋，Service Worker 停用。
@@ -155,6 +155,49 @@ const p2 = await ctx2.newPage(); await p2.goto(base); await p2.waitForFunction((
 await p2.click('[data-urgency="toilet"]'); await p2.waitForTimeout(400);
 ok('no-location message', /需要定位才能找最近/.test(await p2.locator('#result-body').textContent())); ok('no card without location', (await p2.locator('[data-result-id]').count()) === 0);
 await p2.screenshot({ path: `${out}/14-result-need-location.png` });
+// 介面語言（D17）：存 friendly.uiLang 後重載，首頁標題換語言；390px 首頁、結果卡、選取卡不得橫向溢出，按鈕文字不換行。
+// 各段文字各自算行數：同一個文字節點的 client rect 有幾種 top 就是幾行。頁尾四格按鈕是直排設計，允許兩行。
+const wrapped = target => target.evaluate(selectors => {
+  const lines = node => { const range = document.createRange(); range.selectNodeContents(node); const tops = []; for (const rect of range.getClientRects()) if (rect.width > 0 && !tops.some(top => Math.abs(top - rect.top) < 4)) tops.push(rect.top); return tops.length; };
+  const out = [];
+  for (const button of document.querySelectorAll(selectors)) {
+    if (!button.getClientRects().length) continue;
+    const limit = button.classList.contains('footer-action') ? 2 : 1;
+    const walker = document.createTreeWalker(button, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) if (node.textContent.trim() && lines(node) > limit) out.push(`${button.id || button.dataset.action || button.dataset.urgency || button.className}: ${node.textContent.trim()} (${lines(node)})`);
+  }
+  return out;
+}, '#home-screen button, #result-body button, #selected-card button, .guidance-header button, #guidance-hud button, .guidance-buttons button, .footer-actions button');
+const scripts = { ja: /[぀-ヿ]/, ko: /[가-힯]/, en: /^[\x20-\x7e]+$/ };
+for (const lang of ['ja', 'en', 'ko']) {
+  const lp = await ctx.newPage(); lp.on('pageerror', err => errors.push(`${lang}: ${err.message}`));
+  await lp.goto(base); await lp.evaluate(code => localStorage.setItem('friendly.uiLang', code), lang); await lp.reload({ waitUntil: 'load' });
+  await lp.waitForFunction(() => /±/.test(document.querySelector('#home-location').textContent));
+  const home = await lp.evaluate(() => ({ h1: document.querySelector('#home-heading').textContent, lang: document.documentElement.lang, labels: [...document.querySelectorAll('[data-urgency] .lbl')].map(el => el.textContent) }));
+  ok(`${lang} home title after reload`, home.lang === lang && scripts[lang].test(home.h1) && home.labels.every(label => !/[一-鿿]/.test(label) || lang === 'ja'), JSON.stringify(home));
+  const lpOverflow = () => lp.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  ok(`${lang} home no overflow`, await lpOverflow() <= 0, String(await lpOverflow()));
+  let wraps = await wrapped(lp); ok(`${lang} home buttons do not wrap`, wraps.length === 0, wraps.join(' | '));
+  await lp.screenshot({ path: `${out}/home-${lang}.png` });
+  await lp.click('[data-urgency="toilet"]'); await lp.waitForSelector('[data-result-id]');
+  ok(`${lang} result title`, scripts[lang].test(await lp.locator('#result-title').textContent()), await lp.locator('#result-title').textContent());
+  ok(`${lang} result no overflow`, await lpOverflow() <= 0, String(await lpOverflow()));
+  wraps = await wrapped(lp); ok(`${lang} result buttons do not wrap`, wraps.length === 0, wraps.join(' | '));
+  await lp.screenshot({ path: `${out}/result-${lang}.png` });
+  await lp.click('#result-body [data-action="go"]'); await lp.waitForFunction(() => document.querySelector('#app').dataset.view === 'guide'); await lp.waitForTimeout(800);
+  const hud = await lp.evaluate(() => ({ heading: document.querySelector('#guidance-heading').textContent, distance: document.querySelector('#guidance-distance').textContent, end: document.querySelector('#guidance-end').textContent }));
+  ok(`${lang} guide HUD`, Object.values(hud).every(text => !/[一-鿿]/.test(text) || lang === 'ja') && scripts[lang].test(hud.end), JSON.stringify(hud));
+  ok(`${lang} guide no overflow`, await lpOverflow() <= 0, String(await lpOverflow()));
+  wraps = await wrapped(lp); ok(`${lang} guide buttons do not wrap`, wraps.length === 0, wraps.join(' | '));
+  if (lang === 'ja') await lp.screenshot({ path: `${out}/guide-ja.png` });
+  await lp.click('#exit-guidance'); await lp.waitForFunction(() => document.querySelector('#app').dataset.view === 'result');
+  await lp.click('#result-body [data-action="map"]'); await lp.waitForFunction(() => document.querySelector('#app').dataset.view === 'map'); await lp.waitForTimeout(500);
+  ok(`${lang} selected card open`, await lp.locator('#selected-card').isVisible());
+  ok(`${lang} selected card no overflow`, await lpOverflow() <= 0, String(await lpOverflow()));
+  wraps = await wrapped(lp); ok(`${lang} selected card buttons do not wrap`, wraps.length === 0, wraps.join(' | '));
+  await lp.screenshot({ path: `${out}/map-${lang}.png`, fullPage: true });
+  await lp.close();
+}
 log.push(`pageErrors: ${JSON.stringify(errors)}`); log.push(`external blocked: ${external.length}`);
 console.log(log.join('\n')); await browser.close();
 if (log.some(line => line.startsWith('FAIL')) || errors.length) process.exitCode = 1;
