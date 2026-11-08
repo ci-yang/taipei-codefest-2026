@@ -1,5 +1,5 @@
 {
-  "version": "friendly-resources-v1-c0e1a7bd7d44",
+  "version": "friendly-resources-v1-6ffdb1031223",
   "fetchedAt": "2026-11-07T09:44:13.266936+00:00",
   "sources": [
     {
@@ -103,8 +103,14 @@
     "total": 5948,
     "located": 5938,
     "unlocated": 10,
-    "withServices": 5769,
+    "withServices": 5770,
     "serviceCounts": {
+      "wifi": 4263,
+      "toilet": 2112,
+      "charge": 738,
+      "accessible": 1021
+    },
+    "officialServiceCounts": {
       "wifi": 3936,
       "toilet": 2109,
       "charge": 406,
@@ -115,6 +121,18 @@
       "toilets": 1531,
       "mrt": 119,
       "wifi": 3305
+    },
+    "inferredRecords": 332,
+    "inferenceCounts": {
+      "department-store": 39,
+      "sit-down-chain": 139,
+      "convenience-chain": 99,
+      "library": 55
+    },
+    "inferredServiceCounts": {
+      "wifi": 327,
+      "charge": 332,
+      "toilet": 3
     },
     "unlocatedRecords": [
       {
@@ -179,5 +197,5 @@
       121.6642499
     ]
   ],
-  "outputBytes": 2768911
+  "outputBytes": 3183971
 }

@@ -94,6 +94,9 @@ h3 { font-size: 16px; font-weight: 600; }
 .stat-divider { display: inline-block; width: 1px; height: 12px; background: var(--line); }
 .route-services, .service-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 8px 0 12px; color: var(--muted); }
 .route-services > span, .service-tag { display: flex; align-items: center; gap: 4px; font-size: 11px; }
+.route-services > span.inferred, .service-tag.inferred { color: var(--warning); }
+.inference-note { display: grid; gap: 4px; margin: 0 0 10px; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--warning) 45%, var(--line)); border-radius: 12px; color: var(--warning); background: color-mix(in srgb, var(--warning) 10%, transparent); font-size: 11px; line-height: 1.55; }
+.inference-note span { color: var(--muted); }
 .route-actions, .resource-card-actions { display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px; margin-top: 12px; }
 .primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 13px; min-height: 46px; padding: 10px 14px; font-size: 14px; font-weight: 600; text-align: center; }
 .primary-button { background: var(--accent); color: var(--accent-text); }

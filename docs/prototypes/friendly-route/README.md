@@ -47,7 +47,7 @@ python3 -m http.server 8776 --bind 127.0.0.1 --directory /tmp/friendly-app-packa
 
 每筆保留 `sourceId/sourceName/sourceUrl/updatedAt`；捷運座標另有 `coordinateSource`。電話原文與 `normalizedPhone` 分開，避免把分機或多組電話串成錯誤號碼。服務標記不代表目前可用、免消費、營業中或路線無障礙。
 
-成員 `21bc1f3` 的 `build-friendly-data.py` 與 `data.js` 保留全市匯入及 Wi-Fi 同址彙整歷史；現行 App 只從 `data.js` 讀取地方底圖，點位／搜尋／四類篩選一律使用 `resources-data.js`。歷史品牌推定沒有進入現行分類。
+成員 `21bc1f3` 的 `build-friendly-data.py` 與 `data.js` 保留全市匯入及 Wi-Fi 同址彙整歷史；現行 App 只從 `data.js` 讀取地方底圖，點位／搜尋／四類篩選一律使用 `resources-data.js`。現行資料管線另對官方資料中已存在的 332 個點位加入橘色常識推定：連鎖餐飲 139、7-ELEVEN／全家 99、百貨與購物中心 39、圖書館與閱覽室 55。推定不新增門市位置、不覆蓋官方服務，且畫面明示可能需消費、付費或借用，分店與開放時段也可能不同；加油站不推定 Wi-Fi 或充電。
 
 離線重建／重新下載：
 
