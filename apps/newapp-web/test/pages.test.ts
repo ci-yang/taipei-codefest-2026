@@ -49,7 +49,7 @@ describe('主流程：首頁 → 試算 → 結果（S1）', () => {
     expect(c10.attributes('data-status')).toBe('ineligible');
     expect(c10.get('[data-test="card-key-value"]').text()).toBe('每人每月收入需在 24,293 元以下');
     expect(wrapper.get('[data-test="answer-summary"]').text()).toContain('65歲以上');
-    expect(wrapper.get('[data-test="result-notice"]').text()).toContain('門檻以社會局最新公告為準');
+    expect(wrapper.get('[data-test="result-notice"]').text()).toContain('門檻以社會局及各主管機關最新公告為準');
   });
 
   it('修改答案回試算頁，答案還在', async () => {

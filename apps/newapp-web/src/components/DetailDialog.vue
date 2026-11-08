@@ -12,14 +12,16 @@ import {
   canCall1999,
   findRow,
   identityLimitText,
+  displayUrl,
   incomeLimitText,
 } from '@/lib/resultView';
 
 /**
  * 詳細資訊彈窗（v3，參考圖 20.png；sa-2-overview.md 4.8）：
  * 膠囊（資料類型＋判定）、圖示方塊、名稱、機關簡稱・臺北市適用、三格摘要、判定原因、還需確認、應備文件、
- * 收件洽辦單位（原文）、聯繫方式、門檻提醒；底部黃色主鈕前往官網申請（模擬資料不能按）、次鈕查看開放資料來源、
- * 聯繫方式含 1999 時撥打 1999（sa-3-s2.md W11）。只有關閉鈕。返回鍵、Esc、點背景都關（useDetail 的 history state）。
+ * 收件洽辦單位（原文）、聯繫方式、門檻提醒；底部黃色主鈕前往官網申請（模擬資料不能按）、次鈕查看開放資料來源
+ * （官方網頁整理改「查看官方來源」連到 sourceUrl）、聯繫方式含 1999 時撥打 1999（sa-3-s2.md W11）。
+ * ADR-035：三格摘要後有實際補助原文時加「實際補助」（完整原文）與「資料來源」（網址、查證日、門檻年度說明）兩列。只有關閉鈕。返回鍵、Esc、點背景都關（useDetail 的 history state）。
  * 用手機記憶體的清單與比對結果，不打 API；沒送出時（從我的珍藏開）判定寫「尚未比對」。
  */
 const q = useQuery();
@@ -45,6 +47,19 @@ const summary = computed(() => {
 /** 模擬資料或沒有網址時主鈕不能按 */
 const canApply = computed(() => !!item.value && item.value.kind !== 'mock' && !!item.value.url);
 const showCall = computed(() => (item.value ? canCall1999(item.value) : false));
+const curated = computed(() => item.value?.kind === 'curated');
+/** 次鈕：官方網頁整理連到 benefitText 原文所在頁，其餘連開放資料集 */
+const secondary = computed(() =>
+  curated.value && item.value?.sourceUrl
+    ? { label: '查看官方來源', url: item.value.sourceUrl }
+    : { label: '查看開放資料來源', url: DATASET_URL },
+);
+/** 資料來源列的門檻年度說明：官方網頁整理照來源頁；開放資料的收入門檻是資料集原值（舊年度） */
+const sourceNote = computed(() =>
+  curated.value ? '門檻年度依來源頁。' : '實際補助依來源頁；收入門檻為資料集原值，年度較舊。',
+);
+/** 門檻提醒：開放資料由社會局公告；官方網頁整理含其他主管機關 */
+const noticeAgency = computed(() => (curated.value ? '主管機關' : '社會局'));
 
 // 開啟時鎖住背景捲動、彈窗捲回頂端並取得焦點
 watch(
@@ -89,6 +104,7 @@ function onCall(e: MouseEvent): void {
       <div class="m-top">
         <div class="m-tags" data-test="d-tags">
           <span v-if="item.kind === 'mock'" class="mpill mock">模擬資料</span>
+          <span v-else-if="item.kind === 'curated'" class="mpill" data-test="d-kind">官方網頁整理</span>
           <span v-else class="mpill">開放資料 · 臺北市社會局</span>
           <span v-if="row" class="verdict ol" :class="{ no: !row.result.ok }" data-test="d-verdict">{{
             row.result.ok ? '可能符合' : '不符合'
@@ -112,6 +128,24 @@ function onCall(e: MouseEvent): void {
       <div class="m-sum" data-test="d-sum">
         <div v-for="s in summary" :key="s.k">
           <small>{{ s.k }}</small><b>{{ s.v }}</b><small v-if="s.n">{{ s.n }}</small>
+        </div>
+      </div>
+      <div v-if="item.benefitText" class="m-row m-benefit" data-test="d-benefit">
+        <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M12 8v8M9.5 10.2c0-1.2 1.1-1.7 2.5-1.7s2.5.6 2.5 1.7c0 2.6-5 1.2-5 3.8 0 1.1 1.1 1.7 2.5 1.7s2.5-.5 2.5-1.7" /></svg></span>
+        <div>
+          <b>實際補助：</b>
+          <p class="d-benefit-text" data-test="d-benefit-text">{{ item.benefitText }}</p>
+        </div>
+      </div>
+      <div v-if="item.sourceUrl" class="m-row" data-test="d-source">
+        <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg></span>
+        <div>
+          <b>資料來源：</b>
+          <div class="d-src">
+            <a :href="item.sourceUrl" data-test="d-source-url" @click.prevent="onLink(item.sourceUrl)">{{ displayUrl(item.sourceUrl) }}</a>
+            <span v-if="item.verifiedAt" data-test="d-verified">查證日 {{ item.verifiedAt }}</span>
+            <span data-test="d-source-note">{{ sourceNote }}</span>
+          </div>
         </div>
       </div>
       <div class="m-row">
@@ -139,7 +173,8 @@ function onCall(e: MouseEvent): void {
         <div>
           <b>應備文件：</b>
           <div data-test="d-docs">
-            <ul><li v-for="(d, i) in item.documents" :key="i">{{ d }}</li></ul>
+            <ul v-if="item.documents.length"><li v-for="(d, i) in item.documents" :key="i">{{ d }}</li></ul>
+            <template v-else>未整理，請見官方說明頁</template>
           </div>
         </div>
       </div>
@@ -150,7 +185,7 @@ function onCall(e: MouseEvent): void {
         <dd data-test="d-contact">{{ item.contact }}</dd>
       </dl>
       <!-- [SUBS-R18] 每筆詳情都顯示門檻提醒 -->
-      <p class="m-note" data-test="d-notice">這是初步篩選，不代表一定可以領；門檻以社會局最新公告為準。</p>
+      <p class="m-note" data-test="d-notice">這是初步篩選，不代表一定可以領；門檻以{{ noticeAgency }}最新公告為準。</p>
       <div class="m-bar">
         <a v-if="canApply" class="btn cta" :href="item.url" data-test="d-apply" @click.prevent="onLink(item.url)">
           前往官網申請<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -158,8 +193,8 @@ function onCall(e: MouseEvent): void {
         <button v-else class="btn cta off" type="button" disabled data-test="d-apply-off">
           {{ item.kind === 'mock' ? '模擬資料・沒有官網可申請' : '沒有官網網址' }}
         </button>
-        <a class="btn outline" :href="DATASET_URL" data-test="d-dataset" @click.prevent="onLink(DATASET_URL)">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>查看開放資料來源
+        <a class="btn outline" :href="secondary.url" data-test="d-dataset" @click.prevent="onLink(secondary.url)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>{{ secondary.label }}
         </a>
         <a v-if="showCall" class="btn text" :href="`tel:${CITY_HOTLINE}`" data-test="d-call" @click="onCall">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" /></svg>撥打 1999

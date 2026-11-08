@@ -2,14 +2,15 @@
 import { computed } from 'vue';
 import type { SubsidyItem } from '@app/shared';
 import FavButton from '@/components/FavButton.vue';
-import { cardKey, cardSummary, categoryText, statusOf, statusText } from '@/components/result/cardText';
+import { benefitBrief, cardKey, cardSummary, categoryText, statusOf, statusText } from '@/components/result/cardText';
 import { useDetail } from '@/composables/useDetail';
 import type { MatchResult } from '@/lib/match';
 import { agencyShort } from '@/lib/resultView';
 
 /**
  * 補助清單卡片（19.png）：結果頁、全部補助、我的珍藏共用。
- * 第一列分類＋狀態標籤與書籤；第二列名稱、機關與右側條件；底列條件摘要與「申辦詳情」（開詳細資訊彈窗）。
+ * 第一列分類＋狀態標籤與書籤；第二列名稱、機關與右側條件（有實際補助原文時改顯示原文，最多兩行，超過截掉加…）；
+ * 底列條件摘要與「申辦詳情」（開詳細資訊彈窗）。
  * result 為 null＝沒作答，狀態標籤只寫資料類型。
  */
 const props = defineProps<{ item: SubsidyItem; result: MatchResult | null }>();
@@ -18,6 +19,12 @@ const detail = useDetail();
 const row = computed(() => ({ item: props.item, result: props.result }));
 const status = computed(() => statusOf(row.value));
 const key = computed(() => cardKey(row.value));
+/**
+ * 實際補助原文截成兩行內的精簡版；空白換成不換行空白，數字與「元」不會被拆到兩行。
+ */
+const keyText = computed(() =>
+  key.value.benefit ? benefitBrief(key.value.value).replace(/ /g, '\u00a0') : key.value.value,
+);
 
 function openDetail(e: MouseEvent): void {
   detail.open(props.item.no, e.currentTarget as HTMLElement | null);
@@ -39,9 +46,9 @@ function openDetail(e: MouseEvent): void {
           <span data-test="card-org">{{ agencyShort(item.office) }}</span>
         </p>
       </div>
-      <div class="lc-key" :class="{ fail: status === 'ineligible' }" data-test="card-key">
+      <div class="lc-key" :class="{ fail: status === 'ineligible', benefit: key.benefit }" data-test="card-key">
         <span class="k-label" data-test="card-key-label">{{ key.label }}</span>
-        <b class="k-value" data-test="card-key-value">{{ key.value }}</b>
+        <b class="k-value" :title="key.benefit ? key.value : undefined" data-test="card-key-value">{{ keyText }}</b>
       </div>
     </div>
     <div class="lc-foot">
@@ -153,6 +160,19 @@ function openDetail(e: MouseEvent): void {
   font-weight: 800;
   line-height: 1.3;
   color: var(--tp-primary-700);
+}
+.lc-key.benefit {
+  width: 45%;
+}
+/* 實際補助原文由 benefitBrief 截短加…；line-clamp 只是保險（全文在申辦詳情） */
+.lc-key.benefit .k-value {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 15px;
+  overflow-wrap: anywhere;
 }
 .lc-key.fail .k-value {
   font-size: 14px;

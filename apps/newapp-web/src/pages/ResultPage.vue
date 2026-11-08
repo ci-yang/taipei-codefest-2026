@@ -72,7 +72,7 @@ function onCenterClick(url: string): void {
     </details>
 
     <footer class="foot">
-      <p data-test="result-notice">這是初步篩選，門檻以社會局最新公告為準</p>
+      <p data-test="result-notice">這是初步篩選，門檻以社會局及各主管機關最新公告為準</p>
       <p data-test="result-updated">資料每 24 小時自政府資料開放平臺更新・最後更新 {{ updatedText }}</p>
       <RouterLink class="src" :to="{ name: 'source' }" data-test="link-source">資料來源與門檻說明</RouterLink>
     </footer>

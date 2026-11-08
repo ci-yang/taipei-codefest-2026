@@ -206,6 +206,9 @@ h2 { font-size: var(--fs-h2); margin: 6px 0 10px; }
 .m-row ul { margin: 2px 0 0; padding: 0; list-style: none; }
 .m-row li { position: relative; padding: 3px 0 3px 14px; word-break: break-all; }
 .m-row li::before { content: ""; position: absolute; left: 1px; top: 11px; width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+.m-row .d-benefit-text { margin: 2px 0 0; font-weight: 700; color: var(--heading); }
+.m-row .d-src { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; font-size: 14px; color: var(--tp-grayscale-600); }
+.m-row .d-src a { color: var(--primary-strong); font-weight: 600; word-break: break-all; }
 .why-no { color: var(--reason); }
 .m-info { margin: 14px 0 0; padding: 4px 14px; border-radius: 18px; border: 1px solid var(--line); }
 .m-info dt { margin-top: 10px; font-size: var(--fs-caption); color: var(--muted); }

@@ -1,4 +1,5 @@
 import fixtureWithMock from './fixtures/subsidy-list-with-mock.json';
+import fixtureFull from './fixtures/subsidy-list-full.json';
 import { describe, expect, it } from 'vitest';
 import { SubsidyListSchema, type SubsidyItem } from '@app/shared';
 import { CATEGORIES, categoryOf, keyCondition } from '@/lib/categories';
@@ -12,9 +13,25 @@ describe('分類對照', () => {
     expect(new Set(CATEGORIES.map((c) => c.id)).size).toBe(CATEGORIES.length);
   });
 
-  it('13 項每項恰屬一類', () => {
+  it('28 項（開放 10、官方網頁整理 15、模擬 3）每項恰屬一類', () => {
     const all = CATEGORIES.flatMap((c) => [...c.nos]).sort((x, y) => x - y);
-    expect(all).toEqual(items13.map((i) => i.no).sort((x, y) => x - y));
+    const items28 = SubsidyListSchema.parse(fixtureFull).items;
+    expect(items28).toHaveLength(28);
+    expect(all).toEqual(items28.map((i) => i.no).sort((x, y) => x - y));
+  });
+
+  it('[ADR-035] 官方網頁整理歸進既有分類', () => {
+    expect(categoryOf(201)?.label).toBe('租屋就業');
+    expect(categoryOf(205)?.label).toBe('租屋就業');
+    expect(categoryOf(209)?.label).toBe('租屋就業');
+    expect(categoryOf(206)?.label).toBe('育兒生育');
+    expect(categoryOf(214)?.label).toBe('育兒生育');
+    expect(categoryOf(212)?.label).toBe('醫療補助');
+    expect(categoryOf(213)?.label).toBe('醫療補助');
+    expect(categoryOf(211)?.label).toBe('長者與身障');
+    expect(categoryOf(215)?.label).toBe('長者與身障');
+    expect(categoryOf(210)?.label).toBe('生活扶助');
+    for (const c of CATEGORIES) expect(c.label).not.toContain('模擬');
   });
 
   it('categoryOf 依序號回分類；不在表內回 null', () => {

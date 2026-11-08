@@ -130,12 +130,18 @@ export interface GroupedResults {
   ineligible: Array<{ item: SubsidyItem; result: MatchResult }>;
 }
 
-/** [SUBS-R18] 分可能符合與不符合兩組，組內開放資料在前、模擬在後，同類依序號 */
+/**
+ * [SUBS-R18] 排序級別（ADR-035）：開放資料與官方網頁整理同一級（0），模擬資料排後（1）。
+ * 比對本身不看 kind，一律照四題。
+ */
+export function kindRank(item: SubsidyItem): number {
+  return item.kind === 'mock' ? 1 : 0;
+}
+
+/** [SUBS-R18] 分可能符合與不符合兩組，組內真實資料（開放、官方網頁整理）在前、模擬在後，同級依序號 */
 export function groupResults(items: SubsidyItem[], a: CompletedAnswers): GroupedResults {
   const rows = items.map((item) => ({ item, result: matchItem(item, a) }));
-  rows.sort((x, y) =>
-    x.item.kind === y.item.kind ? x.item.no - y.item.no : x.item.kind === 'open' ? -1 : 1,
-  );
+  rows.sort((x, y) => kindRank(x.item) - kindRank(y.item) || x.item.no - y.item.no);
   return {
     eligible: rows.filter((r) => r.result.ok),
     ineligible: rows.filter((r) => !r.result.ok),
@@ -152,19 +158,19 @@ export const SOCIAL_WELFARE_CENTER = {
 export const CLOSEST_COUNT = 3;
 
 export interface NoMatchResult {
-  /** 開放資料中不過條件數最少的 3 項，同數依序號；firstFailure 是第一條不過的條件 */
+  /** 真實資料（開放、官方網頁整理）中不過條件數最少的 3 項，同數依序號；firstFailure 是第一條不過的條件 */
   closest: Array<{ item: SubsidyItem; result: MatchResult; firstFailure: string }>;
   center: typeof SOCIAL_WELFARE_CENTER;
 }
 
 /**
  * [SUBS-R19] 可能符合（含模擬項目）為 0 項時回無符合結果，否則回 null。
- * 最接近只取開放資料；模擬類別照常留在 grouped.ineligible，由畫面列在不符合組。
+ * 最接近只取真實資料（開放、官方網頁整理）；模擬類別照常留在 grouped.ineligible，由畫面列在不符合組。
  */
 export function findNoMatch(grouped: GroupedResults): NoMatchResult | null {
   if (grouped.eligible.length > 0) return null;
   const closest = grouped.ineligible
-    .filter((r) => r.item.kind === 'open')
+    .filter((r) => r.item.kind !== 'mock')
     .sort((x, y) => x.result.failures.length - y.result.failures.length || x.item.no - y.item.no)
     .slice(0, CLOSEST_COUNT)
     .map((r) => ({ ...r, firstFailure: r.result.failures[0] ?? r.result.reason }));

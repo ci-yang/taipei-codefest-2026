@@ -6,7 +6,7 @@ import type { Component } from 'vue';
 import type { SubsidyItem } from '@app/shared';
 import type { UseQuery } from '@/composables/useQuery';
 import type { MatchResult } from '@/lib/match';
-import { cardKey, cardSummary, sortEligible, statusText } from '@/components/result/cardText';
+import { benefitBrief, cardKey, cardSummary, sortEligible, statusText } from '@/components/result/cardText';
 
 const FAVORITES_KEY = 'newapp.favorites';
 const Stub = { template: '<div />' };
@@ -79,7 +79,7 @@ describe('結果頁（19.png）', () => {
     expect(wrapper.text()).toContain('為你量身試算的專屬補助方案');
     expect(wrapper.get('[data-test="answer-summary"]').text()).toContain('65歲以上');
     expect(wrapper.get('[data-test="btn-edit"]').attributes('href')).toBe('/calc');
-    expect(wrapper.get('[data-test="result-notice"]').text()).toBe('這是初步篩選，門檻以社會局最新公告為準');
+    expect(wrapper.get('[data-test="result-notice"]').text()).toBe('這是初步篩選，門檻以社會局及各主管機關最新公告為準');
     expect(wrapper.get('[data-test="result-updated"]').text()).toBe('資料每 24 小時自政府資料開放平臺更新・最後更新 2024-12-19');
     expect(wrapper.find('[data-test="carousel"]').exists()).toBe(false);
     expect(wrapper.find('[data-test="kind-all"]').exists()).toBe(false);
@@ -124,9 +124,14 @@ describe('清單卡片', () => {
   const ok: MatchResult = { no: 9, ok: true, reason: '年齡、設籍、身分、收入都在條件內', failures: [], toVerify: ['a', 'b'] };
   const fail: MatchResult = { no: 9, ok: false, reason: '需設籍臺北市', failures: ['需設籍臺北市', '收入可能超過上限'], toVerify: [] };
 
-  it('右側顯示關鍵條件；不符合改顯示第一個不符合原因', () => {
-    expect(cardKey({ item: base, result: ok })).toEqual({ label: '每人月收入上限', value: '28,550 元' });
-    expect(cardKey({ item: base, result: fail })).toEqual({ label: '不符合原因', value: '需設籍臺北市' });
+  it('右側：有實際補助原文顯示原文；沒有原文顯示關鍵條件；不符合改顯示第一個不符合原因', () => {
+    expect(cardKey({ item: base, result: ok })).toEqual({ label: '實際補助', value: base.benefitText, benefit: true });
+    expect(cardKey({ item: { ...base, benefitText: null }, result: ok })).toEqual({
+      label: '每人月收入上限',
+      value: '28,550 元',
+      benefit: false,
+    });
+    expect(cardKey({ item: base, result: fail })).toEqual({ label: '不符合原因', value: '需設籍臺北市', benefit: false });
   });
 
   it('狀態標籤與底列摘要', () => {
@@ -147,13 +152,19 @@ describe('清單卡片', () => {
     expect(sortEligible(rows).map((r) => r.item.no)).toEqual([9, 1, 5, 101]);
   });
 
-  it('卡片右側在畫面上顯示條件', async () => {
+  it('卡片右側在畫面上顯示實際補助原文或條件', async () => {
     const { wrapper } = await mountPage('AllSubsidiesPage', '/all');
     const card = wrapper.get('[data-test="list-card"][data-no="9"]');
-    expect(card.get('[data-test="card-key-label"]').text()).toBe('每人月收入上限');
-    expect(card.get('[data-test="card-key-value"]').text()).toBe('28,550 元');
+    expect(card.get('[data-test="card-key-label"]').text()).toBe('實際補助');
+    expect(card.get('[data-test="card-key-value"]').text().replace(/\u00a0/g, ' ')).toBe(benefitBrief(base.benefitText!));
+    expect(card.get('[data-test="card-key-value"]').attributes('title')).toBe(base.benefitText);
+    expect(card.get('[data-test="card-key"]').classes()).toContain('benefit');
     expect(card.get('[data-test="tag-cat"]').text()).toBe('醫療補助');
     expect(card.get('[data-test="tag-status"]').text()).toBe('開放資料');
+    // 序號 4 查不到金額：照舊顯示關鍵條件
+    const card4 = wrapper.get('[data-test="list-card"][data-no="4"]');
+    expect(card4.get('[data-test="card-key-label"]').text()).not.toBe('實際補助');
+    expect(card4.get('[data-test="card-key"]').classes()).not.toContain('benefit');
   });
 
   it('書籤切換只存序號陣列', async () => {

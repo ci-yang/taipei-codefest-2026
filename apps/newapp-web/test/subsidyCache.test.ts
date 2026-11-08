@@ -63,7 +63,7 @@ describe('subsidyCache', () => {
     writeCachedList(polluted as typeof list);
     expect(Object.keys(localStorage)).toEqual([SUBSIDY_CACHE_KEY]);
     const stored = JSON.parse(localStorage.getItem(SUBSIDY_CACHE_KEY)!) as Record<string, unknown>;
-    expect(Object.keys(stored).sort()).toEqual(['items', 'source', 'updatedAt']);
+    expect(Object.keys(stored).sort()).toEqual(['items', 'source', 'sources', 'updatedAt']);
     for (const k of [...ANSWER_KEYS, 'answers']) expect(stored).not.toHaveProperty(k);
   });
 });

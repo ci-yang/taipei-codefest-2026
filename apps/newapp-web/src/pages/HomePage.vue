@@ -26,6 +26,8 @@ const DOT = ['dot-a', 'dot-b', 'dot-c'] as const;
 
 /** 社會局公告的開放資料筆數（模擬資料不算進「依臺北市社會局公告」） */
 const openCount = computed(() => list.value?.items.filter((i) => i.kind === 'open').length ?? 0);
+/** 官方網頁整理筆數（ADR-035）：不算進上面的 N，另起一行小字 */
+const curatedCount = computed(() => list.value?.items.filter((i) => i.kind === 'curated').length ?? 0);
 const totalCount = computed(() => list.value?.items.length ?? 0);
 const featured = computed(() => {
   const items = list.value?.items ?? [];
@@ -127,6 +129,7 @@ onBeforeUnmount(() => {
         <p class="big-row">
           <b class="big" data-test="big-count">{{ openCount }} 項補助</b><span class="open-tag">開放資料</span>
         </p>
+        <p v-if="curatedCount" class="also" data-test="curated-count">另含 {{ curatedCount }} 項官方網頁整理的補助</p>
         <p class="remind">⚠️ 補助多需主動申請，未申請就領不到；先試算看看自己可能符合哪些。</p>
         <ul class="feat" data-test="featured">
           <li v-for="f in featured" :key="f.item.no" class="feat-row" :data-test="`feat-${f.item.no}`">
@@ -220,6 +223,7 @@ onBeforeUnmount(() => {
 .big-row { display: flex; align-items: center; gap: 10px; margin: 2px 0 0; }
 .big { font-size: 40px; line-height: 1.2; font-weight: 800; color: var(--tp-grayscale-900); letter-spacing: .5px; }
 .open-tag { padding: 4px 10px; border-radius: 8px; background: var(--tp-primary-100); color: var(--tp-primary-700); font-size: var(--tp-fs-body); font-weight: 600; }
+.also { margin: 2px 0 0; color: var(--tp-grayscale-600); font-size: 14px; }
 .remind { margin: 12px 0 0; padding: 12px 14px; border-radius: 14px; background: var(--tp-grayscale-50); color: var(--tp-grayscale-700); font-size: var(--tp-fs-body); line-height: 1.6; }
 .feat { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .feat-row {

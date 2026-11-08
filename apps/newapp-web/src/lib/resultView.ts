@@ -25,9 +25,14 @@ export function filterKind<T extends { item: SubsidyItem }>(rows: T[], kind: Kin
   return kind === 'all' ? rows : rows.filter((r) => r.item.kind === kind);
 }
 
-/** 資料類型標籤文字（spec 7.4：模擬資料標籤為「模擬資料」） */
+/** 資料類型標籤文字（spec 7.4：模擬資料標籤為「模擬資料」；ADR-035：官方網頁整理） */
+export const KIND_LABELS: Record<SubsidyItem['kind'], string> = {
+  open: '開放資料',
+  curated: '官方網頁整理',
+  mock: '模擬資料',
+};
 export function kindLabel(item: SubsidyItem): string {
-  return item.kind === 'mock' ? '模擬資料' : '開放資料';
+  return KIND_LABELS[item.kind];
 }
 
 /** 詳細資訊彈窗次鈕「查看開放資料來源」（sa-3-s2.md W11） */
@@ -94,10 +99,10 @@ export function searchNoteText(query: string, n: number): string {
   return `名稱含「${query.trim()}」：${n} 項`;
 }
 
-/** 撥打 1999 只給聯繫方式含 1999 的開放資料項目（spec 7.10、sa-3-s2.md W11） */
+/** 撥打 1999 只給聯繫方式含 1999 的真實資料項目（開放、官方網頁整理；spec 7.10、sa-3-s2.md W11） */
 export const CITY_HOTLINE = '1999';
 export function canCall1999(item: SubsidyItem): boolean {
-  return item.kind === 'open' && item.contact.includes(CITY_HOTLINE);
+  return item.kind !== 'mock' && item.contact.includes(CITY_HOTLINE);
 }
 
 /** 更新時間顯示成日期（updatedAt 格式 YYYY-MM-DDTHH:mm:ss+08:00，SUBS-R08）；格式不對時原樣回 */

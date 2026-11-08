@@ -2,6 +2,7 @@
  * 原創 3D 卡通插畫（SVG 字串，spec 7.10、ADR-018，sa-3-s2.md W10）。
  * 逐字取自 .plan/.1108/sprint/prototype/index.html 的 ILLUS／TONE（使用者定案原型），不重畫。
  * 鍵：補助序號 1～10、101～103（補助通改版拿掉開始頁「我的資料」5 張卡插畫，ADR-023）。
+ * 官方網頁整理 201～215 不另畫，借用主題相近的既有插畫（ART_ALIAS，ADR-035）。
  * 漸層 #g-* 由 components/IllusDefs.vue 在 App 裡定義一次；不載入任何外部圖片。
  */
 const G = (c: string): string => `url(#g-${c})`;
@@ -27,21 +28,34 @@ const ILLUS: Record<string, string> = {
   103: `${SH(100, 134, 54)}<rect x="93" y="28" width="14" height="12" rx="5" fill="${G('mint')}"/><circle cx="100" cy="82" r="46" fill="${G('mint')}"/><circle cx="100" cy="82" r="36" fill="${G('cream')}"/><path d="M100 50v6M100 108v6M68 82h6M126 82h6" stroke="#9a8f80" stroke-width="3" stroke-linecap="round"/><path d="M100 54L111 82H89Z" fill="${G('orange')}"/><path d="M89 82H111L100 110Z" fill="${G('char')}"/><circle cx="100" cy="82" r="5" fill="${G('gold')}"/>${HI(80, 56, 16, 6, -35)}`,
 };
 
+/** 官方網頁整理借用的插畫：租屋→房子（4）、生育→嬰兒車（8）、育兒托育→積木（101）、失業→羅盤（103）、
+ * 特殊境遇→房子與錢幣（1）、輔具→輪椅（5）、健保與兒童醫療→醫藥箱（9）、孕婦乘車→車子（3）、照顧長者→茶杯（6） */
+export const ART_ALIAS: Record<number, number> = {
+  201: 4, 202: 4, 203: 4, 204: 4, 205: 4,
+  206: 8, 207: 101, 208: 101, 209: 103, 210: 1,
+  211: 5, 212: 9, 213: 9, 214: 3, 215: 6,
+};
+
+function artKey(key: number | string): string {
+  const alias = ART_ALIAS[Number(key)];
+  return String(alias ?? key);
+}
+
 /** 插畫底色（依補助序號）；2026-11-08 改淺色台北通主題，取 tp_colors.dart 的 primary／secondary／orange／red 淺階 */
 export const TONE: Record<number, string> = { 1: '#fbe7d9', 2: '#fdf8ed', 3: '#edf8fa', 4: '#dbf1f5', 5: '#fdf8ed', 6: '#fcf2df', 7: '#faeeee', 8: '#fbe7d9', 9: '#edf8fa', 10: '#fcf2df', 101: '#faeeee', 102: '#fcf2df', 103: '#dbf1f5' };
 
 const FALLBACK_TONE = '#dbf1f5';
 
 export function toneOf(no: number): string {
-  return TONE[no] ?? FALLBACK_TONE;
+  return TONE[no] ?? TONE[ART_ALIAS[no] ?? -1] ?? FALLBACK_TONE;
 }
 
-/** 有沒有這張插畫（13 項補助都要有，測試用） */
+/** 有沒有這張插畫（28 項補助都要有，測試用） */
 export function hasArt(key: number | string): boolean {
-  return Object.prototype.hasOwnProperty.call(ILLUS, String(key));
+  return Object.prototype.hasOwnProperty.call(ILLUS, artKey(key));
 }
 
 /** 回整張 <svg> 字串（輪播大卡、清單列、彈窗共用） */
 export function art(key: number | string): string {
-  return `<svg viewBox="0 0 200 150" aria-hidden="true" focusable="false">${ILLUS[String(key)] ?? ''}</svg>`;
+  return `<svg viewBox="0 0 200 150" aria-hidden="true" focusable="false">${ILLUS[artKey(key)] ?? ''}</svg>`;
 }
