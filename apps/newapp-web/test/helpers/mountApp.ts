@@ -29,7 +29,9 @@ export async function mountApp(listJson: unknown | null, path = '/') {
   // 先載好各頁（路由是 lazy import），避免第一次換頁還在轉譯時斷言
   await Promise.all([
     import('@/pages/HomePage.vue'),
+    import('@/pages/CalculatorPage.vue'),
     import('@/pages/ResultPage.vue'),
+    import('@/pages/AllSubsidiesPage.vue'),
     import('@/pages/FavoritesPage.vue'),
     import('@/pages/SourcePage.vue'),
   ]);
@@ -50,7 +52,7 @@ export async function settle(): Promise<void> {
 }
 
 export interface FormInput {
-  /** 年齡區間值（u18、18-29、30-44、45-64、65+），null 不選 */
+  /** 年齡區間值（u18、18-25、26-39、40-64、65+），null 不選 */
   band: string | null;
   residency: boolean | null;
   identities: string[];
@@ -58,16 +60,26 @@ export interface FormInput {
   income: number | null;
 }
 
-/** 在首頁表單填四題（不送出） */
+/** 不在試算頁就先換到 /calc（v3 表單搬到試算頁） */
+async function toCalc(wrapper: VueWrapper): Promise<void> {
+  const router = wrapper.vm.$router;
+  if (router.currentRoute.value.name !== 'calc') {
+    await router.push('/calc');
+    await settle();
+  }
+}
+
+/** 在試算頁填四題（不送出） */
 export async function fillForm(wrapper: VueWrapper, a: FormInput): Promise<void> {
+  await toCalc(wrapper);
   if (a.band !== null) await wrapper.get(`[data-test="band-${a.band}"]`).trigger('click');
   if (a.residency !== null) await wrapper.get('[data-test="in-res"]').setValue(String(a.residency));
   for (const id of a.identities) await wrapper.get(`[data-test="id-${id}"]`).trigger('click');
   if (a.income === 0) await wrapper.get('[data-test="br-unknown"]').trigger('click');
-  else if (a.income !== null) await wrapper.get('[data-test="in-br"]').setValue(String(a.income));
+  else if (a.income !== null) await wrapper.get(`[data-test="br-${a.income}"]`).trigger('click');
 }
 
-/** 在首頁表單填四題並按送出 */
+/** 在試算頁填四題並按送出 */
 export async function answerAll(wrapper: VueWrapper, a: FormInput): Promise<void> {
   await fillForm(wrapper, a);
   await wrapper.get('[data-test="btn-submit"]').trigger('click');
