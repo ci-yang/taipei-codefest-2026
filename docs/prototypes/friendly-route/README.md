@@ -44,6 +44,16 @@ python3 -m http.server 8776 --bind 127.0.0.1 --directory /tmp/friendly-app-packa
 
 部署／分享沿用 `publish-report`，先發布到私有主台，再由 `share.sh` 產生隔離連結。正式部署網址及 APK 本輪不變。
 
+## 語言
+
+介面有繁體中文、English、日本語、한국어，在設定的「介面語言」切換。沒選過時依裝置的 `navigator.language` 判斷：`zh*` 用繁中，`ja*` 用日文，`ko*` 用韓文，`en*` 用英文，其他語言用繁中。選過的值只存在本機 `friendly.uiLang`。
+
+- 字串集中在 `i18n.js`，繁中是完整基準。英日韓缺哪一條，畫面就顯示那條的繁中，不會出現空白或 key 名。新增字串時四個語言要一起加，`friendly-i18n.test.cjs` 會檢查四份字典的 key 集合一致。
+- 英日韓是機器翻譯初稿，未經母語者校對（2026-11-08）。設定頁在語言選單下方標示「英日韓為機器翻譯」。
+- 翻譯範圍是主流程：首頁、結果卡、帶我去導引、地圖面板、搜尋、詳細資訊、設定與提示訊息。
+- 不翻、維持中文的部分：城市雷達與導引中的步行距離卡（`highlights.js`）、資料集名稱、店家名稱與地址、`analysis.html` 與 `spec.html`。專有名詞臺北通／TownPass、Wi-Fi、OpenStreetMap 也不翻。
+- 介面切到英日韓時，開口卡母語跟著換成同一種語言，使用者仍可在設定改回。
+
 ## 開放資料
 
 資料快照與清洗證據在 [`../data/friendly-resources/README.md`](../data/friendly-resources/README.md)，產生資料由 `resources-data.js` 載入。以下皆為官方資料，非模擬。
@@ -60,14 +70,16 @@ python3 -m http.server 8776 --bind 127.0.0.1 --directory /tmp/friendly-app-packa
 
 ### 開口卡文案校對
 
-文案在 `speak-card-strings.js`，不呼叫線上翻譯或 LLM。`reviewed: false` 的語言不會出現在語言清單；校對人與日期以句庫的 `reviewedBy`／`reviewedOn` 為準，未填者寫「待補」。
+文案在 `speak-card-strings.js`，不呼叫線上翻譯或 LLM。`reviewed: false` 的語言可以選，但開口卡下半與設定的語言選單都會標「機器翻譯」（D17）；校對人與日期以句庫的 `reviewedBy`／`reviewedOn` 為準，未填者寫「待補」。
 
 | 語言 | 上架 | 校對人 | 校對日期 |
 |---|---|---|---|
 | 中文（原文） | 是 | 待補 | 待補 |
-| English | 否，待母語者校對 | 待補 | 待補 |
-| Bahasa Indonesia | 否，待母語者校對 | 待補 | 待補 |
-| Tiếng Việt | 否，待母語者校對 | 待補 | 待補 |
+| English | 可選，標機器翻譯 | 待補 | 待補 |
+| Bahasa Indonesia | 可選，標機器翻譯 | 待補 | 待補 |
+| Tiếng Việt | 可選，標機器翻譯 | 待補 | 待補 |
+| 日本語 | 可選，標機器翻譯 | 待補 | 待補 |
+| 한국어 | 可選，標機器翻譯 | 待補 | 待補 |
 
 每筆保留 `sourceId/sourceName/sourceUrl/updatedAt`；捷運座標另有 `coordinateSource`。電話原文與 `normalizedPhone` 分開，避免把分機或多組電話串成錯誤號碼。服務標記不代表目前可用、免消費、營業中或路線無障礙。
 
