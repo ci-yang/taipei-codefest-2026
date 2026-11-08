@@ -694,6 +694,18 @@ const straightLines = app => [...app.layers].filter(layer => layer.kind === 'pol
 const nearestIds = (category, from = cityHall, filter = () => true) => actualData.stores.filter(s => hasCoordinates(s) && s.services.includes(category) && filter(s)).sort((a, b) => planar(from, a) - planar(from, b)).map(s => String(s.id));
 const resultId = app => app.r.document.querySelector('[data-result-id]')?.attributes['data-result-id'] ?? null;
 
+test('a result whose urgency hit is inferred says so, and list rows label inferred services', async () => {
+  const store = actualData.stores.find(entry => hasCoordinates(entry) && entry.inferredServices?.includes('charge'));
+  assert(store, 'Generated data must include an inferred charge point');
+  const app = runtime(); await app.fix(0, { lat: store.lat, lng: store.lng, accuracy: 15 });
+  await app.click('[data-urgency="charge"]');
+  assert.equal(resultId(app), String(store.id));
+  assert.match(app.element('#result-body').innerHTML, /service-tag inferred[^>]*>.*充電點 · 推定，請向現場確認/);
+  const t = app.r.__test; t.state.filters = new Set(['charge']); t.renderAll();
+  const rows = app.element('#nearby-preview').innerHTML;
+  assert.match(rows, new RegExp(`data-resource="${store.id}"[^]*?service-tag inferred[^>]*>[^]*?充電 · 推定`));
+});
+
 test('each urgency button shows the straight-line nearest record and next walks to the second and third', async () => {
   const app = runtime(); await app.fix(0, { ...cityHall, accuracy: 15 });
   for (const category of ['toilet', 'charge', 'wifi']) {
@@ -708,6 +720,7 @@ test('each urgency button shows the straight-line nearest record and next walks 
     assert.equal(/data-action="speak"/.test(body), store.sourceId !== 'wifi', `${category} speak card only where staff exist`);
     assert.equal(/data-action="phone"/.test(body), /^\+?\d{8,15}$/.test(store.normalizedPhone || ''), `${category} phone only with a number`);
     assert.equal(/免費 Wi-Fi 熱點，不保證訊號/.test(body), category === 'wifi');
+    assert.equal(/推定，請向現場確認/.test(body), (store.inferredServices || []).includes(category), `${category} inferred hit is labelled`);
     const pushes = app.history.calls.filter(([kind]) => kind === 'push').length;
     await app.click('[data-action="next"]'); assert.equal(resultId(app), expected[1]);
     await app.click('[data-action="next"]'); assert.equal(resultId(app), expected[2]);
