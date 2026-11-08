@@ -46,6 +46,9 @@ await page.waitForFunction(() => document.querySelector('#guide-timer [data-kind
 const walkValue = () => page.evaluate(() => { const el = document.querySelector('#guide-timer .hl-walk-distance'); return el && { kind: el.closest('[data-kind]').dataset.kind, text: el.textContent, color: getComputedStyle(el).color, tool: document.querySelector('#guide-timer').textContent }; });
 const walk = await walkValue();
 ok('walk distance in guide tool', walk?.kind === 'walk' && /步行距離/.test(walk.tool) && /^[\d.]+ (公尺|km)$/.test(walk.text), JSON.stringify(walk));
+const hud = await page.evaluate(() => ({ big: document.querySelector('#guidance-distance').textContent, small: document.querySelector('#guidance-bearing').textContent }));
+ok('HUD big number switches to the walk distance', walk?.kind === 'walk' && hud.big === `步行 ${walk.text}`, JSON.stringify(hud));
+ok('straight distance stays as small text', /^直線 [\d.]+ (公尺|km) · /.test(hud.small), hud.small);
 ok('walk distance is brown (secondary-800)', walk?.color === 'rgb(116, 82, 27)', walk?.color);
 ok('no countdown in guide', (await page.locator('#guide-timer [data-hl-countdown], #guide-timer [data-hl-action$="-timer"]').count()) === 0 && !/\d{2}:\d{2}/.test(walk?.tool || ''));
 const straightLines = target => target.evaluate(() => [...window.__livePolylines].filter(line => line.options.dashArray === '7 9').length);

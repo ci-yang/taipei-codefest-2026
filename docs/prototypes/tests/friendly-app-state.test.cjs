@@ -793,7 +793,7 @@ test('map card offers go, speak and details; navigate and phone live in the deta
   if (both) { app.state.urgency = 'toilet'; assert.equal(app.r.__test.speakCategory(both), 'toilet'); app.state.urgency = null; assert.equal(app.r.__test.speakCategory(both), 'wifi'); }
 });
 
-test('guide draws the arrow and straight distance at once, adds walking only after the local route, and never recomputes on moves', async () => {
+test('guide draws the arrow and straight distance at once, switches the big number to walking after the local route, and never recomputes on moves', async () => {
   const app = runtime(); await app.fix(0, { ...cityHall });
   await app.click('#home-map'); const destination = actualData.stores.filter(hasCoordinates)[5]; app.r.__test.setDestination(destination);
   const destinationRequest = app.routeRequests.at(-1); const destinationGeneration = app.state.routeGeneration;
@@ -807,9 +807,10 @@ test('guide draws the arrow and straight distance at once, adds walking only aft
   assert.equal(guideRequest.input.stores.length, 0); assert.equal(String(guideRequest.input.points[1].lat), String(actualData.stores.find(s => String(s.id) === id).lat));
   assert.equal(app.state.routeGeneration, destinationGeneration, 'entering guide does not cancel the destination route');
   guideRequest.resolve(routeResult()); await settle();
-  assert.match(app.element('#guide-walk').textContent, /^步行 310 公尺 · 約 5 分鐘/);
-  assert.equal(app.element('#guide-walk').hidden, true, 'toilet guide carries the walk in the guide tool, not twice');
-  assert.match(app.element('#guidance-distance').textContent, /^直線 /, 'straight and walking numbers are labelled separately');
+  assert.match(app.element('#guidance-distance').textContent, /^步行 310 公尺$/, 'the big number is the walking distance once the route is ready');
+  assert.match(app.element('#guidance-bearing').textContent, /^直線 \d+ 公尺 · .*正北基準/, 'the straight distance stays on screen as small text');
+  assert.match(app.element('#guide-walk').textContent, /^約 5 分鐘/); assert.doesNotMatch(app.element('#guide-walk').textContent, /310/, 'the walking number is not repeated');
+  assert.equal(app.element('#guide-walk').hidden, true, 'toilet guide carries the minutes in the guide tool, not twice');
   const guideRequests = () => app.routeRequests.filter(request => request.input.stores.length === 0).length; const before = guideRequests();
   await app.click('#gps-button'); await app.fix(1, { lat: cityHall.lat + .0002, lng: cityHall.lng });
   assert.equal(app.state.guideRoute.distanceM, 310); assert.equal(guideRequests(), before, 'no new guide route on a position update');
@@ -831,7 +832,10 @@ test('toilet guide shows the walking distance instead of a countdown, with pendi
   const app = runtime({ realHighlights: true }); await app.fix(0, { ...cityHall });
   await app.click('[data-urgency="toilet"]'); await app.click('[data-action="go"]');
   const tool = () => app.element('#guide-timer');
-  assert.equal(tool().hidden, false); assert.match(tool().textContent, /步行距離計算中/);
+  assert.equal(tool().hidden, false); assert.match(tool().textContent, /步行距離計算中/); assert.match(app.element('#guidance-distance').textContent, /^直線 /);
+  app.routeRequests.at(-1).resolve({ ...routeResult(), distanceM: 1260 }); await settle();
+  assert.equal(app.element('#guidance-distance').textContent, `步行 ${tool().querySelector('strong').textContent}`, 'HUD and walk card show the same route number');
+  await app.click('#guidance-end'); await app.click('[data-action="go"]');
   app.routeRequests.at(-1).resolve(routeResult()); await settle();
   assert(tool().querySelector('div[data-kind="walk"]'), 'the walk value uses the brown walk style');
   assert.match(tool().textContent, /步行距離/); assert.match(tool().querySelector('strong').textContent, /^310 公尺$/); assert.match(tool().textContent, /約 5 分鐘/);
@@ -840,6 +844,7 @@ test('toilet guide shows the walking distance instead of a countdown, with pendi
   await app.click('#guidance-end'); await app.click('[data-action="go"]');
   app.routeRequests.at(-1).reject(new Error('本機步行路網逾時')); await settle();
   assert(tool().querySelector('div[data-kind="straight"]')); assert.match(tool().querySelector('strong').textContent, /^直線 \d+ 公尺$/);
+  assert.equal(app.element('#guidance-distance').textContent, tool().querySelector('strong').textContent, 'a failed route keeps the straight number in both places');
   assert.doesNotMatch(tool().textContent, /\d{2}:\d{2}/);
 });
 
@@ -884,7 +889,7 @@ test('review #1: picking another resource during guide pushes a new guide for it
   const app = runtime(); await app.fix(0, { ...cityHall });
   await app.click('[data-urgency="toilet"]'); const first = resultId(app); await app.click('[data-action="go"]');
   app.routeRequests.at(-1).resolve(routeResult()); await settle();
-  assert.match(app.element('#guide-walk').textContent, /^步行 310 公尺/);
+  assert.match(app.element('#guidance-distance').textContent, /^步行 310 公尺$/);
   const other = actualData.stores.find(s => hasCoordinates(s) && String(s.id) !== first && s.sourceId === 'wifi' && !s.services.includes('toilet'));
   const depth = app.history.state.depth; const requests = app.routeRequests.length;
   await app.click('#guidance-resources'); app.r.document.querySelector('#sheet-body').innerHTML = `<button class="resource-row" data-resource="${other.id}"></button>`;

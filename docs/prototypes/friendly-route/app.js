@@ -273,11 +273,13 @@
     if (arrow) { arrow.style.transform = pointing ? `rotate(${arrowRotation(position, store)}deg)` : 'rotate(0deg)'; arrow.dataset.ready = String(pointing); }
     setText('#guidance-heading', store ? (resultStore()?.id === store.id && URGENCIES[state.urgency]?.title) || '前往選取的資源' : '身邊的友善導引');
     setText('#guidance-title', store ? store.name : '探索附近資源');
-    setText('#guidance-distance', store ? !valid(store) ? '未提供座標' : position ? `直線 ${approx()}${distanceLabel(distance(position, store))}` : '需要定位' : `視窗內 ${visibleStores().length} 筆`);
-    setText('#guidance-bearing', store ? !valid(store) ? '無法計算方向，請選擇有座標的資源' : position ? `${directionName(bearing(position, store))}方 · 正北基準 · ${state.orientationEnabled ? state.orientationMessage : '未使用方位感測'}` : '需要定位才能顯示方向' : '點選資源查看資訊；未規劃行走路線');
+    // 步行路線算好後大字換成步行距離（與廁所步行卡同一個 guideRoute），直線退到方向那行。
     const route = store ? state.guideRoute : null; const walk = $('#guide-walk');
+    const straight = pointing ? `直線 ${approx()}${distanceLabel(distance(position, store))}` : '';
+    setText('#guidance-distance', store ? !valid(store) ? '未提供座標' : position ? route ? `步行 ${distanceLabel(route.distanceM)}` : straight : '需要定位' : `視窗內 ${visibleStores().length} 筆`);
+    setText('#guidance-bearing', store ? !valid(store) ? '無法計算方向，請選擇有座標的資源' : position ? `${route ? `${straight} · ` : ''}${directionName(bearing(position, store))}方 · 正北基準 · ${state.orientationEnabled ? state.orientationMessage : '未使用方位感測'}` : '需要定位才能顯示方向' : '點選資源查看資訊；未規劃行走路線');
     const toiletGuide = Boolean(store && state.urgency === 'toilet' && store.services.includes('toilet'));
-    if (walk) { walk.hidden = !route || toiletGuide; walk.textContent = route ? `步行 ${distanceLabel(route.distanceM)} · 約 ${Math.ceil(route.estimateMinutes)} 分鐘（本機路網估算，未驗證入口）` : ''; }
+    if (walk) { walk.hidden = !route || toiletGuide; walk.textContent = route ? `約 ${Math.ceil(route.estimateMinutes)} 分鐘 · 本機路網估算，未驗證入口` : ''; }
     if ($('#guide-retry')) $('#guide-retry').hidden = !(store && state.guideStatus === 'error');
     if ($('#guide-orientation')) $('#guide-orientation').hidden = !pointing || state.orientationEnabled;
     setText('#guidance-location', position?.source === 'demo' ? '展示位置 · 非您的 GPS' : position ? `${position.accuracy > 100 ? '精度不足 · ' : ''}定位${position.accuracy !== null ? ` ±${Math.round(position.accuracy)} m` : '精度未知'} · ${timeText(position.capturedAt)}` : state.gpsPending ? '正在定位…' : state.gpsMessage || '尚未取得位置，請使用定位按鈕重試');
