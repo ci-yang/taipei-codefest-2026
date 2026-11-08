@@ -36,6 +36,20 @@ App 入口：[Cloudflare 友善同行](https://taipei-friendly-platform.jason211
 
 `test:platform` 使用獨立本機 D1。部署成功會檢查線上 API、資料與資產，保存收據；實際線上 commit 可由 [`/config`](https://taipei-friendly-platform.jason21131.workers.dev/config) 查看。操作方式與限制見 [Cloudflare 手冊](docs/CLOUDFLARE.md)。原型打包使用 `python3 tools/package-friendly-prototype.py /tmp/friendly-app-package`，分享依 `publish-report` 流程。
 
+## 福利雷達（apps/web）
+
+`apps/web` 另有新北市福利補助資格初篩頁（`/benefits`），與上方友善同行 App 分開。它完整收錄新北市政府「福利補助資訊」152 筆開放資料，每筆連回官方福利明細；其中 28 項常用方案整理為結構化深度初篩，涵蓋低收／中低收、租屋、生育育兒、托育、身障、高齡、醫療、急難及青年就業。依使用者已填身分排除明確不相關項目，未知條件不假裝已符合；對可量化且初篩為「可能符合」的方案，估算一個申請週期可能錯過的金額。比對全在裝置端完成，不要求姓名、身分證字號、電話或 Email。
+
+福利雷達僅提供初篩，不是政府核定結果。所得認列、家戶人口、財產、受理狀態及實際給付仍以主管機關最新審查為準。開放資料沒有一致的即時受理欄位，只有官方文字明確標示全年受理、免申請或停辦時才自動標記，其他一律要求回官方明細確認。本頁不連接個人帳號，也不取得戶籍、所得或財產資料。
+
+```bash
+pnpm benefits:sync        # 經新北市資料開放平臺 API 重建 152 筆快照，不使用爬蟲
+pnpm --filter @app/web dev
+pnpm --filter @app/web test
+```
+
+`platform:build` 只打包友善同行 App 到 `dist/app`，福利雷達目前不隨 Cloudflare 部署上線。
+
 ## 既有 Node／GCP 基線
 
 本作品是一個在台北通（TownPass）App 內以 WebView 開啟的城市通微服務：Vue 3 網頁 ＋ Hono API ＋ PostGIS，地圖用 MapLibre ＋ OpenStreetMap，核心資料來自政府開放資料。
@@ -84,9 +98,14 @@ pnpm install
 | [捷運無障礙設施](https://data.taipei/dataset/detail?id=3c799405-4e44-40dd-b747-daed09e88cdb) | 臺北捷運公司 | 119 | 否 |
 | [捷運車站資料](https://data.taipei/dataset/detail?id=1eefa68d-7c8d-491b-8e75-66a161947426) | 臺北市政府 | 座標對應來源 | 否 |
 | [不動產買賣實價登錄批次資料](https://data.gov.tw/dataset/25119) | 內政部 | 亮點原型：476筆原始交易篩成44筆住宅、12區最高樣本（[重建與範圍](docs/prototypes/taipei-price-sample.md)） | 交易非模擬；房貸條件為示範 |
+| [新北市政府福利補助資訊](https://data.ntpc.gov.tw/datasets/73c24d1c-e1f0-44ce-8a31-cf835ef37e74) | 新北市政府 | 福利雷達：152 筆完整候選與 28 項深度規則主來源 | 否 |
+| [新北市政府福利補助自己查](https://welfare.ntpc.gov.tw/) | 新北市政府 | 福利雷達：官方方案明細與申請入口 | 否 |
+| [2026 新北市社會福利手冊](https://www.sw.ntpc.gov.tw/uploaddowndoc?dis=anounce&file=anounce%2F202605251059560.pdf&filedisplay=2026%E6%96%B0%E5%8C%97%E5%B8%82%E7%A4%BE%E6%9C%83%E7%A6%8F%E5%88%A9%E6%89%8B%E5%86%8A.pdf&flag=doc) | 新北市政府社會局 | 福利雷達：115 年福利門檻與給付交叉核對 | 否 |
+| [116 年度新北市青年租金補貼](https://www.planning.ntpc.gov.tw/home.jsp?act=be4f48068b2b0031&dataserno=fe742ca76643d3d08232f452a681532a&id=22) | 新北市政府城鄉發展局 | 福利雷達：青年租補金額、年齡、家庭類別、所得門檻與受理期間 | 否 |
+| [新北市生育獎勵金](https://www.ca.ntpc.gov.tw/home.jsp?id=3af0fb3ede4a9056) | 新北市政府民政局 | 福利雷達：115 年出生序金額與設籍規則 | 否 |
 | [OpenStreetMap](https://www.openstreetmap.org/copyright) | OpenStreetMap contributors | 地方底圖與臺北市本機步行路網（[重建方式](docs/prototypes/taipei-routing.md)） | 否；現場通行未驗 |
 
-成員於 `21bc1f3` 完成三類官方資源全市匯入、來源註記與 Wi-Fi 同址彙整（3,305 AP → 2,036 組）。原始 commit 與 `docs/prototypes/build-friendly-data.py` 保留作歷史建置紀錄；其品牌服務推定不列入現行 App 的正式四類篩選。`data.js` 在 App 僅提供地方底圖。平台固定快照另見 [manifest](data/friendly/manifest.json)。
+成員於 `21bc1f3` 完成三類官方資源全市匯入、來源註記與 Wi-Fi 同址彙整（3,305 AP → 2,036 組）。原始 commit 與 `docs/prototypes/build-friendly-data.py` 保留作歷史建置紀錄；其品牌服務推定不列入現行 App。現行資料管線另對官方來源已存在的 332 個點位加入常識推定（`inferredServices`），畫面以橘色「推定」標示並提醒向現場確認；推定不新增門市位置、不覆蓋官方服務，規則見 [資料說明](docs/prototypes/data/friendly-resources/README.md)。`data.js` 在 App 僅提供地方底圖。平台固定快照另見 [manifest](data/friendly/manifest.json)。
 
 ## 第三方套件與 AI 揭露
 

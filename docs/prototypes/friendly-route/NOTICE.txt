@@ -18,6 +18,7 @@ TownPass 本身為 GPL-3.0（https://github.com/taipei-doit/TownPass），本 re
 - 線上 OSM raster tiles 僅供目前視窗互動瀏覽，遵 HTTP cache headers，不加入離線套件。
 - Photon 搜尋，OpenStreetMap 地理資料，https://github.com/komoot/photon 。
 - 臺北市友善店家名冊、公廁點位、捷運無障礙設施、公眾免費 Wi-Fi 熱點與官方捷運車站座標；政府資料開放授權條款第 1 版。每筆來源與官方更新時間見 resources-data.js sources/stores 與設定內來源列表。
+- 橘色「推定」是對既有官方點位的常見服務提示，不是單店官方資料：連鎖餐飲、7-ELEVEN／全家、百貨購物中心、圖書館閱覽室可能有 Wi-Fi、充電或廁所，但可能需消費、付費、借用，且分店、樓層與開放時間有差異。
 
 - 內政部不動產實價登錄買賣案件；政府資料開放授權條款第 1 版，https://data.gov.tw/dataset/25119 。本期登記日期 2026/10/11～10/20 的臺北市 CSV 476 筆，依住宅篩選保留 44 筆；每區最高總價僅代表這批樣本，不是整區或歷年最高價。來源與篩選方式見 price-data.js 及 docs/prototypes/taipei-price-sample.md。房貸條件為明示試算假設，非銀行報價。
 

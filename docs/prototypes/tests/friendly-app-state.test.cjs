@@ -323,6 +323,21 @@ test('cards show source/update date, straight-line distance and truthful missing
   assert.match(app.element('#selected-card').innerHTML, /未提供座標/); assert.equal(app.element('#selected-card').querySelector('[data-action="go"]').disabled, true);
 });
 
+test('inferred services are visibly separated from official evidence', async () => {
+  const app = runtime(); await app.fix();
+  const store = actualData.stores.find(entry => hasCoordinates(entry) && entry.inferredServices?.length);
+  assert(store, 'Generated data must include a common-knowledge annotation');
+  app.r.__test.selectResource(store.id);
+  const card = app.element('#selected-card').innerHTML;
+  assert.match(card, /· 推定/);
+  assert.match(card, /常識推定/);
+  assert.match(card, /不是單店官方保證/);
+  assert(card.includes(store.sourceName));
+  app.r.__test.showDetails(store);
+  assert.match(app.element('#sheet-body').innerHTML, /· 官方/);
+  assert.match(app.element('#sheet-body').innerHTML, /· 推定/);
+});
+
 test('phone buttons require a normalized number, including Wi-Fi resources with no phone', async () => {
   const app = runtime(); const withPhone = actualData.stores.find(s => s.normalizedPhone); app.r.__test.selectResource(withPhone.id);
   assert.equal(app.element('#selected-card').querySelector('[data-action="phone"]'), null, 'dialing lives in the detail sheet');

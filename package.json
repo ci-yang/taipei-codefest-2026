@@ -20,6 +20,7 @@
     "db:push:force": "pnpm --filter @app/api exec drizzle-kit push --force",
     "db:seed": "pnpm --filter @app/api db:seed",
     "platform:assets": "node scripts/prepare-platform-assets.mjs",
+    "benefits:sync": "node scripts/sync-benefit-catalog.mjs",
     "app:build": "node scripts/build-friendly-app.mjs",
     "platform:build": "pnpm app:build",
     "platform:dev": "pnpm platform:build && wrangler dev --port 8791",

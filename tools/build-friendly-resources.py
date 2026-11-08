@@ -69,6 +69,52 @@ SERVICE_COLUMNS = {
     "toilet": "友善廁所（count）",
     "accessible": "無障礙友善（count）",
 }
+COMMON_KNOWLEDGE_RULES = (
+    {
+        "key": "sit-down-chain",
+        "label": "連鎖餐飲內用空間常見服務",
+        "pattern": re.compile(
+            r"麥當勞|摩斯(?:漢堡)?|星巴克|starbucks|路易莎|肯德基|漢堡王|burger\s*king",
+            re.IGNORECASE,
+        ),
+        "services": ("wifi", "charge", "toilet"),
+        "sourceIds": ("friendly", "toilets"),
+        "detail": "依連鎖餐飲內用店常見設備推定；可能需消費，且分店、樓層與開放時段有差異。",
+    },
+    {
+        "key": "convenience-chain",
+        "label": "連鎖便利商店常見服務",
+        "pattern": re.compile(
+            r"7\s*[-－]?\s*(?:eleven|11)|統一超商|統一便利|全家(?:便利商店)?|familymart",
+            re.IGNORECASE,
+        ),
+        "services": ("wifi", "charge", "toilet"),
+        "sourceIds": ("friendly", "toilets"),
+        "detail": "依連鎖便利商店常見服務推定；廁所、網路及充電可能需消費、付費或借用設備，並非每間分店提供。",
+    },
+    {
+        "key": "department-store",
+        "label": "百貨與購物中心常見服務",
+        "pattern": re.compile(
+            r"新光三越|遠東百貨|遠百|(?:太平洋|遠東)?\s*sogo|微風(?:廣場|百貨|南山|信義|南京|松高)?|"
+            r"京站時尚廣場|美麗華(?:百樂園)?|(?:台|臺)北\s*101(?:購物中心|觀景台)|"
+            r"att\s*4\s*fun|citylink|誠品生活|"
+            r"大葉高島屋|bellavita|統領百貨|環球購物中心|宏匯廣場|遠雄廣場",
+            re.IGNORECASE,
+        ),
+        "services": ("wifi", "charge", "toilet"),
+        "sourceIds": ("friendly", "toilets"),
+        "detail": "依百貨與購物中心常見公共設施推定；服務可能位於特定樓層、服務台或需借用，仍以現場公告為準。",
+    },
+    {
+        "key": "library",
+        "label": "圖書館與閱覽室常見服務",
+        "pattern": re.compile(r"圖書館|圖書室|閱覽室|市圖", re.IGNORECASE),
+        "services": ("wifi", "charge", "toilet"),
+        "sourceIds": ("toilets",),
+        "detail": "依圖書館與閱覽空間常見設施推定；插座使用規定、座位、開館時間及服務範圍仍以各館公告為準。",
+    },
+)
 
 
 def text(value: object) -> str:
@@ -199,6 +245,33 @@ def map_mrt(row: dict[str, object], index: int, stations: list[dict[str, object]
     return record
 
 
+def add_common_knowledge(records: list[dict[str, object]]) -> dict[str, int]:
+    """Add explicit, reversible service hints without changing official evidence."""
+    counts: Counter[str] = Counter()
+    for record in records:
+        official = list(dict.fromkeys(str(service) for service in record["services"]))
+        official_set = set(official)
+        inferred: list[str] = []
+        matched_rules: list[dict[str, object]] = []
+        for rule in COMMON_KNOWLEDGE_RULES:
+            if record["sourceId"] not in rule["sourceIds"] or not rule["pattern"].search(str(record["name"])):
+                continue
+            added = [service for service in rule["services"] if service not in official_set and service not in inferred]
+            if not added:
+                continue
+            inferred.extend(added)
+            matched_rules.append({
+                "key": rule["key"], "label": rule["label"], "services": added, "detail": rule["detail"],
+            })
+            counts[str(rule["key"])] += 1
+        record["officialServices"] = official
+        record["inferredServices"] = inferred
+        record["services"] = [*official, *inferred]
+        if matched_rules:
+            record["inferenceRules"] = matched_rules
+    return dict(counts)
+
+
 def download(url: str) -> bytes:
     for attempt in range(3):
         try:
@@ -279,6 +352,7 @@ def build(folder: Path = SNAPSHOTS) -> dict[str, object]:
     stores = [record for records in groups.values() for record in records]
     if len({record["id"] for record in stores}) != len(stores):
         raise ValueError("Resource IDs collide")
+    inference_counts = add_common_knowledge(stores)
     sources = []
     for source_id, definition in SOURCE_DEFINITIONS.items():
         filename = "friendly.csv" if source_id == "friendly" else f"{source_id}.json"
@@ -296,19 +370,30 @@ def build(folder: Path = SNAPSHOTS) -> dict[str, object]:
     bounds = [[min(record["lat"] for record in located), min(record["lng"] for record in located)],
               [max(record["lat"] for record in located), max(record["lng"] for record in located)]]
     service_counts = Counter(service for record in stores for service in record["services"])
+    official_service_counts = Counter(service for record in stores for service in record["officialServices"])
+    inferred_service_counts = Counter(service for record in stores for service in record["inferredServices"])
     identity = hashlib.sha256(json.dumps({"sources": sources, "stores": stores}, ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:12]
     return {
         "version": f"friendly-resources-v1-{identity}", "fetchedAt": max(fetched.values()),
-        "sources": sources, "stores": stores, "bounds": bounds,
+        "sources": sources,
+        "inferenceRules": [{
+            "key": rule["key"], "label": rule["label"], "services": list(rule["services"]),
+            "sourceIds": list(rule["sourceIds"]), "detail": rule["detail"],
+        } for rule in COMMON_KNOWLEDGE_RULES],
+        "stores": stores, "bounds": bounds,
         "stats": {"total": len(stores), "located": len(located), "unlocated": len(stores) - len(located),
                   "withServices": sum(bool(record["services"]) for record in stores),
-                  "serviceCounts": dict(service_counts), "sourceCounts": {key: len(value) for key, value in groups.items()},
+                  "serviceCounts": dict(service_counts), "officialServiceCounts": dict(official_service_counts),
+                  "sourceCounts": {key: len(value) for key, value in groups.items()},
+                  "inferredRecords": sum(bool(record["inferredServices"]) for record in stores),
+                  "inferenceCounts": inference_counts, "inferredServiceCounts": dict(inferred_service_counts),
                   "unlocatedRecords": [{"id": record["id"], "name": record["name"], "sourceId": record["sourceId"]}
                                        for record in stores if record["lat"] is None]},
         "notes": ["不同資料來源保留獨立紀錄，同址可能重疊；不宣稱為去重後場所數。",
                   "友善店家與捷運來源含非臺北市紀錄，保留官方名冊原有涵蓋範圍。",
                   "無座標紀錄保留於名冊，不繪製點位；未以地理編碼或估計位置補點。",
                   "捷運座標依官方站碼與名稱或唯一同名站比對；僅為車站參考位置，不是無障礙入口。",
+                  "橘色推定服務只套用於既有官方點位，不新增地點、不改寫官方服務；可能需消費、付費或借用，且分店有差異。",
                   "服務標記不是即時可用、免消費或沿途無障礙保證。"],
     }
 

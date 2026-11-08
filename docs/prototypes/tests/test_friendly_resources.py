@@ -71,6 +71,30 @@ class ResourceMappingTests(unittest.TestCase):
         self.assertEqual(row["phone"], "02-2720-8889")
         self.assertEqual(row["normalizedPhone"], "0227208889")
 
+    def test_common_knowledge_is_explicit_scoped_and_does_not_replace_official_services(self) -> None:
+        records = [
+            {**builder.base_record("toilets", 1, "麥當勞測試店"), "services": ["toilet"]},
+            {**builder.base_record("toilets", 2, "7-ELEVEN 測試門市"), "services": ["toilet"]},
+            {**builder.base_record("toilets", 3, "新光三越測試館"), "services": ["toilet"]},
+            {**builder.base_record("toilets", 4, "市立圖書館測試分館"), "services": ["toilet", "accessible"]},
+            {**builder.base_record("toilets", 5, "中油測試站"), "services": ["toilet"]},
+            {**builder.base_record("wifi", 6, "圖書館測試熱點"), "services": ["wifi"]},
+        ]
+
+        counts = builder.add_common_knowledge(records)
+
+        self.assertEqual(counts, {
+            "sit-down-chain": 1, "convenience-chain": 1, "department-store": 1, "library": 1,
+        })
+        for record in records[:4]:
+            self.assertIn("toilet", record["officialServices"])
+            self.assertEqual(record["inferredServices"], ["wifi", "charge"])
+            self.assertEqual(record["services"], [*record["officialServices"], "wifi", "charge"])
+        self.assertEqual(records[4]["inferredServices"], [])
+        self.assertEqual(records[4]["services"], ["toilet"])
+        self.assertEqual(records[5]["inferredServices"], [])
+        self.assertEqual(records[5]["services"], ["wifi"])
+
     def test_station_join_uses_matching_code_and_name_and_records_provenance(self) -> None:
         fixture = {"_id": 7, "stationid": "'BR09,R05'", "stationname": "'{大安,Daan}'",
                    "stationposition": "'{121.543,25.033}'", "stationaddress": "'測試地址'", "updatetime": "20260902"}
@@ -98,9 +122,14 @@ class ResourceMappingTests(unittest.TestCase):
         self.assertEqual(set(result["stats"]["sourceCounts"]), {"friendly", "toilets", "mrt", "wifi"})
         self.assertTrue(all(record["sourceUrl"].startswith("https://data.taipei/dataset/detail?id=") for record in stores))
         self.assertTrue(all(record["updatedAt"] and record["sourceName"] for record in stores))
+        self.assertTrue(all("officialServices" in record and "inferredServices" in record for record in stores))
+        self.assertGreater(result["stats"]["inferredRecords"], 139)
+        self.assertEqual(set(result["stats"]["inferenceCounts"]), {
+            "sit-down-chain", "convenience-chain", "department-store", "library",
+        })
         wifi = [record for record in stores if record["sourceId"] == "wifi"]
         self.assertEqual(len(wifi), result["stats"]["sourceCounts"]["wifi"])
-        self.assertTrue(all(record["services"] == ["wifi"] and not record["phone"] for record in wifi))
+        self.assertTrue(all(record["services"] == ["wifi"] and not record["inferredServices"] and not record["phone"] for record in wifi))
         unlocated = [record for record in stores if record["lat"] is None]
         self.assertEqual(len(unlocated), result["stats"]["unlocated"])
         self.assertTrue(all(record["lng"] is None for record in unlocated))
