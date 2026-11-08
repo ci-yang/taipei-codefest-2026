@@ -20,6 +20,9 @@ const curatedJson = readApiJson<{ items: Array<{ no: number; name: string; benef
 const openBenefitJson = readApiJson<{ items: Array<{ no: number; name: string; benefitText: string | null }> }>(
   'open-benefit-text.json',
 );
+const catalogEnrichedJson = readApiJson<{ items: Array<{ no: number; name: string; benefitText: string | null }> }>(
+  'catalog-enriched.json',
+);
 
 /** 28 項完整清單後面接 3 項台北服務通（格式照後端 catalogItem） */
 const catalogItem = (no: number, name: string): SubsidyItem => ({
@@ -81,7 +84,10 @@ describe('[SUBS-R75] 台北服務通不比對', () => {
 describe('[SUBS-R76] 估算可領金額', () => {
   it('每條規則的數字都逐字出現在官方原文，名稱與序號一致', () => {
     const texts = new Map(
-      [...openBenefitJson.items, ...curatedJson.items].map((i) => [i.no, { name: i.name, text: i.benefitText }]),
+      [...openBenefitJson.items, ...curatedJson.items, ...catalogEnrichedJson.items].map((i) => [
+        i.no,
+        { name: i.name, text: i.benefitText },
+      ]),
     );
     for (const r of ESTIMATE_RULES) {
       const src = texts.get(r.no);

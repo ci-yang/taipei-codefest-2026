@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useDetail } from '@/composables/useDetail';
 import { useQuery } from '@/composables/useQuery';
+import { isUnmatched } from '@/lib/match';
 import { art, toneOf } from '@/lib/illustrations';
 import { isTownPassBridgeAvailable, openLink, phoneCall } from '@/lib/townpass';
 import {
@@ -26,6 +27,7 @@ import {
  * 用手機記憶體的清單與比對結果，不打 API；沒送出時（從我的珍藏開）判定寫「尚未比對」。
  * ADR-036：台北服務通（catalog）判定一律寫「未依四題比對」，三格摘要寫「見案件頁」，次鈕連到來源資料集（sourceUrl），
  * 資料來源列標資料集名稱與下載日。
+ * ADR-037：補好資格條件的台北服務通（enriched）照一般項目顯示判定與三格摘要，次鈕「查看官方來源」連到條件原文頁（sourceUrl）。
  */
 const q = useQuery();
 const { openNo, close } = useDetail();
@@ -38,11 +40,13 @@ const item = computed(() => {
 });
 const row = computed(() => (item.value && q.results.value ? findRow(q.results.value, item.value.no) : null));
 const verify = computed(() => (row.value ? row.value.result.toVerify : (item.value?.toVerify ?? [])));
-const catalog = computed(() => item.value?.kind === 'catalog');
+/** 未補條件的台北服務通（不比對）；補好的（enriched）照一般項目顯示 */
+const catalog = computed(() => !!item.value && isUnmatched(item.value));
+const enrichedCatalog = computed(() => item.value?.kind === 'catalog' && item.value.enriched === true);
 const summary = computed(() => {
   const it = item.value;
   if (!it) return [];
-  if (it.kind === 'catalog') {
+  if (isUnmatched(it)) {
     return [
       { k: '身分條件', v: '見案件頁', n: '' },
       { k: '年齡', v: '見案件頁', n: '' },
@@ -61,17 +65,18 @@ const showCall = computed(() => (item.value ? canCall1999(item.value) : false));
 const curated = computed(() => item.value?.kind === 'curated');
 /** 次鈕：官方網頁整理連到 benefitText 原文所在頁，其餘連開放資料集 */
 const secondary = computed(() => {
-  if (curated.value && item.value?.sourceUrl) return { label: '查看官方來源', url: item.value.sourceUrl };
+  if ((curated.value || enrichedCatalog.value) && item.value?.sourceUrl) return { label: '查看官方來源', url: item.value.sourceUrl };
   if (catalog.value && item.value?.sourceUrl) return { label: '查看開放資料來源', url: item.value.sourceUrl };
   return { label: '查看開放資料來源', url: DATASET_URL };
 });
 /** 資料來源列的門檻年度說明：官方網頁整理照來源頁；開放資料的收入門檻是資料集原值（舊年度） */
 const sourceNote = computed(() => {
   if (catalog.value) return '資料來源：臺北市政府台北服務通申辦服務及承辦單位資訊（政府資料開放平臺）。資格與金額請見案件頁。';
+  if (enrichedCatalog.value) return '案件取自台北服務通開放資料集；資格條件與金額依台北服務通案件頁、主管機關說明頁或臺北市法規原文整理。';
   return curated.value ? '門檻年度依來源頁。' : '實際補助依來源頁；收入門檻為資料集原值，年度較舊。';
 });
 /** 門檻提醒：開放資料由社會局公告；官方網頁整理、台北服務通含其他主管機關 */
-const noticeAgency = computed(() => (curated.value || catalog.value ? '主管機關' : '社會局'));
+const noticeAgency = computed(() => (curated.value || item.value?.kind === 'catalog' ? '主管機關' : '社會局'));
 
 // 開啟時鎖住背景捲動、彈窗捲回頂端並取得焦點
 watch(
@@ -117,6 +122,7 @@ function onCall(e: MouseEvent): void {
         <div class="m-tags" data-test="d-tags">
           <span v-if="item.kind === 'mock'" class="mpill mock">模擬資料</span>
           <span v-else-if="item.kind === 'curated'" class="mpill" data-test="d-kind">官方網頁整理</span>
+          <span v-else-if="enrichedCatalog" class="mpill" data-test="d-kind">台北服務通 · 資格已整理</span>
           <span v-else-if="item.kind === 'catalog'" class="mpill" data-test="d-kind">台北服務通 · 開放資料</span>
           <span v-else class="mpill">開放資料 · 臺北市社會局</span>
           <span v-if="catalog" class="verdict none" data-test="d-verdict">{{ UNMATCHED_LABEL }}</span>

@@ -128,21 +128,21 @@ export function matchAll(items: SubsidyItem[], a: CompletedAnswers): MatchResult
 export interface GroupedResults {
   eligible: Array<{ item: SubsidyItem; result: MatchResult }>;
   ineligible: Array<{ item: SubsidyItem; result: MatchResult }>;
-  /** [SUBS-R75] 台北服務通：資料集沒有資格欄位，不比對、不進兩組，依序號 */
+  /** [SUBS-R75] 未補條件的台北服務通：資料集沒有資格欄位，不比對、不進兩組，依序號（補好的照常比對，SUBS-R77） */
   catalog: SubsidyItem[];
 }
 
-/** [SUBS-R75] 台北服務通項目不依四題比對（ADR-036） */
+/** [SUBS-R75] 台北服務通項目不依四題比對（ADR-036）；已補資格條件（enriched）的照常比對（SUBS-R77，ADR-037） */
 export function isUnmatched(item: SubsidyItem): boolean {
-  return item.kind === 'catalog';
+  return item.kind === 'catalog' && item.enriched !== true;
 }
 
 /**
- * [SUBS-R18] 排序級別（ADR-035、ADR-036）：開放資料與官方網頁整理同一級（0），模擬資料排後（1），台北服務通最後（2）。
- * 比對本身不看 kind，一律照四題；只有台北服務通不比對（SUBS-R75）。
+ * [SUBS-R18] 排序級別（ADR-035、ADR-036、ADR-037）：開放資料、官方網頁整理與補好條件的台北服務通同一級（0），
+ * 模擬資料排後（1），未補條件的台北服務通最後（2）。比對本身不看 kind，一律照四題；只有未補條件的台北服務通不比對（SUBS-R75）。
  */
 export function kindRank(item: SubsidyItem): number {
-  if (item.kind === 'catalog') return 2;
+  if (item.kind === 'catalog') return item.enriched === true ? 0 : 2;
   return item.kind === 'mock' ? 1 : 0;
 }
 

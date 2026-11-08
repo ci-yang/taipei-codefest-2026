@@ -1,7 +1,7 @@
 import type { SubsidyItem } from '@app/shared';
 import { categoryOf, keyCondition, type KeyCondition } from '@/lib/categories';
 import { UNMATCHED_LABEL, kindLabel } from '@/lib/resultView';
-import { kindRank, type MatchResult } from '@/lib/match';
+import { isUnmatched, kindRank, type MatchResult } from '@/lib/match';
 
 /** 清單卡片（19.png）用的文字：分類標籤、狀態標籤、右側條件、底列摘要。result 為 null＝沒作答，只顯示資料類型 */
 export type CardStatus = 'eligible' | 'mock' | 'ineligible' | 'none';
@@ -43,8 +43,8 @@ export function statusText(row: CardRow): string {
 
 /** 右側：不符合時改顯示第一個不符合的原因；有實際補助原文時顯示原文（畫面截兩行）；其餘用最關鍵的真實條件 */
 export function cardKey(row: CardRow): KeyCondition & { benefit: boolean } {
-  // [SUBS-R75] 台北服務通沒有條件欄可以顯示，不寫「不限」免得誤會
-  if (row.item.kind === 'catalog') return { label: '資格與金額', value: '見官方案件頁', benefit: false };
+  // [SUBS-R75] 未補條件的台北服務通沒有條件欄可以顯示，不寫「不限」免得誤會（補好的照一般項目，SUBS-R77）
+  if (isUnmatched(row.item)) return { label: '資格與金額', value: '見官方案件頁', benefit: false };
   if (row.result && !row.result.ok) {
     return { label: '不符合原因', value: row.result.failures[0] ?? row.result.reason, benefit: false };
   }
@@ -54,7 +54,7 @@ export function cardKey(row: CardRow): KeyCondition & { benefit: boolean } {
 
 /** 底列左邊：設籍條件加還需確認條數；不符合時寫另有幾項不符合 */
 export function cardSummary(row: CardRow): string {
-  if (row.item.kind === 'catalog') return `${UNMATCHED_LABEL} · 資格請見官方案件頁`;
+  if (isUnmatched(row.item)) return `${UNMATCHED_LABEL} · 資格請見官方案件頁`;
   const residency = row.item.residency ? '需設籍臺北市' : '不限設籍';
   const r = row.result;
   if (r === null) {

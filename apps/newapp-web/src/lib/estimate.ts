@@ -1,5 +1,5 @@
 import type { AnswerIdentity, SubsidyItem } from '@app/shared';
-import { formatYuan } from '@/lib/match';
+import { formatYuan, isUnmatched } from '@/lib/match';
 
 /**
  * [SUBS-R76] 估算可領金額（ADR-036）：只加總「可能符合」且 benefitText 有明確金額的項目。
@@ -184,6 +184,117 @@ export const ESTIMATE_RULES: readonly EstimateRule[] = [
     figures: ['每月 5,000 元'],
     prerequisite: '在家照顧重度失能的中低收入老人',
   },
+  // ---- 台北服務通補好資格條件的項目（ADR-037）：原文在 catalog-enriched.json ----
+  {
+    no: 308,
+    name: '身心障礙者承租停車位租金補助',
+    unitMin: 1_000,
+    unitMax: 1_000,
+    timesMin: 12,
+    timesMax: 12,
+    basis: '每月最高 1,000 元 × 12 個月（依身分補助租金 25%～50%）',
+    figures: ['每月補助金額不得逾新臺幣一千元'],
+    prerequisite: '已承租停車位且身心障礙者是車主',
+  },
+  {
+    no: 309,
+    name: '發展遲緩兒童早期療育補助',
+    unitMin: 4_000,
+    unitMax: 6_000,
+    timesMin: 12,
+    timesMax: 12,
+    basis: '每月最高 4,000 元（臺北市低收入戶 6,000 元）× 12 個月',
+    figures: ['每人每月最高補助四千元', '最高補助六千元'],
+    prerequisite: '家中有發展遲緩或身心障礙的學齡前兒童',
+  },
+  {
+    no: 315,
+    name: '弱勢家庭兒童及少年緊急生活扶助',
+    unitMin: 3_000,
+    unitMax: 3_000,
+    timesMin: 6,
+    timesMax: 12,
+    basis: '每月 3,000 元 × 6 個月（延長最多再 6 個月）',
+    figures: ['每人每月補助三千元', '以六個月為原則', '最多延長六個月'],
+    prerequisite: '家中未滿 18 歲子女因家庭變故生活陷困',
+  },
+  {
+    no: 318,
+    name: '協力照顧補助',
+    unitMin: 2_000,
+    unitMax: 5_000,
+    timesMin: 12,
+    timesMax: 12,
+    basis: '每月 2,000～5,000 元（依家庭條件與送托方式）× 12 個月',
+    figures: ['每月二千元至五千元'],
+    prerequisite: '未滿 3 歲幼兒送托協力照顧單位',
+  },
+  {
+    no: 320,
+    name: '低收入戶及受保護安置市民喪葬補助',
+    unitMin: 40_000,
+    unitMax: 40_000,
+    timesMin: 1,
+    timesMax: 1,
+    basis: '一次 40,000 元',
+    figures: ['核撥新臺幣四萬元'],
+    prerequisite: '協助低收入戶家人或受保護安置市民完成殮葬',
+  },
+  {
+    no: 323,
+    name: '04、臺北市失業勞工子女就學費用補助',
+    unitMin: 60_000,
+    unitMax: 60_000,
+    timesMin: 1,
+    timesMax: 1,
+    basis: '每名子女每學期最高 60,000 元，同一年內限申請一次',
+    figures: ['每學期最高補助金額以新臺幣六萬元為限', '同一年內申請補助以一次為限'],
+    prerequisite: '非自願離職失業未滿 6 個月且子女就讀大專校院',
+  },
+  {
+    no: 331,
+    name: '臺北市氣切個案進住照護機構費用補助申請',
+    unitMin: 10_000,
+    unitMax: 15_000,
+    timesMin: 12,
+    timesMax: 12,
+    basis: '每月 10,000 元（中低收入戶）～15,000 元（低收入戶）× 12 個月',
+    figures: ['每人每月補助新臺幣一萬五千元', '每人每月補助新臺幣一萬元'],
+    prerequisite: '家中氣切個案進住護理之家或長期照護機構',
+  },
+  {
+    no: 332,
+    name: '助孕生殖「醫療性凍卵」補助',
+    unitMin: 20_000,
+    unitMax: 20_000,
+    timesMin: 1,
+    timesMax: 1,
+    basis: '凍卵療程一次 20,000 元（保存費每年最高 3,000 元未計）',
+    figures: ['凍卵療程：2萬元', '終身補助1次'],
+    prerequisite: '因罹癌治療影響生育功能',
+  },
+  {
+    no: 333,
+    name: '助孕生殖「人工生殖(試管嬰兒)加碼」補助',
+    unitMin: 25_000,
+    unitMax: 25_000,
+    timesMin: 1,
+    timesMax: 1,
+    basis: '每年一次 25,000 元',
+    figures: ['補助2萬5,000元', '每年補助1次為限'],
+    prerequisite: '不孕配偶接受試管嬰兒療程',
+  },
+  {
+    no: 379,
+    name: '申請低收入戶(無親屬)喪葬補助',
+    unitMin: 25_000,
+    unitMax: 25_000,
+    timesMin: 1,
+    timesMax: 1,
+    basis: '一次 25,000 元',
+    figures: ['核撥新臺幣二萬五千元'],
+    prerequisite: '協助無親屬的低收入戶死亡者完成殮葬',
+  },
 ];
 
 export interface EstimateLine {
@@ -211,7 +322,10 @@ export const ESTIMATE_METHOD =
 export const NO_AMOUNT_NOTE = '金額依個案核定、比例或實支實付，推不出數字';
 export const NO_CONDITION_NOTE = '核心資格四題沒問到（例如要有新生兒、原住民身分或在租屋），要自己確認';
 
-/** [SUBS-R76] 由可能符合的項目算估算；模擬資料、台北服務通不算、也不列未計入；identities 是作答勾的身分 */
+/**
+ * [SUBS-R76] 由可能符合的項目算估算；模擬資料、未補條件的台北服務通不算、也不列未計入（補好條件的照一般規則，ADR-037）；
+ * identities 是作答勾的身分
+ */
 export function estimateFor(
   eligible: ReadonlyArray<{ item: SubsidyItem }>,
   identities: readonly AnswerIdentity[] = [],
@@ -220,7 +334,7 @@ export function estimateFor(
   const noAmount: string[] = [];
   const noCondition: Estimate['noCondition'] = [];
   for (const { item } of eligible) {
-    if (item.kind === 'mock' || item.kind === 'catalog') continue;
+    if (item.kind === 'mock' || isUnmatched(item)) continue;
     const rule = ESTIMATE_RULES.find((r) => r.no === item.no);
     if (!rule || rule.name !== item.name || item.benefitText === null) {
       noAmount.push(item.name);
