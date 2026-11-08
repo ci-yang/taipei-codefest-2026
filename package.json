@@ -2,7 +2,7 @@
   "name": "taipei-codefest-2026",
   "private": true,
   "version": "0.1.0",
-  "description": "城市通微服務大黑客松 2026 — 福利雷達",
+  "description": "新北福利雷達 — 官方福利補助資格初篩",
   "license": "AGPL-3.0-or-later",
   "packageManager": "pnpm@11.13.1",
   "scripts": {

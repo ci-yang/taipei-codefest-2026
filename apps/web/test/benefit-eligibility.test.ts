@@ -10,24 +10,24 @@ import {
 const today = new Date(2026, 10, 8);
 const baseProfile: EligibilityProfile = {
   birthday: '1990-01-01',
-  taipeiResident: true,
+  newTaipeiResident: true,
   domestic183Days: true,
   monthlyIncomePerPerson: 12_000,
-  movableAssetsPerPerson: 100_000,
+  movableAssetsPerPerson: 80_000,
   realEstateHousehold: 2_000_000,
   traits: [],
 };
 
 const program = (id: string) => BENEFIT_PROGRAMS.find((item) => item.id === id)!;
 
-describe('benefit eligibility rules', () => {
-  it('25 項規則都有唯一識別碼、實際補助內容與官方 HTTPS 連結', () => {
+describe('新北市福利資格規則', () => {
+  it('28 項規則都有唯一官方 ID、給付內容與 HTTPS 連結', () => {
     expect(BENEFIT_PROGRAMS).toHaveLength(BENEFIT_SOURCE.count);
     expect(new Set(BENEFIT_PROGRAMS.map((item) => item.id)).size).toBe(BENEFIT_SOURCE.count);
     expect(BENEFIT_PROGRAMS.every((item) => item.benefitContent.trim().length > 0)).toBe(true);
     expect(BENEFIT_PROGRAMS.every((item) => item.officialUrl.startsWith('https://'))).toBe(true);
-    expect(program('9').benefitContent).toContain('補助 80%');
-    expect(program('12').benefitContent).toContain('每名子女 1,000 元');
+    expect(program('163').benefitContent).toContain('單身 3,500 元');
+    expect(program('1008103').benefitContent).toContain('第 1 名 40,000 元');
   });
 
   it('依生日正確計算週歲，無效日期不猜測', () => {
@@ -37,257 +37,149 @@ describe('benefit eligibility rules', () => {
     expect(ageFromBirthday('', today)).toBeNull();
   });
 
-  it('逐一回傳 25 項深度規則，並將較可能的結果排前面', () => {
-    const results = evaluateBenefits({ ...baseProfile, traits: ['lowIncome'] }, today);
-    expect(results).toHaveLength(25);
+  it('逐一回傳 28 項深度規則並把較可能項目排前面', () => {
+    const results = evaluateBenefits(baseProfile, today);
+    expect(results).toHaveLength(28);
     expect(results.map((result) => result.program.id).sort()).toEqual(BENEFIT_PROGRAMS.map((item) => item.id).sort());
-    expect(results[0]!.status).toBe('possible');
+    expect(results[0]!.status).not.toBe('unlikely');
   });
 
-  it('已具低收入戶資格且門檻內，生活扶助列為值得進一步申請', () => {
-    const result = evaluateBenefit(program('1'), { ...baseProfile, traits: ['lowIncome'] }, today);
-    expect(result.status).toBe('possible');
-    expect(result.conflicts).toHaveLength(0);
-    expect(result.matched.join(' ')).toContain('已具低收入戶資格');
+  it('低收入戶依 115 年新北門檻判斷所得、動產及不動產', () => {
+    expect(evaluateBenefit(program('22024'), baseProfile, today).status).toBe('possible');
+    const overIncome = evaluateBenefit(program('22024'), { ...baseProfile, monthlyIncomePerPerson: 17_751 }, today);
+    const overAssets = evaluateBenefit(program('22024'), { ...baseProfile, movableAssetsPerPerson: 100_001 }, today);
+    expect(overIncome.status).toBe('unlikely');
+    expect(overIncome.conflicts.join(' ')).toContain('17,750');
+    expect(overAssets.status).toBe('unlikely');
   });
 
-  it('低收入戶使用 115 年度所得門檻 20,744 元', () => {
-    const atLimit = evaluateBenefit(
-      program('1'),
-      { ...baseProfile, monthlyIncomePerPerson: 20_744, traits: ['lowIncome'] },
-      today,
-    );
-    const overLimit = evaluateBenefit(
-      program('1'),
-      { ...baseProfile, monthlyIncomePerPerson: 20_745, traits: ['lowIncome'] },
-      today,
-    );
-
-    expect(atLimit.status).toBe('possible');
-    expect(overLimit.status).toBe('unlikely');
-  });
-
-  it('缺少既有低收入戶認定時不武斷排除，而是要求補確認', () => {
-    const result = evaluateBenefit(program('1'), baseProfile, today);
-    expect(result.status).toBe('review');
-    expect(result.missing.join(' ')).toContain('先取得');
-  });
-
-  it('明確超過所得門檻時標為可能不符，並保留可讀理由', () => {
-    const result = evaluateBenefit(program('4'), { ...baseProfile, monthlyIncomePerPerson: 30_000 }, today);
-    expect(result.status).toBe('unlikely');
-    expect(result.conflicts.join(' ')).toContain('超過資料門檻 29,635 元');
-  });
-
-  it('年齡未達 65 歲時不把老人津貼列為待補資料', () => {
-    const result = evaluateBenefit(program('6'), baseProfile, today);
-    expect(result.status).toBe('unlikely');
-    expect(result.conflicts).toContain('目前 36 歲，未達 65 歲');
-  });
-
-  it('未填金額時保留未知，不以 0 元冒充', () => {
-    const result = evaluateBenefit(
-      program('4'),
-      { ...baseProfile, monthlyIncomePerPerson: null, movableAssetsPerPerson: null, realEstateHousehold: null },
-      today,
-    );
-    expect(result.status).toBe('review');
-    expect(result.missing).toHaveLength(3);
-  });
-
-  it('中央租金補貼要求租屋且家庭無自有住宅', () => {
-    const eligible = evaluateBenefit(program('11'), { ...baseProfile, monthlyIncomePerPerson: 50_000, traits: ['renter', 'noOwnedHome'] }, today);
-    const ownsHome = evaluateBenefit(program('11'), { ...baseProfile, monthlyIncomePerPerson: 50_000, traits: ['renter'] }, today);
-
+  it('中低收入戶使用 26,625、15 萬與 708 萬門檻', () => {
+    const eligible = evaluateBenefit(program('22208'), {
+      ...baseProfile,
+      monthlyIncomePerPerson: 26_625,
+      movableAssetsPerPerson: 150_000,
+      realEstateHousehold: 7_080_000,
+    }, today);
+    const over = evaluateBenefit(program('22208'), { ...baseProfile, monthlyIncomePerPerson: 26_626 }, today);
     expect(eligible.status).toBe('possible');
-    expect(ownsHome.status).toBe('unlikely');
-    expect(ownsHome.conflicts.join(' ')).toContain('均無自有住宅');
+    expect(over.status).toBe('unlikely');
   });
 
-  it('中央租金補貼對新婚或育有未成年子女家庭採較高所得門檻', () => {
-    const ordinary = evaluateBenefit(program('11'), { ...baseProfile, monthlyIncomePerPerson: 65_000, traits: ['renter', 'noOwnedHome'] }, today);
-    const newlywed = evaluateBenefit(program('11'), { ...baseProfile, monthlyIncomePerPerson: 65_000, traits: ['renter', 'noOwnedHome', 'newlywedWithin2Years'] }, today);
-
-    expect(ordinary.status).toBe('unlikely');
-    expect(ordinary.conflicts.join(' ')).toContain('61,137');
-    expect(newlywed.status).toBe('possible');
-    expect(newlywed.matched.join(' ')).toContain('71,327');
-  });
-
-  it('都市原住民家庭租屋補貼使用 115 年度所得門檻 72,604 元', () => {
-    const atLimit = evaluateBenefit(
-      program('15'),
-      {
-        ...baseProfile,
-        monthlyIncomePerPerson: 72_604,
-        traits: ['indigenous', 'renter', 'noOwnedHome', 'taipeiResidentFourMonths'],
-      },
-      today,
-    );
-    const overLimit = evaluateBenefit(
-      program('15'),
-      {
-        ...baseProfile,
-        monthlyIncomePerPerson: 72_605,
-        traits: ['indigenous', 'renter', 'noOwnedHome', 'taipeiResidentFourMonths'],
-      },
-      today,
-    );
-
-    expect(atLimit.status).toBe('possible');
-    expect(overLimit.status).toBe('unlikely');
-  });
-
-  it('臺北幸福租接受未滿 40 歲單身青年，也接受育有 12 歲以下子女家庭', () => {
-    const singleYouth = evaluateBenefit(program('12'), { ...baseProfile, traits: ['renter', 'centralRentApproved', 'single'] }, today);
-    const parenting = evaluateBenefit(
-      program('12'),
-      { ...baseProfile, birthday: '1970-01-01', traits: ['renter', 'centralRentApproved', 'childUnder12'] },
-      today,
-    );
-
-    expect(singleYouth.status).toBe('possible');
-    expect(parenting.status).toBe('possible');
-  });
-
-  it('臺北幸福租排除年滿 40 歲、沒有育兒條件的單身申請人', () => {
-    const result = evaluateBenefit(
-      program('12'),
-      { ...baseProfile, birthday: '1980-01-01', traits: ['renter', 'centralRentApproved', 'single'] },
-      today,
-    );
-
+  it('需要新北市籍的方案不會對未設籍者誤判可能符合', () => {
+    const result = evaluateBenefit(program('1008103'), {
+      ...baseProfile,
+      newTaipeiResident: false,
+      traits: ['recentBirth', 'newTaipeiResidentTenMonths', 'birthApplicationInTime'],
+    }, today);
     expect(result.status).toBe('unlikely');
-    expect(result.conflicts.join(' ')).toContain('未滿 40 歲');
+    expect(result.conflicts.join(' ')).toContain('未設籍新北市');
   });
 
-  it('一般生育補助須同時符合生育、設籍期間與申請期限', () => {
-    const result = evaluateBenefit(
-      program('16'),
-      { ...baseProfile, traits: ['recentBirth', 'northNorthKeelungTenMonths', 'birthApplicationInTime'] },
-      today,
-    );
-
-    expect(result.status).toBe('possible');
+  it('青年租金補貼要求年齡、租屋、無房、無重複補助及新北就學就業', () => {
+    const eligible = evaluateBenefit(program('163'), {
+      ...baseProfile,
+      birthday: '1997-01-01',
+      traits: ['renter', 'noOwnedHome', 'noOtherHousingSubsidy', 'newTaipeiWorkOrStudy', 'single'],
+    }, today);
+    const missingExclusivity = evaluateBenefit(program('163'), {
+      ...baseProfile,
+      birthday: '1997-01-01',
+      traits: ['renter', 'noOwnedHome', 'newTaipeiWorkOrStudy', 'single'],
+    }, today);
+    expect(eligible.status).toBe('possible');
+    expect(missingExclusivity.status).toBe('unlikely');
+    expect(missingExclusivity.conflicts.join(' ')).toContain('不得重複');
   });
 
-  it('育兒津貼與公共準公共托育補助依照顧方式分流', () => {
-    const homeCare = evaluateBenefit(
-      program('17'),
-      { ...baseProfile, traits: ['infantUnder2', 'homeCareWithoutPublicChildcare', 'childNotPubliclyPlaced'] },
-      today,
-    );
-    const childcare = evaluateBenefit(
-      program('18'),
-      { ...baseProfile, traits: ['infantUnder2', 'publicOrQuasiChildcare', 'childcare30Hours', 'childNotPubliclyPlaced'] },
-      today,
-    );
+  it('青年租金補貼排除已滿 40 歲申請人', () => {
+    const result = evaluateBenefit(program('163'), {
+      ...baseProfile,
+      birthday: '1980-01-01',
+      traits: ['renter', 'noOwnedHome', 'noOtherHousingSubsidy', 'newTaipeiWorkOrStudy', 'single'],
+    }, today);
+    expect(result.status).toBe('unlikely');
+    expect(result.conflicts.join(' ')).toContain('已超過 39 歲');
+  });
 
+  it('生育獎勵金須同時符合設籍 10 個月與一年申請期限', () => {
+    const eligible = evaluateBenefit(program('1008103'), {
+      ...baseProfile,
+      traits: ['recentBirth', 'newTaipeiResidentTenMonths', 'birthApplicationInTime'],
+    }, today);
+    const incomplete = evaluateBenefit(program('1008103'), { ...baseProfile, traits: ['recentBirth'] }, today);
+    expect(eligible.status).toBe('possible');
+    expect(incomplete.status).toBe('unlikely');
+  });
+
+  it('未滿二歲育兒津貼與公共準公共托育補助依照顧方式分流', () => {
+    const homeCare = evaluateBenefit(program('1008029'), {
+      ...baseProfile,
+      traits: ['infantUnder2', 'homeCareWithoutPublicChildcare', 'childNotPubliclyPlaced'],
+    }, today);
+    const childcare = evaluateBenefit(program('1008042'), {
+      ...baseProfile,
+      traits: ['infantUnder2', 'publicOrQuasiChildcare', 'childcare30Hours', 'childNotPubliclyPlaced'],
+    }, today);
     expect(homeCare.status).toBe('possible');
     expect(childcare.status).toBe('possible');
   });
 
-  it('失業給付只有在五項必要條件都勾選時列為可能符合', () => {
-    const complete = evaluateBenefit(
-      program('19'),
-      {
-        ...baseProfile,
-        traits: ['unemployed', 'involuntaryUnemployed', 'employmentInsuranceOneYear', 'willingToWork', 'jobRegistered14Days'],
-      },
-      today,
-    );
-    const incomplete = evaluateBenefit(program('19'), { ...baseProfile, traits: ['unemployed', 'involuntaryUnemployed'] }, today);
-
-    expect(complete.status).toBe('possible');
-    expect(incomplete.status).toBe('unlikely');
-  });
-
-  it('特殊境遇家庭接受臺北市民，並保留新住民配偶設籍例外', () => {
-    const taipeiFamily = evaluateBenefit(program('20'), { ...baseProfile, traits: ['specialFamilyCircumstance'] }, today);
-    const newImmigrantFamily = evaluateBenefit(
-      program('20'),
-      { ...baseProfile, taipeiResident: false, traits: ['specialFamilyCircumstance', 'newImmigrant', 'spouseTaipeiResident'] },
-      today,
-    );
-
-    expect(taipeiFamily.status).toBe('possible');
-    expect(newImmigrantFamily.status).toBe('possible');
-    expect(newImmigrantFamily.matched.join(' ')).toContain('新住民');
-  });
-
-  it('身心障礙輔具補助要求先核定、符合補助間隔且未重複補助', () => {
-    const complete = evaluateBenefit(
-      program('21'),
-      { ...baseProfile, traits: ['disabled', 'assistiveDeviceNeeded', 'assistiveDeviceSubsidyConditionsMet'] },
-      today,
-    );
-    const alreadyPurchased = evaluateBenefit(program('21'), { ...baseProfile, traits: ['disabled'] }, today);
-
-    expect(complete.status).toBe('possible');
-    expect(alreadyPurchased.status).toBe('unlikely');
-  });
-
-  it('老人健保補助分別處理一般長者與原住民年齡門檻', () => {
-    const commonTraits = ['taipeiResidentOneYear', 'taxRateUnder20', 'noFullNhiSubsidy'] as const;
-    const senior = evaluateBenefit(
-      program('22'),
-      { ...baseProfile, birthday: '1956-01-01', traits: [...commonTraits] },
-      today,
-    );
-    const indigenousSenior = evaluateBenefit(
-      program('22'),
-      { ...baseProfile, birthday: '1968-01-01', traits: ['indigenous', ...commonTraits] },
-      today,
-    );
-
-    expect(senior.status).toBe('possible');
-    expect(indigenousSenior.status).toBe('possible');
-    expect(indigenousSenior.matched.join(' ')).toContain('原住民年齡門檻');
-  });
-
-  it('兒童醫療補助可由一般幼兒、特殊醫療或第 3 名以上子女任一路徑符合', () => {
-    const generalChild = evaluateBenefit(
-      program('23'),
-      { ...baseProfile, traits: ['childTaipeiResident', 'childUnder6', 'parentTaipeiTenMonths'] },
-      today,
-    );
-    const specialChild = evaluateBenefit(
-      program('23'),
-      { ...baseProfile, traits: ['childTaipeiResident', 'childMedicalSpecialEligibility'] },
-      today,
-    );
-    const noRoute = evaluateBenefit(program('23'), { ...baseProfile, traits: ['childTaipeiResident'] }, today);
-
-    expect(generalChild.status).toBe('possible');
-    expect(specialChild.status).toBe('possible');
-    expect(noRoute.status).toBe('unlikely');
-  });
-
-  it('好孕 2U 接受孕婦本人設籍或非本國籍孕婦的配偶設籍途徑', () => {
-    const resident = evaluateBenefit(
-      program('24'),
-      { ...baseProfile, traits: ['currentlyPregnant', 'pregnancyHealthHandbook'] },
-      today,
-    );
-    const spouseResident = evaluateBenefit(
-      program('24'),
-      { ...baseProfile, taipeiResident: false, traits: ['currentlyPregnant', 'pregnancyHealthHandbook', 'spouseTaipeiResident'] },
-      today,
-    );
-
+  it('好孕專車接受孕婦本人設籍或非本國籍孕婦配偶設籍途徑', () => {
+    const resident = evaluateBenefit(program('22216'), { ...baseProfile, traits: ['currentlyPregnant'] }, today);
+    const spouse = evaluateBenefit(program('22216'), {
+      ...baseProfile,
+      newTaipeiResident: false,
+      traits: ['currentlyPregnant', 'spouseNewTaipeiResident'],
+    }, today);
     expect(resident.status).toBe('possible');
-    expect(spouseResident.status).toBe('possible');
+    expect(spouse.status).toBe('possible');
   });
 
-  it('中低收入老人特別照顧津貼同時核對長者與家庭照顧者條件', () => {
-    const complete = evaluateBenefit(
-      program('25'),
-      { ...baseProfile, traits: ['elderCareRecipientEligible', 'familyCaregiverEligible'] },
-      today,
-    );
-    const incomplete = evaluateBenefit(program('25'), { ...baseProfile, traits: ['elderCareRecipientEligible'] }, today);
+  it('帶狀疱疹疫苗分別處理一般市民與原住民年齡門檻', () => {
+    const common = evaluateBenefit(program('268437690'), {
+      ...baseProfile,
+      birthday: '1956-01-01',
+      traits: ['middleLowIncome'],
+    }, today);
+    const indigenous = evaluateBenefit(program('268437690'), {
+      ...baseProfile,
+      birthday: '1968-01-01',
+      traits: ['lowIncome', 'indigenous'],
+    }, today);
+    expect(common.status).toBe('possible');
+    expect(indigenous.status).toBe('possible');
+  });
 
+  it('青年就業計畫需要失業、參訓意願與指定青年類型', () => {
+    const eligible = evaluateBenefit(program('268437678'), {
+      ...baseProfile,
+      birthday: '2000-01-01',
+      traits: ['unemployed', 'willingToTrain', 'longTermUnemployed180Days'],
+    }, today);
+    const incomplete = evaluateBenefit(program('268437678'), {
+      ...baseProfile,
+      birthday: '2000-01-01',
+      traits: ['unemployed'],
+    }, today);
+    expect(eligible.status).toBe('possible');
+    expect(incomplete.status).toBe('unlikely');
+  });
+
+  it('中低收入老人特別照顧津貼同時核對長者與照顧者條件', () => {
+    const complete = evaluateBenefit(program('22008'), {
+      ...baseProfile,
+      traits: ['elderCareRecipientEligible', 'familyCaregiverEligible'],
+    }, today);
+    const incomplete = evaluateBenefit(program('22008'), {
+      ...baseProfile,
+      traits: ['elderCareRecipientEligible'],
+    }, today);
     expect(complete.status).toBe('possible');
     expect(incomplete.status).toBe('unlikely');
+  });
+
+  it('新北市特有的鮮奶幸福週只在填有符合學童時出現', () => {
+    expect(evaluateBenefit(program('268437687'), { ...baseProfile, traits: ['newTaipeiSchoolStudent'] }, today).status).toBe('possible');
+    expect(evaluateBenefit(program('268437687'), baseProfile, today).status).toBe('unlikely');
   });
 });

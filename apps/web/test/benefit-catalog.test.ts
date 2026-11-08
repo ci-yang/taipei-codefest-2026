@@ -12,7 +12,7 @@ import type { EligibilityProfile } from '@/lib/benefit-eligibility';
 
 const profile: EligibilityProfile = {
   birthday: '1990-01-01',
-  taipeiResident: true,
+  newTaipeiResident: true,
   domestic183Days: true,
   monthlyIncomePerPerson: null,
   movableAssetsPerPerson: null,
@@ -20,106 +20,75 @@ const profile: EligibilityProfile = {
   traits: [],
 };
 
-describe('台北服務通補助候選快照', () => {
-  it('保留來源統計與 165 個可追溯官方入口', () => {
-    expect(CATALOG_SOURCE.totalServiceCount).toBe(1_647);
-    expect(CATALOG_SOURCE.keywordMatchCount).toBe(248);
-    expect(CATALOG_SOURCE.candidateCount).toBe(165);
-    expect(CATALOG_PROGRAMS).toHaveLength(165);
-    expect(new Set(CATALOG_PROGRAMS.map((item) => item.id))).toHaveLength(165);
-    expect(CATALOG_PROGRAMS.every((item) => item.officialUrl === `https://service.taipei/case-detail/${item.id}`)).toBe(true);
+describe('新北市福利補助官方快照', () => {
+  it('完整保留 152 筆官方開放資料及可追溯明細網址', () => {
+    expect(CATALOG_SOURCE.totalServiceCount).toBe(152);
+    expect(CATALOG_SOURCE.candidateCount).toBe(152);
+    expect(CATALOG_PROGRAMS).toHaveLength(152);
+    expect(new Set(CATALOG_PROGRAMS.map((item) => item.id)).size).toBe(152);
+    expect(CATALOG_PROGRAMS.every((item) => item.officialUrl === `https://welfare.ntpc.gov.tw/viewService/show/${item.id}?actionName=list6&fromOpa=1`)).toBe(true);
   });
 
-  it('依身分提高相關案件排序，但沒有把候選誤標為符合資格', () => {
+  it('官方欄位包含資格、申請方式、給付內容及更新日期', () => {
+    const birth = CATALOG_PROGRAMS.find((item) => item.id === '1008103')!;
+    expect(birth.summary).toContain('申請條件');
+    expect(birth.applicationMethods).toContain('戶政事務所');
+    expect(birth.benefitContent).toContain('4萬元');
+    expect(birth.lastUpdated).toMatch(/^2026-/);
+  });
+
+  it('依身分提高相關項目排序，但不把目錄候選誤標為完整核定', () => {
     const ranked = rankCatalogPrograms({ ...profile, traits: ['indigenous'] }, new Date(2026, 10, 8));
-    expect(ranked).toHaveLength(165);
+    expect(ranked).toHaveLength(152);
     expect(ranked[0]!.score).toBeGreaterThanOrEqual(7);
     expect(ranked[0]!.reasons.join(' ')).toContain('原住民族身分');
     expect(ranked.slice(0, 20).some((item) => item.category === 'indigenous')).toBe(true);
   });
 
-  it('隱藏未勾選的明確身分案件，勾選後才恢復為候選', () => {
-    const ranked = rankCatalogPrograms(profile, new Date(2026, 10, 8));
-    expect(ranked.find((item) => item.program.id === 'BE005')).toMatchObject({ excluded: true });
-    expect(ranked.find((item) => item.program.id === 'AI013')).toMatchObject({ excluded: true });
-    expect(ranked.find((item) => item.program.id === 'AC042')).toMatchObject({ excluded: true });
-    expect(ranked.find((item) => item.program.id === 'AF127')).toMatchObject({ excluded: true });
+  it('未勾選明確身分時排除，勾選後才恢復候選', () => {
+    const unselected = rankCatalogPrograms(profile, new Date(2026, 10, 8));
+    expect(unselected.find((item) => item.program.id === '1008023')).toMatchObject({ excluded: true });
+    expect(unselected.find((item) => item.program.id === '268437101')).toMatchObject({ excluded: true });
+    expect(unselected.find((item) => item.program.id === '1008103')).toMatchObject({ excluded: true });
 
-    const indigenousOnly = rankCatalogPrograms({ ...profile, traits: ['indigenous'] }, new Date(2026, 10, 8));
-    expect(indigenousOnly.find((item) => item.program.id === 'BE005')).toMatchObject({ excluded: false });
-    expect(indigenousOnly.find((item) => item.program.id === 'BE006')).toMatchObject({ excluded: true });
-
-    const selected = rankCatalogPrograms(
-      { ...profile, traits: ['indigenous', 'disabled', 'recentBirth'] },
-      new Date(2026, 10, 8),
-    );
-    expect(selected.find((item) => item.program.id === 'BE005')).toMatchObject({ excluded: false });
-    expect(selected.find((item) => item.program.id === 'AI013')).toMatchObject({ excluded: false });
-    expect(selected.find((item) => item.program.id === 'AC042')).toMatchObject({ excluded: false });
-    expect(selected.find((item) => item.program.id === 'AF127')).toMatchObject({ excluded: true });
+    const selected = rankCatalogPrograms({
+      ...profile,
+      traits: ['disabled', 'assistiveDeviceNeeded', 'petOwner', 'recentBirth'],
+    }, new Date(2026, 10, 8));
+    expect(selected.find((item) => item.program.id === '1008023')).toMatchObject({ excluded: false });
+    expect(selected.find((item) => item.program.id === '268437101')).toMatchObject({ excluded: false });
+    expect(selected.find((item) => item.program.id === '1008103')).toMatchObject({ excluded: false });
   });
 
-  it('年齡未填時保留年齡方案供確認，不把未知當成不符', () => {
+  it('年齡未填時不把年齡未知誤當成不符', () => {
     const ranked = rankCatalogPrograms({ ...profile, birthday: '' }, new Date(2026, 10, 8));
-    expect(ranked.find((item) => item.program.id === 'EP003')).toMatchObject({ excluded: false });
-    expect(ranked.find((item) => item.program.id === 'PO003')).toMatchObject({ excluded: false });
+    expect(ranked.find((item) => item.program.id === '22036')?.exclusionReasons).not.toContain('年齡與高齡照顧資料不符');
+    expect(ranked.find((item) => item.program.id === '268437678')?.exclusionReasons).not.toContain('年齡不在青年方案的保守範圍');
   });
 
-  it('可把服務分到使用者看得懂的主題', () => {
-    const childbirth = CATALOG_PROGRAMS.find((item) => item.id === 'AC042')!;
-    const disability = CATALOG_PROGRAMS.find((item) => item.id === 'AI013')!;
-    expect(catalogCategory(childbirth)).toBe('family');
-    expect(catalogCategory(disability)).toBe('disability');
+  it('可把服務分到市民看得懂的主題', () => {
+    expect(catalogCategory(CATALOG_PROGRAMS.find((item) => item.id === '1008103')!)).toBe('family');
+    expect(catalogCategory(CATALOG_PROGRAMS.find((item) => item.id === '1008023')!)).toBe('disability');
+    expect(catalogCategory(CATALOG_PROGRAMS.find((item) => item.id === '163')!)).toBe('housing');
   });
 
-  it('優先顯示可確認的實際給付，資料不足時明確標示', () => {
-    const childbirth = CATALOG_PROGRAMS.find((item) => item.id === 'AC042')!;
-    const ivf = CATALOG_PROGRAMS.find((item) => item.id === 'AL088')!;
-    const accelerator = CATALOG_PROGRAMS.find((item) => item.id === 'AF127')!;
-
-    expect(catalogBenefit(childbirth)).toMatchObject({ isConcrete: true });
-    expect(catalogBenefit(childbirth).content).toContain('40,000 元');
-    expect(catalogBenefit(ivf).content).toContain('25,000 元');
-    expect(catalogBenefit(accelerator)).toMatchObject({ isConcrete: false });
-    expect(catalogBenefit(accelerator).note).toContain('未提供金額');
-
-    const ranked = rankCatalogPrograms(profile, new Date(2026, 10, 8));
-    expect(ranked.find((item) => item.program.id === 'AC042')?.benefit.isConcrete).toBe(true);
+  it('優先使用官方實際給付內容，而非只顯示流程摘要', () => {
+    const birth = CATALOG_PROGRAMS.find((item) => item.id === '1008103')!;
+    const benefit = catalogBenefit(birth);
+    expect(benefit).toMatchObject({ isConcrete: true });
+    expect(benefit.content).toContain('40,000 元');
   });
 
-  it('把已知停止或不在受理期的案件標為關閉', () => {
-    const indigenousRent = CATALOG_PROGRAMS.find((item) => item.id === 'BE018')!;
-    const youthSharedSpace = CATALOG_PROGRAMS.find((item) => item.id === 'PO006')!;
-    const exhaustedEmployment = CATALOG_PROGRAMS.find((item) => item.id === 'EA016')!;
-    const stoppedYouthProgram = CATALOG_PROGRAMS.find((item) => item.id === 'EA026')!;
-
-    expect(catalogAcceptance(indigenousRent, new Date(2026, 7, 15))).toMatchObject({ status: 'open' });
-    expect(catalogAcceptance(indigenousRent, new Date(2026, 10, 8))).toMatchObject({ status: 'closed' });
-    expect(catalogAcceptance(youthSharedSpace, new Date(2026, 10, 8))).toMatchObject({ status: 'closed' });
-    expect(catalogAcceptance(exhaustedEmployment, new Date(2026, 10, 8))).toMatchObject({ status: 'closed' });
-    expect(catalogAcceptance(stoppedYouthProgram, new Date(2026, 10, 8))).toMatchObject({
-      status: 'closed',
-      onlineStatus: 'closed',
-      counterStatus: 'closed',
-    });
+  it('只有官方文字明示全年受理時才標為開放，其他狀態保守留白', () => {
+    const vaccine = CATALOG_PROGRAMS.find((item) => item.id === '268437690')!;
+    const birth = CATALOG_PROGRAMS.find((item) => item.id === '1008103')!;
+    expect(catalogAcceptance(vaccine)).toMatchObject({ status: 'open' });
+    expect(catalogAcceptance(birth)).toMatchObject({ status: 'unknown' });
   });
 
-  it('線上暫停但仍可臨櫃的案件不誤標成全面停辦', () => {
-    const temporaryWork = CATALOG_PROGRAMS.find((item) => item.id === 'EA003')!;
-    expect(temporaryWork.onlineAcceptStatus).toBe('StopAccepting');
-    expect(catalogAcceptance(temporaryWork, new Date(2026, 10, 8))).toMatchObject({
-      status: 'open',
-      onlineStatus: 'closed',
-      counterStatus: 'open',
-    });
-    expect(catalogAcceptance(temporaryWork, new Date(2026, 10, 8)).note).toContain('臨櫃申辦');
-  });
-
-  it('候選連結回到台北服務通搜尋，避免直接網址重整後落到 404', () => {
-    const program = CATALOG_PROGRAMS.find((item) => item.id === 'AJ054')!;
-    const url = new URL(catalogOfficialSearchUrl(program));
-
-    expect(url.origin + url.pathname).toBe('https://service.taipei/search-item');
-    expect(url.searchParams.get('keyword')).toBe(program.name);
+  it('候選直接連回新北市福利補助自己查官方明細', () => {
+    const program = CATALOG_PROGRAMS.find((item) => item.id === '163')!;
+    expect(catalogOfficialSearchUrl(program)).toBe(program.officialUrl);
+    expect(new URL(program.officialUrl).hostname).toBe('welfare.ntpc.gov.tw');
   });
 });

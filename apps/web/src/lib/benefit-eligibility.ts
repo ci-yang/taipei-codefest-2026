@@ -10,7 +10,7 @@ export type EligibilityStatus = 'possible' | 'review' | 'unlikely';
 
 export interface EligibilityProfile {
   birthday: string;
-  taipeiResident: Answer;
+  newTaipeiResident: Answer;
   domestic183Days: Answer;
   monthlyIncomePerPerson: number | null;
   movableAssetsPerPerson: number | null;
@@ -60,6 +60,21 @@ function compareLimit(
   }
 }
 
+function addDerivedTraits(selected: Set<BenefitTrait>): void {
+  if (selected.has('currentlyPregnant')) selected.add('pregnantOrRecentLoss');
+  if (selected.has('infantUnder2')) {
+    selected.add('childUnder6');
+    selected.add('childUnder15');
+    selected.add('minorChild');
+  }
+  if (selected.has('childAge2To5') || selected.has('childUnder6')) {
+    selected.add('childUnder15');
+    selected.add('minorChild');
+  }
+  if (selected.has('childUnder15')) selected.add('minorChild');
+  if (selected.has('newlywedWithin2Years')) selected.add('married');
+}
+
 export function evaluateBenefit(
   program: BenefitProgram,
   profile: EligibilityProfile,
@@ -70,14 +85,7 @@ export function evaluateBenefit(
   const conflicts: string[] = [];
   const age = ageFromBirthday(profile.birthday, today);
   const selected = new Set(profile.traits);
-  if (selected.has('currentlyPregnant')) selected.add('pregnantOrRecentLoss');
-  if (selected.has('infantUnder2')) selected.add('childUnder3');
-  if (selected.has('infantUnder2') || selected.has('childUnder3') || selected.has('childAge2To5') || selected.has('childUnder6')) {
-    selected.add('childUnder6');
-    selected.add('childUnder12');
-    selected.add('minorChild');
-  }
-  if (selected.has('childUnder12')) selected.add('minorChild');
+  addDerivedTraits(selected);
   const { rule } = program;
 
   if (rule.minAge !== undefined || rule.maxAge !== undefined) {
@@ -87,10 +95,10 @@ export function evaluateBenefit(
     else matched.push(`年齡 ${age} 歲在資料條件內`);
   }
 
-  if (rule.requiresTaipei) {
-    if (profile.taipeiResident === true) matched.push('設籍／市民條件已填為符合');
-    else if (profile.taipeiResident === false) conflicts.push('目前填寫為未設籍臺北市');
-    else missing.push('需要確認是否設籍臺北市');
+  if (rule.requiresNewTaipei) {
+    if (profile.newTaipeiResident === true) matched.push('已填寫為設籍新北市');
+    else if (profile.newTaipeiResident === false) conflicts.push('目前填寫為未設籍新北市');
+    else missing.push('需要確認是否設籍新北市');
   }
 
   if (rule.requires183Days) {
@@ -100,14 +108,14 @@ export function evaluateBenefit(
   }
 
   if (rule.recognitionAny?.length) {
-    const recognized = rule.recognitionAny.some((trait) => selected.has(trait));
-    if (recognized) matched.push(`已勾選：${rule.recognitionAny.filter((trait) => selected.has(trait)).map((trait) => TRAIT_LABELS[trait]).join('、')}`);
-    else missing.push(`尚須確認或先取得：${rule.recognitionAny.map((trait) => TRAIT_LABELS[trait]).join('／')}`);
+    const present = rule.recognitionAny.filter((trait) => selected.has(trait));
+    if (present.length) matched.push(`已具資格：${present.map((trait) => TRAIT_LABELS[trait]).join('、')}`);
+    else missing.push(`尚須先確認或取得：${rule.recognitionAny.map((trait) => TRAIT_LABELS[trait]).join('／')}`);
   }
 
   if (rule.traitAny?.length) {
-    const traits = rule.traitAny.filter((trait) => selected.has(trait));
-    if (traits.length) matched.push(`符合情況：${traits.map((trait) => TRAIT_LABELS[trait]).join('、')}`);
+    const present = rule.traitAny.filter((trait) => selected.has(trait));
+    if (present.length) matched.push(`符合情況：${present.map((trait) => TRAIT_LABELS[trait]).join('、')}`);
     else conflicts.push(`未勾選必要情況：${rule.traitAny.map((trait) => TRAIT_LABELS[trait]).join('／')}`);
   }
 
@@ -118,90 +126,47 @@ export function evaluateBenefit(
     if (absent.length) conflicts.push(`未勾選必要情況：${absent.map((trait) => TRAIT_LABELS[trait]).join('／')}`);
   }
 
-  if (rule.specialCheck === 'taipeiHappinessRent') {
-    const isSingle = selected.has('single');
-    const isMarried = selected.has('married');
-    const hasYoungChild = selected.has('childUnder12');
-    if (isSingle && isMarried) conflicts.push('單身與已婚不可同時勾選');
-    if (hasYoungChild) matched.push('符合育有 12 歲以下子女的育兒家庭類別');
-    else if (isSingle) {
-      if (age === null) missing.push('需要出生日期才能確認是否為未滿 40 歲單身青年');
-      else if (age >= 40) conflicts.push(`目前 ${age} 歲，不符合未滿 40 歲單身青年條件`);
-      else matched.push(`目前 ${age} 歲，符合未滿 40 歲單身青年條件`);
-    } else if (isMarried) {
-      if (age === null) missing.push('需要出生日期才能確認是否為 45 歲以下已婚青年家庭');
-      else if (age > 45) conflicts.push(`目前 ${age} 歲，不符合 45 歲以下已婚青年家庭條件`);
-      else matched.push(`目前 ${age} 歲，符合 45 歲以下已婚青年家庭條件`);
+  if (rule.specialCheck === 'newTaipeiConnection') {
+    if (profile.newTaipeiResident === true || selected.has('newTaipeiWorkOrStudy')) {
+      matched.push(profile.newTaipeiResident === true ? '已設籍新北市' : '已在新北市就業或就學');
+    } else if (profile.newTaipeiResident === false) {
+      conflicts.push('未設籍新北市，且未勾選在新北市就業或就學');
     } else {
-      missing.push('需要確認屬於未滿 40 歲單身、45 歲以下已婚，或育有 12 歲以下子女的家庭');
+      missing.push('需要確認是否設籍、居住、就業或就學於新北市');
     }
   }
 
-  if (rule.specialCheck === 'specialFamilyResidence') {
-    const newImmigrantException = selected.has('newImmigrant') && selected.has('spouseTaipeiResident');
-    if (profile.taipeiResident === true) matched.push('已填寫為設籍臺北市');
-    else if (newImmigrantException) matched.push('符合新住民與設籍臺北市配偶實際居住本市的設籍例外');
-    else if (profile.taipeiResident === false) conflicts.push('未設籍臺北市，且未勾選新住民配偶設籍例外');
-    else missing.push('需要確認本人設籍臺北市，或符合新住民配偶設籍例外');
-  }
-
-  if (rule.specialCheck === 'elderHealthInsurance') {
-    if (age === null) {
-      missing.push('需要出生日期才能核對老人健保補助年齡');
-    } else if (age >= 65 && age <= 69 && selected.has('middleLowIncome')) {
-      matched.push('符合 65 至 69 歲中低收入老人資格途徑');
-    } else {
-      const minimumAge = selected.has('indigenous') ? 55 : 65;
-      if (age < minimumAge) conflicts.push(`目前 ${age} 歲，未達${selected.has('indigenous') ? '原住民' : '一般長者'} ${minimumAge} 歲門檻`);
-      else matched.push(`目前 ${age} 歲，符合${selected.has('indigenous') ? '原住民' : '一般長者'}年齡門檻`);
-
-      const requiredTraits: BenefitTrait[] = ['taipeiResidentOneYear', 'taxRateUnder20', 'noFullNhiSubsidy'];
-      const absent = requiredTraits.filter((trait) => !selected.has(trait));
-      const present = requiredTraits.filter((trait) => selected.has(trait));
-      if (present.length) matched.push(`已確認：${present.map((trait) => TRAIT_LABELS[trait]).join('、')}`);
-      if (absent.length) conflicts.push(`未勾選必要情況：${absent.map((trait) => TRAIT_LABELS[trait]).join('／')}`);
-    }
-  }
-
-  if (rule.specialCheck === 'childMedical') {
-    if (selected.has('childTaipeiResident')) matched.push(`已確認：${TRAIT_LABELS.childTaipeiResident}`);
-    else conflicts.push(`未勾選必要情況：${TRAIT_LABELS.childTaipeiResident}`);
-
-    const generalChild = selected.has('childUnder6') && selected.has('parentTaipeiTenMonths');
-    const specialChild = selected.has('childMedicalSpecialEligibility');
-    const thirdChild = selected.has('thirdOrLaterChildUnder6');
-    if (generalChild) matched.push('符合第 1 類：未滿 6 歲且父母或監護人一方設籍實住滿 10 個月');
-    if (specialChild) matched.push('符合第 2 類特殊醫療或弱勢身分之一');
-    if (thirdChild) matched.push('符合第 3 類：未滿 6 歲第 3 名以上子女');
-    if (!generalChild && !specialChild && !thirdChild) {
-      conflicts.push('尚未符合兒童醫療補助第 1、2 或 3 類任一資格途徑');
-    }
+  if (rule.specialCheck === 'newTaipeiYouthRent') {
+    const familyCategory = selected.has('single') || selected.has('married') || selected.has('currentlyPregnant') || selected.has('minorChild');
+    if (!familyCategory) conflicts.push('須屬單身、新婚、懷孕或育有未成年子女的青年家庭之一');
+    if (selected.has('single') && selected.has('married')) conflicts.push('單身與已婚不可同時勾選');
   }
 
   if (rule.specialCheck === 'goodPregnancyRide') {
-    if (profile.taipeiResident === true) matched.push('孕婦本人已填寫為設籍臺北市');
-    else if (selected.has('spouseTaipeiResident')) matched.push('符合非本國籍孕婦之配偶設籍臺北市資格途徑');
-    else if (profile.taipeiResident === false) conflicts.push('孕婦本人未設籍臺北市，且未勾選配偶設籍資格');
-    else missing.push('需要確認孕婦本人或其配偶是否設籍臺北市');
+    if (profile.newTaipeiResident === true) matched.push('孕婦本人已設籍新北市');
+    else if (selected.has('spouseNewTaipeiResident')) matched.push('符合非本國籍孕婦配偶設籍新北市途徑');
+    else if (profile.newTaipeiResident === false) conflicts.push('孕婦未設籍新北市，且未勾選配偶設籍資格');
+    else missing.push('需要確認孕婦本人或配偶是否設籍新北市');
   }
 
-  const incomeOverride = rule.incomeLimitOverride;
-  const incomeLimit = incomeOverride?.traitAny.some((trait) => selected.has(trait))
-    ? incomeOverride.limit
-    : rule.incomeLimit;
-  compareLimit(profile.monthlyIncomePerPerson, incomeLimit, '每人每月所得', matched, missing, conflicts);
+  if (rule.specialCheck === 'shinglesVaccine') {
+    if (age === null) missing.push('需要出生日期才能核對疫苗年齡');
+    else {
+      const minimumAge = selected.has('indigenous') ? 55 : 65;
+      if (age < minimumAge) conflicts.push(`目前 ${age} 歲，未達${selected.has('indigenous') ? '原住民' : '一般市民'} ${minimumAge} 歲門檻`);
+      else matched.push(`目前 ${age} 歲，符合疫苗年齡門檻`);
+    }
+  }
+
+  compareLimit(profile.monthlyIncomePerPerson, rule.incomeLimit, '每人每月所得', matched, missing, conflicts);
   compareLimit(profile.movableAssetsPerPerson, rule.movableAssetsLimit, '每人動產', matched, missing, conflicts);
   compareLimit(profile.realEstateHousehold, rule.realEstateLimit, '全家不動產', matched, missing, conflicts);
 
-  if (program.id === '5' || program.id === '6') {
-    missing.push('動產門檻需依家戶人數計算，本版不自動判定');
+  if (program.id === '22180' || program.id === '22036') {
+    missing.push('動產與不動產門檻會依家戶人口及年度調整，仍須由區公所複核');
   }
-  if (program.id === '9') {
-    missing.push('醫療費用、財稅與保護安置資格仍需承辦單位審核');
-  }
-  if (program.id === '10') {
-    missing.push('急難事由與申請時效仍需區公所認定');
-  }
+  if (program.id === '22022') missing.push('醫療項目、保險給付與財稅資格仍須由社會局審查');
+  if (program.id === '22213') missing.push('急難事由與救助金額仍須由區公所訪視認定');
 
   const status: EligibilityStatus = conflicts.length ? 'unlikely' : missing.length ? 'review' : 'possible';
   return { program, status, matched, missing, conflicts };
@@ -210,6 +175,8 @@ export function evaluateBenefit(
 export function evaluateBenefits(profile: EligibilityProfile, today = new Date()): EligibilityResult[] {
   const priority: Record<EligibilityStatus, number> = { possible: 0, review: 1, unlikely: 2 };
   return BENEFIT_PROGRAMS.map((program) => evaluateBenefit(program, profile, today)).sort(
-    (left, right) => priority[left.status] - priority[right.status] || Number(left.program.id) - Number(right.program.id),
+    (left, right) =>
+      priority[left.status] - priority[right.status] ||
+      left.program.name.localeCompare(right.program.name, 'zh-Hant'),
   );
 }

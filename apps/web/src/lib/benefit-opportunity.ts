@@ -27,66 +27,73 @@ interface AmountRange {
 }
 
 const AMOUNT_RANGES: Record<string, AmountRange> = {
-  '2': { minimum: 81_900, maximum: 81_900, basis: '每月 6,825 元，兩學期各 6 個月' },
-  '3': { minimum: 1_000, maximum: 4_000, basis: '依年齡與是否跨縣市通學估算每年兩學期' },
-  '5': { minimum: 48_588, maximum: 113_820, basis: '每月 4,049 至 9,485 元，估算 12 個月' },
-  '6': { minimum: 27_480, maximum: 99_948, basis: '依資格每月 2,290 至 8,329 元，估算 12 個月' },
-  '7': { minimum: 1_000, maximum: 6_000, basis: '每兩個月最多 1,000 元，估算一年 1 至 6 次' },
-  '8': { minimum: 33_000, maximum: 33_000, basis: '單胎一次性生育補助；雙生以上另加' },
-  '10': { minimum: 6_000, maximum: 30_000, basis: '依急難事由的一次性救助常見區間' },
-  '11': { minimum: 36_000, maximum: 96_000, basis: '每月 3,000 至 8,000 元，估算 12 個月' },
-  '13': { minimum: 18_000, maximum: 18_000, basis: '每月最高 1,500 元，估算 12 個月' },
-  '14': { minimum: 36_000, maximum: 90_000, basis: '依同住人數每月最高 3,000 至 7,500 元，估算 12 個月' },
-  '15': { minimum: 48_000, maximum: 102_000, basis: '每月 4,000 至 8,500 元，估算 12 個月' },
-  '16': { minimum: 40_000, maximum: 50_000, basis: '每名新生兒依胎次一次發給' },
-  '17': { minimum: 60_000, maximum: 84_000, basis: '每名兒童每月 5,000 至 7,000 元，估算 12 個月' },
-  '18': { minimum: 30_000, maximum: 120_000, basis: '臺北市友善托育每月 2,500 至 10,000 元，估算 12 個月' },
-  '22': { minimum: 9_912, maximum: 9_912, basis: '每月最高 826 元，估算 12 個月' },
-  '24': { minimum: 10_000, maximum: 10_000, basis: '每次懷孕核發 10,000 元電子乘車金' },
-  '25': { minimum: 60_000, maximum: 60_000, basis: '每月 5,000 元，估算 12 個月' },
+  '22024': { minimum: 36_096, maximum: 159_636, basis: '依低收入戶款別與家庭成員身分，估算 12 個月' },
+  '22180': { minimum: 48_588, maximum: 113_820, basis: '每月 4,049 至 9,485 元，估算 12 個月' },
+  '22036': { minimum: 49_968, maximum: 99_948, basis: '每月 4,164 或 8,329 元，估算 12 個月' },
+  '22025': { minimum: 20_400, maximum: 20_400, basis: '每次生育或符合規定的流產／死產補助' },
+  '22042': { minimum: 28_800, maximum: 52_800, basis: '每月最高 2,400 至 4,400 元，估算 12 個月' },
+  '1008042': { minimum: 84_000, maximum: 264_000, basis: '公共、準公共、出生序與新北合作聯盟加碼，估算 12 個月' },
+  '22170': { minimum: 9_912, maximum: 9_912, basis: '每月最高 826 元，估算 12 個月' },
+  '22216': { minimum: 9_000, maximum: 9_000, basis: '每趟最高 250 元、最多 36 趟' },
+  '22008': { minimum: 60_000, maximum: 60_000, basis: '每月 5,000 元，估算 12 個月' },
+  '22020': { minimum: 26_364, maximum: 27_756, basis: '依兒少年齡每月 2,197 或 2,313 元，估算 12 個月' },
+  '22081': { minimum: 18_000, maximum: 18_000, basis: '每月 3,000 元，原則補助 6 個月' },
+  '22016': { minimum: 48_000, maximum: 72_000, basis: '一般戶每月最高 4,000 元、低收入戶 6,000 元，估算 12 個月' },
+  '268437678': { minimum: 30_000, maximum: 45_000, basis: '依尋職或非典型勞動青年方案上限' },
+  '268437101': { minimum: 600, maximum: 2_000, basis: '依公母及是否由新北市公立動物之家認養' },
+  '268437141': { minimum: 36_000, maximum: 36_000, basis: '免費 120 小時坐月子到宅服務的官方折算價值' },
 };
 
-function monthDayKey(month: number, day: number): number {
-  return month * 100 + day;
-}
-
 /**
- * 深度比對資料中，只有都市原住民租屋補貼有固定的年度受理月份。
- * 其餘項目的即時狀態無法由開放資料可靠判定，因此標為 unknown，而不是擅自宣稱開放。
+ * 只有新北市青年租金補貼有已核對的 116 年度受理終日；其他方案若開放資料未提供
+ * 結構化即時狀態，就保守標記 unknown，不擅自宣稱仍在受理。
  */
 export function benefitAcceptance(programId: string, today = new Date()): BenefitAcceptance {
-  if (programId !== '15') {
-    return { status: 'unknown', note: '官方資料未提供可機讀的即時受理狀態。' };
+  if (programId !== '163') {
+    return { status: 'unknown', note: '官方開放資料未提供可機讀的即時受理狀態。' };
   }
-
-  const current = monthDayKey(today.getMonth() + 1, today.getDate());
-  const isOpen =
-    (current >= monthDayKey(4, 1) && current <= monthDayKey(4, 30)) ||
-    (current >= monthDayKey(8, 1) && current <= monthDayKey(8, 31));
+  const start = new Date(2026, 9, 1);
+  const end = new Date(2027, 11, 31, 23, 59, 59);
+  const open = today >= start && today <= end;
   return {
-    status: isOpen ? 'open' : 'closed',
-    note: '每年僅 4 月 1 日至 4 月 30 日、8 月 1 日至 8 月 31 日受理。',
+    status: open ? 'open' : 'closed',
+    note: '116 年度受理至 2027 年 12 月 31 日，或經費用罄為止。',
   };
 }
 
-function amountRangeFor(result: EligibilityResult, profile: EligibilityProfile): AmountRange | undefined {
-  if (result.program.id !== '12') return AMOUNT_RANGES[result.program.id];
-
+function birthOrderAmount(
+  profile: EligibilityProfile,
+  first: number,
+  second: number,
+  third: number,
+  basis: string,
+): AmountRange {
   const selected = new Set(profile.traits);
-  if (selected.has('childUnder12')) {
-    return {
-      minimum: 12_000,
-      maximum: 12_000,
-      basis: '至少一名 12 歲以下子女每月加碼 1,000 元；未計多名子女加碼',
-    };
+  const amount = selected.has('thirdOrLaterChild') ? third : selected.has('secondChild') ? second : first;
+  return { minimum: amount, maximum: amount, basis };
+}
+
+function amountRangeFor(result: EligibilityResult, profile: EligibilityProfile): AmountRange | undefined {
+  if (result.program.id === '163') {
+    const selected = new Set(profile.traits);
+    const monthly = selected.has('thirdOrLaterChild')
+      ? 7_000
+      : selected.has('secondChild')
+        ? 6_000
+        : selected.has('minorChild') || selected.has('currentlyPregnant')
+          ? 5_000
+          : selected.has('married')
+            ? 4_500
+            : 3_500;
+    return { minimum: monthly * 12, maximum: monthly * 12, basis: `依家庭類別每月 ${monthly.toLocaleString('zh-TW')} 元，估算 12 個月` };
   }
-  if (selected.has('married')) {
-    return { minimum: 30_000, maximum: 30_000, basis: '已婚未育家庭每月加碼 2,500 元，估算 12 個月' };
+  if (result.program.id === '1008103') {
+    return birthOrderAmount(profile, 40_000, 45_000, 50_000, '依 115 年出生序一次發給');
   }
-  if (selected.has('single')) {
-    return { minimum: 12_000, maximum: 12_000, basis: '單身青年每月加碼 1,000 元，估算 12 個月' };
+  if (result.program.id === '1008029' || result.program.id === '268437092') {
+    return birthOrderAmount(profile, 60_000, 72_000, 84_000, '依出生序每月 5,000、6,000 或 7,000 元，估算 12 個月');
   }
-  return undefined;
+  return AMOUNT_RANGES[result.program.id];
 }
 
 export function estimateMissedOpportunity(
@@ -99,9 +106,7 @@ export function estimateMissedOpportunity(
   );
   const lines = possible.flatMap((result): OpportunityLine[] => {
     const range = amountRangeFor(result, profile);
-    return range
-      ? [{ programId: result.program.id, name: result.program.name, ...range }]
-      : [];
+    return range ? [{ programId: result.program.id, name: result.program.name, ...range }] : [];
   });
 
   return {

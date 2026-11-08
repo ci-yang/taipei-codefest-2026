@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useTownPassBridge } from '@/composables/useTownPassBridge';
 import {
   ADDITIONAL_BENEFIT_SOURCES,
   BENEFIT_SOURCE,
@@ -29,13 +28,12 @@ import {
   type OpportunityEstimate,
 } from '@/lib/benefit-opportunity';
 
-const bridge = useTownPassBridge();
 const catalogSnapshotDate = new Intl.DateTimeFormat('zh-TW', {
   dateStyle: 'medium',
   timeZone: 'Asia/Taipei',
 }).format(new Date(CATALOG_SOURCE.fetchedAt));
 const birthday = ref('');
-const taipeiResident = ref<Answer>(null);
+const newTaipeiResident = ref<Answer>(null);
 const domestic183Days = ref<Answer>(null);
 const monthlyIncomePerPerson = ref<number | null>(null);
 const movableAssetsPerPerson = ref<number | null>(null);
@@ -47,29 +45,27 @@ const opportunity = ref<OpportunityEstimate | null>(null);
 const searched = ref(false);
 const showOpportunity = ref(false);
 const showAllCatalog = ref(false);
-const loadingTownPass = ref(false);
-const townPassMessage = ref('');
 
 const traitGroups: { title: string; traits: BenefitTrait[] }[] = [
   {
     title: '身分與生活情況',
-    traits: ['lowIncome', 'middleLowIncome', 'student', 'disabled', 'indigenous', 'newImmigrant', 'militaryFamily', 'violenceVictim', 'protectedOrPlaced', 'recentEmergency', 'specialFamilyCircumstance', 'farmer', 'petOwner'],
+    traits: ['lowIncome', 'middleLowIncome', 'student', 'newTaipeiSchoolStudent', 'disabled', 'indigenous', 'newImmigrant', 'militaryFamily', 'violenceVictim', 'protectedOrPlaced', 'recentEmergency', 'specialFamilyCircumstance', 'farmer', 'petOwner'],
   },
   {
     title: '租屋與家庭狀態',
-    traits: ['renter', 'noOwnedHome', 'centralRentApproved', 'single', 'married', 'newlywedWithin2Years', 'minorChild', 'childUnder12', 'taipeiResidentFourMonths', 'spouseTaipeiResident'],
+    traits: ['renter', 'noOwnedHome', 'noOtherHousingSubsidy', 'newTaipeiWorkOrStudy', 'single', 'married', 'newlywedWithin2Years', 'minorChild', 'childUnder15'],
   },
   {
     title: '生育與托育',
-    traits: ['currentlyPregnant', 'pregnancyHealthHandbook', 'pregnantOrRecentLoss', 'infantUnder2', 'childUnder3', 'childAge2To5', 'childUnder6', 'recentBirth', 'homeCareWithoutPublicChildcare', 'publicOrQuasiChildcare', 'childcare30Hours', 'childNotPubliclyPlaced', 'northNorthKeelungTenMonths', 'birthApplicationInTime'],
+    traits: ['currentlyPregnant', 'pregnantOrRecentLoss', 'recentBirth', 'infantUnder2', 'childAge2To5', 'childUnder6', 'homeCareWithoutPublicChildcare', 'publicOrQuasiChildcare', 'childcare30Hours', 'childNotPubliclyPlaced', 'newTaipeiResidentTenMonths', 'birthApplicationInTime', 'secondChild', 'thirdOrLaterChild', 'spouseNewTaipeiResident'],
   },
   {
     title: '醫療、高齡與照顧',
-    traits: ['seriouslyIllSenior', 'assistiveDeviceNeeded', 'assistiveDeviceSubsidyConditionsMet', 'taipeiResidentOneYear', 'taxRateUnder20', 'noFullNhiSubsidy', 'childTaipeiResident', 'parentTaipeiTenMonths', 'childMedicalSpecialEligibility', 'thirdOrLaterChildUnder6', 'elderCareRecipientEligible', 'familyCaregiverEligible'],
+    traits: ['medicalFinancialHardship', 'seriouslyIllSenior', 'immuneCompromised', 'assistiveDeviceNeeded', 'assistiveDeviceSubsidyConditionsMet', 'childMedicalEligibility', 'developmentalDelayChild', 'elderCareRecipientEligible', 'familyCaregiverEligible'],
   },
   {
     title: '失業與求職',
-    traits: ['unemployed', 'involuntaryUnemployed', 'employmentInsuranceOneYear', 'willingToWork', 'jobRegistered14Days'],
+    traits: ['unemployed', 'longTermUnemployed180Days', 'atypicalWorker', 'willingToTrain'],
   },
 ];
 const CATALOG_RELEVANCE_THRESHOLD = 6;
@@ -113,40 +109,6 @@ const statusText: Record<EligibilityStatus, string> = {
   unlikely: '目前條件可能不符',
 };
 
-function normalizeBirthday(value: string): string {
-  const match = /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/.exec(value.trim());
-  if (!match) return '';
-  return `${match[1]}-${match[2]!.padStart(2, '0')}-${match[3]!.padStart(2, '0')}`;
-}
-
-function isTaipeiAddress(value: string): boolean {
-  return /^(臺北市|台北市)/.test(value.trim());
-}
-
-async function importTownPassProfile(): Promise<void> {
-  loadingTownPass.value = true;
-  townPassMessage.value = '';
-  try {
-    const user = await bridge.getUserInfo();
-    if (!user) {
-      townPassMessage.value = bridge.isAvailable.value
-        ? '台北通目前沒有可用的帳號資料，請手動填寫。'
-        : '一般瀏覽器沒有台北通連線，請手動填寫；本機 demo 可在網址加上 ?mockBridge=1。';
-      return;
-    }
-    const normalized = normalizeBirthday(user.birthday ?? '');
-    if (normalized) birthday.value = normalized;
-    const addressInTaipei = isTaipeiAddress(user.residentAddress ?? '') || user.addresses?.some((item) => isTaipeiAddress(item.city));
-    taipeiResident.value = Boolean(user.citizen || addressInTaipei);
-    if (user.nativePeople && !traits.value.includes('indigenous')) traits.value.push('indigenous');
-    townPassMessage.value = `已帶入出生日期、臺北市民資訊${user.nativePeople ? '與原住民族身分' : ''}${age.value === null ? '' : `（${age.value} 歲）`}；姓名、身分證字號、電話與 Email 不會顯示、儲存或用於判斷。`;
-  } catch {
-    townPassMessage.value = '台北通資料暫時無法讀取，仍可手動完成初篩。';
-  } finally {
-    loadingTownPass.value = false;
-  }
-}
-
 function nullableMoney(value: number | null): number | null {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null;
 }
@@ -154,7 +116,7 @@ function nullableMoney(value: number | null): number | null {
 function search(): void {
   const profile: EligibilityProfile = {
     birthday: birthday.value,
-    taipeiResident: taipeiResident.value,
+    newTaipeiResident: newTaipeiResident.value,
     domestic183Days: domestic183Days.value,
     monthlyIncomePerPerson: nullableMoney(monthlyIncomePerPerson.value),
     movableAssetsPerPerson: nullableMoney(movableAssetsPerPerson.value),
@@ -183,9 +145,9 @@ function catalogSummary(value: string): string {
 <template>
   <main class="page benefits-page">
     <header class="hero">
-      <p class="eyebrow">台北通服務實驗</p>
-      <h1>福利雷達</h1>
-      <p>用台北通帶入少量基本資料，再補幾個家戶條件，找出可能漏領的臺北市社會救助。</p>
+      <p class="eyebrow">新北市福利初篩</p>
+      <h1>新北福利雷達</h1>
+      <p>填入少量家戶條件，找出你在新北市可能符合、卻還沒申請的補助與福利。</p>
       <div class="source-pill">{{ CATALOG_SOURCE.candidateCount }} 項官方候選 · {{ BENEFIT_SOURCE.count }} 項可深度比對</div>
     </header>
 
@@ -196,15 +158,10 @@ function catalogSummary(value: string): string {
 
     <form class="form-card" @submit.prevent="search">
       <div class="section-heading">
-        <div><span class="step">1</span><h2>帶入基本資料</h2></div>
+        <div><span class="step">1</span><h2>填寫基本資料</h2></div>
         <span class="local-badge">只在本機計算</span>
       </div>
-      <p class="muted">不顯示也不使用姓名、身分證字號、電話與 Email。</p>
-      <button class="townpass-button" type="button" :disabled="loadingTownPass" @click="importTownPassProfile">
-        <span aria-hidden="true">◎</span>
-        {{ loadingTownPass ? '正在讀取…' : '從台北通帶入' }}
-      </button>
-      <p v-if="townPassMessage" class="bridge-message" role="status">{{ townPassMessage }}</p>
+      <p class="muted">不要求姓名、身分證字號、電話或 Email；輸入只留在這個頁面，不會上傳。</p>
 
       <div class="field-grid">
         <label>
@@ -213,8 +170,8 @@ function catalogSummary(value: string): string {
           <small v-if="age !== null">目前約 {{ age }} 歲</small>
         </label>
         <label>
-          是否設籍臺北市
-          <select v-model="taipeiResident">
+          是否設籍新北市
+          <select v-model="newTaipeiResident">
             <option :value="null">尚未確認</option>
             <option :value="true">是</option>
             <option :value="false">否</option>
@@ -356,7 +313,7 @@ function catalogSummary(value: string): string {
     <section v-if="searched" class="catalog-results" aria-labelledby="catalog-title">
       <div class="catalog-heading">
         <div>
-          <p class="eyebrow">台北服務通目錄</p>
+          <p class="eyebrow">新北市官方福利目錄</p>
           <h2 id="catalog-title">另外 {{ matchedCatalogResults.length }} 項符合已填身分的官方候選</h2>
         </div>
         <div class="score catalog-score">
@@ -364,13 +321,12 @@ function catalogSummary(value: string): string {
         </div>
       </div>
       <p class="catalog-explainer">
-        由全站 {{ CATALOG_SOURCE.totalServiceCount.toLocaleString() }} 個服務中，以「{{ CATALOG_SOURCE.terms.join('、') }}」找到
-        {{ CATALOG_SOURCE.keywordMatchCount }} 筆，再排除核銷、請款及明顯機構型案件。依已知申請期間隱藏
-        {{ closedCatalogCount }} 項未受理案件，另隱藏 {{ unrelatedCatalogCount }} 項未符合你已填身分或相關度不足的案件。
-        剩下項目因官方目錄沒有一致的所得與資格欄位，仍只是候選，不代表已通過完整資格審查。
-        其中 {{ concreteCatalogBenefitCount }} 項可直接說明給付內容，其餘項目會標明官方目錄缺少的資訊。
+        完整讀取新北市政府開放資料的 {{ CATALOG_SOURCE.totalServiceCount.toLocaleString() }} 項福利，沒有先用關鍵字刪除。
+        依官方文字隱藏 {{ closedCatalogCount }} 項已知未受理案件，另隱藏 {{ unrelatedCatalogCount }} 項不符合你已填身分或相關度不足的項目。
+        剩下項目若缺乏一致的所得與財產欄位，仍只列為候選，不代表已通過完整資格審查。
+        其中 {{ concreteCatalogBenefitCount }} 項有官方給付內容可直接閱讀。
       </p>
-      <p class="muted">部分項目可能與上方深度比對重複；未能由官方資料確認即時受理狀態者，會帶你到台北服務通再次搜尋確認。</p>
+      <p class="muted">部分項目可能與上方深度比對重複；未能確認即時受理狀態者，會直接帶你到新北市官方福利明細。</p>
 
       <div class="catalog-list">
         <p v-if="!matchedCatalogResults.length" class="empty-results">目前沒有其他符合已填身分的官方候選。</p>
@@ -390,22 +346,11 @@ function catalogSummary(value: string): string {
             <summary>查看官方目錄備註</summary>
             <p class="catalog-summary">{{ catalogSummary(item.program.summary) }}</p>
           </details>
-          <p
-            v-if="item.acceptance.onlineStatus === 'closed' && item.acceptance.counterStatus === 'open'"
-            class="acceptance-note"
-          >
-            {{ item.acceptance.note }}
-          </p>
+          <p v-if="item.acceptance.status !== 'open'" class="acceptance-note">{{ item.acceptance.note }}</p>
           <div class="method-row">
-            <span v-if="item.acceptance.onlineStatus === 'open'">可網路申辦</span>
-            <span v-else-if="item.acceptance.onlineStatus === 'closed'" class="method-unavailable">線上暫停</span>
-            <span v-else-if="item.program.online">線上狀態待確認</span>
-            <span v-if="item.acceptance.counterStatus === 'open'">可臨櫃申辦</span>
-            <span v-if="item.acceptance.onlineStatus === 'unknown' && item.acceptance.counterStatus === 'closed'">
-              {{ item.program.applicationMethods || '方式見官方頁面' }}
-            </span>
+            <span>{{ catalogSummary(item.program.applicationMethods || '申請方式見官方頁面') }}</span>
           </div>
-          <a class="official-link" :href="catalogOfficialSearchUrl(item.program)" target="_blank" rel="noopener">在台北服務通搜尋 →</a>
+          <a class="official-link" :href="catalogOfficialSearchUrl(item.program)" target="_blank" rel="noopener">查看新北市官方明細 →</a>
         </article>
       </div>
       <button
@@ -421,9 +366,8 @@ function catalogSummary(value: string): string {
     <footer class="data-note">
       <h2>資料來源與範圍</h2>
       <p>
-        本版以開放資料 {{ BENEFIT_SOURCE.openDataCount }} 項，加上各主管機關官方頁面整理的
-        {{ BENEFIT_SOURCE.additionalRuleCount }} 項常用方案，共 {{ BENEFIT_SOURCE.count }} 項做深度門檻比對；另收錄台北服務通
-        {{ CATALOG_SOURCE.candidateCount }} 項補助相關候選。候選數是本專案的關鍵字與排除規則結果，不是官方公布的補助總數。
+        本版完整收錄新北市政府福利補助開放資料 {{ CATALOG_SOURCE.candidateCount }} 項，並將其中
+        {{ BENEFIT_SOURCE.count }} 項常用方案整理成可在裝置端執行的深度門檻初篩。目錄候選只依使用者已填身分排序，不會把未知條件當成已符合。
       </p>
       <a :href="BENEFIT_SOURCE.catalogUrl" target="_blank" rel="noopener">{{ BENEFIT_SOURCE.name }}（{{ BENEFIT_SOURCE.provider }}）</a>
       <template v-for="source in ADDITIONAL_BENEFIT_SOURCES" :key="source.url">
@@ -432,7 +376,7 @@ function catalogSummary(value: string): string {
       </template>
       <br />
       <a :href="CATALOG_SOURCE.catalogUrl" target="_blank" rel="noopener">{{ CATALOG_SOURCE.name }}（{{ CATALOG_SOURCE.provider }}）</a>
-      <p class="muted">開放資料目錄更新 {{ BENEFIT_SOURCE.catalogUpdatedAt }}；服務目錄快照 {{ catalogSnapshotDate }}。門檻若與官方頁面不同，以最新公告為準。</p>
+      <p class="muted">開放資料由官方{{ BENEFIT_SOURCE.catalogUpdatedAt }}；本機快照 {{ catalogSnapshotDate }}。門檻若與官方頁面不同，以最新公告為準。</p>
     </footer>
   </main>
 </template>
