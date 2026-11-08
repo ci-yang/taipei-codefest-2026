@@ -4,7 +4,9 @@ import {
   type SubsidyItem,
   type SubsidyList,
   type SubsidySource,
+  type SubsidySourceType,
 } from '@app/shared';
+import { CURATED_NO_MIN, DEFAULT_EXTRA_DATA, parseExtraData, withOpenBenefit, type ExtraData } from './curated';
 
 const DATA_TAIPEI_API = 'https://data.taipei/api/v1/dataset';
 export const SUBSIDY_RID = '549a3347-df6e-4bed-b818-368210d01544';
@@ -144,6 +146,10 @@ export function normalizeSubsidy(raw: RawRecord): SubsidyItem | null {
     office: text(raw, '收件洽辦單位'),
     contact: text(raw, '聯繫方式'),
     url: text(raw, '詳細資訊網址'),
+    // [SUBS-R74] 實際補助原文由 buildSubsidyList 依 open-benefit-text.json 補上
+    benefitText: null,
+    sourceUrl: null,
+    verifiedAt: null,
   };
 }
 
@@ -171,8 +177,9 @@ export function latestImportDate(records: RawRecord[], fetchedAt: Date): string 
   return max ?? toTaipeiIso(fetchedAt);
 }
 
-/** 模擬類別序號起點（SUBS-R73：kind=mock 若且唯若 no >= 101） */
+/** 模擬類別序號起點（SUBS-R73：kind=mock 若且唯若 101 <= no <= 200） */
 export const MOCK_NO_MIN = 101;
+export { CURATED_NO_MIN };
 
 /**
  * [SUBS-R07] 模擬類別 3 項，名稱與條件都是示範值（ADR-012）；其他欄位取自原型 prd-4-prototype。
@@ -194,6 +201,9 @@ export const MOCK_SUBSIDIES: readonly SubsidyItem[] = [
     office: '戶籍所在地區公所（模擬）',
     contact: '1999（模擬）',
     url: '',
+    benefitText: null,
+    sourceUrl: null,
+    verifiedAt: null,
   },
   {
     no: 102,
@@ -210,6 +220,9 @@ export const MOCK_SUBSIDIES: readonly SubsidyItem[] = [
     office: '都市發展局（模擬）',
     contact: '1999（模擬）',
     url: '',
+    benefitText: null,
+    sourceUrl: null,
+    verifiedAt: null,
   },
   {
     no: 103,
@@ -226,23 +239,65 @@ export const MOCK_SUBSIDIES: readonly SubsidyItem[] = [
     office: '勞動局（模擬）',
     contact: '1999（模擬）',
     url: '',
+    benefitText: null,
+    sourceUrl: null,
+    verifiedAt: null,
   },
 ];
 
-/** 整理整份清單並用契約驗證：開放資料依序號排，模擬類別接在尾端（SUBS-R07） */
-export function buildSubsidyList(records: RawRecord[], fetchedAt: Date = new Date()): SubsidyList {
-  const items = records
+/** [SUBS-R73] 依序號判定應有的資料類型：1～100 開放、101～200 模擬、201 起官方網頁整理 */
+export function kindOfNo(no: number): SubsidyItem['kind'] {
+  if (no >= CURATED_NO_MIN) return 'curated';
+  if (no >= MOCK_NO_MIN) return 'mock';
+  return 'open';
+}
+
+const OPEN_DESCRIPTION = '臺北市政府社會局在政府資料開放平臺公告的資料集，伺服器每 24 小時重抓一次。';
+const MOCK_DESCRIPTION = '示範用的虛構補助，名稱與條件都不是真實補助。';
+/** 給使用者看的說明（JSON meta.description 是給維護者看的欄位說明，含欄位名，不上畫面） */
+const CURATED_DESCRIPTION =
+  '依各主管機關官方網頁、法規或公告人工整理，不是政府資料開放平臺的資料集。金額只照官方原文，查不到可核對的金額就不顯示。';
+
+/**
+ * 整理整份清單並用契約驗證（SUBS-R07、ADR-035）：開放資料依序號 → 官方網頁整理依序號 → 模擬類別。
+ * 開放資料、官方網頁整理 JSON 任一不合格都丟錯，交給 SUBS-R09 沿用上次結果。
+ */
+export function buildSubsidyList(
+  records: RawRecord[],
+  fetchedAt: Date = new Date(),
+  extra: ExtraData = DEFAULT_EXTRA_DATA,
+): SubsidyList {
+  const { curated, openBenefit } = parseExtraData(extra);
+  const open = records
     .map(normalizeSubsidy)
     .filter((i): i is SubsidyItem => i !== null)
-    .sort((a, b) => a.no - b.no);
-  if (items.length === 0) throw new Error('整理後沒有任何補助項目');
-  // [SUBS-R73] 開放資料序號撞進模擬區段就當整理失敗，交給 SUBS-R09 沿用上次結果
-  const clash = items.find((i) => i.no >= MOCK_NO_MIN);
+    .sort((a, b) => a.no - b.no)
+    .map((i) => withOpenBenefit(i, openBenefit));
+  if (open.length === 0) throw new Error('整理後沒有任何補助項目');
+  // [SUBS-R73] 開放資料序號撞進模擬或官方網頁整理區段就當整理失敗，交給 SUBS-R09 沿用上次結果
+  const clash = open.find((i) => i.no >= MOCK_NO_MIN);
   if (clash) throw new Error(`開放資料序號 ${clash.no} 落在模擬類別區段（>= ${MOCK_NO_MIN}）`);
+  const curatedItems: SubsidyItem[] = [...curated.items].sort((a, b) => a.no - b.no).map((i) => structuredClone(i));
+  const mockItems = MOCK_SUBSIDIES.map((m) => structuredClone(m));
+  const items = [...open, ...curatedItems, ...mockItems];
+  const bad = items.find((i) => i.kind !== kindOfNo(i.no));
+  if (bad) throw new Error(`序號 ${bad.no} 的資料類型 ${bad.kind} 與序號區段不符`);
+  const sources: SubsidySourceType[] = [
+    { kind: 'open', label: '開放資料', description: OPEN_DESCRIPTION, count: open.length, verifiedAt: null },
+    {
+      kind: 'curated',
+      label: curated.meta.label,
+      description: CURATED_DESCRIPTION,
+      count: curatedItems.length,
+      verifiedAt: curated.meta.verifiedAt,
+    },
+    { kind: 'mock', label: '模擬資料', description: MOCK_DESCRIPTION, count: mockItems.length, verifiedAt: null },
+  ];
   return SubsidyListSchema.parse({
-    items: [...items, ...MOCK_SUBSIDIES.map((m) => structuredClone(m))],
+    items,
     updatedAt: latestImportDate(records, fetchedAt),
     source: SUBSIDY_SOURCE,
+    sources,
   });
 }
 

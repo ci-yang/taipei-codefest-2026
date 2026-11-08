@@ -1,0 +1,368 @@
+{
+  "meta": {
+    "kind": "curated",
+    "label": "官方網頁整理",
+    "description": "依各主管機關官方網頁、法規或公告人工整理，非 data.gov.tw 資料集；依各網站「政府網站資料開放宣告」利用。url 是服務說明頁，sourceUrl 是 benefitText 原文所在頁。benefitText 為 null 表示官方頁面查不到可核對的金額。",
+    "verifiedAt": "2026-11-08",
+    "excluded": "165 項台北服務通候選清單（爬蟲）與漏領金額年度估算不收。"
+  },
+  "items": [
+    {
+      "no": 201,
+      "kind": "curated",
+      "name": "300 億元中央擴大租金補貼",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": false,
+      "identities": [],
+      "appliesForStatus": false,
+      "incomeMax": 71327,
+      "toVerify": [
+        "一般家庭每人每月所得需低於 61,137 元；新婚或育有未成年子女家庭放寬至 71,327 元",
+        "在臺北市租屋，家庭成員均無自有住宅",
+        "新婚 2 年內補貼加碼 50%；育有未成年子女 1 人加碼 100%，之後每多 1 名再加碼 50%"
+      ],
+      "documents": [],
+      "office": "臺北市政府都市發展局住宅企劃科",
+      "contact": "02-2777-2186 轉 0 再轉 1",
+      "url": "https://udd.gov.taipei/collection/oo2cmrc",
+      "benefitText": null,
+      "sourceUrl": "https://udd.gov.taipei/collection/oo2cmrc",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 202,
+      "kind": "curated",
+      "name": "臺北幸福租—民間租屋租金加碼補貼",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": true,
+      "identities": [],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "需先取得 300 億元中央擴大租金補貼核准",
+        "申請時及補貼期間設籍並租屋於臺北市",
+        "符合單身青年（成年未滿 40 歲）、已婚青年家庭（45 歲以下、尚未育有子女）或育兒家庭（育有 12 歲以下子女）其中一類"
+      ],
+      "documents": ["臺北幸福租－民間租屋租金加碼補貼申請書", "申請人及代理人身分證正反面影本"],
+      "office": "臺北市政府都市發展局住宅企劃科",
+      "contact": "02-2777-2186 轉 0 再轉 1",
+      "url": "https://udd.gov.taipei/collection/oo2cmrc",
+      "benefitText": "在中央租金補貼之外每月加碼：單身青年 1,000 元；已婚青年家庭 2,500 元；育兒家庭每育有 1 名子女 1,000 元，子女數不設上限。",
+      "sourceUrl": "https://rent-allowance.udd.gov.taipei/documents/grade/臺北幸福租-民間租屋租金加碼補貼計畫及附表.pdf",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 203,
+      "kind": "curated",
+      "name": "低收入戶承租住宅租金補貼",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": true,
+      "identities": ["low"],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "家庭成員都沒有自有住宅且有租屋事實",
+        "戶籍地與租屋地都在臺北市，申請人須為承租人",
+        "未領有政府其他住宅租金補貼；每年需重新申請"
+      ],
+      "documents": ["低收入戶租金補助申請書表", "租賃契約影本", "申請人身分證正反面影本"],
+      "office": "臺北市政府都市發展局（南門辦公室）",
+      "contact": "02-2777-2186 轉 0 再轉 1",
+      "url": "https://rent-allowance.udd.gov.taipei/RentAllowance/LowIncomes",
+      "benefitText": "每戶每月補貼 1,500 元；每月租金低於 1,500 元者，按實際租金核發。補貼至當年度 12 月止。",
+      "sourceUrl": "https://rent-allowance.udd.gov.taipei/assets/Downloads/115年低收入戶租金補助申請書表.pdf",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 204,
+      "kind": "curated",
+      "name": "身心障礙者房屋租金補貼",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": true,
+      "identities": ["dis"],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "家庭總收入平均每人每月未達最低生活費 2.5 倍，或未超過臺灣地區平均每人每月消費支出 1.5 倍",
+        "身心障礙者、配偶及戶籍內直系親屬均無自有住宅，租屋位於臺北市且非社會住宅",
+        "未接受政府其他租金或貸款利息補貼；不得與臺北市身心障礙者津貼同時領取"
+      ],
+      "documents": [
+        "申請表",
+        "身心障礙證明正反面影本",
+        "載明租賃房屋面積之租賃契約書影本",
+        "身心障礙者之台北富邦銀行或郵局存摺帳號影本"
+      ],
+      "office": "臺北市政府社會局身心障礙者福利科",
+      "contact": "1999 轉 6964、2268",
+      "url": "https://dosw.gov.taipei/cp.aspx?n=a119f2d98118e1d5&s=C82846AD24E9F281",
+      "benefitText": "按月每平方公尺最高補貼 100 元；單獨居住最高補貼 30 平方公尺，每增加 1 名同住且設籍本市的配偶或直系親屬加 15 平方公尺（最多加 3 名）。補貼不超過租金總額 50%，保證金、管理費不補貼。",
+      "sourceUrl": "https://dosw.gov.taipei/cp.aspx?n=a119f2d98118e1d5&s=C82846AD24E9F281",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 205,
+      "kind": "curated",
+      "name": "都市原住民家庭租屋補貼",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": true,
+      "identities": [],
+      "appliesForStatus": false,
+      "incomeMax": 72604,
+      "toVerify": [
+        "具原住民族身分（承租人非原住民時，得由具原住民身分的配偶申請）",
+        "家庭成員在臺北市、新北市、基隆市均無自有住宅，且未借住公有住宅或宿舍",
+        "每年 4 月、8 月受理，以當年度公告為準",
+        "收入上限為臺北市最低生活費 3.5 倍（115 年度最低生活費 20,744 元）"
+      ],
+      "documents": ["申請表", "切結書", "全戶戶口名簿影本（含配偶）", "財稅資料證明", "房屋租賃契約書影本", "申請人存摺封面影本"],
+      "office": "臺北市各區公所原住民服務員",
+      "contact": "1999 轉 2077（原住民族事務委員會社會福利組）",
+      "url": "https://www.ipc.gov.taipei/News_Content.aspx?n=4FDBC97163E1A185&s=0714FC733E0478C9",
+      "benefitText": "依家庭人口數與所得級距每戶每月補貼 4,000 至 8,500 元；低收入戶與單親家庭適用較高額度。契約租金未達標準者按實際金額補貼。",
+      "sourceUrl": "https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL078392",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 206,
+      "kind": "curated",
+      "name": "臺北市生育補助",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": true,
+      "identities": [],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "有新生兒出生（或死產）",
+        "父或母自新生兒出生日（或預產日）起 10 個月前連續設籍臺北市（可併計新北市、基隆市），申請時設籍臺北市",
+        "國內出生應於出生次日起 60 日內申請；國外出生為 1 年內"
+      ],
+      "documents": [],
+      "office": "臺北市各區戶政事務所",
+      "contact": "1999",
+      "url": "https://ca.gov.taipei/News_Content.aspx?n=59F2E04A34FDA3E8&s=B48A280E9EB5F920",
+      "benefitText": "第 1 名新生兒 40,000 元、第 2 名 45,000 元、第 3 名以後每名 50,000 元；死產不分胎次 40,000 元。",
+      "sourceUrl": "https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL081869",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 207,
+      "kind": "curated",
+      "name": "育有未滿 2 歲兒童育兒津貼",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": false,
+      "identities": [],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "家中有未滿 2 歲幼兒，已在國內完成出生登記或初設戶籍登記",
+        "幼兒未同時請領托育補助，也未經公費安置",
+        "2 歲以上未滿 5 歲改由教育部育兒津貼辦理"
+      ],
+      "documents": [],
+      "office": "兒童戶籍所在地區公所",
+      "contact": "1999",
+      "url": "https://www.mohw.gov.tw/CHT/np-5130-1.html",
+      "benefitText": "第 1 名子女每月 5,000 元、第 2 名子女每月 6,000 元、第 3 名（含）以上子女每月 7,000 元。",
+      "sourceUrl": "https://www.mohw.gov.tw/CHT/np-5130-1.html",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 208,
+      "kind": "curated",
+      "name": "公共化／準公共托育補助與臺北市友善托育補助",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": true,
+      "identities": [],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "未滿 3 歲幼兒送托臺北市公共化或準公共托育服務",
+        "每週托育時數達 30 小時以上",
+        "幼兒未經公費安置，也未領育兒津貼或其他同性質津貼"
+      ],
+      "documents": [],
+      "office": "送托的居家托育服務中心、托嬰中心或社區公共托育家園",
+      "contact": "1999 轉 1622（社會局婦女福利及兒童托育科）",
+      "url": "https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=9AE6236C0066DD59&sms=87415A8B9CE81B16",
+      "benefitText": "臺北市友善托育每名兒童每月補助：公辦民營托嬰中心（一般家庭）2,500 元、社區公共托育家園 6,000 元、準公共私立托嬰中心或保母 8,000 元，有兄姊者另有加發。中央托育費用補助另計：公共化一般家庭 7,000 元、準公共一般家庭 13,000 元起。",
+      "sourceUrl": "https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=9AE6236C0066DD59&sms=87415A8B9CE81B16",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 209,
+      "kind": "curated",
+      "name": "就業保險失業給付",
+      "ageMin": 15,
+      "ageMax": 65,
+      "residency": false,
+      "identities": [],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "非自願離職的就業保險被保險人",
+        "離職退保前 3 年內就業保險年資合計滿 1 年",
+        "向公立就業服務機構求職登記，14 日內未能推介就業或安排職訓"
+      ],
+      "documents": [],
+      "office": "臺北市就業服務處",
+      "contact": "(02)2308-5231",
+      "url": "https://eso.gov.taipei/News_Content.aspx?n=B26586FCE6F04719&s=CDE5D0AFE68F030C&sms=87415A8B9CE81B16",
+      "benefitText": "按離職退保當月起前 6 個月平均月投保薪資 60% 發給，最長 6 個月（離職退保時滿 45 歲或領有身心障礙證明者最長 9 個月）；扶養無工作收入眷屬每人加給 10%，最多加 20%。",
+      "sourceUrl": "https://www.mol.gov.tw/1607/1632/1633/76483/",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 210,
+      "kind": "curated",
+      "name": "特殊境遇家庭扶助",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": true,
+      "identities": [],
+      "appliesForStatus": false,
+      "incomeMax": 39960,
+      "toVerify": [
+        "符合七類特殊境遇之一（如配偶死亡或失蹤、家暴受害、獨自扶養 18 歲以下子女、3 個月內重大變故等）",
+        "家庭財產平均每人未超過 622,320 元，不動產全戶不超過 650 萬元",
+        "新住民與臺北市民結婚且實住臺北市者，可不受本人設籍限制"
+      ],
+      "documents": [],
+      "office": "臺北市政府社會局婦女福利及兒童托育科",
+      "contact": "1999 轉 6969～6971",
+      "url": "https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=F86046FC3A91FCAF&sms=87415A8B9CE81B16",
+      "benefitText": "扶助項目包括緊急生活扶助、子女生活津貼、子女教育補助、傷病醫療補助、兒童托育津貼、法律訴訟補助及創業貸款補助；緊急生活扶助按當年度最低生活費一倍核發，每人每次以 3 個月為原則。",
+      "sourceUrl": "https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL002598",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 211,
+      "kind": "curated",
+      "name": "身心障礙者輔具費用補助",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": true,
+      "identities": ["dis"],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "最近 1 年居住國內達 183 日",
+        "須先經社會局核定再購買，已先購買者無法補助",
+        "曾申請者須已超過該輔具的補助年限"
+      ],
+      "documents": [
+        "申請書",
+        "國民身分證（正本現場查驗）",
+        "3 個月內身心障礙鑑定醫院醫師診斷證明書正本",
+        "3 個月內輔具評估報告書正本"
+      ],
+      "office": "臺北市政府社會局身心障礙者福利科、各區輔具中心",
+      "contact": "1999 轉 1358、1617",
+      "url": "https://dosw.gov.taipei/cp.aspx?n=49304F9B0793FFEF",
+      "benefitText": "共 242 項輔助器具，依項目、補助最高額度、最低使用年限及補助對象核實補助；每人每 2 年以申請 4 項為限。",
+      "sourceUrl": "https://dosw.gov.taipei/cp.aspx?n=49304F9B0793FFEF",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 212,
+      "kind": "curated",
+      "name": "老人全民健康保險保險費自付額補助",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": true,
+      "identities": ["elder"],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "年滿 65 歲，或年滿 55 歲的原住民；連續設籍並實住臺北市滿 1 年，最近 1 年居住國內滿 183 天",
+        "最近 1 年綜合所得總額未達申報標準或稅率未達 20%（65～69 歲中低收入老人另有資格）",
+        "未獲政府機關健保自付額全額補助"
+      ],
+      "documents": [],
+      "office": "臺北市政府社會局老人福利科",
+      "contact": "1999 轉 1682、1684、1686、1687",
+      "url": "https://dosw.gov.taipei/cp.aspx?n=22B00B4927757FFE",
+      "benefitText": "每人每月最多補助 826 元，低於 826 元者核實補助。",
+      "sourceUrl": "https://dosw.gov.taipei/cp.aspx?n=22B00B4927757FFE",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 213,
+      "kind": "curated",
+      "name": "臺北市兒童醫療補助",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": true,
+      "identities": [],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "兒童設籍臺北市，依資格分三類：第 1 類未滿 6 歲且父母一方設籍實住滿 10 個月；第 2 類低收入戶、特殊境遇、罕病、重大傷病或極低體重兒；第 3 類第三名以上子女"
+      ],
+      "documents": [],
+      "office": "臺北市 12 區健康服務中心（第 3 類至戶政事務所）",
+      "contact": "1999",
+      "url": "https://health.gov.taipei/News_Content.aspx?n=232AD545CBF028A7&s=AD1271100D029C67&sms=D8A8AF6A9CFCB149",
+      "benefitText": "依類別減免門診掛號費 50 元、急診掛號費 80 元，3 歲以上另補健保部分負擔；第 2 類住院自付額每天核實給付 1,500 元，全年上限 15,000 元。",
+      "sourceUrl": "https://health.gov.taipei/News_Content.aspx?n=232AD545CBF028A7&s=AD1271100D029C67&sms=D8A8AF6A9CFCB149",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 214,
+      "kind": "curated",
+      "name": "臺北市好孕 2U 孕婦乘車補助",
+      "ageMin": null,
+      "ageMax": null,
+      "residency": false,
+      "identities": ["preg"],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "本人設籍臺北市，或配偶設籍臺北市的非本國籍孕婦",
+        "懷孕中且領有孕婦健康手冊；每次懷孕限申請 1 次"
+      ],
+      "documents": ["申請表", "申請人身分證（非本國籍為居留證）", "孕婦健康手冊相關內頁或 1 個月內診斷證明書"],
+      "office": "好孕 2U 合作醫療院所、健康服務中心、區公所社會課、社福中心，或台北通線上申請",
+      "contact": "1999",
+      "url": "https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=79FC4665DF0CABCD&sms=87415A8B9CE81B16",
+      "benefitText": "每次懷孕補助 10,000 元台北通電子乘車金，搭乘合作計程車單趟最高折抵 250 元，效期至預產期後 1 年。",
+      "sourceUrl": "https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=79FC4665DF0CABCD&sms=87415A8B9CE81B16",
+      "verifiedAt": "2026-11-08"
+    },
+    {
+      "no": 215,
+      "kind": "curated",
+      "name": "中低收入老人特別照顧津貼",
+      "ageMin": 16,
+      "ageMax": 64,
+      "residency": true,
+      "identities": [],
+      "appliesForStatus": false,
+      "incomeMax": null,
+      "toVerify": [
+        "受照顧長者領有中低收入老人生活津貼，失能程度評估為重度以上且由家人照顧",
+        "長者未接受機構安置、居家服務、看護或其他政府照顧服務補助",
+        "照顧者未從事全時工作，與長者設籍並實住臺北市"
+      ],
+      "documents": [
+        "照顧者及受照顧者身分證正反面影本",
+        "受照顧者失能程度重度以上之證明",
+        "照顧者郵局存摺封面影本"
+      ],
+      "office": "臺北市政府社會局各區老人服務中心",
+      "contact": "1999 轉 1674",
+      "url": "https://dosw.gov.taipei/cp.aspx?n=3C3D1F78D6280694",
+      "benefitText": "審核通過並接受居家服務機構每月至少一次督導者，補助照顧者每月 5,000 元。",
+      "sourceUrl": "https://dosw.gov.taipei/cp.aspx?n=3C3D1F78D6280694",
+      "verifiedAt": "2026-11-08"
+    }
+  ]
+}

@@ -2,8 +2,12 @@ import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SubsidyListSchema, type SubsidyList } from '@app/shared';
 import { createApp } from '../src/app';
+import curatedJson from '../src/data/curated-subsidies.json';
+import openBenefitJson from '../src/data/open-benefit-text.json';
+import { DEFAULT_EXTRA_DATA } from '../src/lib/curated';
 import {
   CACHE_TTL_MS,
+  CURATED_NO_MIN,
   MOCK_NO_MIN,
   RETRY_AFTER_MS,
   buildSubsidyList,
@@ -99,10 +103,71 @@ describe('補助清單整理（純函式）', () => {
 describe('補助清單整理（實抓資料 10 筆）', () => {
   const list = buildSubsidyList(records, new Date('2026-11-08T00:00:00Z'));
 
-  it('[SUBS-R07] 10 筆開放資料依序號排序在前、模擬 3 項在尾端，通過契約', () => {
-    expect(SubsidyListSchema.parse(list).items.map((i) => i.no)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 101, 102, 103]);
-    expect(list.items.slice(0, 10).every((i) => i.kind === 'open')).toBe(true);
+  const OPEN_NOS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const CURATED_NOS = Array.from({ length: 15 }, (_, i) => 201 + i);
+
+  it('[SUBS-R07] 共 28 項：開放資料 10 項 → 官方網頁整理 15 項 → 模擬 3 項，通過契約', () => {
+    const parsed = SubsidyListSchema.parse(list);
+    expect(parsed.items).toHaveLength(28);
+    expect(parsed.items.map((i) => i.no)).toEqual([...OPEN_NOS, ...CURATED_NOS, 101, 102, 103]);
+    expect(parsed.items.map((i) => i.kind)).toEqual([
+      ...OPEN_NOS.map(() => 'open'),
+      ...CURATED_NOS.map(() => 'curated'),
+      'mock',
+      'mock',
+      'mock',
+    ]);
     expect(list.source.rid).toBe('549a3347-df6e-4bed-b818-368210d01544');
+  });
+
+  it('[ADR-035] sources 依序列出三種來源與項數', () => {
+    expect(list.sources.map((s) => [s.kind, s.label, s.count, s.verifiedAt])).toEqual([
+      ['open', '開放資料', 10, null],
+      ['curated', '官方網頁整理', 15, '2026-11-08'],
+      ['mock', '模擬資料', 3, null],
+    ]);
+  });
+
+  it('[SUBS-R74] 開放資料的實際補助原文依序號對上 open-benefit-text；序號 4 查不到為 null', () => {
+    for (const b of openBenefitJson.items) {
+      const item = byNo(list, b.no);
+      expect(item.benefitText).toBe(b.benefitText);
+      if (b.benefitText === null) {
+        expect(item).toMatchObject({ sourceUrl: null, verifiedAt: null });
+      } else {
+        expect(item).toMatchObject({ sourceUrl: b.sources[0], verifiedAt: '2026-11-08' });
+      }
+    }
+    expect(byNo(list, 4)).toMatchObject({ benefitText: null, sourceUrl: null, verifiedAt: null });
+    expect(byNo(list, 2).benefitText).toContain('6,825 元');
+  });
+
+  it('[SUBS-R74] 官方網頁整理照 JSON 原文；benefitText null 的項目仍有來源網址與查證日', () => {
+    for (const c of curatedJson.items) {
+      expect(byNo(list, c.no)).toMatchObject({
+        kind: 'curated',
+        name: c.name,
+        benefitText: c.benefitText,
+        sourceUrl: c.sourceUrl,
+        verifiedAt: c.verifiedAt,
+      });
+    }
+    expect(byNo(list, 201)).toMatchObject({ benefitText: null, sourceUrl: 'https://udd.gov.taipei/collection/oo2cmrc' });
+    expect(byNo(list, 212).benefitText).toBe('每人每月最多補助 826 元，低於 826 元者核實補助。');
+  });
+
+  it('[SUBS-R74] 模擬類別三個欄位都是 null', () => {
+    for (const no of [101, 102, 103]) {
+      expect(byNo(list, no)).toMatchObject({ benefitText: null, sourceUrl: null, verifiedAt: null });
+    }
+  });
+
+  it('[SUBS-R74] 開放資料名稱與原文對不上時不補原文', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const renamed = records.map((r) => (r['序號'] === '2' ? { ...r, 補助名稱: '改名的補助' } : r));
+    const l = buildSubsidyList(renamed, new Date('2026-11-08T00:00:00Z'));
+    expect(byNo(l, 2)).toMatchObject({ benefitText: null, sourceUrl: null, verifiedAt: null });
+    vi.restoreAllMocks();
   });
 
   it('[SUBS-R07] 模擬 3 項的名稱與條件', () => {
@@ -136,8 +201,30 @@ describe('補助清單整理（實抓資料 10 筆）', () => {
     });
   });
 
-  it('[SUBS-R73] kind=mock 若且唯若 no >= 101', () => {
-    for (const i of list.items) expect(i.kind === 'mock').toBe(i.no >= MOCK_NO_MIN);
+  it('[SUBS-R73] 序號區段：1～100 開放、101～200 模擬、201 起官方網頁整理', () => {
+    for (const i of list.items) {
+      expect(i.kind === 'open').toBe(i.no < MOCK_NO_MIN);
+      expect(i.kind === 'mock').toBe(i.no >= MOCK_NO_MIN && i.no < CURATED_NO_MIN);
+      expect(i.kind === 'curated').toBe(i.no >= CURATED_NO_MIN);
+    }
+  });
+
+  it('[SUBS-R73] 官方網頁整理序號落在 200 以下視為整理失敗', () => {
+    const bad = {
+      ...DEFAULT_EXTRA_DATA,
+      curated: { ...curatedJson, items: curatedJson.items.map((c, idx) => (idx === 0 ? { ...c, no: 150 } : c)) },
+    };
+    expect(() => buildSubsidyList(records, new Date(), bad)).toThrow(/官方網頁整理資料格式錯誤/);
+  });
+
+  it('[ADR-035] 官方網頁整理 JSON 缺欄位、開放資料原文格式錯誤都視為整理失敗', () => {
+    const noUrl = {
+      ...DEFAULT_EXTRA_DATA,
+      curated: { ...curatedJson, items: curatedJson.items.map(({ sourceUrl: _drop, ...c }) => c) },
+    };
+    expect(() => buildSubsidyList(records, new Date(), noUrl)).toThrow(/官方網頁整理資料格式錯誤/);
+    const badOpen = { ...DEFAULT_EXTRA_DATA, openBenefit: { meta: openBenefitJson.meta, items: 'x' } };
+    expect(() => buildSubsidyList(records, new Date(), badOpen)).toThrow(/開放資料實際補助原文格式錯誤/);
   });
 
   it('[SUBS-R73] 開放資料序號落在 101 以上視為整理失敗', () => {
@@ -214,17 +301,19 @@ describe('GET /api/v1/subsidies', () => {
     vi.restoreAllMocks();
   });
 
-  it('[SUBS-R70][SUBS-R07][SUBS-R73] 回 13 項補助清單，打 data.taipei 時 URL 只有固定參數', async () => {
+  it('[SUBS-R70][SUBS-R07][SUBS-R73] 回 28 項補助清單，打 data.taipei 時 URL 只有固定參數', async () => {
     const fetchMock = vi.fn(async (_url: string | URL | Request) => Response.json(fixture));
     vi.stubGlobal('fetch', fetchMock);
     const res = await createApp().request('/api/v1/subsidies');
     expect(res.status).toBe(200);
     const json = (await res.json()) as Record<string, unknown>;
     expect(json).not.toHaveProperty('fetchedAt'); // [SUBS-R09] fetchedAt 只在伺服器
+    expect(json).toHaveProperty('source'); // 向下相容：v3 前端讀 source
     const body = SubsidyListSchema.parse(json);
-    expect(body.items).toHaveLength(13);
+    expect(body.items).toHaveLength(28);
     expect(body.items.map((i) => [i.no, i.kind])).toEqual([
       ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((no) => [no, 'open']),
+      ...Array.from({ length: 15 }, (_, i) => [201 + i, 'curated']),
       [101, 'mock'],
       [102, 'mock'],
       [103, 'mock'],
@@ -337,6 +426,18 @@ describe('[SUBS-R09] 伺服器 24 小時快取（假時間）', () => {
       .fn<(now: Date) => Promise<SubsidyList>>()
       .mockResolvedValueOnce(okList)
       .mockImplementationOnce(async (t) => buildSubsidyList([], t));
+    const cache = createSubsidyCache({ load, now });
+    await cache.get();
+    clock = T0 + CACHE_TTL_MS;
+    expect(await cache.get()).toBe(okList);
+  });
+
+  it('[SUBS-R09][ADR-035] 官方網頁整理 JSON 驗證失敗也沿用上次結果', async () => {
+    const broken = { ...DEFAULT_EXTRA_DATA, curated: { meta: curatedJson.meta, items: [] } };
+    const load = vi
+      .fn<(now: Date) => Promise<SubsidyList>>()
+      .mockResolvedValueOnce(okList)
+      .mockImplementationOnce(async (t) => buildSubsidyList(records, t, broken));
     const cache = createSubsidyCache({ load, now });
     await cache.get();
     clock = T0 + CACHE_TTL_MS;

@@ -15,11 +15,12 @@ export const SUBSIDY_IDENTITIES = ['low', 'mid', 'dis', 'elder', 'preg'] as cons
 export const SubsidyIdentitySchema = z.enum(SUBSIDY_IDENTITIES);
 export type SubsidyIdentity = z.infer<typeof SubsidyIdentitySchema>;
 
-export const SubsidyKindSchema = z.enum(['open', 'mock']);
+/** open＝開放資料、curated＝官方網頁整理（人工整理，非 data.gov.tw 資料集）、mock＝模擬資料（ADR-035） */
+export const SubsidyKindSchema = z.enum(['open', 'curated', 'mock']);
 export type SubsidyKind = z.infer<typeof SubsidyKindSchema>;
 
 export const SubsidyItemSchema = z.object({
-  /** 開放資料用資料集「序號」；模擬類別 101 起（SUBS-R73） */
+  /** 序號區段（SUBS-R73）：1～100 開放資料（資料集「序號」）、101～200 模擬資料、201 起官方網頁整理 */
   no: z.number().int().positive(),
   kind: SubsidyKindSchema,
   name: z.string(),
@@ -40,8 +41,14 @@ export const SubsidyItemSchema = z.object({
   documents: z.array(z.string()),
   office: z.string(),
   contact: z.string(),
-  /** 模擬類別為空字串 */
+  /** 服務說明頁；模擬類別為空字串 */
   url: z.string(),
+  /** 「實際補助」原文（金額只照官方原文，SUBS-R74）；null 表示查不到可核對的金額，模擬類別一律 null */
+  benefitText: z.string().nullable(),
+  /** benefitText 原文所在頁；官方網頁整理一定有，開放資料沒有 benefitText 時與模擬類別為 null */
+  sourceUrl: z.string().nullable(),
+  /** 人工查證日 YYYY-MM-DD；與 sourceUrl 同時有值或同時為 null */
+  verifiedAt: z.string().nullable(),
 });
 export type SubsidyItem = z.infer<typeof SubsidyItemSchema>;
 
@@ -54,11 +61,27 @@ export const SubsidySourceSchema = z.object({
 });
 export type SubsidySource = z.infer<typeof SubsidySourceSchema>;
 
+/** 清單裡每一種資料來源的說明（資料來源頁用，ADR-035）；依 open、curated、mock 順序 */
+export const SubsidySourceTypeSchema = z.object({
+  kind: SubsidyKindSchema,
+  /** 畫面標籤：開放資料／官方網頁整理／模擬資料 */
+  label: z.string(),
+  description: z.string(),
+  /** 這種來源在清單裡的項數 */
+  count: z.number().int().nonnegative(),
+  /** 人工查證日 YYYY-MM-DD；開放資料、模擬資料為 null */
+  verifiedAt: z.string().nullable(),
+});
+export type SubsidySourceType = z.infer<typeof SubsidySourceTypeSchema>;
+
 export const SubsidyListSchema = z.object({
   items: z.array(SubsidyItemSchema),
   /** 開放資料 _importdate 最大值，格式 YYYY-MM-DDTHH:mm:ss+08:00（SUBS-R08） */
   updatedAt: z.string(),
+  /** 開放資料集（向下相容：v3 前端只讀這個欄位） */
   source: SubsidySourceSchema,
+  /** 三種資料來源的說明與項數（ADR-035） */
+  sources: z.array(SubsidySourceTypeSchema),
 });
 export type SubsidyList = z.infer<typeof SubsidyListSchema>;
 
