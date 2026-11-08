@@ -2,7 +2,7 @@
   "meta": {
     "kind": "catalog",
     "label": "台北服務通",
-    "description": "取自政府資料開放平臺「臺北市政府台北服務通申辦服務及承辦單位資訊」CSV（靜態快照，執行期不連線）。items 為案件名稱含補助、津貼、減免、扶助、救助、獎勵金、慰問金的個人申請案件；名稱排除規則沿用 origin/feat/benefits-only 的 sync-benefit-catalog.mjs（另加「請款」）。excluded 列出排除的案件編號與原因。資格與金額欄位資料集沒有，四題不比對。",
+    "description": "取自政府資料開放平臺「臺北市政府台北服務通申辦服務及承辦單位資訊」CSV（靜態快照，執行期不連線）。items 為案件名稱含補助、津貼、減免、扶助、救助、獎勵金、慰問金的個人申請案件；名稱排除規則沿用 origin/feat/benefits-only 的 sync-benefit-catalog.mjs（另加「請款」）。excluded 列出排除的案件編號與原因。資格與金額欄位資料集沒有，四題不比對；部分項目另由 catalog-enriched.json 依官方原文補上資格條件後照四題比對（ADR-037）。",
     "dataset": {
       "name": "臺北市政府台北服務通申辦服務及承辦單位資訊",
       "agency": "臺北市政府研究發展考核委員會",

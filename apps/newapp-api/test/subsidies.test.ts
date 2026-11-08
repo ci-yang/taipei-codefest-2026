@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SubsidyListSchema, type SubsidyList } from '@app/shared';
 import { createApp } from '../src/app';
 import catalogJson from '../src/data/catalog-subsidies.json';
+import catalogEnrichedJson from '../src/data/catalog-enriched.json';
 import curatedJson from '../src/data/curated-subsidies.json';
 import openBenefitJson from '../src/data/open-benefit-text.json';
 import { CATALOG_VERIFY } from '../src/lib/catalog';
@@ -110,6 +111,8 @@ describe('補助清單整理（實抓資料 10 筆）', () => {
   const CURATED_NOS = Array.from({ length: 15 }, (_, i) => 201 + i);
   const CATALOG_COUNT = catalogJson.items.length;
   const CATALOG_NOS = Array.from({ length: CATALOG_COUNT }, (_, i) => 301 + i);
+  const ENRICHED_COUNT = catalogEnrichedJson.items.length;
+  const ENRICHED_NOS = [304, 305, 307, 308, 309, 311, 313, 314, 315, 318, 320, 323, 330, 331, 332, 333, 379, 384, 410, 412];
 
   it('[SUBS-R07] 台北服務通快照收 115 項（ADR-036）', () => {
     expect(CATALOG_COUNT).toBe(115);
@@ -139,8 +142,9 @@ describe('補助清單整理（實抓資料 10 筆）', () => {
     ]);
   });
 
-  it('[SUBS-R75][ADR-036] 台北服務通：條件欄不參與比對、資格列還需確認、沒有金額、來源指向資料集 157468', () => {
-    const items = list.items.filter((i) => i.kind === 'catalog');
+  it('[SUBS-R75][ADR-036] 未補條件的台北服務通：條件欄不參與比對、資格列還需確認、沒有金額、來源指向資料集 157468', () => {
+    const items = list.items.filter((i) => i.kind === 'catalog' && !i.enriched);
+    expect(items).toHaveLength(CATALOG_COUNT - ENRICHED_COUNT);
     for (const i of items) {
       expect(i).toMatchObject({
         ageMin: null,
@@ -159,7 +163,51 @@ describe('補助清單整理（實抓資料 10 筆）', () => {
     // 停收、非個人申請、與既有項目重複的案件不收
     const caseIds = new Set(catalogJson.items.map((r) => r.caseId));
     for (const id of ['PO006', 'EA016', 'AE002', 'EA012', 'AI001', 'AI022']) expect(caseIds.has(id)).toBe(false);
-    expect(new Set(items.map((i) => i.name)).size).toBeGreaterThan(100);
+    expect(new Set(list.items.filter((i) => i.kind === 'catalog').map((i) => i.name)).size).toBeGreaterThan(100);
+  });
+
+  it('[SUBS-R77][ADR-037] 補好資格條件的台北服務通：序號、案件編號、名稱對上快照，帶 enriched，來源為官方原文頁', () => {
+    expect(ENRICHED_COUNT).toBe(20);
+    const enriched = list.items.filter((i) => i.enriched);
+    expect(enriched.map((i) => i.no)).toEqual(ENRICHED_NOS);
+    for (const e of catalogEnrichedJson.items) {
+      const item = byNo(list, e.no);
+      const row = catalogJson.items.find((r) => r.no === e.no)!;
+      expect(item).toMatchObject({
+        kind: 'catalog',
+        enriched: true,
+        name: row.name,
+        url: row.url,
+        office: row.office,
+        ageMin: e.ageMin,
+        ageMax: e.ageMax,
+        residency: e.residency,
+        identities: e.identities,
+        incomeMax: e.incomeMax,
+        benefitText: e.benefitText,
+        sourceUrl: e.sourceUrl,
+        verifiedAt: '2026-11-08',
+      });
+      expect(e.caseId).toBe(row.caseId);
+      expect(item.toVerify.slice(0, -1)).toEqual(e.toVerify);
+      expect(item.toVerify.at(-1)).toMatch(/^申辦方式：/);
+      expect(item.toVerify).not.toContain(CATALOG_VERIFY);
+      expect(e.sourceUrl).toMatch(/^https:\/\/(service\.taipei\/case-detail|dosw\.gov\.taipei|laws\.gov\.taipei)\//);
+    }
+    // 未補的項目不帶 enriched
+    expect(list.items.filter((i) => i.kind !== 'catalog').every((i) => i.enriched === undefined)).toBe(true);
+  });
+
+  it('[SUBS-R77] 資格補充的序號、案件編號或名稱對不上快照，或序號重複，都視為整理失敗', () => {
+    const items = catalogEnrichedJson.items;
+    const wrongCase = { ...DEFAULT_EXTRA_DATA, catalogEnriched: { ...catalogEnrichedJson, items: items.map((e, i) => (i === 0 ? { ...e, caseId: 'ZZ999' } : e)) } };
+    expect(() => buildSubsidyList(records, new Date(), wrongCase)).toThrow(/與快照對不上/);
+    const renamed = { ...DEFAULT_EXTRA_DATA, catalogEnriched: { ...catalogEnrichedJson, items: items.map((e, i) => (i === 0 ? { ...e, name: '改名' } : e)) } };
+    expect(() => buildSubsidyList(records, new Date(), renamed)).toThrow(/與快照對不上/);
+    const dup = { ...DEFAULT_EXTRA_DATA, catalogEnriched: { ...catalogEnrichedJson, items: [items[0], items[0]] } };
+    expect(() => buildSubsidyList(records, new Date(), dup)).toThrow(/資格補充序號重複/);
+    const bad = { ...DEFAULT_EXTRA_DATA, catalogEnriched: { ...catalogEnrichedJson, items: items.map((e, i) => (i === 0 ? { ...e, toVerify: [] } : e)) } };
+    expect(() => buildSubsidyList(records, new Date(), bad)).toThrow(/資格補充格式錯誤/);
   });
 
   it('[SUBS-R73] 台北服務通序號落在 300 以下或重複都視為整理失敗', () => {

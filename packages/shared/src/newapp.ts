@@ -17,7 +17,8 @@ export type SubsidyIdentity = z.infer<typeof SubsidyIdentitySchema>;
 
 /**
  * open＝開放資料、curated＝官方網頁整理（人工整理，非 data.gov.tw 資料集）、mock＝模擬資料（ADR-035）、
- * catalog＝台北服務通申辦服務（開放資料集 data.gov.tw/dataset/157468 的補助類案件，未依四題比對，ADR-036）
+ * catalog＝台北服務通申辦服務（開放資料集 data.gov.tw/dataset/157468 的補助類案件；預設未依四題比對，ADR-036；
+ * 補好資格條件的項目 enriched=true，照四題比對，ADR-037）
  */
 export const SubsidyKindSchema = z.enum(['open', 'curated', 'mock', 'catalog']);
 export type SubsidyKind = z.infer<typeof SubsidyKindSchema>;
@@ -55,6 +56,11 @@ export const SubsidyItemSchema = z.object({
   sourceUrl: z.string().nullable(),
   /** 人工查證日 YYYY-MM-DD（台北服務通為資料集下載日）；與 sourceUrl 同時有值或同時為 null */
   verifiedAt: z.string().nullable(),
+  /**
+   * 只有台北服務通（catalog）會帶：true 表示已依官方案件頁或法規補上資格條件，照四題比對（ADR-037）；
+   * 省略或 false 表示未補，維持不比對（SUBS-R75）
+   */
+  enriched: z.boolean().optional(),
 });
 export type SubsidyItem = z.infer<typeof SubsidyItemSchema>;
 

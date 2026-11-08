@@ -55,6 +55,8 @@ export interface ExtraData {
   openBenefit: unknown;
   /** 台北服務通（ADR-036）；省略時用預設 JSON */
   catalog?: unknown;
+  /** 台北服務通資格補充（ADR-037）；省略時用預設 JSON */
+  catalogEnriched?: unknown;
 }
 export const DEFAULT_EXTRA_DATA: ExtraData = { curated: curatedJson, openBenefit: openBenefitJson };
 

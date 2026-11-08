@@ -6,7 +6,14 @@ import {
   type SubsidySource,
   type SubsidySourceType,
 } from '@app/shared';
-import { CATALOG_NO_MIN, DEFAULT_CATALOG_DATA, catalogItem, parseCatalogData } from './catalog';
+import {
+  CATALOG_NO_MIN,
+  DEFAULT_CATALOG_DATA,
+  DEFAULT_CATALOG_ENRICHED_DATA,
+  catalogItem,
+  parseCatalogData,
+  parseCatalogEnriched,
+} from './catalog';
 import { CURATED_NO_MIN, DEFAULT_EXTRA_DATA, parseExtraData, withOpenBenefit, type ExtraData } from './curated';
 
 const DATA_TAIPEI_API = 'https://data.taipei/api/v1/dataset';
@@ -261,7 +268,7 @@ const CURATED_DESCRIPTION =
   '依各主管機關官方網頁、法規或公告人工整理，不是政府資料開放平臺的資料集。金額只照官方原文，查不到可核對的金額就不顯示。';
 /** 台北服務通的使用者說明（ADR-036）；資料集名稱與網址由前端從 sourceUrl 帶出 */
 const CATALOG_DESCRIPTION =
-  '臺北市政府研究發展考核委員會在政府資料開放平臺公告的「臺北市政府台北服務通申辦服務及承辦單位資訊」，取名稱含補助、津貼、減免等的個人申請案件。資料集沒有資格與金額欄位，所以不依四題比對，資格與金額請到各案件頁確認。';
+  '臺北市政府研究發展考核委員會在政府資料開放平臺公告的「臺北市政府台北服務通申辦服務及承辦單位資訊」，取名稱含補助、津貼、減免等的個人申請案件。資料集沒有資格與金額欄位；其中部分項目另依台北服務通案件頁、主管機關說明頁或臺北市法規原文整理資格條件，照四題比對，其餘不比對，資格與金額請到各案件頁確認。';
 
 /**
  * 整理整份清單並用契約驗證（SUBS-R07、ADR-035、ADR-036）：開放資料依序號 → 官方網頁整理依序號 → 模擬類別 → 台北服務通依序號。
@@ -274,6 +281,7 @@ export function buildSubsidyList(
 ): SubsidyList {
   const { curated, openBenefit } = parseExtraData(extra);
   const catalog = parseCatalogData(extra.catalog ?? DEFAULT_CATALOG_DATA);
+  const enrichment = parseCatalogEnriched(extra.catalogEnriched ?? DEFAULT_CATALOG_ENRICHED_DATA, catalog);
   const open = records
     .map(normalizeSubsidy)
     .filter((i): i is SubsidyItem => i !== null)
@@ -285,7 +293,7 @@ export function buildSubsidyList(
   if (clash) throw new Error(`開放資料序號 ${clash.no} 落在模擬類別區段（>= ${MOCK_NO_MIN}）`);
   const curatedItems: SubsidyItem[] = [...curated.items].sort((a, b) => a.no - b.no).map((i) => structuredClone(i));
   const mockItems = MOCK_SUBSIDIES.map((m) => structuredClone(m));
-  const catalogItems = [...catalog.items].sort((a, b) => a.no - b.no).map((r) => catalogItem(r, catalog));
+  const catalogItems = [...catalog.items].sort((a, b) => a.no - b.no).map((r) => catalogItem(r, catalog, enrichment.get(r.no)));
   const items = [...open, ...curatedItems, ...mockItems, ...catalogItems];
   const bad = items.find((i) => i.kind !== kindOfNo(i.no));
   if (bad) throw new Error(`序號 ${bad.no} 的資料類型 ${bad.kind} 與序號區段不符`);
