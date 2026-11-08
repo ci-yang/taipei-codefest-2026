@@ -104,7 +104,7 @@ test('t() 置換 {n} 等參數：數字與單位跟著語言，未提供的參�
   assert.equal(api.t('panel.all', { n: 7 }), '全部 7 筆');
   assert.equal(api.t('result.rank', { i: 2, total: 3 }), '直線第 2 近 · 共 3 筆候選');
   assert.equal(api.t('unit.m', {}), '{n} 公尺');
-  const expected = { en: ['120 m', '5 min'], ja: ['120 メートル', '5 分'], ko: ['120 m', '5분'] };
+  const expected = { en: ['120 m', '5 min'], ja: ['120 m', '5 分'], ko: ['120 m', '5분'] };
   for (const [lang, [meters, minutes]] of Object.entries(expected)) {
     api.setLang(lang);
     assert.equal(api.t('unit.m', { n: 120 }), meters, lang);

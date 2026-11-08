@@ -688,7 +688,7 @@
   document.addEventListener('keydown', () => { document.documentElement.dataset.input = 'keyboard'; }); document.addEventListener('pointerdown', () => { document.documentElement.dataset.input = 'pointer'; });
   try { if (localStorage.getItem('friendly-theme-v6') === 'dark') state.theme = 'dark'; } catch { /* Optional. */ }
   readPrefs();
-  highlights = window.FriendlyHighlights?.create({ map, stores, icon, escapeHtml: esc, distance, guideHost: $('#guide-timer'),
+  highlights = window.FriendlyHighlights?.create({ map, stores, icon, escapeHtml: esc, distance, t, guideHost: $('#guide-timer'),
     onSelectResource: store => selectResource(store.id), onShowDetails: showDetails, onRequestPosition: requestPosition,
     onUseDemoPosition: useDemoPosition, onOpenExplore: () => { state.panelCollapsed = false; if (state.screen === 'map') refreshMapLayout(); else pushScreen({ view: 'map', urgency: state.urgency }); } });
   $('#highlight-map-launch')?.addEventListener('click', () => highlights?.open('wifi'));

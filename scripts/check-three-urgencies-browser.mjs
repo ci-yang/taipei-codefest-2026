@@ -189,7 +189,12 @@ for (const lang of ['ja', 'en', 'ko']) {
   ok(`${lang} guide HUD`, Object.values(hud).every(text => !/[一-鿿]/.test(text) || lang === 'ja') && scripts[lang].test(hud.end), JSON.stringify(hud));
   ok(`${lang} guide no overflow`, await lpOverflow() <= 0, String(await lpOverflow()));
   wraps = await wrapped(lp); ok(`${lang} guide buttons do not wrap`, wraps.length === 0, wraps.join(' | '));
-  if (lang === 'ja') await lp.screenshot({ path: `${out}/guide-ja.png` });
+  if (lang === 'ja') {
+    await lp.waitForFunction(() => document.querySelector('#guide-timer [data-kind]')?.dataset.kind === 'walk', null, { timeout: 30000 }).catch(() => {});
+    const jaWalk = await lp.evaluate(() => document.querySelector('#guide-timer').textContent);
+    ok('ja guide walk card has no zh-only words and uses m', !/公尺|步行|分鐘/.test(jaWalk) && /\d m\b/.test(jaWalk), jaWalk);
+    await lp.screenshot({ path: `${out}/guide-ja.png` });
+  }
   await lp.click('#exit-guidance'); await lp.waitForFunction(() => document.querySelector('#app').dataset.view === 'result');
   await lp.click('#result-body [data-action="map"]'); await lp.waitForFunction(() => document.querySelector('#app').dataset.view === 'map'); await lp.waitForTimeout(500);
   ok(`${lang} selected card open`, await lp.locator('#selected-card').isVisible());

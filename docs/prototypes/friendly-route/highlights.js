@@ -10,7 +10,7 @@
   const money = (value, digits = 0) => Number(value).toLocaleString('zh-TW', { minimumFractionDigits: digits, maximumFractionDigits: digits });
   const safeUrl = value => { try { const url = new URL(value); return url.protocol === 'https:' ? url.href : ''; } catch { return ''; } };
 
-  function create({ map, stores, icon, escapeHtml: esc, distance, guideHost: guideHostOption, onSelectResource, onShowDetails, onRequestPosition, onUseDemoPosition, onOpenExplore }) {
+  function create({ map, stores, icon, escapeHtml: esc, distance, t, guideHost: guideHostOption, onSelectResource, onShowDetails, onRequestPosition, onUseDemoPosition, onOpenExplore }) {
     const host = document.querySelector('#highlight-host');
     const launch = document.querySelector('#highlight-launch');
     const guideHost = guideHostOption || document.querySelector('#guide-timer');
@@ -139,12 +139,12 @@
     // 路線失敗才退回直線，並在數字前標「直線」，不把直線冒充步行距離。
     function guideWalkHtml(store) {
       const route = snapshot.guideRoute; const status = snapshot.guideStatus;
-      const label = value => value >= 1000 ? `${(value / 1000).toFixed(1)} km` : `${Math.round(value)} 公尺`;
+      const label = value => value >= 1000 ? t('unit.km', { n: (value / 1000).toFixed(1) }) : t('unit.m', { n: Math.round(value) });
       let kind = 'walk'; let value; let caption;
-      if (route) { value = label(route.distanceM); caption = `約 ${Math.ceil(route.estimateMinutes)} 分鐘 · 約 ${math.toiletEstimate(route.distanceM).steps} 步（步長 0.7 m 換算）· 本機路網估算，未驗證入口`; }
-      else if (['error', 'unavailable'].includes(status)) { kind = 'straight'; value = valid(snapshot.position) && valid(store) ? `直線 ${label(distance(snapshot.position, store))}` : '需要定位'; caption = '步行路線無法計算，改顯示直線距離（非步行路線）'; }
-      else { kind = 'pending'; value = '步行距離計算中'; caption = status === 'waiting-location' ? '等待定位後以本機路網計算' : '本機步行路網計算中'; }
-      return `<div class="hl-guide-walk" data-kind="${kind}"><span class="hl-eyebrow">${icon('toilet', 16)}到廁所的步行距離</span><strong class="hl-walk-distance">${esc(value)}</strong><span class="hl-guide-walk-caption">${esc(caption)}</span></div>`;
+      if (route) { value = label(route.distanceM); caption = [t('guide.walk.minutes', { n: Math.ceil(route.estimateMinutes) }), t('guide.walk.steps', { n: math.toiletEstimate(route.distanceM).steps }), t('guide.walk.estimate')].join(' · '); }
+      else if (['error', 'unavailable'].includes(status)) { kind = 'straight'; value = valid(snapshot.position) && valid(store) ? t('common.straight', { d: label(distance(snapshot.position, store)) }) : t('guide.need.location'); caption = t('guide.walk.fallback'); }
+      else { kind = 'pending'; value = t('guide.walk.pending'); caption = t(status === 'waiting-location' ? 'guide.walk.waiting' : 'guide.walk.computing'); }
+      return `<div class="hl-guide-walk" data-kind="${kind}"><span class="hl-eyebrow">${icon('toilet', 16)}${esc(t('guide.walk.title'))}</span><strong class="hl-walk-distance">${esc(value)}</strong><span class="hl-guide-walk-caption">${esc(caption)}</span></div>`;
     }
     // 同內容不重寫，避免地圖移動觸發的 update() 在點擊途中換掉按鈕。
     function paintGuide(html) { if (html === lastGuideHtml) return; lastGuideHtml = html; guideHost.innerHTML = html; }
