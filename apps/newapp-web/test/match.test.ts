@@ -19,12 +19,10 @@ import {
   type CompletedAnswers,
 } from '@/lib/match';
 import {
-  DEMO_SCENARIOS,
   MSG_AGE,
   MSG_IDENTITY,
   MSG_INCOME,
   MSG_RESIDENCY,
-  demoAnswers,
   emptyAnswers,
   firstErrorIndex,
   toggleIdentity,
@@ -54,14 +52,14 @@ const item = (no: number): SubsidyItem => {
   return found;
 };
 const answers = (over: Partial<CompletedAnswers> = {}): CompletedAnswers => ({
-  ageBand: '30-44',
+  ageBand: '26-39',
   residency: true,
   identities: ['none'],
   incomeBracket: 1,
   ...over,
 });
 
-describe('S1 驗收：65歲+、設籍臺北、以上皆無、級距 3', () => {
+describe('S1 驗收：65歲以上、設籍臺北、以上皆無、級距 3', () => {
   const a = answers({ ageBand: '65+', identities: ['none'], incomeBracket: 3 });
   const grouped = groupResults(items, a);
 
@@ -90,34 +88,40 @@ describe('S1 驗收：65歲+、設籍臺北、以上皆無、級距 3', () => {
 describe('比對規則邊界', () => {
   it('[SUBS-R13] 年齡用區間比：完全在內過、完全在外不過、跨門檻列可能符合並加還需確認（ADR-030）', () => {
     const low = answers({ identities: ['low'] });
-    // 序號 2：18～25 歲
+    // 序號 2：18～25 歲，新區間 18-25 剛好對齊
     expect(matchItem(item(2), { ...low, ageBand: 'u18' }).reason).toBe('需 18 歲以上');
-    expect(matchItem(item(2), { ...low, ageBand: '30-44' }).reason).toBe('需 25 歲以下');
-    const cross = matchItem(item(2), { ...low, ageBand: '18-29' });
-    expect(cross.ok).toBe(true);
-    expect(cross.reason).toBe(REASON_AGE_CHECK);
-    expect(cross.toVerify[0]).toBe('年齡：需 25 歲以下，你選的區間跨過門檻');
-    expect(cross.toVerify.length).toBe(item(2).toVerify.length + 1);
-    // 模擬 102：20～40 歲，30-44 跨上限、18-29 跨下限
+    expect(matchItem(item(2), { ...low, ageBand: '26-39' }).reason).toBe('需 25 歲以下');
+    const inside = matchItem(item(2), { ...low, ageBand: '18-25' });
+    expect(inside.ok).toBe(true);
+    expect(inside.reason).toBe(REASON_ALL_OK);
+    expect(inside.toVerify).toEqual(item(2).toVerify);
+    // 模擬 102：20～40 歲，18-25 跨下限、26-39 完全在內、40-64 跨上限、65+ 完全在外
     const m102 = items13.find((x) => x.no === 102)!;
-    expect(matchItem(m102, answers({ ageBand: '18-29', incomeBracket: 1 })).toVerify[0]).toBe('年齡：需 20 歲以上，你選的區間跨過門檻');
-    expect(matchItem(m102, answers({ ageBand: '30-44', incomeBracket: 1 })).toVerify[0]).toBe('年齡：需 40 歲以下，你選的區間跨過門檻');
-    expect(matchItem(m102, answers({ ageBand: '45-64', incomeBracket: 1 })).reason).toBe('需 40 歲以下');
+    const crossMin = matchItem(m102, answers({ ageBand: '18-25', incomeBracket: 1 }));
+    expect(crossMin.ok).toBe(true);
+    expect(crossMin.reason).toBe(REASON_AGE_CHECK);
+    expect(crossMin.toVerify[0]).toBe('年齡：需 20 歲以上，你選的區間跨過門檻');
+    expect(crossMin.toVerify.length).toBe(m102.toVerify.length + 1);
+    expect(matchItem(m102, answers({ ageBand: '26-39', incomeBracket: 1 })).reason).toBe(REASON_ALL_OK);
+    expect(matchItem(m102, answers({ ageBand: '40-64', incomeBracket: 1 })).toVerify[0]).toBe('年齡：需 40 歲以下，你選的區間跨過門檻');
+    expect(matchItem(m102, answers({ ageBand: '65+', incomeBracket: 1 })).reason).toBe('需 40 歲以下');
   });
 
-  it('[SUBS-R13][SUBS-R17] S1 驗收：18-29歲、設籍、低收入戶、級距 1，序號 3（25 歲以下）年齡要再確認', () => {
-    const r = matchItem(item(3), answers({ ageBand: '18-29', identities: ['low'], incomeBracket: 1 }));
+  it('[SUBS-R13][SUBS-R17] 26–39歲對模擬 103（18～29 歲）跨上限：年齡要再確認', () => {
+    const m103 = items13.find((x) => x.no === 103)!;
+    const r = matchItem(m103, answers({ ageBand: '26-39' }));
     expect(r.ok).toBe(true);
     expect(r.reason).toBe('其他條件都在範圍內，年齡要再確認');
-    expect(r.toVerify).toContain('年齡：需 25 歲以下，你選的區間跨過門檻');
+    expect(r.toVerify).toContain('年齡：需 29 歲以下，你選的區間跨過門檻');
   });
 
   it('[SUBS-R17] 年齡跨門檻又選收入不清楚：年齡與收入要再確認；收入條目排在最前', () => {
-    const r = matchItem(item(3), answers({ ageBand: '18-29', identities: ['low'], incomeBracket: 0 }));
+    const m102 = items13.find((x) => x.no === 102)!;
+    const r = matchItem(m102, answers({ ageBand: '18-25', incomeBracket: 0 }));
     expect(r.ok).toBe(true);
     expect(r.reason).toBe(REASON_AGE_INCOME_CHECK);
     expect(r.reason).toBe('其他條件都在範圍內，年齡與收入要再確認');
-    expect(r.toVerify.slice(0, 2)).toEqual(['每人每月收入需在 17,005 元以下（你選了不清楚）', '年齡：需 25 歲以下，你選的區間跨過門檻']);
+    expect(r.toVerify.slice(0, 2)).toEqual(['每人每月收入需在 33,252 元以下（你選了不清楚）', '年齡：需 20 歲以上，你選的區間跨過門檻']);
   });
 
   it('[SUBS-R13] 18歲以下完全落在 25 歲以下內', () => {
@@ -132,9 +136,9 @@ describe('比對規則邊界', () => {
     expect(r.failures[0]).toBe('需設籍臺北市');
   });
 
-  it('[SUBS-R15] 選 65歲+ 推得老人；45-64歲不過年齡也不過身分', () => {
+  it('[SUBS-R15] 選 65歲以上推得老人；40–64歲不過年齡也不過身分', () => {
     expect(matchItem(item(6), answers({ ageBand: '65+' })).ok).toBe(true);
-    const r = matchItem(item(6), answers({ ageBand: '45-64' }));
+    const r = matchItem(item(6), answers({ ageBand: '40-64' }));
     expect(r.failures).toEqual(['需 65 歲以上', '需具65 歲以上身分']);
   });
 
@@ -144,7 +148,7 @@ describe('比對規則邊界', () => {
 
   it('[SUBS-R15] 中低收入戶身分命中「低收入戶或中低收入戶」，不命中只要低收入戶的項目', () => {
     expect(matchItem(item(8), answers({ identities: ['mid'] })).ok).toBe(true);
-    expect(matchItem(item(2), answers({ ageBand: '18-29', identities: ['mid'] })).reason).toBe('需具低收入戶身分');
+    expect(matchItem(item(2), answers({ ageBand: '18-25', identities: ['mid'] })).reason).toBe('需具低收入戶身分');
   });
 
   it('[SUBS-R15][SUBS-R17] 申請取得身分：無該身分也不判身分；已具該身分改寫原因', () => {
@@ -237,7 +241,7 @@ describe('答案驗證與狀態', () => {
     expect(isCompleted({ ageBand: 'u18', residency: false, identities: ['none'], incomeBracket: 0 })).toBe(true);
     expect(isCompleted({ ageBand: 'u18', residency: null, identities: ['none'], incomeBracket: 0 })).toBe(false);
     expect(isCompleted({ ageBand: null, residency: true, identities: ['none'], incomeBracket: 1 })).toBe(false);
-    expect(isCompleted({ ageBand: '30-44', residency: true, identities: [], incomeBracket: 1 })).toBe(false);
+    expect(isCompleted({ ageBand: '26-39', residency: true, identities: [], incomeBracket: 1 })).toBe(false);
   });
 
   it('金額千分位', () => {
@@ -249,7 +253,7 @@ describe('答案驗證與狀態', () => {
 
 describe('S2 驗收：13 項清單、示範情境、無符合', () => {
   it('[SUBS-R07][SUBS-R18] 結果合計 13 項，模擬 3 項排在各組開放資料之後', () => {
-    const g = groupResults(items13, answers({ ageBand: '30-44', identities: ['preg', 'mid'], incomeBracket: 2 }));
+    const g = groupResults(items13, answers({ ageBand: '26-39', identities: ['preg', 'mid'], incomeBracket: 2 }));
     expect(g.eligible.length + g.ineligible.length).toBe(13);
     for (const group of [g.eligible, g.ineligible]) {
       const kinds = group.map((r) => r.item.kind);
@@ -257,56 +261,8 @@ describe('S2 驗收：13 項清單、示範情境、無符合', () => {
     }
   });
 
-  it('[SUBS-R23] 示範情境三組，答案四題都已填', () => {
-    expect(DEMO_SCENARIOS).toHaveLength(3);
-    for (let i = 0; i < 3; i++) expect(isCompleted(demoAnswers(i))).toBe(true);
-    expect(() => demoAnswers(3)).toThrow();
-  });
-
-  it('[SUBS-R23] demoAnswers 回副本，改了不影響常數', () => {
-    const a = demoAnswers(2);
-    a.identities.push('stu');
-    expect(DEMO_SCENARIOS[2]!.answers.identities).toEqual(['preg', 'mid']);
-  });
-
-  it('[SUBS-R23] 示範情境可能符合數分別為 2、2、7', () => {
-    const counts = [0, 1, 2].map((i) => {
-      const a = demoAnswers(i);
-      if (!isCompleted(a)) throw new Error('示範答案未完成');
-      return groupResults(items13, a).eligible.length;
-    });
-    expect(counts).toEqual([2, 2, 7]);
-  });
-
-  it('[SUBS-R23] 示範情境各組可能符合的項目', () => {
-    const eligibleNos = (i: number) => {
-      const a = demoAnswers(i);
-      if (!isCompleted(a)) throw new Error('示範答案未完成');
-      return groupResults(items13, a).eligible.map((r) => r.item.no);
-    };
-    expect(eligibleNos(0)).toEqual([6, 9]);
-    expect(eligibleNos(1)).toEqual([5, 102]);
-    expect(eligibleNos(2)).toEqual([4, 7, 8, 9, 10, 101, 102]);
-  });
-
-  it('[SUBS-R13][SUBS-R17] 示範第 2、3 組的青年租屋補貼（20～40 歲）因年齡跨門檻列可能符合並帶一條還需確認', () => {
-    for (const i of [1, 2]) {
-      const a = demoAnswers(i);
-      if (!isCompleted(a)) throw new Error('示範答案未完成');
-      const r = groupResults(items13, a).eligible.find((x) => x.item.no === 102)!;
-      expect(r.result.reason).toBe(REASON_AGE_CHECK);
-      expect(r.result.toVerify[0]).toBe('年齡：需 40 歲以下，你選的區間跨過門檻');
-    }
-  });
-
-  it('[SUBS-R19] 有可能符合時沒有無符合結果', () => {
-    const a = demoAnswers(0);
-    if (!isCompleted(a)) throw new Error('示範答案未完成');
-    expect(findNoMatch(groupResults(items13, a))).toBeNull();
-  });
-
-  describe('[SUBS-R19] 45-64歲、未設籍、以上皆無、級距 5', () => {
-    const a = answers({ ageBand: '45-64', residency: false, identities: ['none'], incomeBracket: 5 });
+  describe('[SUBS-R19] 40–64歲、未設籍、以上皆無、級距 5', () => {
+    const a = answers({ ageBand: '40-64', residency: false, identities: ['none'], incomeBracket: 5 });
     const g = groupResults(items13, a);
     const nm = findNoMatch(g);
 

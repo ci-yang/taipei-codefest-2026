@@ -53,7 +53,7 @@ export function bandRange(band: AgeBand): { min: number; max: number } {
   return { min: b.min, max: b.max };
 }
 
-/** [SUBS-R15] 答案身分去掉 none，選 65歲+ 時加上 elder */
+/** [SUBS-R15] 答案身分去掉 none，選 65歲以上時加上 elder */
 export function effectiveIdentities(a: CompletedAnswers): Set<SubsidyIdentity> {
   const have = new Set<SubsidyIdentity>();
   for (const id of a.identities) if (id !== 'none' && id !== 'stu') have.add(id);

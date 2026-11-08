@@ -46,7 +46,7 @@ export interface DemoScenario {
   answers: Answers;
 }
 
-/** [SUBS-R23] 示範情境三組（spec 7.7，前端常數，不是資料）；年齡改區間（ADR-030：70 歲→65歲+、40、30 歲→30-44歲） */
+/** [SUBS-R23] 示範情境三組（spec 7.7，前端常數，不是資料）；年齡改區間（ADR-030，v3 五格：70 歲→65+、40 歲→40-64、30 歲→26-39） */
 export const DEMO_SCENARIOS: readonly DemoScenario[] = [
   {
     icon: '70',
@@ -58,13 +58,13 @@ export const DEMO_SCENARIOS: readonly DemoScenario[] = [
     icon: '40',
     title: '40 歲・身心障礙者',
     sub: '每人月收入 28,551～33,252 元',
-    answers: { ageBand: '30-44', residency: true, identities: ['dis'], incomeBracket: 4 },
+    answers: { ageBand: '40-64', residency: true, identities: ['dis'], incomeBracket: 4 },
   },
   {
     icon: '30',
     title: '30 歲・懷孕・中低收入戶',
     sub: '每人月收入 17,006～24,293 元',
-    answers: { ageBand: '30-44', residency: true, identities: ['preg', 'mid'], incomeBracket: 2 },
+    answers: { ageBand: '26-39', residency: true, identities: ['preg', 'mid'], incomeBracket: 2 },
   },
 ];
 

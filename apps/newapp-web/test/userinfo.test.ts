@@ -36,8 +36,8 @@ describe('userinfo 純函式', () => {
     },
   );
 
-  it('[SUBS-R24] 實歲對應年齡區間（ADR-030）：17→18歲以下、18、29、30、44、45、64、65、120 邊界', () => {
-    expect([0, 17, 18, 29, 30, 44, 45, 64, 65, 120].map(bandOfAge)).toEqual(['u18', 'u18', '18-29', '18-29', '30-44', '30-44', '45-64', '45-64', '65+', '65+']);
+  it('[SUBS-R24] 實歲對應年齡區間（ADR-030）：17→18歲以下、18、25、26、39、40、64、65、120 邊界', () => {
+    expect([0, 17, 18, 25, 26, 39, 40, 64, 65, 120].map(bandOfAge)).toEqual(['u18', 'u18', '18-25', '18-25', '26-39', '26-39', '40-64', '40-64', '65+', '65+']);
     expect(bandOfAge(null)).toBeNull();
     expect(bandOfAge(121)).toBeNull();
   });
@@ -52,8 +52,8 @@ describe('userinfo 純函式', () => {
 
   it('[SUBS-R24] prefillFrom：帳號 null（回 []、逾時、沒 bridge）三欄都是 null；缺欄位只空該欄', () => {
     expect(prefillFrom(null, TODAY)).toEqual({ ageBand: null, residency: null, town: null });
-    expect(prefillFrom(DEMO_ACCOUNT, TODAY)).toEqual({ ageBand: '30-44', residency: true, town: '信義區' });
-    expect(prefillFrom({ birthday: '1990/01/01' }, TODAY)).toEqual({ ageBand: '30-44', residency: null, town: null });
+    expect(prefillFrom(DEMO_ACCOUNT, TODAY)).toEqual({ ageBand: '26-39', residency: true, town: '信義區' });
+    expect(prefillFrom({ birthday: '1990/01/01' }, TODAY)).toEqual({ ageBand: '26-39', residency: null, town: null });
     expect(prefillFrom({ addresses: [{ city: '新北市' }] }, TODAY)).toEqual({ ageBand: null, residency: false, town: null });
   });
 

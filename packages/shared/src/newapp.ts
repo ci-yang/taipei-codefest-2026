@@ -89,19 +89,19 @@ export const SUBSIDY_IDENTITY_LABELS: Record<SubsidyIdentity, string> = {
 };
 
 /**
- * 年齡區間（ADR-030，SUBS-R11、R13）：首頁五顆單選膠囊；min、max 為涵蓋的歲數（含）。
- * 「18歲以下」涵蓋 0～17 歲，「65歲+」涵蓋 65～120 歲。
+ * 年齡區間（ADR-030，SUBS-R11、R13；v3 改為五格）：試算頁五顆單選膠囊；min、max 為涵蓋的歲數（含）。
+ * 「18歲以下」涵蓋 0～17 歲，「65歲以上」涵蓋 65～120 歲。
  */
 export const AGE_BANDS = [
   { value: 'u18', label: '18歲以下', min: 0, max: 17 },
-  { value: '18-29', label: '18-29歲', min: 18, max: 29 },
-  { value: '30-44', label: '30-44歲', min: 30, max: 44 },
-  { value: '45-64', label: '45-64歲', min: 45, max: 64 },
-  { value: '65+', label: '65歲+', min: 65, max: 120 },
+  { value: '18-25', label: '18–25歲', min: 18, max: 25 },
+  { value: '26-39', label: '26–39歲', min: 26, max: 39 },
+  { value: '40-64', label: '40–64歲', min: 40, max: 64 },
+  { value: '65+', label: '65歲以上', min: 65, max: 120 },
 ] as const;
 export type AgeBand = (typeof AGE_BANDS)[number]['value'];
 
-/** 選這個區間時視同具備 elder（SUBS-R15，ADR-030） */
+/** 選這個區間時視同具備 elder（SUBS-R15，ADR-030）；只有 65+ 算 elder */
 export const ELDER_BAND: AgeBand = '65+';
 
 /** 每人月收入級距（ADR-006）。0 為不清楚；max 為 null 表示無上限 */

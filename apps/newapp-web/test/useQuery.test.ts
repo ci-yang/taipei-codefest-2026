@@ -120,7 +120,7 @@ describe('useQuery', () => {
     vi.stubGlobal('fetch', vi.fn(async () => Response.json(listJson)));
     const q = useQuery();
     await q.loadList();
-    q.setAgeBand('30-44');
+    q.setAgeBand('26-39');
     expect(q.answersState.value).toBe('inProgress');
     q.startOver();
     expect(q.answersState.value).toBe('empty');
@@ -137,11 +137,11 @@ describe('useQuery', () => {
     await q.loadList();
     q.applyDemo(2);
     expect(q.answersState.value).toBe('completed');
-    expect(q.results.value?.eligible).toHaveLength(7);
+    expect(q.results.value?.eligible).toHaveLength(8);
     expect(q.noMatch.value).toBeNull();
   });
 
-  it('[SUBS-R23] 三組示範情境可能符合數 2、2、7', async () => {
+  it('[SUBS-R23] 三組示範情境可能符合數 2、2、8', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => Response.json(fixtureWithMock)));
     const q = useQuery();
     await q.loadList();
@@ -149,14 +149,14 @@ describe('useQuery', () => {
       q.applyDemo(i);
       return q.results.value?.eligible.length;
     });
-    expect(counts).toEqual([2, 2, 7]);
+    expect(counts).toEqual([2, 2, 8]);
   });
 
   it('[SUBS-R19] 50 歲未設籍以上皆無級距 5 送出後有無符合結果', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => Response.json(fixtureWithMock)));
     const q = useQuery();
     await q.loadList();
-    q.setAgeBand('45-64');
+    q.setAgeBand('40-64');
     q.setResidency(false);
     q.toggleIdentity('none');
     q.setIncomeBracket(5);
@@ -270,10 +270,10 @@ describe('useQuery（S2：台北通帳號帶入、畫面狀態）', () => {
   it('[SUBS-R24] 進入時讀一次 userinfo 算出 prefill（含區）並立刻帶入；帶入不算作答；重複呼叫不再讀', async () => {
     const { DEMO_ACCOUNT, sentNames } = await import('./helpers/bridge');
     const { q, post } = await load(DEMO_ACCOUNT);
-    expect(q.prefill.value).toEqual({ ageBand: '30-44', residency: true, town: '信義區' });
+    expect(q.prefill.value).toEqual({ ageBand: '26-39', residency: true, town: '信義區' });
     await q.loadPrefill(TODAY);
     expect(sentNames(post)).toEqual(['userinfo']);
-    expect(q.answers.value).toEqual({ ageBand: '30-44', residency: true, identities: [], incomeBracket: null });
+    expect(q.answers.value).toEqual({ ageBand: '26-39', residency: true, identities: [], incomeBracket: null });
     expect(q.answersState.value).toBe('empty');
   });
 
@@ -283,11 +283,11 @@ describe('useQuery（S2：台北通帳號帶入、畫面狀態）', () => {
     ({ useQuery: useQueryS2 } = await import('@/composables/useQuery'));
     const q = useQueryS2();
     const pending = q.loadPrefill(TODAY);
-    q.setAgeBand('45-64');
+    q.setAgeBand('40-64');
     await pending;
-    expect(q.answers.value.ageBand).toBe('45-64');
+    expect(q.answers.value.ageBand).toBe('40-64');
     expect(q.answers.value.residency).toBeNull();
-    expect(q.prefill.value.ageBand).toBe('30-44');
+    expect(q.prefill.value.ageBand).toBe('26-39');
   });
 
   it('[SUBS-R20][SUBS-R27] 重新查詢、清除後立刻帶入台北通值，其餘未填，清單不動', async () => {
@@ -299,7 +299,7 @@ describe('useQuery（S2：台北通帳號帶入、畫面狀態）', () => {
     q.submit();
     const listBefore = q.list.value;
     q.startOver();
-    expect(q.answers.value).toEqual({ ageBand: '30-44', residency: true, identities: [], incomeBracket: null });
+    expect(q.answers.value).toEqual({ ageBand: '26-39', residency: true, identities: [], incomeBracket: null });
     expect(q.answersState.value).toBe('empty');
     expect(q.list.value).toBe(listBefore);
   });

@@ -178,7 +178,7 @@ describe('useQuery 清單狀態（S2）', () => {
     vi.stubGlobal('fetch', ok());
     const q = useQuery();
     await q.loadList();
-    q.setAgeBand('45-64');
+    q.setAgeBand('40-64');
     q.setResidency(false);
     q.toggleIdentity('none');
     q.setIncomeBracket(5);
