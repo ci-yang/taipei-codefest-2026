@@ -391,7 +391,8 @@ button.urgency-button:active:not(:disabled) { transform: none; }
 #selected-card .resource-title { display: -webkit-box; grid-column: 1 / -1; padding-right: 40px; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 18px; line-height: 24px; }
 #selected-card .distance-value { margin: 0; font-size: 18px; line-height: 24px; }
 #selected-card .distance-caption { margin: 0; line-height: 16px; }
-#selected-card .route-services, #selected-card .source-line, #selected-card .route-actions { grid-column: 1 / -1; }
+#selected-card .route-services, #selected-card .inference-note, #selected-card .source-line, #selected-card .route-actions { grid-column: 1 / -1; }
+#selected-card .inference-note { margin: 2px 0 4px; }
 #selected-card .route-services { gap: 4px; padding: 0; }
 #selected-card .route-services > span { gap: 3px; padding: 2px 5px; line-height: 16px; }
 #selected-card .source-line { min-width: 0; line-height: 16px; }
