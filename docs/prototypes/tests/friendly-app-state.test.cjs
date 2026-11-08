@@ -522,7 +522,7 @@ test('detail overlay closes from the side backdrop and escaped source names stay
 
 test('offline outside cached basemap coverage shows a map notice, clearing online or on return', async () => {
   const app = runtime(); await app.click('#home-map');
-  const [[south, west], [north, east]] = actualBasemap.bounds;
+  const [[south, west], [north, east]] = actualBasemap.regions[0].bounds;
   const outside = { lat: north + .02, lng: east + .02 };
   const inside = { lat: (south + north) / 2, lng: (west + east) / 2 };
   await app.fix(0, outside);
@@ -535,9 +535,22 @@ test('offline outside cached basemap coverage shows a map notice, clearing onlin
   await app.connectivity(true); assert.equal(app.element('#basemap-notice').hidden, true);
   await app.connectivity(false); assert.equal(app.element('#basemap-notice').hidden, false);
   assert.equal(app.storageWrites.length, 0);
-  app.map.setView([inside.lat, inside.lng], 17); await app.setBounds(actualBasemap.bounds);
+  app.map.setView([inside.lat, inside.lng], 17); await app.setBounds(actualBasemap.regions[0].bounds);
   assert.equal(app.element('#basemap-notice').hidden, true); assert.equal(app.element('#basemap-notice').textContent, '');
   assert.equal(app.state.position.lat, outside.lat, 'Panning the map must not change GPS');
+});
+
+test('offline basemap covers every listed region but not the gap between them', async () => {
+  assert.ok(actualBasemap.regions.length >= 2, 'Basemap must list its separate offline regions');
+  const app = runtime(); await app.click('#home-map'); await app.connectivity(false);
+  const centerOf = ({ bounds: [[south, west], [north, east]] }) => ({ lat: (south + north) / 2, lng: (west + east) / 2 });
+  for (const region of actualBasemap.regions) {
+    const center = centerOf(region); app.map.setView([center.lat, center.lng], 17); await app.setBounds(region.bounds);
+    assert.equal(app.element('#basemap-notice').hidden, true, `${region.name} must render the offline basemap`);
+  }
+  const [first, second] = actualBasemap.regions.map(centerOf);
+  app.map.setView([(first.lat + second.lat) / 2, (first.lng + second.lng) / 2], 17); await app.setBounds(actualBasemap.bounds);
+  assert.equal(app.element('#basemap-notice').hidden, false, 'The envelope between regions has no offline basemap');
 });
 
 test('compact cards expose address, complete source and update date as separate fields', async () => {

@@ -9,7 +9,7 @@ const BASE_MAP_BOUNDS = [[25.023, 121.546], [25.044, 121.574]];
 const ASSETS = [
   ['.', '首頁'], ['index.html', '頁面'], ['app.js', '操作功能'], ['app-ui.css', '介面樣式'],
   ['highlights.css', '城市雷達樣式'], ['highlights.js', '城市雷達'], ['highlight-math.js', '雷達試算'], ['price-data.js', '住宅交易樣本'],
-  ['icons.js', '服務圖示'], ['data.js', '信義及大安東側底圖'], ['resources-data.js', '全市資源與類別'],
+  ['icons.js', '服務圖示'], ['data.js', '信義／大安東及北投學園路底圖'], ['resources-data.js', '全市資源與類別'],
   ['search.js', '本機搜尋'], ['bridge.js', '台北通與定位'], ['offline.js', '離線管理'],
   ['route-client.js', '路線操作'], ['routing-worker.js', '本機路線計算'],
   ['routing.js', '步行路由'], ['routing-data.js', '臺北市步行路網'],

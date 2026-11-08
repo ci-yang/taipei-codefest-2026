@@ -84,7 +84,28 @@ python3 tools/build-friendly-resources.py --download
 
 首次連線會自動快取全市點位與 app shell，全部必要項目成功才顯示「已快取」、時間與底圖範圍。失敗會列缺項，保留既有完整資料；版本與 URL scope 隔離。
 
-離線快照底圖目前限信義區及大安東側（25.023–25.044 N、121.546–121.574 E），是已取得的 OSM 官方 GeoJSON。其他區域保留全市資源點位，缺底圖時使用方向與距離。線上 OSM raster tiles 僅用於當下互動視窗，不預抓、不收入離線包，遵伺服器 HTTP 快取設定。
+離線快照底圖分成兩塊，記在 `data.js` 的 `regions`。`bounds` 只是兩塊的外包矩形，App 判斷「有沒有離線底圖」看的是 `regions`，兩塊之間仍算沒有底圖。
+
+| 區域 | 範圍 | 來源與時間 |
+| --- | --- | --- |
+| 信義／大安東 | 25.023–25.044 N、121.546–121.574 E | OSM API `map` 匯出，2026-11-07；原始 XML 未留存，8,985 個 features |
+| 北投學園路（demo 會場周邊） | 25.121–25.148 N、121.454–121.484 E | Overpass 一次 GET，OSM 基準 `2026-11-08T01:40:06Z`；XML 1,395,978 bytes，SHA-256 `35ab50a41510c0d7a66139e5dbc9e296ce142ef1472e15a4c30e2df5f365df7e`；1,979 個 features |
+
+北投那塊的查詢選 bbox 內所有 `highway`、`building` 與 `leisure=park` 的 way 及其完整節點，對應 `load_osm` 會保留的類別。道路沒有套用步行路網的白名單，因為信義那塊同樣保留了 `trunk`、`cycleway` 等全部道路，兩塊才會畫得一致。第一次以 Python urllib 送出時 TLS 握手失敗，請求沒有送達；之後改用 curl 送出唯一一次 GET，HTTP 200，耗時約 36 秒。原始 XML 與下載紀錄在 `/tmp/basemap-beitou/`（`beitou-20261108.osm`、`retrieval.json`，內含查詢原文），未提交 repository。
+
+其他區域保留全市資源點位，缺底圖時使用方向與距離。線上 OSM raster tiles 僅用於當下互動視窗，不預抓、不收入離線包，遵伺服器 HTTP 快取設定。
+
+追加一塊區域時，在 repository 根目錄執行下列指令。它會用 `build-friendly-data.py` 的 `load_osm` 轉換新 OSM，把 features 接在既有 `map-data.geojson` 後面，再只替換 `data.js` 的 `map`、`bounds`、`regions`，其他欄位原樣保留：
+
+```sh
+python3 docs/prototypes/build-basemap-region.py \
+  --region 北投學園路 25.121 121.454 25.148 121.484 \
+  --osm /tmp/basemap-beitou/beitou-20261108.osm \
+  --merge-existing docs/prototypes/friendly-route/map-data.geojson \
+  --data-js docs/prototypes/friendly-route/data.js
+```
+
+同名區域重跑會取代該區域的範圍，已存在的 feature id 不會重複加入。平台 API 用的 `data/friendly/map-data.geojson` 不由這支指令更新。
 
 定位離線仍可重試；不把 GPS、目的地或搜尋紀錄持久儲存。方向以正北為基準，不依賴羅盤；只有主動啟用且收到有效方位訊號才轉動箭頭，沒有位置不顯示箭頭。直線方向不保證現場道路可通行。
 

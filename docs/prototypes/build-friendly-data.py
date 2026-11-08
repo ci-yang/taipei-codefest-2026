@@ -1,5 +1,7 @@
 """Build an attributed, local prototype snapshot from official CSV and OSM exports."""
 
+from __future__ import annotations
+
 import argparse
 import csv
 import hashlib
@@ -12,6 +14,7 @@ from pathlib import Path
 
 
 DEMO_BOUNDS = [[25.023, 121.546], [25.044, 121.574]]
+DEMO_REGION = {"name": "信義／大安東", "bounds": DEMO_BOUNDS}
 FRIENDLY_SOURCE = {
     "key": "friendly-store",
     "name": "臺北市友善店家清冊",
@@ -212,7 +215,13 @@ def add_common_knowledge(resources: list[dict[str, object]]) -> dict[str, int]:
     return dict(counts)
 
 
-def load_osm(paths: list[Path]) -> dict[str, object]:
+def envelope(regions: list[dict[str, object]]) -> list[list[float]]:
+    corners = [region["bounds"] for region in regions]
+    return [[min(b[0][0] for b in corners), min(b[0][1] for b in corners)],
+            [max(b[1][0] for b in corners), max(b[1][1] for b in corners)]]
+
+
+def load_osm(paths: list[Path], region: dict[str, object] = DEMO_REGION) -> dict[str, object]:
     nodes: dict[str, list[float]] = {}
     ways: dict[str, tuple[dict[str, str], list[str]]] = {}
     for path in paths:
@@ -230,7 +239,7 @@ def load_osm(paths: list[Path]) -> dict[str, object]:
         coordinates = [nodes[ref] for ref in refs]
         if len(coordinates) < 2:
             continue
-        if not any(in_bounds(y, x) for x, y in coordinates):
+        if not any(in_bounds(y, x, region["bounds"]) for x, y in coordinates):
             continue
         polygon = ("building" in tags or tags.get("leisure") == "park") and refs[0] == refs[-1]
         features.append({
@@ -240,7 +249,7 @@ def load_osm(paths: list[Path]) -> dict[str, object]:
             "geometry": {"type": "Polygon" if polygon else "LineString",
                          "coordinates": [coordinates] if polygon else coordinates},
         })
-    return {"type": "FeatureCollection", "features": features,
+    return {"type": "FeatureCollection", "features": features, "regions": [region],
             "license": "ODbL-1.0", "attribution": "© OpenStreetMap contributors",
             "source": "https://api.openstreetmap.org/api/0.6/map"}
 
@@ -283,7 +292,8 @@ def main() -> None:
     demo_names = ["新東陽忠孝店", "布納咖啡館", "新東陽101專櫃"]
     payload = {
         "version": "friendly-route-2026-11-07-v3",
-        "bounds": DEMO_BOUNDS,
+        "bounds": envelope(geo.get("regions", [DEMO_REGION])),
+        "regions": geo.get("regions", [DEMO_REGION]),
         "resourceScope": "臺北市全市" if args.citywide else "信義／大安東側示範區",
         "fetchedAt": datetime.now(timezone.utc).isoformat(),
         "source": sources[0],
