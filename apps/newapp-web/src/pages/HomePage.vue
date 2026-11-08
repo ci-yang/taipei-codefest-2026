@@ -28,6 +28,8 @@ const DOT = ['dot-a', 'dot-b', 'dot-c'] as const;
 const openCount = computed(() => list.value?.items.filter((i) => i.kind === 'open').length ?? 0);
 /** 官方網頁整理筆數（ADR-035）：不算進上面的 N，另起一行小字 */
 const curatedCount = computed(() => list.value?.items.filter((i) => i.kind === 'curated').length ?? 0);
+/** 台北服務通筆數（ADR-036）：不比對，跟官方網頁整理同一行小字 */
+const catalogCount = computed(() => list.value?.items.filter((i) => i.kind === 'catalog').length ?? 0);
 const totalCount = computed(() => list.value?.items.length ?? 0);
 const featured = computed(() => {
   const items = list.value?.items ?? [];
@@ -129,7 +131,9 @@ onBeforeUnmount(() => {
         <p class="big-row">
           <b class="big" data-test="big-count">{{ openCount }} 項補助</b><span class="open-tag">開放資料</span>
         </p>
-        <p v-if="curatedCount" class="also" data-test="curated-count">另含 {{ curatedCount }} 項官方網頁整理的補助</p>
+        <p v-if="curatedCount" class="also" data-test="curated-count">
+          另含 {{ curatedCount }} 項官方網頁整理的補助<template v-if="catalogCount">、{{ catalogCount }} 項台北服務通申辦服務</template>
+        </p>
         <p class="remind">⚠️ 補助多需主動申請，未申請就領不到；先試算看看自己可能符合哪些。</p>
         <ul class="feat" data-test="featured">
           <li v-for="f in featured" :key="f.item.no" class="feat-row" :data-test="`feat-${f.item.no}`">

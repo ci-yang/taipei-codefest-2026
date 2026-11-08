@@ -34,7 +34,7 @@ function openDetail(e: MouseEvent): void {
 <template>
   <article class="lc" :data-no="item.no" :data-status="status" :data-kind="item.kind" data-test="list-card">
     <div class="lc-top">
-      <span class="tag cat" data-test="tag-cat">{{ categoryText(item.no) }}</span>
+      <span class="tag cat" data-test="tag-cat">{{ categoryText(item.no, item.kind) }}</span>
       <span class="tag st" :class="`st-${status}`" data-test="tag-status">{{ statusText(row) }}</span>
       <FavButton class="lc-bm" :no="item.no" :name="item.name" />
     </div>

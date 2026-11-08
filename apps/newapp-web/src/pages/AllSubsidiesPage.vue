@@ -8,20 +8,28 @@ import { findRow } from '@/lib/resultView';
 
 /**
  * 全部補助（v3）：不用作答就能看。分類膠囊篩選（只改顯示）；卡片與結果頁同一種。
- * 有作答結果時帶判定，沒有時狀態標籤只寫資料類型。真實資料（開放、官方網頁整理）在前、模擬在後，同級依序號。
+ * 有作答結果時帶判定，沒有時狀態標籤只寫資料類型。真實資料（開放、官方網頁整理）在前、模擬在後，台北服務通最後，同級依序號。
+ * ADR-036：最後一顆膠囊「台北服務通」只看 catalog 項目（不比對，SUBS-R75）。
  */
 const q = useQuery();
-const cat = ref<CategoryId | 'all'>('all');
+const cat = ref<CategoryId | 'all' | 'catalog'>('all');
 
 const all = computed(() =>
   [...(q.list.value?.items ?? [])].sort((x, y) => kindRank(x) - kindRank(y) || x.no - y.no),
 );
 const rows = computed(() =>
   all.value
-    .filter((it) => cat.value === 'all' || categoryOf(it.no)?.id === cat.value)
+    .filter((it) =>
+      cat.value === 'all' ? true : cat.value === 'catalog' ? it.kind === 'catalog' : categoryOf(it.no)?.id === cat.value,
+    )
     .map((item) => ({ item, result: q.results.value ? (findRow(q.results.value, item.no)?.result ?? null) : null })),
 );
-const chips = computed(() => [{ id: 'all' as const, label: '全部' }, ...CATEGORIES.map((c) => ({ id: c.id, label: c.label }))]);
+const hasCatalog = computed(() => all.value.some((it) => it.kind === 'catalog'));
+const chips = computed(() => [
+  { id: 'all' as const, label: '全部' },
+  ...CATEGORIES.map((c) => ({ id: c.id, label: c.label })),
+  ...(hasCatalog.value ? [{ id: 'catalog' as const, label: '台北服務通' }] : []),
+]);
 </script>
 
 <template>

@@ -7,6 +7,7 @@ import { isTownPassBridgeAvailable, openLink, phoneCall } from '@/lib/townpass';
 import {
   CITY_HOTLINE,
   DATASET_URL,
+  UNMATCHED_LABEL,
   ageLimitText,
   agencyShort,
   canCall1999,
@@ -23,6 +24,8 @@ import {
  * （官方網頁整理改「查看官方來源」連到 sourceUrl）、聯繫方式含 1999 時撥打 1999（sa-3-s2.md W11）。
  * ADR-035：三格摘要後有實際補助原文時加「實際補助」（完整原文）與「資料來源」（網址、查證日、門檻年度說明）兩列。只有關閉鈕。返回鍵、Esc、點背景都關（useDetail 的 history state）。
  * 用手機記憶體的清單與比對結果，不打 API；沒送出時（從我的珍藏開）判定寫「尚未比對」。
+ * ADR-036：台北服務通（catalog）判定一律寫「未依四題比對」，三格摘要寫「見案件頁」，次鈕連到來源資料集（sourceUrl），
+ * 資料來源列標資料集名稱與下載日。
  */
 const q = useQuery();
 const { openNo, close } = useDetail();
@@ -35,9 +38,17 @@ const item = computed(() => {
 });
 const row = computed(() => (item.value && q.results.value ? findRow(q.results.value, item.value.no) : null));
 const verify = computed(() => (row.value ? row.value.result.toVerify : (item.value?.toVerify ?? [])));
+const catalog = computed(() => item.value?.kind === 'catalog');
 const summary = computed(() => {
   const it = item.value;
   if (!it) return [];
+  if (it.kind === 'catalog') {
+    return [
+      { k: '身分條件', v: '見案件頁', n: '' },
+      { k: '年齡', v: '見案件頁', n: '' },
+      { k: '收入上限', v: '見案件頁', n: '' },
+    ];
+  }
   return [
     { k: '身分條件', v: identityLimitText(it), n: '' },
     { k: '年齡', v: ageLimitText(it), n: '' },
@@ -49,17 +60,18 @@ const canApply = computed(() => !!item.value && item.value.kind !== 'mock' && !!
 const showCall = computed(() => (item.value ? canCall1999(item.value) : false));
 const curated = computed(() => item.value?.kind === 'curated');
 /** 次鈕：官方網頁整理連到 benefitText 原文所在頁，其餘連開放資料集 */
-const secondary = computed(() =>
-  curated.value && item.value?.sourceUrl
-    ? { label: '查看官方來源', url: item.value.sourceUrl }
-    : { label: '查看開放資料來源', url: DATASET_URL },
-);
+const secondary = computed(() => {
+  if (curated.value && item.value?.sourceUrl) return { label: '查看官方來源', url: item.value.sourceUrl };
+  if (catalog.value && item.value?.sourceUrl) return { label: '查看開放資料來源', url: item.value.sourceUrl };
+  return { label: '查看開放資料來源', url: DATASET_URL };
+});
 /** 資料來源列的門檻年度說明：官方網頁整理照來源頁；開放資料的收入門檻是資料集原值（舊年度） */
-const sourceNote = computed(() =>
-  curated.value ? '門檻年度依來源頁。' : '實際補助依來源頁；收入門檻為資料集原值，年度較舊。',
-);
-/** 門檻提醒：開放資料由社會局公告；官方網頁整理含其他主管機關 */
-const noticeAgency = computed(() => (curated.value ? '主管機關' : '社會局'));
+const sourceNote = computed(() => {
+  if (catalog.value) return '資料來源：臺北市政府台北服務通申辦服務及承辦單位資訊（政府資料開放平臺）。資格與金額請見案件頁。';
+  return curated.value ? '門檻年度依來源頁。' : '實際補助依來源頁；收入門檻為資料集原值，年度較舊。';
+});
+/** 門檻提醒：開放資料由社會局公告；官方網頁整理、台北服務通含其他主管機關 */
+const noticeAgency = computed(() => (curated.value || catalog.value ? '主管機關' : '社會局'));
 
 // 開啟時鎖住背景捲動、彈窗捲回頂端並取得焦點
 watch(
@@ -105,8 +117,10 @@ function onCall(e: MouseEvent): void {
         <div class="m-tags" data-test="d-tags">
           <span v-if="item.kind === 'mock'" class="mpill mock">模擬資料</span>
           <span v-else-if="item.kind === 'curated'" class="mpill" data-test="d-kind">官方網頁整理</span>
+          <span v-else-if="item.kind === 'catalog'" class="mpill" data-test="d-kind">台北服務通 · 開放資料</span>
           <span v-else class="mpill">開放資料 · 臺北市社會局</span>
-          <span v-if="row" class="verdict ol" :class="{ no: !row.result.ok }" data-test="d-verdict">{{
+          <span v-if="catalog" class="verdict none" data-test="d-verdict">{{ UNMATCHED_LABEL }}</span>
+          <span v-else-if="row" class="verdict ol" :class="{ no: !row.result.ok }" data-test="d-verdict">{{
             row.result.ok ? '可能符合' : '不符合'
           }}</span>
           <span v-else class="verdict none" data-test="d-verdict">尚未比對</span>
@@ -143,7 +157,7 @@ function onCall(e: MouseEvent): void {
           <b>資料來源：</b>
           <div class="d-src">
             <a :href="item.sourceUrl" data-test="d-source-url" @click.prevent="onLink(item.sourceUrl)">{{ displayUrl(item.sourceUrl) }}</a>
-            <span v-if="item.verifiedAt" data-test="d-verified">查證日 {{ item.verifiedAt }}</span>
+            <span v-if="item.verifiedAt" data-test="d-verified">{{ catalog ? '資料下載日' : '查證日' }} {{ item.verifiedAt }}</span>
             <span data-test="d-source-note">{{ sourceNote }}</span>
           </div>
         </div>
@@ -153,7 +167,8 @@ function onCall(e: MouseEvent): void {
         <div>
           <b>判定原因：</b>
           <div class="d-why" data-test="d-why">
-            <span v-if="row" :class="{ 'why-no': !row.result.ok }">{{ row.result.ok ? '可能符合：' : '不符合：' }}{{ row.result.reason }}</span>
+            <template v-if="catalog">{{ UNMATCHED_LABEL }}：台北服務通資料集沒有年齡、設籍、身分與收入欄位，請到案件頁確認資格。</template>
+            <span v-else-if="row" :class="{ 'why-no': !row.result.ok }">{{ row.result.ok ? '可能符合：' : '不符合：' }}{{ row.result.reason }}</span>
             <template v-else>尚未比對，到試算頁填完四題就會看到判定。</template>
           </div>
         </div>

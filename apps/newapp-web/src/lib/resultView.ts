@@ -30,10 +30,14 @@ export const KIND_LABELS: Record<SubsidyItem['kind'], string> = {
   open: '開放資料',
   curated: '官方網頁整理',
   mock: '模擬資料',
+  catalog: '台北服務通',
 };
 export function kindLabel(item: SubsidyItem): string {
   return KIND_LABELS[item.kind];
 }
+
+/** [SUBS-R75] 台北服務通沒有比對時的判定文字（彈窗、卡片） */
+export const UNMATCHED_LABEL = '未依四題比對';
 
 /** 詳細資訊彈窗次鈕「查看開放資料來源」（sa-3-s2.md W11） */
 export const DATASET_URL = 'https://data.gov.tw/dataset/129839';

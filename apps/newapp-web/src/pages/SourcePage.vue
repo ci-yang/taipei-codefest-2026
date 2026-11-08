@@ -10,6 +10,7 @@ import { THRESHOLD_NOTICE, displayUrl, formatUpdatedAt } from '@/lib/resultView'
 /**
  * 資料來源頁（spec 7.6、sa-3-s2.md W5）：資料集、機關、授權、網址、更新時間讀補助清單的 source 與 updatedAt；
  * ADR-035：依 sources 列出三種來源類型；官方網頁整理逐項列名稱、來源網址（sourceUrl）、查證日。
+ * ADR-036：台北服務通列資料集、機關、授權、網址（項目的 sourceUrl）、下載日與說明。
  * 門檻提醒與模擬資料說明是固定文案（照原型）。頂列最左是首頁鍵（App.vue 共用頂列，SUBS-R26），頁底「返回」保留。
  */
 const router = useRouter();
@@ -18,6 +19,9 @@ const src = computed(() => q.list.value?.source ?? null);
 const sourceOf = (kind: SubsidyKind) => q.list.value?.sources.find((s) => s.kind === kind) ?? null;
 const curatedSource = computed(() => sourceOf('curated'));
 const mockSource = computed(() => sourceOf('mock'));
+const catalogSource = computed(() => sourceOf('catalog'));
+/** 台北服務通的資料集頁（每項 sourceUrl 都相同，取第一項，ADR-036） */
+const catalogUrl = computed(() => (q.list.value?.items ?? []).find((i) => i.kind === 'catalog')?.sourceUrl ?? null);
 const openSource = computed(() => sourceOf('open'));
 const curatedItems = computed(() =>
   (q.list.value?.items ?? []).filter((i) => i.kind === 'curated').sort((a, b) => a.no - b.no),
@@ -70,6 +74,27 @@ function goBack(): void {
               <small v-if="it.verifiedAt">查證日 {{ it.verifiedAt }}</small>
             </li>
           </ol>
+        </div>
+      </template>
+
+      <template v-if="catalogSource && catalogSource.count">
+        <h3 class="src-h" data-test="src-type-catalog">{{ catalogSource.label }}<small> · {{ catalogSource.count }} 項</small></h3>
+        <div class="card">
+          <table class="src-table" data-test="src-catalog-table">
+            <tbody>
+              <tr><th>資料集</th><td>臺北市政府台北服務通申辦服務及承辦單位資訊</td></tr>
+              <tr><th>提供機關</th><td>臺北市政府研究發展考核委員會</td></tr>
+              <tr><th>授權</th><td>政府資料開放授權條款－第1版</td></tr>
+              <tr v-if="catalogUrl">
+                <th>網址</th>
+                <td>
+                  <a :href="catalogUrl" data-test="src-catalog-url" @click.prevent="onUrlClick(catalogUrl)">{{ displayUrl(catalogUrl) }}</a>
+                </td>
+              </tr>
+              <tr><th>資料下載日</th><td data-test="src-catalog-date">{{ catalogSource.verifiedAt }}</td></tr>
+            </tbody>
+          </table>
+          <p class="src-desc" data-test="src-catalog-desc">{{ catalogSource.description }}</p>
         </div>
       </template>
 

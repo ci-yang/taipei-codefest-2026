@@ -120,7 +120,7 @@ export function matchItem(item: SubsidyItem, a: CompletedAnswers): MatchResult {
   return { no: item.no, ok: failures.length === 0, reason, failures, toVerify };
 }
 
-/** [SUBS-R72] 每個 SubsidyItem 恰有一個 MatchResult */
+/** [SUBS-R72] 每個參與比對的 SubsidyItem 恰有一個 MatchResult（台北服務通不比對，SUBS-R75） */
 export function matchAll(items: SubsidyItem[], a: CompletedAnswers): MatchResult[] {
   return items.map((item) => matchItem(item, a));
 }
@@ -128,23 +128,35 @@ export function matchAll(items: SubsidyItem[], a: CompletedAnswers): MatchResult
 export interface GroupedResults {
   eligible: Array<{ item: SubsidyItem; result: MatchResult }>;
   ineligible: Array<{ item: SubsidyItem; result: MatchResult }>;
+  /** [SUBS-R75] 台北服務通：資料集沒有資格欄位，不比對、不進兩組，依序號 */
+  catalog: SubsidyItem[];
+}
+
+/** [SUBS-R75] 台北服務通項目不依四題比對（ADR-036） */
+export function isUnmatched(item: SubsidyItem): boolean {
+  return item.kind === 'catalog';
 }
 
 /**
- * [SUBS-R18] 排序級別（ADR-035）：開放資料與官方網頁整理同一級（0），模擬資料排後（1）。
- * 比對本身不看 kind，一律照四題。
+ * [SUBS-R18] 排序級別（ADR-035、ADR-036）：開放資料與官方網頁整理同一級（0），模擬資料排後（1），台北服務通最後（2）。
+ * 比對本身不看 kind，一律照四題；只有台北服務通不比對（SUBS-R75）。
  */
 export function kindRank(item: SubsidyItem): number {
+  if (item.kind === 'catalog') return 2;
   return item.kind === 'mock' ? 1 : 0;
 }
 
-/** [SUBS-R18] 分可能符合與不符合兩組，組內真實資料（開放、官方網頁整理）在前、模擬在後，同級依序號 */
+/**
+ * [SUBS-R18] 分可能符合與不符合兩組，組內真實資料（開放、官方網頁整理）在前、模擬在後，同級依序號；
+ * [SUBS-R75] 台北服務通另放 catalog，不比對。
+ */
 export function groupResults(items: SubsidyItem[], a: CompletedAnswers): GroupedResults {
-  const rows = items.map((item) => ({ item, result: matchItem(item, a) }));
+  const rows = items.filter((item) => !isUnmatched(item)).map((item) => ({ item, result: matchItem(item, a) }));
   rows.sort((x, y) => kindRank(x.item) - kindRank(y.item) || x.item.no - y.item.no);
   return {
     eligible: rows.filter((r) => r.result.ok),
     ineligible: rows.filter((r) => !r.result.ok),
+    catalog: items.filter(isUnmatched).sort((x, y) => x.no - y.no),
   };
 }
 

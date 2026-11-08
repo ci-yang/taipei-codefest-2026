@@ -36,8 +36,13 @@ export const ART_ALIAS: Record<number, number> = {
   211: 5, 212: 9, 213: 9, 214: 3, 215: 6,
 };
 
+/** 台北服務通（序號 301 起，ADR-036）一律借用房子與錢幣（1） */
+const CATALOG_ART = 1;
+const CATALOG_NO_MIN = 301;
+
 function artKey(key: number | string): string {
-  const alias = ART_ALIAS[Number(key)];
+  const n = Number(key);
+  const alias = ART_ALIAS[n] ?? (n >= CATALOG_NO_MIN ? CATALOG_ART : undefined);
   return String(alias ?? key);
 }
 
@@ -47,7 +52,7 @@ export const TONE: Record<number, string> = { 1: '#fbe7d9', 2: '#fdf8ed', 3: '#e
 const FALLBACK_TONE = '#dbf1f5';
 
 export function toneOf(no: number): string {
-  return TONE[no] ?? TONE[ART_ALIAS[no] ?? -1] ?? FALLBACK_TONE;
+  return TONE[no] ?? TONE[ART_ALIAS[no] ?? -1] ?? (no >= CATALOG_NO_MIN ? '#edf8fa' : FALLBACK_TONE);
 }
 
 /** 有沒有這張插畫（28 項補助都要有，測試用） */
