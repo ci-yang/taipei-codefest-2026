@@ -4,7 +4,7 @@
     "label": "官方網頁整理",
     "description": "依各主管機關官方網頁、法規或公告人工整理，非 data.gov.tw 資料集；依各網站「政府網站資料開放宣告」利用。url 是服務說明頁，sourceUrl 是 benefitText 原文所在頁。benefitText 為 null 表示官方頁面查不到可核對的金額。",
     "verifiedAt": "2026-11-08",
-    "excluded": "165 項台北服務通候選清單（爬蟲）與漏領金額年度估算不收。"
+    "excluded": "台北服務通候選不收爬蟲版，改由開放資料集 data.gov.tw/dataset/157468 收錄於 catalog-subsidies.json；漏領金額估算由前端依 benefitText 原文推得（ADR-036）。"
   },
   "items": [
     {

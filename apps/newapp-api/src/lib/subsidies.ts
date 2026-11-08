@@ -6,6 +6,7 @@ import {
   type SubsidySource,
   type SubsidySourceType,
 } from '@app/shared';
+import { CATALOG_NO_MIN, DEFAULT_CATALOG_DATA, catalogItem, parseCatalogData } from './catalog';
 import { CURATED_NO_MIN, DEFAULT_EXTRA_DATA, parseExtraData, withOpenBenefit, type ExtraData } from './curated';
 
 const DATA_TAIPEI_API = 'https://data.taipei/api/v1/dataset';
@@ -179,7 +180,7 @@ export function latestImportDate(records: RawRecord[], fetchedAt: Date): string 
 
 /** 模擬類別序號起點（SUBS-R73：kind=mock 若且唯若 101 <= no <= 200） */
 export const MOCK_NO_MIN = 101;
-export { CURATED_NO_MIN };
+export { CURATED_NO_MIN, CATALOG_NO_MIN };
 
 /**
  * [SUBS-R07] 模擬類別 3 項，名稱與條件都是示範值（ADR-012）；其他欄位取自原型 prd-4-prototype。
@@ -245,8 +246,9 @@ export const MOCK_SUBSIDIES: readonly SubsidyItem[] = [
   },
 ];
 
-/** [SUBS-R73] 依序號判定應有的資料類型：1～100 開放、101～200 模擬、201 起官方網頁整理 */
+/** [SUBS-R73] 依序號判定應有的資料類型：1～100 開放、101～200 模擬、201～300 官方網頁整理、301 起台北服務通 */
 export function kindOfNo(no: number): SubsidyItem['kind'] {
+  if (no >= CATALOG_NO_MIN) return 'catalog';
   if (no >= CURATED_NO_MIN) return 'curated';
   if (no >= MOCK_NO_MIN) return 'mock';
   return 'open';
@@ -257,9 +259,12 @@ const MOCK_DESCRIPTION = '示範用的虛構補助，名稱與條件都不是真
 /** 給使用者看的說明（JSON meta.description 是給維護者看的欄位說明，含欄位名，不上畫面） */
 const CURATED_DESCRIPTION =
   '依各主管機關官方網頁、法規或公告人工整理，不是政府資料開放平臺的資料集。金額只照官方原文，查不到可核對的金額就不顯示。';
+/** 台北服務通的使用者說明（ADR-036）；資料集名稱與網址由前端從 sourceUrl 帶出 */
+const CATALOG_DESCRIPTION =
+  '臺北市政府研究發展考核委員會在政府資料開放平臺公告的「臺北市政府台北服務通申辦服務及承辦單位資訊」，取名稱含補助、津貼、減免等的個人申請案件。資料集沒有資格與金額欄位，所以不依四題比對，資格與金額請到各案件頁確認。';
 
 /**
- * 整理整份清單並用契約驗證（SUBS-R07、ADR-035）：開放資料依序號 → 官方網頁整理依序號 → 模擬類別。
+ * 整理整份清單並用契約驗證（SUBS-R07、ADR-035、ADR-036）：開放資料依序號 → 官方網頁整理依序號 → 模擬類別 → 台北服務通依序號。
  * 開放資料、官方網頁整理 JSON 任一不合格都丟錯，交給 SUBS-R09 沿用上次結果。
  */
 export function buildSubsidyList(
@@ -268,6 +273,7 @@ export function buildSubsidyList(
   extra: ExtraData = DEFAULT_EXTRA_DATA,
 ): SubsidyList {
   const { curated, openBenefit } = parseExtraData(extra);
+  const catalog = parseCatalogData(extra.catalog ?? DEFAULT_CATALOG_DATA);
   const open = records
     .map(normalizeSubsidy)
     .filter((i): i is SubsidyItem => i !== null)
@@ -279,7 +285,8 @@ export function buildSubsidyList(
   if (clash) throw new Error(`開放資料序號 ${clash.no} 落在模擬類別區段（>= ${MOCK_NO_MIN}）`);
   const curatedItems: SubsidyItem[] = [...curated.items].sort((a, b) => a.no - b.no).map((i) => structuredClone(i));
   const mockItems = MOCK_SUBSIDIES.map((m) => structuredClone(m));
-  const items = [...open, ...curatedItems, ...mockItems];
+  const catalogItems = [...catalog.items].sort((a, b) => a.no - b.no).map((r) => catalogItem(r, catalog));
+  const items = [...open, ...curatedItems, ...mockItems, ...catalogItems];
   const bad = items.find((i) => i.kind !== kindOfNo(i.no));
   if (bad) throw new Error(`序號 ${bad.no} 的資料類型 ${bad.kind} 與序號區段不符`);
   const sources: SubsidySourceType[] = [
@@ -292,6 +299,13 @@ export function buildSubsidyList(
       verifiedAt: curated.meta.verifiedAt,
     },
     { kind: 'mock', label: '模擬資料', description: MOCK_DESCRIPTION, count: mockItems.length, verifiedAt: null },
+    {
+      kind: 'catalog',
+      label: catalog.meta.label,
+      description: CATALOG_DESCRIPTION,
+      count: catalogItems.length,
+      verifiedAt: catalog.meta.dataset.downloadedAt,
+    },
   ];
   return SubsidyListSchema.parse({
     items,

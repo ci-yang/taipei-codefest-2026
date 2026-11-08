@@ -2,11 +2,14 @@ import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SubsidyListSchema, type SubsidyList } from '@app/shared';
 import { createApp } from '../src/app';
+import catalogJson from '../src/data/catalog-subsidies.json';
 import curatedJson from '../src/data/curated-subsidies.json';
 import openBenefitJson from '../src/data/open-benefit-text.json';
+import { CATALOG_VERIFY } from '../src/lib/catalog';
 import { DEFAULT_EXTRA_DATA } from '../src/lib/curated';
 import {
   CACHE_TTL_MS,
+  CATALOG_NO_MIN,
   CURATED_NO_MIN,
   MOCK_NO_MIN,
   RETRY_AFTER_MS,
@@ -105,17 +108,24 @@ describe('補助清單整理（實抓資料 10 筆）', () => {
 
   const OPEN_NOS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   const CURATED_NOS = Array.from({ length: 15 }, (_, i) => 201 + i);
+  const CATALOG_COUNT = catalogJson.items.length;
+  const CATALOG_NOS = Array.from({ length: CATALOG_COUNT }, (_, i) => 301 + i);
 
-  it('[SUBS-R07] 共 28 項：開放資料 10 項 → 官方網頁整理 15 項 → 模擬 3 項，通過契約', () => {
+  it('[SUBS-R07] 台北服務通快照收 115 項（ADR-036）', () => {
+    expect(CATALOG_COUNT).toBe(115);
+  });
+
+  it('[SUBS-R07] 共 143 項：開放資料 10 項 → 官方網頁整理 15 項 → 模擬 3 項 → 台北服務通 115 項，通過契約', () => {
     const parsed = SubsidyListSchema.parse(list);
-    expect(parsed.items).toHaveLength(28);
-    expect(parsed.items.map((i) => i.no)).toEqual([...OPEN_NOS, ...CURATED_NOS, 101, 102, 103]);
+    expect(parsed.items).toHaveLength(28 + CATALOG_COUNT);
+    expect(parsed.items.map((i) => i.no)).toEqual([...OPEN_NOS, ...CURATED_NOS, 101, 102, 103, ...CATALOG_NOS]);
     expect(parsed.items.map((i) => i.kind)).toEqual([
       ...OPEN_NOS.map(() => 'open'),
       ...CURATED_NOS.map(() => 'curated'),
       'mock',
       'mock',
       'mock',
+      ...CATALOG_NOS.map(() => 'catalog'),
     ]);
     expect(list.source.rid).toBe('549a3347-df6e-4bed-b818-368210d01544');
   });
@@ -125,7 +135,38 @@ describe('補助清單整理（實抓資料 10 筆）', () => {
       ['open', '開放資料', 10, null],
       ['curated', '官方網頁整理', 15, '2026-11-08'],
       ['mock', '模擬資料', 3, null],
+      ['catalog', '台北服務通', 115, '2026-11-08'],
     ]);
+  });
+
+  it('[SUBS-R75][ADR-036] 台北服務通：條件欄不參與比對、資格列還需確認、沒有金額、來源指向資料集 157468', () => {
+    const items = list.items.filter((i) => i.kind === 'catalog');
+    for (const i of items) {
+      expect(i).toMatchObject({
+        ageMin: null,
+        ageMax: null,
+        residency: false,
+        identities: [],
+        appliesForStatus: false,
+        incomeMax: null,
+        benefitText: null,
+        sourceUrl: 'https://data.gov.tw/dataset/157468',
+        verifiedAt: '2026-11-08',
+      });
+      expect(i.toVerify[0]).toBe(CATALOG_VERIFY);
+      expect(i.url).toMatch(/^https:\/\/service\.taipei\/case-detail\/[A-Z]{2}\d{3}$/);
+    }
+    // 停收、非個人申請、與既有項目重複的案件不收
+    const caseIds = new Set(catalogJson.items.map((r) => r.caseId));
+    for (const id of ['PO006', 'EA016', 'AE002', 'EA012', 'AI001', 'AI022']) expect(caseIds.has(id)).toBe(false);
+    expect(new Set(items.map((i) => i.name)).size).toBeGreaterThan(100);
+  });
+
+  it('[SUBS-R73] 台北服務通序號落在 300 以下或重複都視為整理失敗', () => {
+    const low = { ...DEFAULT_EXTRA_DATA, catalog: { ...catalogJson, items: catalogJson.items.map((c, i) => (i === 0 ? { ...c, no: 250 } : c)) } };
+    expect(() => buildSubsidyList(records, new Date(), low)).toThrow(/台北服務通資料格式錯誤/);
+    const dup = { ...DEFAULT_EXTRA_DATA, catalog: { ...catalogJson, items: [catalogJson.items[0], catalogJson.items[0]] } };
+    expect(() => buildSubsidyList(records, new Date(), dup)).toThrow(/台北服務通序號重複/);
   });
 
   it('[SUBS-R74] 開放資料的實際補助原文依序號對上 open-benefit-text；序號 4 查不到為 null', () => {
@@ -201,11 +242,12 @@ describe('補助清單整理（實抓資料 10 筆）', () => {
     });
   });
 
-  it('[SUBS-R73] 序號區段：1～100 開放、101～200 模擬、201 起官方網頁整理', () => {
+  it('[SUBS-R73] 序號區段：1～100 開放、101～200 模擬、201～300 官方網頁整理、301 起台北服務通', () => {
     for (const i of list.items) {
       expect(i.kind === 'open').toBe(i.no < MOCK_NO_MIN);
       expect(i.kind === 'mock').toBe(i.no >= MOCK_NO_MIN && i.no < CURATED_NO_MIN);
-      expect(i.kind === 'curated').toBe(i.no >= CURATED_NO_MIN);
+      expect(i.kind === 'curated').toBe(i.no >= CURATED_NO_MIN && i.no < CATALOG_NO_MIN);
+      expect(i.kind === 'catalog').toBe(i.no >= CATALOG_NO_MIN);
     }
   });
 
@@ -301,7 +343,7 @@ describe('GET /api/v1/subsidies', () => {
     vi.restoreAllMocks();
   });
 
-  it('[SUBS-R70][SUBS-R07][SUBS-R73] 回 28 項補助清單，打 data.taipei 時 URL 只有固定參數', async () => {
+  it('[SUBS-R70][SUBS-R07][SUBS-R73] 回 143 項補助清單，打 data.taipei 時 URL 只有固定參數', async () => {
     const fetchMock = vi.fn(async (_url: string | URL | Request) => Response.json(fixture));
     vi.stubGlobal('fetch', fetchMock);
     const res = await createApp().request('/api/v1/subsidies');
@@ -310,13 +352,14 @@ describe('GET /api/v1/subsidies', () => {
     expect(json).not.toHaveProperty('fetchedAt'); // [SUBS-R09] fetchedAt 只在伺服器
     expect(json).toHaveProperty('source'); // 向下相容：v3 前端讀 source
     const body = SubsidyListSchema.parse(json);
-    expect(body.items).toHaveLength(28);
+    expect(body.items).toHaveLength(143);
     expect(body.items.map((i) => [i.no, i.kind])).toEqual([
       ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((no) => [no, 'open']),
       ...Array.from({ length: 15 }, (_, i) => [201 + i, 'curated']),
       [101, 'mock'],
       [102, 'mock'],
       [103, 'mock'],
+      ...Array.from({ length: 115 }, (_, i) => [301 + i, 'catalog']),
     ]);
     expect(body.updatedAt).toBe('2024-12-19T19:09:52+08:00');
     expect(fetchMock).toHaveBeenCalledTimes(1);

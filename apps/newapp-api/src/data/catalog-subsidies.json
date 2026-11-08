@@ -1,0 +1,1190 @@
+{
+  "meta": {
+    "kind": "catalog",
+    "label": "台北服務通",
+    "description": "取自政府資料開放平臺「臺北市政府台北服務通申辦服務及承辦單位資訊」CSV（靜態快照，執行期不連線）。items 為案件名稱含補助、津貼、減免、扶助、救助、獎勵金、慰問金的個人申請案件；名稱排除規則沿用 origin/feat/benefits-only 的 sync-benefit-catalog.mjs（另加「請款」）。excluded 列出排除的案件編號與原因。資格與金額欄位資料集沒有，四題不比對。",
+    "dataset": {
+      "name": "臺北市政府台北服務通申辦服務及承辦單位資訊",
+      "agency": "臺北市政府研究發展考核委員會",
+      "license": "政府資料開放授權條款－第1版",
+      "url": "https://data.gov.tw/dataset/157468",
+      "resourceUrl": "https://data.taipei/api/dataset/63af3e49-ba68-48c9-ab2a-5f603ddf7157/resource/503e44e7-d8d3-42fe-80fd-d81e2f412b81/download",
+      "downloadedAt": "2026-11-08",
+      "totalRows": 1681
+    },
+    "excluded": {
+      "closed": {
+        "AE002": {
+          "name": "就讀外縣市立案私立幼兒園幼兒申請「助您好孕－5歲幼兒就學費用」補助",
+          "reason": "每年 3/1–4/15、9/1–10/15 受理"
+        },
+        "AI085": {
+          "name": "市民醫療補助、市民醫療補助(需查稅)(MyData申辦)",
+          "reason": "官方案件頁顯示暫停受理"
+        },
+        "AO038": {
+          "name": "42、臺北市受保護樹木保育作業補助",
+          "reason": "(春節期間暫停受理)"
+        },
+        "AO049": {
+          "name": "81、文化創意產業永續補助",
+          "reason": "非受理期間。"
+        },
+        "BE006": {
+          "name": "原住民身心障礙者機構式服務生活資材費用補助",
+          "reason": "非受理期間"
+        },
+        "BE007": {
+          "name": "原住民族委員會公益彩券回饋金補助",
+          "reason": "依計畫規定"
+        },
+        "EA016": {
+          "name": "臺北市特定對象失業者穩定就業補助辦法",
+          "reason": "115 年度補助預算已用罄"
+        },
+        "EA026": {
+          "name": "「青年就業領航計畫」穩定就業津貼(津貼核發審查)",
+          "reason": "官方案件頁顯示暫停受理"
+        },
+        "PO006": {
+          "name": "青年創業共享空間租賃補助",
+          "reason": "115 年 6 月 16 日起不再受理，作業要點已廢止"
+        }
+      },
+      "nonPersonal": {
+        "AF022": "「臺北市補助新創團隊海外參與創業計畫」申請",
+        "AF127": "「臺北新創旗艦基地新創加速器補助計畫」申請",
+        "AJ018": "17、哺集乳室與企業托兒設施措施補助",
+        "AJ047": "48、臺北市勞動教育經費補助",
+        "AJ063": "104、臺北市辦理僱用受僱者未達100人之雇主調查工作場所性騷擾案件補助",
+        "AO034": "37、臺北市政府文化局補助無形文化資產保存維護計畫",
+        "AX001": "5、消保團體補助",
+        "BE016": "補助原住民文化及社會教育活動",
+        "BE020": "臺北市原住民單項體育活動推廣補助計畫",
+        "BF007": "補助設籍臺北市客家團體協同辦理義民祭典等系列計畫",
+        "BO001": "臺北市商業數位轉型服務方案補助-店家補助申請",
+        "BU011": "臺北市動物保護獎勵補助申請",
+        "BU048": "民間動物收容處所補助申請",
+        "EA012": "雇主聘僱本國籍照顧服務員補助津貼",
+        "EB003": "臺北市補助民營事業單位、團體、私立學校邀請身心障礙(街頭)藝人展演費用",
+        "EB004": "事業單位僱用職業災害勞工補助",
+        "EB006": "雇主提供職業災害勞工輔助設施補助",
+        "EB008": "私立義務機構超額進用身心障礙者獎勵金",
+        "EB009": "私立非義務機構進用身心障礙者獎勵金",
+        "PO010": "青年創新職場實習補助"
+      },
+      "duplicate": {
+        "AI001": {
+          "name": "孕婦乘車補助",
+          "sameAsNo": 214
+        },
+        "AI004": {
+          "name": "特殊境遇家庭扶助",
+          "sameAsNo": 210
+        },
+        "AI005": {
+          "name": "中低收入老人生活津貼核定",
+          "sameAsNo": 6
+        },
+        "AI013": {
+          "name": "身心障礙者輔具費用補助",
+          "sameAsNo": 211
+        },
+        "AI022": {
+          "name": "市民醫療補助",
+          "sameAsNo": 9
+        },
+        "AI030": {
+          "name": "老人全民健康保險保險費自付額補助",
+          "sameAsNo": 212
+        },
+        "AI031": {
+          "name": "急難救助",
+          "sameAsNo": 10
+        },
+        "AI032": {
+          "name": "中低收入老人特別照顧津貼",
+          "sameAsNo": 215
+        },
+        "AI043": {
+          "name": "低收入戶及中低收入戶生育補助",
+          "sameAsNo": 8
+        },
+        "AI053": {
+          "name": "低收入戶及中低收入戶老人、孕產婦及嬰兒營養補助",
+          "sameAsNo": 7
+        },
+        "AI054": {
+          "name": "低收入戶18歲以上就學生活補助",
+          "sameAsNo": 2
+        },
+        "AI063": {
+          "name": "未滿二歲兒童托育公共化及準公共服務費用補助暨友善托育補助",
+          "sameAsNo": 208
+        },
+        "AI094": {
+          "name": "身心障礙者生活補助查定",
+          "sameAsNo": 5
+        },
+        "AL039": {
+          "name": "臺北市兒童醫療補助資格",
+          "sameAsNo": 213
+        },
+        "EG002": {
+          "name": "育有未滿2歲兒童育兒津貼申請查定",
+          "sameAsNo": 207
+        },
+        "EO006": {
+          "name": "急難救助",
+          "sameAsNo": 10
+        },
+        "EP003": {
+          "name": "中低收入老人生活津貼",
+          "sameAsNo": 6
+        },
+        "EP004": {
+          "name": "身心障礙者生活補助",
+          "sameAsNo": 5
+        }
+      },
+      "closedNote": "停收判斷沿用 origin/feat/benefits-only 37041c0 的 catalogAcceptance（以 2026-11-08 計算），該分支的受理狀態取自台北服務通案件頁；本檔只沿用排除結果，不收其內容。"
+    }
+  },
+  "items": [
+    {
+      "no": 301,
+      "caseId": "AE001",
+      "name": "教育部補助地方政府發放二歲以上未滿五歲幼兒育兒津貼及五歲至入國民小學前幼兒就學補助",
+      "category": "教育類",
+      "office": "教育局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AE001"
+    },
+    {
+      "no": 302,
+      "caseId": "AE026",
+      "name": "臺北市特殊教育學生獎補助",
+      "category": "教育類",
+      "office": "教育局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AE026"
+    },
+    {
+      "no": 303,
+      "caseId": "AH012",
+      "name": "車輛駕訓與道路安駕訓練補助",
+      "category": "交通類",
+      "office": "交通局",
+      "method": "資訊公開",
+      "url": "https://service.taipei/case-detail/AH012"
+    },
+    {
+      "no": 304,
+      "caseId": "AI007",
+      "name": "中低收入老人假牙補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AI007"
+    },
+    {
+      "no": 305,
+      "caseId": "AI010",
+      "name": "臺北市弱勢兒童及少年醫療補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AI010"
+    },
+    {
+      "no": 306,
+      "caseId": "AI011",
+      "name": "失能者生活輔助器具自辦補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AI011"
+    },
+    {
+      "no": 307,
+      "caseId": "AI015",
+      "name": "協助中低收入老人修繕住屋補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AI015"
+    },
+    {
+      "no": 308,
+      "caseId": "AI020",
+      "name": "身心障礙者承租停車位租金補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AI020"
+    },
+    {
+      "no": 309,
+      "caseId": "AI021",
+      "name": "發展遲緩兒童早期療育補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AI021"
+    },
+    {
+      "no": 310,
+      "caseId": "AI024",
+      "name": "身心障礙者日間照顧及住宿式照顧費用補助申請（改列、申復與複查）",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AI024"
+    },
+    {
+      "no": 311,
+      "caseId": "AI025",
+      "name": "老人收容安置補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AI025"
+    },
+    {
+      "no": 312,
+      "caseId": "AI026",
+      "name": "弱勢家庭兒童托育補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AI026"
+    },
+    {
+      "no": 313,
+      "caseId": "AI027",
+      "name": "危機家庭兒童及少年緊急生活扶助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AI027"
+    },
+    {
+      "no": 314,
+      "caseId": "AI028",
+      "name": "臨時看護補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AI028"
+    },
+    {
+      "no": 315,
+      "caseId": "AI029",
+      "name": "弱勢家庭兒童及少年緊急生活扶助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AI029"
+    },
+    {
+      "no": 316,
+      "caseId": "AI033",
+      "name": "危機家庭兒童托育補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AI033"
+    },
+    {
+      "no": 317,
+      "caseId": "AI060",
+      "name": "臺北市設籍前新住民社會救助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AI060"
+    },
+    {
+      "no": 318,
+      "caseId": "AI067",
+      "name": "協力照顧補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AI067"
+    },
+    {
+      "no": 319,
+      "caseId": "AI075",
+      "name": "住宿式服務機構使用者補助方案",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AI075"
+    },
+    {
+      "no": 320,
+      "caseId": "AI076",
+      "name": "低收入戶及受保護安置市民喪葬補助",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AI076"
+    },
+    {
+      "no": 321,
+      "caseId": "AI078",
+      "name": "身心障礙者承租停車位租金補助(MyData申辦)",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AI078"
+    },
+    {
+      "no": 322,
+      "caseId": "AI082",
+      "name": "身心障礙者日間照顧及住宿式照顧費用補助申請（改列、申復與複查）(MyData申辦)",
+      "category": "社政類",
+      "office": "社會局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AI082"
+    },
+    {
+      "no": 323,
+      "caseId": "AJ004",
+      "name": "04、臺北市失業勞工子女就學費用補助",
+      "category": "勞動類",
+      "office": "勞動局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AJ004"
+    },
+    {
+      "no": 324,
+      "caseId": "AJ019",
+      "name": "19、臺北市勞資爭議法律及生活費用補助",
+      "category": "勞動類",
+      "office": "勞動局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AJ019"
+    },
+    {
+      "no": 325,
+      "caseId": "AJ048",
+      "name": "82、臺北市勞工職業災害慰問金申請",
+      "category": "勞動類",
+      "office": "勞動局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AJ048"
+    },
+    {
+      "no": 326,
+      "caseId": "AJ054",
+      "name": "108、臺北市性別平等工作法律扶助補助",
+      "category": "勞動類",
+      "office": "勞動局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AJ054"
+    },
+    {
+      "no": 327,
+      "caseId": "AJ062",
+      "name": "103、臺北市辦理補助工作場所性騷擾案件心理諮商費用",
+      "category": "勞動類",
+      "office": "勞動局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AJ062"
+    },
+    {
+      "no": 328,
+      "caseId": "AL045",
+      "name": "住宿式服務機構使用者補助方案(護理之家、住宿式機構)",
+      "category": "衛生類",
+      "office": "衛生局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AL045"
+    },
+    {
+      "no": 329,
+      "caseId": "AL062",
+      "name": "臺北市輻射污染建築物事件慰問金",
+      "category": "衛生類",
+      "office": "衛生局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AL062"
+    },
+    {
+      "no": 330,
+      "caseId": "AL073",
+      "name": "臺北市身心障礙者醫療輔具及醫療費用補助申請",
+      "category": "衛生類",
+      "office": "衛生局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AL073"
+    },
+    {
+      "no": 331,
+      "caseId": "AL074",
+      "name": "臺北市氣切個案進住照護機構費用補助申請",
+      "category": "衛生類",
+      "office": "衛生局",
+      "method": "網路預約",
+      "url": "https://service.taipei/case-detail/AL074"
+    },
+    {
+      "no": 332,
+      "caseId": "AL087",
+      "name": "助孕生殖「醫療性凍卵」補助",
+      "category": "衛生類",
+      "office": "衛生局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AL087"
+    },
+    {
+      "no": 333,
+      "caseId": "AL088",
+      "name": "助孕生殖「人工生殖(試管嬰兒)加碼」補助",
+      "category": "衛生類",
+      "office": "衛生局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AL088"
+    },
+    {
+      "no": 334,
+      "caseId": "AM050",
+      "name": "臺北松山機場周圍地區住戶航空噪音防制經費補助申請",
+      "category": "環保類",
+      "office": "環保局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AM050"
+    },
+    {
+      "no": 335,
+      "caseId": "AM058",
+      "name": "辦理機車汰舊換新購買電動機車補助",
+      "category": "環保類",
+      "office": "環保局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AM058"
+    },
+    {
+      "no": 336,
+      "caseId": "AM067",
+      "name": "臺北市輻射污染建築物改善工程補助費用申請",
+      "category": "環保類",
+      "office": "環保局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AM067"
+    },
+    {
+      "no": 337,
+      "caseId": "AM068",
+      "name": "臺北市輻射污染建築物拆除補助費用申請",
+      "category": "環保類",
+      "office": "環保局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AM068"
+    },
+    {
+      "no": 338,
+      "caseId": "AM076",
+      "name": "淘汰二行程機車申請通勤月票補助",
+      "category": "環保類",
+      "office": "環保局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AM076"
+    },
+    {
+      "no": 339,
+      "caseId": "AT084",
+      "name": "出租耕地災歉減免地租",
+      "category": "地政類",
+      "office": "地政局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/AT084"
+    },
+    {
+      "no": 340,
+      "caseId": "AU008",
+      "name": "8、服兵役役男家屬及遺屬特別補助費",
+      "category": "役政類",
+      "office": "兵役局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AU008"
+    },
+    {
+      "no": 341,
+      "caseId": "AU009",
+      "name": "9、服兵役役男家屬生活扶助各項補（慰）助",
+      "category": "役政類",
+      "office": "兵役局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AU009"
+    },
+    {
+      "no": 342,
+      "caseId": "AU010",
+      "name": "10、服兵役役男家屬生活扶助",
+      "category": "役政類",
+      "office": "兵役局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AU010"
+    },
+    {
+      "no": 343,
+      "caseId": "AU017",
+      "name": "17、服義務役致身心障礙人員購置輔具費用補助",
+      "category": "役政類",
+      "office": "兵役局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AU017"
+    },
+    {
+      "no": 344,
+      "caseId": "AV006",
+      "name": "臺北市績優運動選手與教練及學校或體育團體獎勵金申請",
+      "category": "體育類",
+      "office": "體育局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AV006"
+    },
+    {
+      "no": 345,
+      "caseId": "AV008",
+      "name": "臺北市績優運動選手訓練補助金申請",
+      "category": "體育類",
+      "office": "體育局",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/AV008"
+    },
+    {
+      "no": 346,
+      "caseId": "BE005",
+      "name": "臺北市原住民族服飾購製補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE005"
+    },
+    {
+      "no": 347,
+      "caseId": "BE008",
+      "name": "臺北市公私立國民中小學原住民學生學校午餐補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE008"
+    },
+    {
+      "no": 348,
+      "caseId": "BE010",
+      "name": "法律訴訟費補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/BE010"
+    },
+    {
+      "no": 349,
+      "caseId": "BE014",
+      "name": "臺北市經濟弱勢原住民家庭建購或修繕住宅補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE014"
+    },
+    {
+      "no": 350,
+      "caseId": "BE015",
+      "name": "臺北市原住民醫療補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE015"
+    },
+    {
+      "no": 351,
+      "caseId": "BE017",
+      "name": "原住民裝置假牙補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/BE017"
+    },
+    {
+      "no": 352,
+      "caseId": "BE019",
+      "name": "臺北市原住民老人收容安置補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE019"
+    },
+    {
+      "no": 353,
+      "caseId": "BE022",
+      "name": "原住民職業訓練生活津貼差額補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE022"
+    },
+    {
+      "no": 354,
+      "caseId": "BE023",
+      "name": "原住民婦女補助及優先扶助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE023"
+    },
+    {
+      "no": 355,
+      "caseId": "BE024",
+      "name": "原住民意外傷亡慰問金",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE024"
+    },
+    {
+      "no": 356,
+      "caseId": "BE026",
+      "name": "原住民職業訓練學費及材料費補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE026"
+    },
+    {
+      "no": 357,
+      "caseId": "BE027",
+      "name": "原住民急難關懷慰問金",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/BE027"
+    },
+    {
+      "no": 358,
+      "caseId": "BE028",
+      "name": "原住民兒童托育及協力照顧補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/BE028"
+    },
+    {
+      "no": 359,
+      "caseId": "BE030",
+      "name": "臺北市原住民學生生活津貼補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE030"
+    },
+    {
+      "no": 360,
+      "caseId": "BE031",
+      "name": "臺北市原住民學生就學交通費補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE031"
+    },
+    {
+      "no": 361,
+      "caseId": "BE032",
+      "name": "臺北市各級公私立國民中(小)學原住民學生代收代辦費補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE032"
+    },
+    {
+      "no": 362,
+      "caseId": "BE036",
+      "name": "臺北市原住民心理健康支持補助",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/BE036"
+    },
+    {
+      "no": 363,
+      "caseId": "BE037",
+      "name": "補助原住民返鄉參加歲時祭儀、文化、體育活動交通費",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE037"
+    },
+    {
+      "no": 364,
+      "caseId": "BE039",
+      "name": "臺北市原住民族語教師平板電腦購置補助計畫",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BE039"
+    },
+    {
+      "no": 365,
+      "caseId": "BE040",
+      "name": "促進原住民族就業獎勵津貼",
+      "category": "原住民族事務類",
+      "office": "原民會",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/BE040"
+    },
+    {
+      "no": 366,
+      "caseId": "BU003",
+      "name": "推廣寵物保險補助",
+      "category": "產業發展類",
+      "office": "動保處",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BU003"
+    },
+    {
+      "no": 367,
+      "caseId": "BU007",
+      "name": "家犬貓絕育補助",
+      "category": "產業發展類",
+      "office": "動保處",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BU007"
+    },
+    {
+      "no": 368,
+      "caseId": "BU008",
+      "name": "街貓友善照護行動方案（TCCP）獎勵補助申請",
+      "category": "產業發展類",
+      "office": "動保處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/BU008"
+    },
+    {
+      "no": 369,
+      "caseId": "BX004",
+      "name": "申請地價稅減免",
+      "category": "財政類",
+      "office": "稅捐處",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BX004"
+    },
+    {
+      "no": 370,
+      "caseId": "BX022",
+      "name": "申報房屋稅減免",
+      "category": "財政類",
+      "office": "稅捐處",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BX022"
+    },
+    {
+      "no": 371,
+      "caseId": "BX058",
+      "name": "申請災害損失減免使用牌照稅",
+      "category": "財政類",
+      "office": "稅捐處",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/BX058"
+    },
+    {
+      "no": 372,
+      "caseId": "CD003",
+      "name": "臺北市協助民間推動都市更新事業經費補助",
+      "category": "都市發展類",
+      "office": "更新處",
+      "method": "網路預約",
+      "url": "https://service.taipei/case-detail/CD003"
+    },
+    {
+      "no": 373,
+      "caseId": "CD014",
+      "name": "都市更新整建維護補助（事業）計畫案申請審查",
+      "category": "都市發展類",
+      "office": "更新處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/CD014"
+    },
+    {
+      "no": 374,
+      "caseId": "CD021",
+      "name": "臺北市整建住宅更新初期規劃費補助申請",
+      "category": "都市發展類",
+      "office": "更新處",
+      "method": "網路預約",
+      "url": "https://service.taipei/case-detail/CD021"
+    },
+    {
+      "no": 375,
+      "caseId": "CD022",
+      "name": "臺北市協助老舊建築物增設電梯補助",
+      "category": "都市發展類",
+      "office": "更新處",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/CD022"
+    },
+    {
+      "no": 376,
+      "caseId": "CH056",
+      "name": "臺北市廣告物示範區美化更置申請及補助",
+      "category": "都市發展類",
+      "office": "建管處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/CH056"
+    },
+    {
+      "no": 377,
+      "caseId": "CH069",
+      "name": "申請耐震評估補助部分費用",
+      "category": "都市發展類",
+      "office": "建管處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/CH069"
+    },
+    {
+      "no": 378,
+      "caseId": "CH074",
+      "name": "老舊建物外牆修繕補助申請",
+      "category": "都市發展類",
+      "office": "建管處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/CH074"
+    },
+    {
+      "no": 379,
+      "caseId": "CJ009",
+      "name": "申請低收入戶(無親屬)喪葬補助",
+      "category": "民政類",
+      "office": "殯葬處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/CJ009"
+    },
+    {
+      "no": 380,
+      "caseId": "CN012",
+      "name": "『建築物既有化糞池廢除或改設為污水坑補助』資格鑑定",
+      "category": "工務類",
+      "office": "衛工處",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/CN012"
+    },
+    {
+      "no": 381,
+      "caseId": "CN014",
+      "name": "『建築物既有化糞池廢除或改設為污水坑補助』申請",
+      "category": "工務類",
+      "office": "衛工處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/CN014"
+    },
+    {
+      "no": 382,
+      "caseId": "CV001",
+      "name": "特殊境遇家庭扶助之家庭暴力被害人補助",
+      "category": "社政類",
+      "office": "家防中心",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/CV001"
+    },
+    {
+      "no": 383,
+      "caseId": "CV002",
+      "name": "臺北市性侵害被害人補助",
+      "category": "社政類",
+      "office": "家防中心",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/CV002"
+    },
+    {
+      "no": 384,
+      "caseId": "CV003",
+      "name": "臺北市家庭暴力被害人補助",
+      "category": "社政類",
+      "office": "家防中心",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/CV003"
+    },
+    {
+      "no": 385,
+      "caseId": "DW002",
+      "name": "申請鼓勵老舊計程車更新補助登記",
+      "category": "交通類",
+      "office": "公運處",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/DW002"
+    },
+    {
+      "no": 386,
+      "caseId": "EA003",
+      "name": "臨時工作津貼人員申請",
+      "category": "勞動類",
+      "office": "就服處",
+      "method": "網路預約",
+      "url": "https://service.taipei/case-detail/EA003"
+    },
+    {
+      "no": 387,
+      "caseId": "EA014",
+      "name": "職場學習及再適應計畫-個案職場學習及再適應津貼及用人單位行政管理及輔導費",
+      "category": "勞動類",
+      "office": "就服處",
+      "method": "網路預約",
+      "url": "https://service.taipei/case-detail/EA014"
+    },
+    {
+      "no": 388,
+      "caseId": "EA017",
+      "name": "鼓勵失業勞工受僱特定行業作業要點（核發津貼）",
+      "category": "勞動類",
+      "office": "就服處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EA017"
+    },
+    {
+      "no": 389,
+      "caseId": "EA018",
+      "name": "跨域就業津貼-異地就業交通補助金",
+      "category": "勞動類",
+      "office": "就服處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EA018"
+    },
+    {
+      "no": 390,
+      "caseId": "EA019",
+      "name": "跨域就業津貼-搬遷補助金",
+      "category": "勞動類",
+      "office": "就服處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EA019"
+    },
+    {
+      "no": 391,
+      "caseId": "EA020",
+      "name": "跨域就業津貼-租屋補助金",
+      "category": "勞動類",
+      "office": "就服處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EA020"
+    },
+    {
+      "no": 392,
+      "caseId": "EA022",
+      "name": "臺北市青年職場體驗實習-資深輔導人津貼",
+      "category": "勞動類",
+      "office": "就服處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EA022"
+    },
+    {
+      "no": 393,
+      "caseId": "EA023",
+      "name": "臺北市青年職場體驗實習-關懷輔導人津貼",
+      "category": "勞動類",
+      "office": "就服處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EA023"
+    },
+    {
+      "no": 394,
+      "caseId": "EA025",
+      "name": "照顧服務就業獎勵(核發津貼)",
+      "category": "勞動類",
+      "office": "就服處",
+      "method": "網路預約",
+      "url": "https://service.taipei/case-detail/EA025"
+    },
+    {
+      "no": 395,
+      "caseId": "EB002",
+      "name": "身心障礙者參加國家考試、職業駕照暨技術士課程補助",
+      "category": "勞動類",
+      "office": "重建處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EB002"
+    },
+    {
+      "no": 396,
+      "caseId": "EB005",
+      "name": "職能復健津貼",
+      "category": "勞動類",
+      "office": "重建處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EB005"
+    },
+    {
+      "no": 397,
+      "caseId": "EB007",
+      "name": "臺北市補助身心障礙街頭藝人表演費用",
+      "category": "勞動類",
+      "office": "重建處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EB007"
+    },
+    {
+      "no": 398,
+      "caseId": "EB012",
+      "name": "身心障礙者新創及經營事業補助資格申請",
+      "category": "勞動類",
+      "office": "重建處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EB012"
+    },
+    {
+      "no": 399,
+      "caseId": "EB021",
+      "name": "視障按摩據點設施設備補助申請",
+      "category": "勞動類",
+      "office": "重建處",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EB021"
+    },
+    {
+      "no": 400,
+      "caseId": "EC002",
+      "name": "臺北市促進勞工職業技能補助",
+      "category": "勞動類",
+      "office": "職能學院",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EC002"
+    },
+    {
+      "no": 401,
+      "caseId": "EF002",
+      "name": "臺北市原住民學生就學交通費補助",
+      "category": "區政類",
+      "office": "大安區公所",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EF002"
+    },
+    {
+      "no": 402,
+      "caseId": "EG001",
+      "name": "臺北市育兒津貼",
+      "category": "區政類",
+      "office": "大同區公所",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/EG001"
+    },
+    {
+      "no": 403,
+      "caseId": "EG003",
+      "name": "教育部補助地方政府發放二歲以上未滿五歲幼兒育兒津貼及五歲至入國民小學前幼兒就學補助",
+      "category": "教育類",
+      "office": "大同區公所",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EG003"
+    },
+    {
+      "no": 404,
+      "caseId": "EL003",
+      "name": "服兵役役男家屬生活扶助各項補(慰)助",
+      "category": "區政類",
+      "office": "萬華區公所",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/EL003"
+    },
+    {
+      "no": 405,
+      "caseId": "EN001",
+      "name": "農業動力用電申辦基本電費減免輔導",
+      "category": "區政類",
+      "office": "北投區公所",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/EN001"
+    },
+    {
+      "no": 406,
+      "caseId": "EN003",
+      "name": "受理農戶種稻及轉(契)作、休耕補助申請",
+      "category": "區政類",
+      "office": "北投區公所",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/EN003"
+    },
+    {
+      "no": 407,
+      "caseId": "EO007",
+      "name": "災害救助",
+      "category": "區政類",
+      "office": "中山區公所",
+      "method": "網路預約",
+      "url": "https://service.taipei/case-detail/EO007"
+    },
+    {
+      "no": 408,
+      "caseId": "EQ001",
+      "name": "服兵役役男家屬及遺屬特別補助費",
+      "category": "區政類",
+      "office": "文山區公所",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/EQ001"
+    },
+    {
+      "no": 409,
+      "caseId": "EQ003",
+      "name": "服兵役役男家屬生活扶助",
+      "category": "區政類",
+      "office": "文山區公所",
+      "method": "全程式",
+      "url": "https://service.taipei/case-detail/EQ003"
+    },
+    {
+      "no": 410,
+      "caseId": "PO002",
+      "name": "臺北市青年留學生就學貸款補助",
+      "category": "青年類",
+      "office": "青年局",
+      "method": "資訊公開",
+      "url": "https://service.taipei/case-detail/PO002"
+    },
+    {
+      "no": 411,
+      "caseId": "PO003",
+      "name": "臺北市青年職涯進修補助",
+      "category": "青年類",
+      "office": "青年局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/PO003"
+    },
+    {
+      "no": 412,
+      "caseId": "PO004",
+      "name": "臺北市青年實習津貼",
+      "category": "青年類",
+      "office": "青年局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/PO004"
+    },
+    {
+      "no": 413,
+      "caseId": "PO005",
+      "name": "協助青年多元發展補助",
+      "category": "青年類",
+      "office": "青年局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/PO005"
+    },
+    {
+      "no": 414,
+      "caseId": "PO007",
+      "name": "臺北市職涯培力及創業活動補助",
+      "category": "青年類",
+      "office": "青年局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/PO007"
+    },
+    {
+      "no": 415,
+      "caseId": "PO008",
+      "name": "臺北市政府促進青年國際發展補助",
+      "category": "青年類",
+      "office": "青年局",
+      "method": "非全程式",
+      "url": "https://service.taipei/case-detail/PO008"
+    }
+  ]
+}

@@ -9,8 +9,9 @@ import openBenefitJson from '../data/open-benefit-text.json';
  * 驗證失敗由 buildSubsidyList 丟錯，交給 SUBS-R09 沿用上次結果。
  */
 
-/** 官方網頁整理序號起點（SUBS-R73：kind=curated 若且唯若 no >= 201） */
+/** 官方網頁整理序號區段（SUBS-R73：kind=curated 若且唯若 201 <= no <= 300） */
 export const CURATED_NO_MIN = 201;
+export const CURATED_NO_MAX = 300;
 
 const DateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
@@ -24,7 +25,7 @@ export const CuratedFileSchema = z.object({
   items: z
     .array(
       SubsidyItemSchema.extend({
-        no: z.number().int().min(CURATED_NO_MIN),
+        no: z.number().int().min(CURATED_NO_MIN).max(CURATED_NO_MAX),
         kind: z.literal('curated'),
         url: z.string().url(),
         sourceUrl: z.string().url(),
@@ -52,6 +53,8 @@ export type OpenBenefitFile = z.infer<typeof OpenBenefitFileSchema>;
 export interface ExtraData {
   curated: unknown;
   openBenefit: unknown;
+  /** 台北服務通（ADR-036）；省略時用預設 JSON */
+  catalog?: unknown;
 }
 export const DEFAULT_EXTRA_DATA: ExtraData = { curated: curatedJson, openBenefit: openBenefitJson };
 

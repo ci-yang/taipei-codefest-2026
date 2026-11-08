@@ -15,12 +15,15 @@ export const SUBSIDY_IDENTITIES = ['low', 'mid', 'dis', 'elder', 'preg'] as cons
 export const SubsidyIdentitySchema = z.enum(SUBSIDY_IDENTITIES);
 export type SubsidyIdentity = z.infer<typeof SubsidyIdentitySchema>;
 
-/** open＝開放資料、curated＝官方網頁整理（人工整理，非 data.gov.tw 資料集）、mock＝模擬資料（ADR-035） */
-export const SubsidyKindSchema = z.enum(['open', 'curated', 'mock']);
+/**
+ * open＝開放資料、curated＝官方網頁整理（人工整理，非 data.gov.tw 資料集）、mock＝模擬資料（ADR-035）、
+ * catalog＝台北服務通申辦服務（開放資料集 data.gov.tw/dataset/157468 的補助類案件，未依四題比對，ADR-036）
+ */
+export const SubsidyKindSchema = z.enum(['open', 'curated', 'mock', 'catalog']);
 export type SubsidyKind = z.infer<typeof SubsidyKindSchema>;
 
 export const SubsidyItemSchema = z.object({
-  /** 序號區段（SUBS-R73）：1～100 開放資料（資料集「序號」）、101～200 模擬資料、201 起官方網頁整理 */
+  /** 序號區段（SUBS-R73）：1～100 開放資料（資料集「序號」）、101～200 模擬資料、201～300 官方網頁整理、301 起台北服務通 */
   no: z.number().int().positive(),
   kind: SubsidyKindSchema,
   name: z.string(),
@@ -45,9 +48,12 @@ export const SubsidyItemSchema = z.object({
   url: z.string(),
   /** 「實際補助」原文（金額只照官方原文，SUBS-R74）；null 表示查不到可核對的金額，模擬類別一律 null */
   benefitText: z.string().nullable(),
-  /** benefitText 原文所在頁；官方網頁整理一定有，開放資料沒有 benefitText 時與模擬類別為 null */
+  /**
+   * benefitText 原文所在頁；官方網頁整理一定有，開放資料沒有 benefitText 時與模擬類別為 null。
+   * 台北服務通（catalog）沒有 benefitText，這裡放來源資料集頁（ADR-036）
+   */
   sourceUrl: z.string().nullable(),
-  /** 人工查證日 YYYY-MM-DD；與 sourceUrl 同時有值或同時為 null */
+  /** 人工查證日 YYYY-MM-DD（台北服務通為資料集下載日）；與 sourceUrl 同時有值或同時為 null */
   verifiedAt: z.string().nullable(),
 });
 export type SubsidyItem = z.infer<typeof SubsidyItemSchema>;
@@ -61,15 +67,15 @@ export const SubsidySourceSchema = z.object({
 });
 export type SubsidySource = z.infer<typeof SubsidySourceSchema>;
 
-/** 清單裡每一種資料來源的說明（資料來源頁用，ADR-035）；依 open、curated、mock 順序 */
+/** 清單裡每一種資料來源的說明（資料來源頁用，ADR-035、ADR-036）；依 open、curated、mock、catalog 順序 */
 export const SubsidySourceTypeSchema = z.object({
   kind: SubsidyKindSchema,
-  /** 畫面標籤：開放資料／官方網頁整理／模擬資料 */
+  /** 畫面標籤：開放資料／官方網頁整理／模擬資料／台北服務通 */
   label: z.string(),
   description: z.string(),
   /** 這種來源在清單裡的項數 */
   count: z.number().int().nonnegative(),
-  /** 人工查證日 YYYY-MM-DD；開放資料、模擬資料為 null */
+  /** 人工查證日 YYYY-MM-DD（台北服務通為資料集下載日）；開放資料、模擬資料為 null */
   verifiedAt: z.string().nullable(),
 });
 export type SubsidySourceType = z.infer<typeof SubsidySourceTypeSchema>;
@@ -80,7 +86,7 @@ export const SubsidyListSchema = z.object({
   updatedAt: z.string(),
   /** 開放資料集（向下相容：v3 前端只讀這個欄位） */
   source: SubsidySourceSchema,
-  /** 三種資料來源的說明與項數（ADR-035） */
+  /** 各種資料來源的說明與項數（ADR-035、ADR-036） */
   sources: z.array(SubsidySourceTypeSchema),
 });
 export type SubsidyList = z.infer<typeof SubsidyListSchema>;
