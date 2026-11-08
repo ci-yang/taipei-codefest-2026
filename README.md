@@ -77,7 +77,45 @@ API 打不到 data.taipei 時重試一次，失敗就沿用上次整理好的結
 | 資料集 | 提供單位 | 授權 | 連結 | 是否模擬 |
 |---|---|---|---|---|
 | 臺北市社會救助補助項目 | 臺北市政府社會局 | 政府資料開放授權條款－第1版 | <https://data.gov.tw/dataset/129839>（API 取自 data.taipei，resource id `549a3347-df6e-4bed-b818-368210d01544`） | 否 |
+| 官方網頁整理 15 項（序號 201～215，明細見下表） | 各主管機關官方網頁、法規或公告，本隊人工整理 | 依各網站「政府網站資料開放宣告」 | 見下表 | 否，非 data.gov.tw 資料集，畫面標「官方網頁整理」 |
 | 新生兒育兒津貼、青年租屋補貼、青年職涯探索補助（序號 101～103） | 本隊示範 | — | — | **模擬資料**：名稱、條件、文件、承辦單位都是示範值，畫面上也會標示 |
+
+清單共 28 項，順序是開放資料 10 項、官方網頁整理 15 項、模擬資料 3 項。卡片與詳情的「實際補助」只照官方原文顯示，查不到可核對的金額就不顯示；不估算漏領金額。開放資料的收入門檻是資料集原值（舊年度），官方網頁整理的門檻年度依各來源頁（多為 115 年度）。整理檔在 `apps/newapp-api/src/data/`，依據見 [`docs/DECISIONS.md`](docs/DECISIONS.md) D14。
+
+**官方網頁整理 15 項**（「實際補助」原文所在頁；查證日都是 2026-11-08）
+
+| 序號 | 補助 | 承辦單位 | 來源網址 | 查證日 |
+|---|---|---|---|---|
+| 201 | 300 億元中央擴大租金補貼 | 臺北市政府都市發展局住宅企劃科 | <https://udd.gov.taipei/collection/oo2cmrc> | 2026-11-08 |
+| 202 | 臺北幸福租—民間租屋租金加碼補貼 | 臺北市政府都市發展局住宅企劃科 | <https://rent-allowance.udd.gov.taipei/documents/grade/臺北幸福租-民間租屋租金加碼補貼計畫及附表.pdf> | 2026-11-08 |
+| 203 | 低收入戶承租住宅租金補貼 | 臺北市政府都市發展局（南門辦公室） | <https://rent-allowance.udd.gov.taipei/assets/Downloads/115年低收入戶租金補助申請書表.pdf> | 2026-11-08 |
+| 204 | 身心障礙者房屋租金補貼 | 臺北市政府社會局身心障礙者福利科 | <https://dosw.gov.taipei/cp.aspx?n=a119f2d98118e1d5&s=C82846AD24E9F281> | 2026-11-08 |
+| 205 | 都市原住民家庭租屋補貼 | 臺北市各區公所原住民服務員 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL078392> | 2026-11-08 |
+| 206 | 臺北市生育補助 | 臺北市各區戶政事務所 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL081869> | 2026-11-08 |
+| 207 | 育有未滿 2 歲兒童育兒津貼 | 兒童戶籍所在地區公所 | <https://www.mohw.gov.tw/CHT/np-5130-1.html> | 2026-11-08 |
+| 208 | 公共化／準公共托育補助與臺北市友善托育補助 | 送托的居家托育服務中心、托嬰中心或社區公共托育家園 | <https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=9AE6236C0066DD59&sms=87415A8B9CE81B16> | 2026-11-08 |
+| 209 | 就業保險失業給付 | 臺北市就業服務處 | <https://www.mol.gov.tw/1607/1632/1633/76483/> | 2026-11-08 |
+| 210 | 特殊境遇家庭扶助 | 臺北市政府社會局婦女福利及兒童托育科 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL002598> | 2026-11-08 |
+| 211 | 身心障礙者輔具費用補助 | 臺北市政府社會局身心障礙者福利科、各區輔具中心 | <https://dosw.gov.taipei/cp.aspx?n=49304F9B0793FFEF> | 2026-11-08 |
+| 212 | 老人全民健康保險保險費自付額補助 | 臺北市政府社會局老人福利科 | <https://dosw.gov.taipei/cp.aspx?n=22B00B4927757FFE> | 2026-11-08 |
+| 213 | 臺北市兒童醫療補助 | 臺北市 12 區健康服務中心（第 3 類至戶政事務所） | <https://health.gov.taipei/News_Content.aspx?n=232AD545CBF028A7&s=AD1271100D029C67&sms=D8A8AF6A9CFCB149> | 2026-11-08 |
+| 214 | 臺北市好孕 2U 孕婦乘車補助 | 好孕 2U 合作醫療院所、健康服務中心、區公所社會課、社福中心，或台北通線上申請 | <https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=79FC4665DF0CABCD&sms=87415A8B9CE81B16> | 2026-11-08 |
+| 215 | 中低收入老人特別照顧津貼 | 臺北市政府社會局各區老人服務中心 | <https://dosw.gov.taipei/cp.aspx?n=3C3D1F78D6280694> | 2026-11-08 |
+
+**開放資料 10 項的「實際補助」原文出處**（資料集本身沒有金額欄位）
+
+| 序號 | 補助 | 原文出處 |
+|---|---|---|
+| 1 | 低收入戶生活扶助 | <https://dosw.gov.taipei/cp.aspx?n=E6D700BD37E78592&s=AC5701100C4A434B> |
+| 2 | 低收入戶18歲以上就學生活補助 | <https://dosw.gov.taipei/cp.aspx?n=F9708F71674DF16E&s=D8656FCB81034B8F> |
+| 3 | 低收入戶國中以上就學子女交通補助 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL078859> |
+| 4 | 中低收入戶 | 查不到可核對的金額，不顯示 |
+| 5 | 身心障礙者生活補助 | <https://dosw.gov.taipei/cp.aspx?n=C764A5808F9A3B08> |
+| 6 | 中低收入老人生活津貼 | <https://dosw.gov.taipei/cp.aspx?n=FCF3DAE98DDA289F&s=64180EEDD02DEE2A> |
+| 7 | 營養品補助 | <https://dosw.gov.taipei/cp.aspx?n=372850F2A8369C81> |
+| 8 | 生育補助 | <https://dosw.gov.taipei/cp.aspx?n=372850F2A8369C81&s=3D545516AA427905> |
+| 9 | 市民醫療補助 | <https://dosw.gov.taipei/cp.aspx?n=D8645B7D5413343D>、<https://dosw.gov.taipei/cp.aspx?n=BF13AF1D3FA84C62>、<https://dosw.gov.taipei/cp.aspx?n=4F6E5F7925A8C7CE> |
+| 10 | 急難救助 | <https://dosw.gov.taipei/cp.aspx?n=0BF751F1B9F07AA1> |
 
 ## 台北通整合
 
