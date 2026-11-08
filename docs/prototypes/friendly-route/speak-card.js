@@ -3,17 +3,20 @@
  * API：window.FriendlySpeakCard.{ openSpeakCard, closeSpeakCard, getAvailableLangs, planSpeakCard }
  */
 (function (root, factory) {
-  const strings = typeof module === 'object' && module.exports
-    ? require('./speak-card-strings.js')
-    : root && root.FRIENDLY_SPEAK_CARD_STRINGS;
-  const api = factory(strings);
+  const node = typeof module === 'object' && module.exports;
+  const strings = node ? require('./speak-card-strings.js') : root && root.FRIENDLY_SPEAK_CARD_STRINGS;
+  const i18n = node ? require('./i18n.js') : root && root.FriendlyI18n;
+  const api = factory(strings, i18n);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.FriendlySpeakCard = api;
-})(typeof window === 'undefined' ? null : window, function (STRINGS) {
+})(typeof window === 'undefined' ? null : window, function (STRINGS, i18n) {
   'use strict';
 
   if (!STRINGS) throw new Error('speak-card.js：請先載入 speak-card-strings.js');
   const STAFF_LANG = STRINGS.staffLang;
+  // 介面文字走 i18n.js；沒載入時用繁中原文。
+  const ZH = { 'speak.hint': '請給店員看', 'speak.machine': '機器翻譯', 'common.close': '關閉' };
+  const t = key => (i18n ? i18n.t(key) : ZH[key]);
 
   function getAvailableLangs({ includeUnreviewed = false } = {}) {
     return Object.entries(STRINGS.langs)
@@ -64,10 +67,12 @@
     const thanks = el('p', 'speak-card-thanks', face.thanks);
     if (role === 'staff') {
       ask.id = 'speak-card-title';
-      section.append(ask, thanks, el('p', 'speak-card-hint', '請給店員看'));
+      const hint = el('p', 'speak-card-hint', t('speak.hint'));
+      if (i18n) hint.setAttribute('lang', i18n.htmlLang());
+      section.append(ask, thanks, hint);
     } else {
       const meta = el('p', 'speak-card-lang', face.label);
-      if (!face.reviewed) meta.append(el('span', 'speak-card-unreviewed', '未校對・內部預覽'));
+      if (!face.reviewed) meta.append(el('span', 'speak-card-unreviewed', t('speak.machine')));
       section.append(meta, ask, thanks);
     }
     return section;
@@ -98,7 +103,7 @@
     faces.append(buildFace(plan.staff, 'staff'));
     if (plan.user) faces.append(buildFace(plan.user, 'user'));
 
-    const closeButton = el('button', 'speak-card-close', '關閉');
+    const closeButton = el('button', 'speak-card-close', t('common.close'));
     closeButton.type = 'button';
     closeButton.addEventListener('click', () => closeSpeakCard());
     const footer = el('div', 'speak-card-footer');

@@ -9,9 +9,10 @@ const base = path.resolve(__dirname, '../friendly-route');
 const STRINGS = require('../friendly-route/speak-card-strings.js');
 const card = require('../friendly-route/speak-card.js');
 const CATEGORIES = ['toilet', 'charge', 'wifi'];
-const LANGS = ['zh-TW', 'en', 'id', 'vi'];
+const LANGS = ['zh-TW', 'en', 'id', 'vi', 'ja', 'ko'];
+const MACHINE = LANGS.filter(lang => lang !== 'zh-TW');
 
-test('strings：3 類 × 4 語 × 2 句，無空字串', () => {
+test('strings：3 類 × 6 語 × 2 句，無空字串', () => {
   assert.deepEqual(Object.keys(STRINGS.categories).sort(), [...CATEGORIES].sort());
   assert.deepEqual(Object.keys(STRINGS.langs).sort(), [...LANGS].sort());
   for (const category of CATEGORIES) {
@@ -34,7 +35,7 @@ test('strings：只有 zh-TW 標 reviewed，且沒有編造校對人', () => {
     for (const key of ['reviewedBy', 'reviewedOn']) assert.ok(key in meta, `${lang} 缺 ${key}`);
     if (!meta.reviewed) { assert.equal(meta.reviewedBy, null); assert.equal(meta.reviewedOn, null); }
   }
-  assert.match(fs.readFileSync(path.join(base, 'speak-card-strings.js'), 'utf8'), /未經母語者校對，不得上 demo/);
+  assert.match(fs.readFileSync(path.join(base, 'speak-card-strings.js'), 'utf8'), /機器翻譯初稿，未經母語者校對/);
 });
 
 test('strings：店員句短、帶敬語，三類各不相同', () => {
@@ -49,12 +50,12 @@ test('strings：店員句短、帶敬語，三類各不相同', () => {
   assert.equal(Object.isFrozen(STRINGS.categories.toilet.phrases.en), true);
 });
 
-test('getAvailableLangs：預設只回 reviewed，includeUnreviewed 回四語', () => {
+test('getAvailableLangs：預設只回 reviewed，includeUnreviewed 回六語', () => {
   assert.deepEqual(card.getAvailableLangs().map(l => l.code), ['zh-TW']);
   assert.deepEqual(card.getAvailableLangs({}).map(l => l.code), ['zh-TW']);
   const all = card.getAvailableLangs({ includeUnreviewed: true });
   assert.deepEqual(all.map(l => l.code).sort(), [...LANGS].sort());
-  assert.deepEqual(all.filter(l => !l.reviewed).map(l => l.code).sort(), ['en', 'id', 'vi']);
+  assert.deepEqual(all.filter(l => !l.reviewed).map(l => l.code).sort(), [...MACHINE].sort());
 });
 
 test('planSpeakCard：zh-TW 單面，其他語言雙面且句子一一對應', () => {
@@ -64,7 +65,7 @@ test('planSpeakCard：zh-TW 單面，其他語言雙面且句子一一對應', (
     assert.equal(single.user, null);
     assert.equal(single.staff.ask, STRINGS.categories[category].phrases['zh-TW'].ask);
     assert.equal(single.staff.thanks, STRINGS.categories[category].phrases['zh-TW'].thanks);
-    for (const lang of ['en', 'id', 'vi']) {
+    for (const lang of MACHINE) {
       const plan = card.planSpeakCard({ category, lang, includeUnreviewed: true });
       assert.equal(plan.layout, 'double');
       assert.equal(plan.staff.lang, 'zh-TW');
