@@ -19,7 +19,7 @@
   const byId = new Map(stores.map(s => [s.id, s]));
   const center = { lat: 25.0375, lng: 121.5637 };
   const state = { view: 'home', screen: 'home', urgency: null, result: null, resultIndex: 0, guideRoute: null, guideStatus: 'idle', guideMessage: '', guideGeneration: 0, prefs: { lang: 'zh-TW', stepFree: false }, prefsNotice: '', mode: 'free', detailId: null, position: null, gpsPending: false, gpsMessage: '', gpsGeneration: 0, filters: new Set(), selectedId: null, destination: null, route: null, routeIds: new Set(), routeStatus: 'idle', routeMessage: '', routeGeneration: 0, mapExpanded: false, panelCollapsed: false, online: navigator.onLine, searchGeneration: 0, searchController: null, searchQuery: '', searchResults: [], theme: 'light', heading: null, orientationEnabled: false, orientationMessage: '未使用方位感測，以正北為基準', activeSheet: null, cache: null, externalGeneration: 0 };
-  let highlights; let toastTimer; let beforeSheet; let searchClient; let routeClient; let guideRouteClient; let renderedRoute; let selectedLine; let selectedLineKey; let selectedMarker; let gpsMarker; let referenceMarker; let tileLayer; let viewportFrame;
+  let highlights; let toastTimer; let beforeSheet; let searchClient; let routeClient; let guideRouteClient; let renderedRoute; let selectedMarker; let gpsMarker; let referenceMarker; let tileLayer; let viewportFrame;
   const map = L.map('map', { zoomControl: false, attributionControl: false, preferCanvas: true }).setView([center.lat, center.lng], 17);
   const attribution = L.control.attribution({ position: 'bottomright', prefix: false }).addTo(map);
   attribution.addAttribution('© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> (ODbL)');
@@ -120,15 +120,6 @@
     const d = valid(store) ? distanceLabel(distance(pointForDistance(), store)) : '未提供座標';
     return `<button class="resource-row" data-resource="${esc(store.id)}" data-cat="${esc(hitCategory(store) || store.services[0] || '')}"><span class="resource-symbol">${icon(store.services.find(s => state.filters.has(s)) || store.services[0] || 'info', 23)}</span><span class="resource-copy"><strong>${esc(store.name)}</strong><span class="resource-card-address">${esc(store.address || '地址待確認')}</span><span class="resource-card-services">${store.services.map(key => `<span>${icon(key, 15)}${SERVICES[key]}</span>`).join('') || '服務未標示'}</span><span class="resource-card-meta"><span class="resource-card-source">${esc(store.sourceName)}</span><span class="resource-card-updated">更新 ${esc(dateText(store.updatedAt))}</span></span></span><span class="resource-distance">直線 ${d}${icon('chevron', 15)}</span></button>`;
   }
-  function renderResourceLine() {
-    const store = byId.get(state.selectedId);
-    const key = state.mode === 'resource' && state.position && valid(store) ? `${state.position.lat},${state.position.lng}:${store.id}` : null;
-    if (selectedLineKey === key) return;
-    if (selectedLine) { map.removeLayer(selectedLine); selectedLine = null; }
-    selectedLineKey = key;
-    if (!key) return;
-    selectedLine = L.polyline([[state.position.lat, state.position.lng], [store.lat, store.lng]], { color: palette().route, weight: 4, dashArray: '7 9', opacity: .8, interactive: false }).addTo(map);
-  }
   function renderDestinationRoute() {
     if (renderedRoute !== state.route) {
       destinationRouteLayer.clearLayers(); renderedRoute = state.route;
@@ -207,7 +198,6 @@
     if (!highlights?.handleResource(store)) requestAnimationFrame(() => $('#selected-card')?.scrollIntoView?.({ block: 'nearest' }));
   }
   function renderMarkers() {
-    renderResourceLine();
     const colors = palette();
     for (const store of stores) {
       if (!valid(store)) continue;
@@ -235,7 +225,7 @@
   function syncHighlights() {
     highlights?.update({ view: state.screen, urgency: state.urgency, theme: state.theme, position: state.position, gpsPending: state.gpsPending,
       selectedStore: byId.get(state.selectedId) || null, filters: [...state.filters], destination: state.destination,
-      route: state.route, routeStatus: state.routeStatus, routeIds: [...state.routeIds], visibleStores: visibleStores() });
+      route: state.route, routeStatus: state.routeStatus, routeIds: [...state.routeIds], guideRoute: state.guideRoute, guideStatus: state.guideStatus, visibleStores: visibleStores() });
   }
   function useDemoPosition(point) {
     if (!valid(point)) return;
@@ -286,12 +276,10 @@
     setText('#guidance-distance', store ? !valid(store) ? '未提供座標' : position ? `直線 ${approx()}${distanceLabel(distance(position, store))}` : '需要定位' : `視窗內 ${visibleStores().length} 筆`);
     setText('#guidance-bearing', store ? !valid(store) ? '無法計算方向，請選擇有座標的資源' : position ? `${directionName(bearing(position, store))}方 · 正北基準 · ${state.orientationEnabled ? state.orientationMessage : '未使用方位感測'}` : '需要定位才能顯示方向' : '點選資源查看資訊；未規劃行走路線');
     const route = store ? state.guideRoute : null; const walk = $('#guide-walk');
-    if (walk) { walk.hidden = !route; walk.textContent = route ? `步行 ${distanceLabel(route.distanceM)} · 約 ${Math.ceil(route.estimateMinutes)} 分鐘（本機路網估算，未驗證入口）` : ''; }
+    const toiletGuide = Boolean(store && state.urgency === 'toilet' && store.services.includes('toilet'));
+    if (walk) { walk.hidden = !route || toiletGuide; walk.textContent = route ? `步行 ${distanceLabel(route.distanceM)} · 約 ${Math.ceil(route.estimateMinutes)} 分鐘（本機路網估算，未驗證入口）` : ''; }
     if ($('#guide-retry')) $('#guide-retry').hidden = !(store && state.guideStatus === 'error');
     if ($('#guide-orientation')) $('#guide-orientation').hidden = !pointing || state.orientationEnabled;
-    const toiletGuide = Boolean(store && state.urgency === 'toilet' && store.services.includes('toilet'));
-    const timerText = store && state.urgency === 'toilet' && !toiletGuide ? '此地點非廁所，不提供步行倒數' : !toiletGuide || state.guideStatus === 'ready' ? '' : ['error', 'unavailable'].includes(state.guideStatus) ? '需要步行路線才能倒數' : state.guideStatus === 'waiting-location' ? '需要步行路線才能倒數 · 等待定位' : '步行路線計算中，完成後可倒數';
-    if ($('#guide-timer-status')) { $('#guide-timer-status').hidden = !timerText; $('#guide-timer-status').textContent = timerText; }
     setText('#guidance-location', position?.source === 'demo' ? '展示位置 · 非您的 GPS' : position ? `${position.accuracy > 100 ? '精度不足 · ' : ''}定位${position.accuracy !== null ? ` ±${Math.round(position.accuracy)} m` : '精度未知'} · ${timeText(position.capturedAt)}` : state.gpsPending ? '正在定位…' : state.gpsMessage || '尚未取得位置，請使用定位按鈕重試');
     if ($('#guidance-detail')) $('#guidance-detail').hidden = !store;
     if (!store && state.destination) {
@@ -340,23 +328,24 @@
     for (const segment of route.roadSegments) L.polyline(segment, { color: colors.route, weight: 6, opacity: .9, interactive: false }).addTo(guideRouteLayer);
     for (const connector of route.connectors) L.polyline(connector, { color: colors.connector, weight: 4, dashArray: '4 7', opacity: .8, interactive: false }).addTo(guideRouteLayer);
   }
+  function guideChanged() { renderGuidance(); syncHighlights(); }
   // 獨立的 guideRouteClient／guideGeneration：不和目的地路線互相取消；只在進入 guide、重試、或等待定位後計算一次。
   async function scheduleGuideRoute(store) {
     state.guideGeneration += 1; const generation = state.guideGeneration; guideRouteClient?.cancel(); state.guideRoute = null; state.guideMessage = ''; guideRouteLayer.clearLayers();
-    if (!valid(store)) { state.guideStatus = 'unavailable'; renderGuidance(); return; }
-    if (!state.position || state.gpsPending) { state.guideStatus = 'waiting-location'; renderGuidance(); return; }
-    state.guideStatus = 'loading'; renderGuidance();
+    if (!valid(store)) { state.guideStatus = 'unavailable'; guideChanged(); return; }
+    if (!state.position || state.gpsPending) { state.guideStatus = 'waiting-location'; guideChanged(); return; }
+    state.guideStatus = 'loading'; guideChanged();
     try {
       if (!window.FriendlyRouteClient) throw new Error('本機路由程式未載入');
       guideRouteClient ||= window.FriendlyRouteClient.createClient();
       const route = await guideRouteClient.route({ points: [state.position, store].map(point => ({ lat: point.lat, lng: point.lng })), stores: [], radius: 250 });
       if (generation !== state.guideGeneration || guideStore()?.id !== store.id) return;
-      state.guideRoute = route; state.guideStatus = 'ready'; drawGuideRoute(); renderGuidance();
+      state.guideRoute = route; state.guideStatus = 'ready'; drawGuideRoute(); guideChanged();
       if (state.urgency === 'toilet' && store.services.includes('toilet')) highlights?.openToilet?.(store, route);
       requestAnimationFrame(() => { if (generation === state.guideGeneration && state.screen === 'guide') focusGuidance(); });
     } catch (error) {
       if (generation !== state.guideGeneration) return;
-      state.guideStatus = 'error'; state.guideMessage = error.message || '本機步行路線暫時無法計算'; renderGuidance();
+      state.guideStatus = 'error'; state.guideMessage = error.message || '本機步行路線暫時無法計算'; guideChanged();
     }
   }
   function enterGuide(store) { if (map.hasLayer(destinationRouteLayer)) map.removeLayer(destinationRouteLayer); scheduleGuideRoute(store); }

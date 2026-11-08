@@ -1,4 +1,4 @@
-// 三急主流程 390px 走查：首頁 → 結果卡 → 帶我去（倒數）→ 開口卡 → 看地圖 → 連按返回；另測無定位、充電生存圈與地圖第二層的類別與 pin。
+// 三急主流程 390px 走查：首頁 → 結果卡 → 帶我去（步行距離）→ 開口卡 → 看地圖 → 連按返回；另測無定位、充電生存圈與地圖第二層的類別與 pin。
 // 對已啟動的 `pnpm prototype` 執行，不安裝依賴、不改程式：
 // NODE_PATH=/path/to/node_modules node scripts/check-three-urgencies-browser.mjs
 // 定位固定為臺北市政府附近的公開座標，不是測試者的 GPS；外部請求一律阻擋，Service Worker 停用。
@@ -16,6 +16,16 @@ const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, geolocation: { latitude: 25.0375, longitude: 121.5637, accuracy: 10 }, permissions: ['geolocation'], locale: 'zh-TW', serviceWorkers: 'block' });
 const external = [];
 await ctx.route('**/*', r => { const u = new URL(r.request().url()); if (u.host !== origin.host) { external.push(u.href); return r.abort(); } return r.continue(); });
+// 地圖用 canvas 畫線，DOM 查不到；載入前掛鉤 Leaflet，記下目前在地圖上的 polyline。
+await ctx.addInitScript(() => {
+  let leaflet; window.__livePolylines = new Set();
+  Object.defineProperty(window, 'L', { configurable: true, get: () => leaflet, set(value) {
+    leaflet = value; const proto = value?.Polyline?.prototype; if (!proto || proto.__tracked) return;
+    const { onAdd, onRemove } = proto; proto.__tracked = true;
+    proto.onAdd = function (map) { window.__livePolylines.add(this); return onAdd.call(this, map); };
+    proto.onRemove = function (map) { window.__livePolylines.delete(this); return onRemove.call(this, map); };
+  } });
+});
 const page = await ctx.newPage(); const errors = []; page.on('pageerror', e => errors.push(e.message));
 const view = () => page.evaluate(() => document.querySelector('#app').dataset.view);
 const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
@@ -32,11 +42,18 @@ ok('result no overflow', await overflow() <= 0); await shot('02-result-toilet');
 await page.click('[data-action="go"]'); await page.waitForFunction(() => document.querySelector('#app').dataset.view === 'guide');
 ok('arrow rotated immediately', /rotate/.test(await page.locator('#guide-arrow').getAttribute('style')));
 ok('straight label', /^直線 /.test(await page.locator('#guidance-distance').textContent()));
-await page.waitForFunction(() => !document.querySelector('#guide-walk').hidden || document.querySelector('#guide-timer-status').textContent.includes('需要'), null, { timeout: 30000 }).catch(() => {});
-ok('walk route', await page.locator('#guide-walk').isVisible(), await page.locator('#guide-walk').textContent());
-ok('countdown in guide', await page.locator('#guide-timer [data-hl-countdown]').isVisible().catch(() => false));
-ok('guide no overflow', await overflow() <= 0); await shot('03-guide-toilet-countdown');
-await page.locator('#guide-timer [data-hl-action="start-timer"]').click().catch(() => {}); await page.waitForTimeout(1500); await shot('04-guide-toilet-running');
+await page.waitForFunction(() => document.querySelector('#guide-timer [data-kind]')?.dataset.kind !== 'pending', null, { timeout: 30000 }).catch(() => {});
+const walkValue = () => page.evaluate(() => { const el = document.querySelector('#guide-timer .hl-walk-distance'); return el && { kind: el.closest('[data-kind]').dataset.kind, text: el.textContent, color: getComputedStyle(el).color, tool: document.querySelector('#guide-timer').textContent }; });
+const walk = await walkValue();
+ok('walk distance in guide tool', walk?.kind === 'walk' && /步行距離/.test(walk.tool) && /^[\d.]+ (公尺|km)$/.test(walk.text), JSON.stringify(walk));
+ok('walk distance is brown (secondary-800)', walk?.color === 'rgb(116, 82, 27)', walk?.color);
+ok('no countdown in guide', (await page.locator('#guide-timer [data-hl-countdown], #guide-timer [data-hl-action$="-timer"]').count()) === 0 && !/\d{2}:\d{2}/.test(walk?.tool || ''));
+const straightLines = target => target.evaluate(() => [...window.__livePolylines].filter(line => line.options.dashArray === '7 9').length);
+ok('no straight line in guide', await straightLines(page) === 0);
+ok('guide no overflow', await overflow() <= 0); await shot('03-guide-toilet-walk');
+await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
+const darkWalk = await walkValue(); ok('dark walk distance uses secondary-400', darkWalk?.color === 'rgb(240, 200, 124)', darkWalk?.color); await shot('04-guide-toilet-walk-dark');
+await page.evaluate(() => { document.documentElement.dataset.theme = 'light'; });
 await page.click('#exit-guidance'); await page.waitForFunction(() => document.querySelector('#app').dataset.view === 'result');
 ok('back to result', true);
 await page.click('#result-body [data-action="speak"]'); await page.waitForSelector('.speak-card'); await page.waitForTimeout(500);
@@ -46,6 +63,7 @@ ok('card closed back to result', await view() === 'result');
 await page.click('#result-body [data-action="map"]'); await page.waitForFunction(() => document.querySelector('#app').dataset.view === 'map');
 await page.waitForTimeout(500);
 ok('map has radar entry', await page.locator('#highlight-map-launch').isVisible()); ok('selected card open', await page.locator('#selected-card').isVisible());
+ok('no straight line on map with a selection', await straightLines(page) === 0);
 ok('map no overflow', await overflow() <= 0); await shot('06-map-from-result');
 await page.click('#selected-card [data-action="speak"]'); await page.waitForSelector('.speak-card'); await page.waitForTimeout(500); await shot('07-map-speak-card');
 const back = async () => { await page.goBack({ waitUntil: 'commit' }).catch(() => {}); await page.waitForTimeout(400); };
@@ -77,7 +95,7 @@ await page.click('#result-back'); await page.waitForTimeout(300);
 const g = await ctx.newPage(); g.on('pageerror', e => errors.push(e.message));
 await g.goto(base); await g.waitForFunction(() => /±/.test(document.querySelector('#home-location').textContent));
 await g.click('[data-urgency="toilet"]'); await g.waitForSelector('[data-result-id]'); await g.click('[data-action="go"]');
-await g.waitForFunction(() => !document.querySelector('#guide-walk').hidden, null, { timeout: 30000 });
+await g.waitForFunction(() => document.querySelector('#guide-timer [data-kind="walk"]'), null, { timeout: 30000 });
 const firstStore = await g.evaluate(() => history.state.storeId);
 await g.click('#guidance-resources'); await g.waitForSelector('#sheet-body .resource-row'); await g.locator('#sheet-body .resource-row').nth(2).click();
 await g.waitForTimeout(300);

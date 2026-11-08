@@ -139,14 +139,14 @@ body.hl-active #panel-content > :not(#highlight-host):not(.explore-footer) { dis
 :root[data-theme='dark'] .hl-primary { color: var(--tp-grayscale-900); }
 @media (max-width: 350px) { .hl-card { padding: 13px; } .hl-hero, .hl-gold-hero { gap: 12px; } .hl-radar-art { width: 66px; height: 66px; } .hl-hero-copy h3 { font-size: 18px; } .hl-water-hero { gap: 12px; } .hl-water-ball { width: 76px; height: 76px; } .hl-timer-copy > strong { font-size: 36px; } .hl-coin { width: 64px; height: 64px; font-size: 36px; } .hl-price-rate { font-size: 24px; } .hl-resource-row { gap: 6px; } .hl-resource-icon { width: 30px; height: 32px; } .hl-resource-distance { font-size: 12px; } }
 @media (prefers-reduced-motion: reduce) { .hl-radar-art::after, .hl-pulse-marker > span, .hl-water-fill::before, .hl-coin { animation: none !important; } .hl-water-fill { transition: none; } }
-/* Guide 內的精簡工具：倒數與生存圈狀態，掛在 #guide-timer。 */
-.hl-guide-timer { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
-.hl-water-ball.hl-water-ball-small { width: 56px; height: 56px; border-width: 2px; }
-.hl-guide-copy { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
-.hl-guide-copy strong { font-size: 24px; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--tp-primary-700); }
-.hl-guide-copy span:not(.hl-eyebrow) { color: var(--muted); font-size: 12px; line-height: 1.45; }
-.hl-guide-actions { display: flex; flex-direction: column; gap: 6px; }
-.hl-guide-actions .hl-button { min-height: 38px; padding: 6px 12px; }
+/* Guide 內的精簡工具：廁所步行距離與生存圈狀態，掛在 #guide-timer。 */
+.hl-guide-walk { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.hl-guide-walk .hl-eyebrow { display: inline-flex; align-items: center; gap: 4px; }
+.hl-walk-distance { color: var(--text); font-size: 24px; font-weight: 600; line-height: 1.25; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.hl-guide-walk[data-kind='walk'] .hl-walk-distance { color: var(--tp-secondary-800); }
+:root[data-theme='dark'] .hl-guide-walk[data-kind='walk'] .hl-walk-distance { color: var(--tp-secondary-400); }
+.hl-guide-walk[data-kind='pending'] .hl-walk-distance { color: var(--muted); font-size: 16px; }
+.hl-guide-walk-caption { color: var(--muted); font-size: 12px; line-height: 1.45; }
 .hl-guide-battery { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .hl-guide-battery-copy { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-size: 14px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
 .hl-guide-battery .hl-button { flex-shrink: 0; min-height: 38px; }

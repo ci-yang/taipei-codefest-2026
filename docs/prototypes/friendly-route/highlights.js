@@ -121,21 +121,30 @@
       }
       syncAnimation();
     }
-    // guide 畫面內的精簡工具：廁所倒數沿用 app 注入的導引路線；充電顯示生存圈狀態。只寫 guideHost。
+    // guide 畫面內的精簡工具：廁所顯示 app 注入的導引步行距離；充電顯示生存圈狀態。只寫 guideHost。
     function renderGuide() {
       if (destroyed || !guideHost) return;
-      const toilet = guiding('toilet') && toiletStatus === 'ready' && toiletRoute && selected?.id === snapshot.selectedStore?.id;
+      const toilet = guiding('toilet') && Boolean(snapshot.selectedStore.services?.includes('toilet'));
       const charge = guiding('charge');
       guideHost.hidden = !(toilet || charge);
       if (toilet) {
-        const running = timer.status === 'running'; const estimate = math.toiletEstimate(toiletRoute.distanceM);
         guideHost.dataset.mode = 'toilet';
-        paintGuide(`<div class="hl-guide-timer"><div class="hl-water-ball hl-water-ball-small ${running ? 'is-running' : ''}" aria-hidden="true"><div class="hl-water-fill" style="height:${timer.total ? Math.max(0, timer.remaining / timer.total * 100) : 72}%"></div><span>${icon('toilet', 22)}</span></div><div class="hl-guide-copy"><span class="hl-eyebrow">預估步行倒數 · 約 ${esc(estimate.steps)} 步</span><strong data-hl-countdown>${timeLabel(timer.remaining)}</strong><span>${timer.status === 'finished' ? '估計時間到 · 尚未確認抵達' : running ? `倒數中${timer.speed > 1 ? ' · 20 倍展示' : ''}` : timer.status === 'paused' ? '已暫停' : '準備好了再開始'}</span></div><div class="hl-guide-actions">${running ? primary('pause-timer', '暫停') : primary('start-timer', timer.status === 'paused' ? '繼續' : '開始', timer.remaining > 0 ? '' : 'disabled')}${button('reset-timer', '重設')}</div></div><p class="hl-note">步長 0.7 m、每分鐘 100 步，由本機步行道路長度換算，不是計步器讀值；歸零只代表估計時間到。</p>`);
+        paintGuide(guideWalkHtml(snapshot.selectedStore));
       } else if (charge) {
         refreshBudget(); const percent = currentPercent();
         guideHost.dataset.mode = 'charge';
         paintGuide(`<div class="hl-guide-battery"><span class="hl-guide-battery-copy">${icon('charge', 18)}${budget?.active ? `生存圈：${manualBattery ? '試玩' : '裝置'} ${esc(percent)}% · 直線半徑上限 ${meters(budget.radiusM)}` : percent === null ? '裝置電量不可用 · 低於 20% 才顯示生存圈' : `電量 ${esc(percent)}% · 低於 20% 才顯示生存圈`}</span>${manualBattery ? button('device-battery', '使用裝置電量', battery ? '' : 'disabled') : button('manual-battery', '試玩 18%')}</div><p class="hl-note">保留 5% · 每小時耗電 ${drain} 個百分點 · 步速 4 km/h。不是實測續航，也不是道路可達範圍。</p>`);
       } else { paintGuide(''); delete guideHost.dataset.mode; }
+    }
+    // 路線失敗才退回直線，並在數字前標「直線」，不把直線冒充步行距離。
+    function guideWalkHtml(store) {
+      const route = snapshot.guideRoute; const status = snapshot.guideStatus;
+      const label = value => value >= 1000 ? `${(value / 1000).toFixed(1)} km` : `${Math.round(value)} 公尺`;
+      let kind = 'walk'; let value; let caption;
+      if (route) { value = label(route.distanceM); caption = `約 ${Math.ceil(route.estimateMinutes)} 分鐘 · 約 ${math.toiletEstimate(route.distanceM).steps} 步（步長 0.7 m 換算）· 本機路網估算，未驗證入口`; }
+      else if (['error', 'unavailable'].includes(status)) { kind = 'straight'; value = valid(snapshot.position) && valid(store) ? `直線 ${label(distance(snapshot.position, store))}` : '需要定位'; caption = '步行路線無法計算，改顯示直線距離（非步行路線）'; }
+      else { kind = 'pending'; value = '步行距離計算中'; caption = status === 'waiting-location' ? '等待定位後以本機路網計算' : '本機步行路網計算中'; }
+      return `<div class="hl-guide-walk" data-kind="${kind}"><span class="hl-eyebrow">${icon('toilet', 16)}到廁所的步行距離</span><strong class="hl-walk-distance">${esc(value)}</strong><span class="hl-guide-walk-caption">${esc(caption)}</span></div>`;
     }
     // 同內容不重寫，避免地圖移動觸發的 update() 在點擊途中換掉按鈕。
     function paintGuide(html) { if (html === lastGuideHtml) return; lastGuideHtml = html; guideHost.innerHTML = html; }
@@ -291,11 +300,9 @@
       if (destroyed) return;
       if (timer.status === 'running') {
         timer.remaining = remainingSeconds();
-        if (timer.remaining <= 0) { timer.status = 'finished'; if (active() && mode === 'toilet') render(); renderGuide(); }
+        if (timer.remaining <= 0) { timer.status = 'finished'; if (active() && mode === 'toilet') render(); }
         const label = host.querySelector('#hl-countdown'); if (label) label.textContent = timeLabel(timer.remaining);
         const fill = host.querySelector('.hl-water-fill'); if (fill) fill.style.height = `${timer.total ? timer.remaining / timer.total * 100 : 0}%`;
-        const guideLabel = guideHost?.querySelector('[data-hl-countdown]'); if (guideLabel) guideLabel.textContent = timeLabel(timer.remaining);
-        const guideFill = guideHost?.querySelector('.hl-water-fill'); if (guideFill) guideFill.style.height = `${timer.total ? timer.remaining / timer.total * 100 : 0}%`;
       }
       if (gold.running && active() && mode === 'gold') { const label = host.querySelector('#hl-gold-total'); const info = priceInfo(); if (label && info?.result) label.textContent = money(goldElapsed() * info.result.perSecond, 2); }
     }

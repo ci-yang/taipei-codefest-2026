@@ -342,7 +342,6 @@ button.urgency-button:active:not(:disabled) { transform: none; }
 .guide-arrow .app-icon { width: 52px; height: 52px; }
 .guide-arrow[data-ready='false'] { background: var(--surface-raised); color: var(--muted); box-shadow: none; }
 .guide-walk { margin-top: 4px; color: var(--accent); font-size: 14px; font-weight: 600; line-height: 1.45; }
-.guide-timer-status { padding: 10px 14px; border-radius: 16px; background: var(--surface); box-shadow: var(--shadow); color: var(--muted); font-size: 14px; font-weight: 600; line-height: 1.5; }
 .guide-timer { padding: 12px 14px; border-radius: 24px; background: var(--surface); box-shadow: var(--shadow); border: 1px solid var(--line); }
 .guidance-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .guidance-main { display: flex; align-items: center; gap: 12px; }
