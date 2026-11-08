@@ -78,14 +78,14 @@ API 打不到 data.taipei 時重試一次，失敗就沿用上次整理好的結
 |---|---|---|---|---|
 | 臺北市社會救助補助項目 | 臺北市政府社會局 | 政府資料開放授權條款－第1版 | <https://data.gov.tw/dataset/129839>（API 取自 data.taipei，resource id `549a3347-df6e-4bed-b818-368210d01544`） | 否 |
 | 官方網頁整理 15 項（序號 201～215，明細見下表） | 各主管機關官方網頁、法規或公告，本隊人工整理 | 依各網站「政府網站資料開放宣告」 | 見下表 | 否，非 data.gov.tw 資料集，畫面標「官方網頁整理」 |
-| 臺北市政府台北服務通申辦服務及承辦單位資訊（補助類 115 項，序號 301～415） | 臺北市政府研究發展考核委員會 | 政府資料開放授權條款－第1版 | <https://data.gov.tw/dataset/157468>（CSV 2026-11-08 下載的靜態快照，執行期不連線） | 否，畫面標「台北服務通」；資料集沒有資格與金額欄位，**未依四題比對** |
+| 臺北市政府台北服務通申辦服務及承辦單位資訊（補助類 115 項，序號 301～415） | 臺北市政府研究發展考核委員會 | 政府資料開放授權條款－第1版 | <https://data.gov.tw/dataset/157468>（CSV 2026-11-08 下載的靜態快照，執行期不連線） | 否，畫面標「台北服務通」；資料集沒有資格與金額欄位：其中 20 項另依官方原文補上資格條件後照四題比對（明細見下表），其餘 95 項**未依四題比對** |
 | 新生兒育兒津貼、青年租屋補貼、青年職涯探索補助（序號 101～103） | 本隊示範 | — | — | **模擬資料**：名稱、條件、文件、承辦單位都是示範值，畫面上也會標示 |
 
 清單共 143 項，順序是開放資料 10 項、官方網頁整理 15 項、模擬資料 3 項、台北服務通 115 項。卡片與詳情的「實際補助」只照官方原文顯示，查不到可核對的金額就不顯示。
 
-台北服務通 115 項是從資料集 1,681 筆案件中，取名稱含補助、津貼、減免、扶助、救助、獎勵金、慰問金的個人申請案件，排除停收 9 項、雇主或團體申請 20 項、與上面 25 項重複的 18 項（明細在 `apps/newapp-api/src/data/catalog-subsidies.json` 的 `meta.excluded`）。結果頁把它們放在最後的摺疊區「台北服務通其他服務 N 項（未依四題比對）」，不進可能符合。
+台北服務通 115 項是從資料集 1,681 筆案件中，取名稱含補助、津貼、減免、扶助、救助、獎勵金、慰問金的個人申請案件，排除停收 9 項、雇主或團體申請 20 項、與上面 25 項重複的 18 項（明細在 `apps/newapp-api/src/data/catalog-subsidies.json` 的 `meta.excluded`）。其中 20 項依官方原文補上資格條件（`apps/newapp-api/src/data/catalog-enriched.json`，見下表），照四題進可能符合或不符合；其餘 95 項放在結果頁最後的摺疊區「台北服務通其他服務 95 項（未依四題比對）」，不進可能符合。示範情境的可能符合數依序為 23、28、33 項。
 
-結果頁的「估算可領金額」是估算：只加總可能符合、且官方原文有明確金額的項目，月額 × 12、每學期金額 × 2、一次性金額算一次；核心資格四題沒問到（例如要有新生兒、原住民身分）或金額依個案核定的項目不加總，畫面列出未計入幾項。每條算法的數字都必須逐字出現在原文（`apps/newapp-web/src/lib/estimate.ts`，測試對原文檢查）。開放資料的收入門檻是資料集原值（舊年度），官方網頁整理的門檻年度依各來源頁（多為 115 年度）。整理檔在 `apps/newapp-api/src/data/`，依據見 [`docs/DECISIONS.md`](docs/DECISIONS.md) D14、D15。
+結果頁的「估算可領金額」是估算：只加總可能符合、且官方原文有明確金額的項目，月額 × 12、每學期金額 × 2、一次性金額算一次；核心資格四題沒問到（例如要有新生兒、原住民身分）或金額依個案核定的項目不加總，畫面列出未計入幾項。每條算法的數字都必須逐字出現在原文（`apps/newapp-web/src/lib/estimate.ts`，測試對原文檢查）。開放資料的收入門檻是資料集原值（舊年度），官方網頁整理的門檻年度依各來源頁（多為 115 年度）。整理檔在 `apps/newapp-api/src/data/`，依據見 [`docs/DECISIONS.md`](docs/DECISIONS.md) D14、D15、D16。
 
 **官方網頁整理 15 項**（「實際補助」原文所在頁；查證日都是 2026-11-08）
 
@@ -106,6 +106,31 @@ API 打不到 data.taipei 時重試一次，失敗就沿用上次整理好的結
 | 213 | 臺北市兒童醫療補助 | 臺北市 12 區健康服務中心（第 3 類至戶政事務所） | <https://health.gov.taipei/News_Content.aspx?n=232AD545CBF028A7&s=AD1271100D029C67&sms=D8A8AF6A9CFCB149> | 2026-11-08 |
 | 214 | 臺北市好孕 2U 孕婦乘車補助 | 好孕 2U 合作醫療院所、健康服務中心、區公所社會課、社福中心，或台北通線上申請 | <https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&s=79FC4665DF0CABCD&sms=87415A8B9CE81B16> | 2026-11-08 |
 | 215 | 中低收入老人特別照顧津貼 | 臺北市政府社會局各區老人服務中心 | <https://dosw.gov.taipei/cp.aspx?n=3C3D1F78D6280694> | 2026-11-08 |
+
+**台北服務通補上資格條件的 20 項**（資格條件與「實際補助」原文所在頁；申請連結仍是各案件頁 `https://service.taipei/case-detail/<案件編號>`）
+
+| 序號 | 補助 | 承辦機關 | 條件原文 | 查證日 |
+|---|---|---|---|---|
+| 304 | 中低收入老人假牙補助 | 社會局 | <https://dosw.gov.taipei/cp.aspx?n=504CCD746B074DAE> | 2026-11-08 |
+| 305 | 臺北市弱勢兒童及少年醫療補助 | 社會局 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL067608> | 2026-11-08 |
+| 307 | 協助中低收入老人修繕住屋補助 | 社會局 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL059221> | 2026-11-08 |
+| 308 | 身心障礙者承租停車位租金補助 | 社會局 | <https://dosw.gov.taipei/cp.aspx?n=4B447000B62AC93C> | 2026-11-08 |
+| 309 | 發展遲緩兒童早期療育補助 | 社會局 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL077603> | 2026-11-08 |
+| 311 | 老人收容安置補助 | 社會局 | <https://service.taipei/case-detail/AI025> | 2026-11-08 |
+| 313 | 危機家庭兒童及少年緊急生活扶助 | 社會局 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL037389> | 2026-11-08 |
+| 314 | 臨時看護補助 | 社會局 | <https://dosw.gov.taipei/cp.aspx?n=0EADA59EE328427A> | 2026-11-08 |
+| 315 | 弱勢家庭兒童及少年緊急生活扶助 | 社會局 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL039642> | 2026-11-08 |
+| 318 | 協力照顧補助 | 社會局 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL089237> | 2026-11-08 |
+| 320 | 低收入戶及受保護安置市民喪葬補助 | 社會局 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL002888> | 2026-11-08 |
+| 323 | 04、臺北市失業勞工子女就學費用補助 | 勞動局 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL048225> | 2026-11-08 |
+| 330 | 臺北市身心障礙者醫療輔具及醫療費用補助申請 | 衛生局 | <https://service.taipei/case-detail/AL073> | 2026-11-08 |
+| 331 | 臺北市氣切個案進住照護機構費用補助申請 | 衛生局 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL025202> | 2026-11-08 |
+| 332 | 助孕生殖「醫療性凍卵」補助 | 衛生局 | <https://service.taipei/case-detail/AL087> | 2026-11-08 |
+| 333 | 助孕生殖「人工生殖(試管嬰兒)加碼」補助 | 衛生局 | <https://service.taipei/case-detail/AL088> | 2026-11-08 |
+| 379 | 申請低收入戶(無親屬)喪葬補助 | 殯葬處 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL002888> | 2026-11-08 |
+| 384 | 臺北市家庭暴力被害人補助 | 家防中心 | <https://service.taipei/case-detail/CV003> | 2026-11-08 |
+| 410 | 臺北市青年留學生就學貸款補助 | 青年局 | <https://laws.gov.taipei/Law/LawSearch/LawArticleContent/FL060186> | 2026-11-08 |
+| 412 | 臺北市青年實習津貼 | 青年局 | <https://service.taipei/case-detail/PO004> | 2026-11-08 |
 
 **開放資料 10 項的「實際補助」原文出處**（資料集本身沒有金額欄位）
 
