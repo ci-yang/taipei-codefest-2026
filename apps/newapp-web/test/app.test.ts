@@ -65,6 +65,10 @@ describe('外框', () => {
     expect(wrapper.find('[data-test="app-header"]').exists()).toBe(true);
     expect(wrapper.find('[data-test="page"]').exists()).toBe(true);
     expect(document.querySelector('.bnav, [data-test="bottom-nav"]')).toBeNull();
+    // 2026-11-08 會員頭像與會員面板已移除，頂列右側只有書籤
+    expect(wrapper.find('[data-test="btn-avatar"]').exists()).toBe(false);
+    expect(wrapper.find('[data-test="member-panel"]').exists()).toBe(false);
+    expect(wrapper.find('[data-test="btn-favorites"]').exists()).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/api/v1/subsidies');
   });

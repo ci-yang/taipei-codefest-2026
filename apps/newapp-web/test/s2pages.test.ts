@@ -100,26 +100,6 @@ describe('模擬資料、無符合、清除、示範情境（W2、W4）', () => 
     expect(cardNos(wrapper, 'no')).toHaveLength(13);
   });
 
-  it('[SUBS-R20][SUBS-R27] 會員面板清除填寫答案：回試算頁，身分收入清空，年齡與戶籍立刻帶回台北通值', async () => {
-    installFakeBridge(DEMO_ACCOUNT);
-    const { wrapper, router, q } = await mountApp(fixtureWithMock);
-    await settle();
-    await answerAll(wrapper, { band: '65+', residency: false, identities: ['dis'], income: 4 });
-    expect(router.currentRoute.value.name).toBe('result');
-    await wrapper.get('[data-test="btn-avatar"]').trigger('click');
-    await wrapper.get('[data-test="mp-clear"]').trigger('click');
-    await settle();
-    expect(router.currentRoute.value.name).toBe('calc');
-    expect(q.answersState.value).toBe('empty');
-    expect(inAge(wrapper)).toBe(DEMO_BAND);
-    expect(inRes(wrapper)).toBe('true');
-    expect(wrapper.find('[data-test="age-tp"]').exists()).toBe(true);
-    expect(wrapper.get('[data-test="id-dis"]').attributes('aria-checked')).toBe('false');
-    expect(q.answers.value.incomeBracket).toBeNull();
-    expect(wrapper.get('[data-test="toast"]').text()).toBe('已清除填寫答案');
-    expect(q.list.value?.items).toHaveLength(13);
-  });
-
   it.each([
     [0, 2],
     [1, 2],
