@@ -1,9 +1,14 @@
 <script setup lang="ts">
-/** 卡片被揪起的放射皺摺（spec 7.9、ADR-017）；形狀逐字取自原型 #card-age > .wrinkles（補助通改版：抓首頁年齡卡），動作在 style.css clothWrinkle；暗紋 2026-11-08 改 primary-800／900 配淺色主卡 */
+/**
+ * 卡片被揪起的放射皺摺（spec 7.9、ADR-017）；形狀逐字取自原型 #card-age > .wrinkles，暗紋 primary-800／900 配淺色主卡。
+ * v3：抓首頁白色大卡右上 1/3。x 是抓點在卡片寬度的位置（CSS 長度，預設 50%）；放射中心（viewBox 0,0）對準 (x, 卡片上緣 +6px)。
+ * 父層要 position: relative。動作在本檔 scoped style 的 clothWrinkle。
+ */
+const props = withDefaults(defineProps<{ x?: string }>(), { x: '50%' });
 </script>
 
 <template>
-  <svg class="wrinkles" data-test="wrinkles" viewBox="-170 -30 340 260" aria-hidden="true">
+  <svg class="wrinkles" data-test="wrinkles" viewBox="-170 -30 340 260" aria-hidden="true" :style="{ left: `calc(${props.x} - 170px)` }">
       <defs>
         <radialGradient id="wFade" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="175"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
         <mask id="wMask" maskUnits="userSpaceOnUse" x="-170" y="-30" width="340" height="260"><rect x="-170" y="-30" width="340" height="260" fill="url(#wFade)"/></mask>
@@ -17,3 +22,16 @@
       <ellipse cx="0" cy="4" rx="34" ry="18" fill="url(#wPinch)"/>
     </svg>
 </template>
+
+<style scoped>
+/* 340×260、viewBox 原點在 (170, 30)：top −24px 讓放射中心落在卡片上緣 +6px */
+.wrinkles { position: absolute; z-index: 2; left: calc(50% - 170px); top: -24px; width: 340px; height: 260px; pointer-events: none; opacity: 0; transform-origin: 170px 30px; animation: clothWrinkle 1.8s linear both; }
+/* 揪布：手指收攏時皺摺由抓點長出，上提最明顯，放開快速淡出 */
+@keyframes clothWrinkle {
+  0%, 32% { opacity: 0; transform: scale(.3); animation-timing-function: cubic-bezier(.3,0,.4,1); }
+  40% { opacity: .6; transform: scale(.72); animation-timing-function: cubic-bezier(.45,0,.55,1); }
+  60%, 66% { opacity: 1; transform: scale(1); animation-timing-function: cubic-bezier(.4,0,1,1); }
+  74%, 100% { opacity: 0; transform: scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) { .wrinkles { display: none; } }
+</style>

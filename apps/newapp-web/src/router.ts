@@ -1,23 +1,26 @@
 import { createRouter, createWebHistory, type RouteRecordRaw, type Router, type RouterHistory } from 'vue-router';
 import { useQuery } from '@/composables/useQuery';
 
-/** 結果頁需要送出過（已完成）；直接開網址或重新整理（答案已清空）時回首頁 */
+/** 結果頁需要送出過（已完成）；直接開網址或重新整理（答案已清空）時改到試算頁 */
 function requireCompleted() {
-  return useQuery().answersState.value === 'completed' ? true : { name: 'home' };
+  return useQuery().answersState.value === 'completed' ? true : { name: 'calc' };
 }
 
 /**
- * 補助通改版（sa-3-s1.md、sa-3-s2.md）：題目併進首頁表單（拿掉 /question）、詳細資訊改彈窗（拿掉 /detail/:no），
- * 加我的珍藏 /favorites。
+ * 補助通 v3：首頁、試算（表單）、結果、全部補助、我的珍藏、資料來源；詳細資訊是彈窗（useDetail 的 history state），
+ * 不另開路由。沒有底部導覽列。
  */
 export const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: () => import('@/pages/HomePage.vue') },
+  { path: '/calc', name: 'calc', component: () => import('@/pages/CalculatorPage.vue') },
   {
     path: '/result',
     name: 'result',
     component: () => import('@/pages/ResultPage.vue'),
     beforeEnter: requireCompleted,
   },
+  // 全部補助：不需答案，有結果時帶判定
+  { path: '/all', name: 'all', component: () => import('@/pages/AllSubsidiesPage.vue') },
   // 我的珍藏（W8）：不需答案，沒送出時列「尚未比對」
   { path: '/favorites', name: 'favorites', component: () => import('@/pages/FavoritesPage.vue') },
   // 資料來源頁（spec 7.6、sa-3-s2.md W5）：不需答案，清單沒載到時頁面自己顯示無法取得
